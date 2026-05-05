@@ -19,8 +19,8 @@ const AXIS_LENGTH = min(animation.width, animation.height) * 0.7
 
 export type transformationMatrix4x4Type = Tuple<Tuple<number, 4>, 4>
 
-// Use ĵ as [0, -1, 0, 0] so the Y-axis in completely inverted, pointing up.
 export const DEFAULT_TRANSFORMATION_MATRIX: transformationMatrix4x4Type =
+  // Use ĵ as [0, -1, 0, 0] so the Y-axis in completely inverted, pointing up.
   // prettier-ignore
   [
   // ȋ   ĵ  k̂  (w)
