@@ -127,6 +127,7 @@ export const translate: TranslateOverloadedSignatures = (
   ) as transformationMatrix4x4Type
 }
 
+// https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221OL6ezsueUbeXeq3_HvOMHkaVCwXvLuDK%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 // export const rotate = (angle: number, axis: Vector) => {}
 
 export const rotateX = (xAngle: number) => {
