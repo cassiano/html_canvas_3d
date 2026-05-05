@@ -19,8 +19,6 @@ export class SphereMover extends Mover3D {
     public radius: number,
   ) {
     super(mass, x, y, z)
-
-    this.radius = radius
   }
 
   distanceFromCenterToBorder() {

@@ -18,8 +18,6 @@ export class CubeMover extends Mover3D {
     public size: number,
   ) {
     super(mass, x, y, z)
-
-    this.size = size
   }
 
   distanceFromCenterToBorder() {
