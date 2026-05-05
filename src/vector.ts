@@ -69,11 +69,14 @@ export class Vector {
   }
 
   div(scalarValue: number) {
+    if (scalarValue === 0)
+      throw new Error('Sorry, but division by 0 is not supported')
+
     return this.mult(1 / scalarValue)
   }
 
   toArray() {
-    return [this.x, this.y, this.z]
+    return [...this]
   }
 
   toString() {
@@ -81,7 +84,7 @@ export class Vector {
   }
 
   to4dMatrix() {
-    return [[this.x], [this.y], [this.z], [1]]
+    return [[this.x], [this.y], [this.z], [1]] // 4x1 matrix.
   }
 
   static create(x: number, y: number, z?: number) {
@@ -99,5 +102,5 @@ export class Vector {
   }
 }
 
-export const $v = Vector.create // Shorter synonym for `createVector()`.
-export const createVector = $v
+export const $v = Vector.create
+export const createVector = $v // Synonym for `$v`, as used by p5.js.
