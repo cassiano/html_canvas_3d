@@ -5,7 +5,7 @@ import {
 } from './constants.ts'
 import { $v, Vector } from './vector.ts'
 import { Tuple } from './utility_types.ts'
-import { cos, min, multiplyMatrices, PI, sin, timesForEach } from './util.ts'
+import { cos, min, PI, sin, timesForEach } from './util.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -382,4 +382,35 @@ export const render3dAxes = () => {
   // Z-axis
   line(zNeg, zPos, { color: 'blue' })
   point(zPos, { color: 'blue', size: 12 })
+}
+
+export const multiplyMatrices = (
+  leftMatrix: number[][],
+  rightMatrix: number[][],
+): number[][] => {
+  const colsLeft = leftMatrix[0].length
+  const colsRight = rightMatrix[0].length
+  const rowsLeft = leftMatrix.length
+  const rowsRight = rightMatrix.length
+
+  if (colsLeft !== rowsRight)
+    throw new Error(
+      `Number of columns from left matrix (${colsLeft}) must match number of rows from right one (${rowsRight})`,
+    )
+
+  const result: number[][] = []
+
+  for (let row = 0; row < rowsLeft; row++) {
+    result[row] = []
+
+    for (let col = 0; col < colsRight; col++) {
+      result[row][col] = 0
+
+      // colsLeft = rowsRight
+      for (let i = 0; i < colsLeft; i++)
+        result[row][col] += leftMatrix[row][i] * rightMatrix[i][col]
+    }
+  }
+
+  return result
 }
