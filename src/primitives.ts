@@ -304,7 +304,7 @@ export const cube = (
   { color = 'gray', width = 1 } = {},
 ) => box(center, size, size, size, { color, width })
 
-export const circle2d = (
+export const circleXY = (
   radius: number,
   { color = 'gray', width = 1 } = {},
 ) => {
@@ -332,7 +332,7 @@ export const sphere = (
     timesForEach(SPHERE_LONGITUDE_LINES, () => {
       rotateY(PI / SPHERE_LONGITUDE_LINES)
 
-      circle2d(radius, { color, width })
+      circleXY(radius, { color, width })
     })
 
     // Draw a series of concentric 2D circles as latitude lines.
@@ -344,7 +344,7 @@ export const sphere = (
       isolateTransformations(() => {
         translate(0, radius * cos(theta), 0)
         rotateX(PI / 2)
-        circle2d(radius * sin(theta), { color, width })
+        circleXY(radius * sin(theta), { color, width })
       })
     }
   })
