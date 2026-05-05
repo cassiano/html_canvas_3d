@@ -127,7 +127,7 @@ export const translate: TranslateOverloadedSignatures = (
   ) as transformationMatrix4x4Type
 }
 
-export const rotate = (angle: number, axis: Vector) => {}
+// export const rotate = (angle: number, axis: Vector) => {}
 
 export const rotateX = (xAngle: number) => {
   if (xAngle === 0) return
