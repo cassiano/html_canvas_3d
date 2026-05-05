@@ -188,15 +188,13 @@ export const project3dTo2d = ({ x, y, z }: Vector) => {
 
   // If the point is behind the camera or exactly on the lens,
   // we return null so the renderer knows to skip it.
-  if (divisor <= 0) return null
+  if (divisor <= 0) return
 
   // Standard perspective: (coord * focalLength) / (z + focalLength)
   return $v((x * focalLength) / divisor, (y * focalLength) / divisor)
 }
 
-export const centralize = (point: Vector | null) => {
-  if (point) return point.clone().add(SCREEN_CENTER)
-}
+export const centralize = (point?: Vector) => point?.clone().add(SCREEN_CENTER)
 
 export const transform = (point: Vector) => {
   // Notice that a 4x4 matrix multiplied by a 4x1 vector results in another 4x1 vector.
@@ -212,7 +210,8 @@ export const transform = (point: Vector) => {
 export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
   const projected = centralize(project3dTo2d(transform(coords)))
 
-  if (!projected) return // Skip rendering if behind camera
+  // Skip rendering if behind camera.
+  if (!projected) return
 
   ctx.fillStyle = color
   ctx.fillRect(projected.x - size / 2, projected.y - size / 2, size, size)
@@ -226,9 +225,8 @@ export const line = (
   const projectedA = centralize(project3dTo2d(transform(pointA)))
   const projectedB = centralize(project3dTo2d(transform(pointB)))
 
-  // If either point is behind the camera, skip the line.
-  // (In advanced engines, you'd "clip" the line at the Z-boundary,
-  // but skipping is enough to stop the "random lines").
+  // If either point is behind the camera, skip the line. (In advanced engines, you'd "clip" the
+  // line at the Z-boundary, but skipping is enough to stop the "random lines").
   if (!projectedA || !projectedB) return
 
   ctx.strokeStyle = color
