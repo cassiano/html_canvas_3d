@@ -1,6 +1,6 @@
+import { ORIGIN } from './constants'
 import { Mover3D } from './mover_3d'
 import {
-  cube,
   isolateTransformations,
   rotateX,
   rotateY,
@@ -8,7 +8,6 @@ import {
   sphere,
   translate,
 } from './primitives'
-import { $v } from './vector'
 
 export class SphereMover extends Mover3D {
   constructor(
@@ -37,8 +36,8 @@ export class SphereMover extends Mover3D {
       if (yAngle !== undefined) rotateY(yAngle)
       if (zAngle !== undefined) rotateZ(zAngle)
 
-      sphere($v(0, 0, 0), this.radius, { color: '#A4E', width: 1 })
-      cube($v(0, 0, 0), this.radius * 0.7, { color: 'black', width: 1.5 })
+      sphere(ORIGIN, this.radius, { color: 'rgb(161, 12, 12)', width: 1 })
+      // cube(ORIGIN, this.radius * 2 * 0.7, { color: 'black', width: 2 })
     })
   }
 }

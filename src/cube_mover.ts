@@ -1,3 +1,4 @@
+import { ORIGIN } from './constants'
 import { Mover3D } from './mover_3d'
 import {
   cube,
@@ -7,7 +8,6 @@ import {
   rotateZ,
   translate,
 } from './primitives'
-import { $v } from './vector'
 
 export class CubeMover extends Mover3D {
   constructor(
@@ -36,7 +36,7 @@ export class CubeMover extends Mover3D {
       if (yAngle !== undefined) rotateY(yAngle)
       if (zAngle !== undefined) rotateZ(zAngle)
 
-      cube($v(0, 0, 0), this.size, { color: 'orange' })
+      cube(ORIGIN, this.size, { color: 'orange' })
     })
   }
 }

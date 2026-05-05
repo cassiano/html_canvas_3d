@@ -1,4 +1,5 @@
 import {
+  CIRCLE_SEGMENTS,
   SCREEN_Z_DISTANCE,
   SPHERE_LATITUDE_LINES,
   SPHERE_LONGITUDE_LINES,
@@ -253,14 +254,14 @@ export const box = (
   { color = 'gray', width = 1 } = {},
 ) => {
   const vertices = [
-    $v(xSize, ySize, zSize),
-    $v(xSize, ySize, -zSize),
-    $v(xSize, -ySize, -zSize),
-    $v(xSize, -ySize, zSize),
-    $v(-xSize, ySize, zSize),
-    $v(-xSize, ySize, -zSize),
-    $v(-xSize, -ySize, -zSize),
-    $v(-xSize, -ySize, zSize),
+    $v(xSize / 2, ySize / 2, zSize / 2),
+    $v(xSize / 2, ySize / 2, -zSize / 2),
+    $v(xSize / 2, -ySize / 2, -zSize / 2),
+    $v(xSize / 2, -ySize / 2, zSize / 2),
+    $v(-xSize / 2, ySize / 2, zSize / 2),
+    $v(-xSize / 2, ySize / 2, -zSize / 2),
+    $v(-xSize / 2, -ySize / 2, -zSize / 2),
+    $v(-xSize / 2, -ySize / 2, zSize / 2),
   ]
 
   const connections = [
@@ -309,7 +310,7 @@ export const circleXY = (
 ) => {
   let previousPoint: Vector | undefined
 
-  for (let theta = 0; theta <= 2 * PI; theta += (2 * PI) / 72) {
+  for (let theta = 0; theta <= 2 * PI; theta += (2 * PI) / CIRCLE_SEGMENTS) {
     const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
 
     if (previousPoint !== undefined)
