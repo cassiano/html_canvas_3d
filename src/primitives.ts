@@ -253,15 +253,15 @@ export const planeXY = (
 ) => {
   box(center, width, height, 0, { color, width: lineWidth })
 
-  const topLeft = center.clone().sub($v(width / 2, height / 2, 0))
+  const bottomLeft = center.clone().sub($v(width / 2, height / 2, 0))
 
   // TODO: use polygonal meshes (triangles) to render textures.
   timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
     line(
-      topLeft
+      bottomLeft
         .clone()
         .add($v((width / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0, 0)),
-      topLeft
+      bottomLeft
         .clone()
         .add($v((width / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), height, 0)),
       { color, width: lineWidth },
@@ -270,10 +270,10 @@ export const planeXY = (
 
   timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
     line(
-      topLeft
+      bottomLeft
         .clone()
         .add($v(0, (height / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0)),
-      topLeft
+      bottomLeft
         .clone()
         .add($v(width, (height / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0)),
       { color, width: lineWidth },
@@ -289,15 +289,15 @@ export const planeXZ = (
 ) => {
   box(center, width, 0, depth, { color, width: lineWidth })
 
-  const topLeft = center.clone().sub($v(width / 2, 0, depth / 2))
+  const bottomLeft = center.clone().sub($v(width / 2, 0, depth / 2))
 
   // TODO: use polygonal meshes (triangles) to render textures.
   timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
     line(
-      topLeft
+      bottomLeft
         .clone()
         .add($v((width / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0, 0)),
-      topLeft
+      bottomLeft
         .clone()
         .add($v((width / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0, depth)),
       { color, width: lineWidth },
@@ -306,10 +306,10 @@ export const planeXZ = (
 
   timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
     line(
-      topLeft
+      bottomLeft
         .clone()
         .add($v(0, 0, (depth / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1))),
-      topLeft
+      bottomLeft
         .clone()
         .add($v(width, 0, (depth / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1))),
       { color, width: lineWidth },
@@ -325,15 +325,15 @@ export const planeYZ = (
 ) => {
   box(center, 0, height, depth, { color, width: lineWidth })
 
-  const topLeft = center.clone().sub($v(0, height / 2, depth / 2))
+  const bottomLeft = center.clone().sub($v(0, height / 2, depth / 2))
 
   // TODO: use polygonal meshes (triangles) to render textures.
   timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
     line(
-      topLeft
+      bottomLeft
         .clone()
         .add($v(0, (height / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0)),
-      topLeft
+      bottomLeft
         .clone()
         .add($v(0, (height / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), depth)),
       { color, width: lineWidth },
@@ -342,10 +342,10 @@ export const planeYZ = (
 
   timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
     line(
-      topLeft
+      bottomLeft
         .clone()
         .add($v(0, 0, (depth / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1))),
-      topLeft
+      bottomLeft
         .clone()
         .add($v(0, height, (depth / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1))),
       { color, width: lineWidth },
