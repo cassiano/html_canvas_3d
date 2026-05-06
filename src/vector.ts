@@ -95,6 +95,14 @@ export class Vector {
     )
   }
 
+  cross(anotherVector: Vector) {
+    return Vector.create(
+      this.y * anotherVector.z - this.z * anotherVector.y,
+      -(this.x * anotherVector.z - this.z * anotherVector.x),
+      this.x * anotherVector.y - this.y * anotherVector.x,
+    )
+  }
+
   dist(anotherVector: Vector) {
     return sqrt(
       (this.x - anotherVector.x) ** 2 +
@@ -119,15 +127,8 @@ export class Vector {
     return this.equals(Vector.create(1, 1, 1))
   }
 
-  cross(anotherVector: Vector) {
-    return Vector.create(
-      this.y * anotherVector.z - this.z * anotherVector.y,
-      -(this.x * anotherVector.z - this.z * anotherVector.x),
-      this.x * anotherVector.y - this.y * anotherVector.x,
-    )
-  }
-
   // Use the "Law of Cosines" to calculate the angle between the 2 vectors.
+  // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221gYM9JH1RKYt1t5jEUHob3QixN68SKmZd%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
   angleBetween(anotherVector: Vector) {
     const a = this.mag()
     const b = anotherVector.mag()
