@@ -64,53 +64,6 @@ const draw = () => {
   yAngle += deltaAngle
 }
 
-// let angle = 0
-
-// const draw = () => {
-//   // console.log({ millis, frameCount, fps })
-
-//   background('lightGray')
-//   rotateX(-PI / 9)
-//   rotateY(PI / 9)
-
-//   render3dAxes()
-
-//   // Green box.
-//   isolateTransformations(() => {
-//     scale(0.5)
-//     scale(0.5)
-
-//     box($v(0, 0, 0), 50, 25, 70, { color: 'green' })
-//   })
-
-//   // Blue box.
-//   isolateTransformations(() => {
-//     translate(100, -100, 0)
-//     translate(100, -100, 0)
-
-//     box($v(0, 0, 0), 50, 25, 70, { color: 'blue' })
-//   })
-
-//   // Red box.
-//   isolateTransformations(() => {
-//     rotateZ(angle / 2)
-//     rotateZ(angle / 2)
-//     translate(0, 150, 0)
-
-//     box($v(0, 0, 0), 50, 25, 70, { color: 'red' })
-//   })
-
-//   // Black box.
-//   isolateTransformations(() => {
-//     translate(250, 0, 0)
-//     rotateZ(angle)
-
-//     box($v(0, 0, 0), 50, 25, 70, { color: 'black' })
-//   })
-
-//   angle += 0.005
-// }
-
 const frame = (currentTime: number) => {
   // 1. Schedule the next check immediately
   requestAnimationFrame(frame)
@@ -146,7 +99,7 @@ const frame = (currentTime: number) => {
       frozenStats.millis = millis
     }
   } else if (!pausedTextDisplayed) {
-    text2d('PAUSED', $v(0, 0))
+    text2d('PAUSED', $v(0, 200))
 
     pausedTextDisplayed = true
   }

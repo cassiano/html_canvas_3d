@@ -98,7 +98,7 @@ export const scale: ScaleOverloadedSignatures = (
       [0,         vector.y, 0,        0],
       [0,         0,        vector.z, 0],
       [0,         0,        0,        1],
-    ],
+    ] as const,
   ) as transformationMatrix4x4Type
 }
 
@@ -124,7 +124,7 @@ export const translate: TranslateOverloadedSignatures = (
       [0, 1, 0, vector.y],
       [0, 0, 1, vector.z],
       [0, 0, 0, 1],
-    ],
+    ] as const,
   ) as transformationMatrix4x4Type
 }
 
@@ -143,7 +143,7 @@ export const rotateX = (xAngle: number) => {
       [0, cos(xAngle), -sin(xAngle), 0],
       [0, sin(xAngle),  cos(xAngle), 0],
       [0, 0,            0,           1],
-    ],
+    ] as const,
   ) as transformationMatrix4x4Type
 }
 
@@ -159,7 +159,7 @@ export const rotateY = (yAngle: number) => {
       [0,           1,  0,            0],
       [sin(yAngle), 0,  cos(yAngle),  0],
       [0,           0,  0,            1],
-    ],
+    ] as const,
   ) as transformationMatrix4x4Type
 }
 
@@ -175,7 +175,7 @@ export const rotateZ = (zAngle: number) => {
       [sin(zAngle),  cos(zAngle), 0, 0],
       [0,            0,           1, 0],
       [0,            0,           0, 1],
-    ],
+    ] as const,
   ) as transformationMatrix4x4Type
 }
 
