@@ -8,11 +8,12 @@ export const FRAME_WINDOW = 100
 export const CIRCLE_SEGMENTS = 36
 export const SPHERE_LONGITUDE_LINES = 16
 export const SPHERE_LATITUDE_LINES = 16
+export const PLANE_TEXTURE_MESH_LINES = 20
 export const ORIGIN = $v(0, 0, 0)
 
-export const CUBIE_SIZE = 70
-export const CUBIE_SPACING = 50
-export const CUBIES_PER_AXIS = 3
+export const CUBIE_SIZE = 300
+export const CUBIE_SPACING = 70
+export const CUBIES_PER_AXIS = 1
 
 export const FACES: Record<string, number> = {
   front: 0,
