@@ -1,4 +1,4 @@
-import { sqrt } from './util'
+import { acos, sqrt } from './util'
 import { transformationMatrix4x4Type } from './primitives'
 
 export class Vector {
@@ -127,7 +127,21 @@ export class Vector {
     )
   }
 
-  // angleBetween(anotherVector: Vector) {}
+  angleBetween(anotherVector: Vector) {
+    const currentMag = this.mag()
+    const anotherVectorMag = anotherVector.mag()
+    const distance = this.dist(anotherVector)
+
+    // const a = this.mag()
+    // const b = anotherVector.mag()
+    // const c = this.dist(anotherVector)
+
+    // return acos((a ** 2 + b ** 2 - c ** 2) / (2 * a * b))
+    return acos(
+      (currentMag ** 2 + anotherVectorMag ** 2 - distance ** 2) /
+        (2 * currentMag * anotherVectorMag),
+    )
+  }
 
   static create(x: number, y: number, z?: number) {
     return new Vector(x, y, z)
