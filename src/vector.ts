@@ -119,7 +119,14 @@ export class Vector {
     return this.equals(Vector.create(1, 1, 1))
   }
 
-  // cross(anotherVector: Vector) {}
+  cross(anotherVector: Vector) {
+    return Vector.create(
+      this.y * anotherVector.z - this.z * anotherVector.y,
+      -(this.x * anotherVector.z - this.z * anotherVector.x),
+      this.x * anotherVector.y - this.y * anotherVector.x,
+    )
+  }
+
   // angleBetween(anotherVector: Vector) {}
 
   static create(x: number, y: number, z?: number) {
