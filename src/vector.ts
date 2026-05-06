@@ -8,14 +8,6 @@ export class Vector {
     this.coords = [x, y, z]
   }
 
-  isAllZeros() {
-    return this.x === 0 && this.y === 0 && this.z === 0
-  }
-
-  isAllOnes() {
-    return this.x === 1 && this.y === 1 && this.z === 1
-  }
-
   get x() {
     return this.coords[0]
   }
@@ -94,6 +86,41 @@ export class Vector {
   to4dMatrix() {
     return [[this.x], [this.y], [this.z], [1]] // 4x1 matrix.
   }
+
+  dot(anotherVector: Vector) {
+    return (
+      this.x * anotherVector.x +
+      this.y * anotherVector.y +
+      this.z * anotherVector.z
+    )
+  }
+
+  dist(anotherVector: Vector) {
+    return sqrt(
+      (this.x - anotherVector.x) ** 2 +
+        (this.y - anotherVector.y) ** 2 +
+        (this.z - anotherVector.z) ** 2,
+    )
+  }
+
+  equals(anotherVector: Vector) {
+    return (
+      this.x === anotherVector.x &&
+      this.y === anotherVector.y &&
+      this.z === anotherVector.z
+    )
+  }
+
+  isAllZeros() {
+    return this.equals(Vector.create(0, 0, 0))
+  }
+
+  isAllOnes() {
+    return this.equals(Vector.create(1, 1, 1))
+  }
+
+  // cross(anotherVector: Vector) {}
+  // angleBetween(anotherVector: Vector) {}
 
   static create(x: number, y: number, z?: number) {
     return new Vector(x, y, z)
