@@ -127,20 +127,17 @@ export class Vector {
     )
   }
 
+  // Use the "Law of Cosines" to calculate the angle between the 2 vectors.
   angleBetween(anotherVector: Vector) {
-    const currentMag = this.mag()
-    const anotherVectorMag = anotherVector.mag()
-    const distance = this.dist(anotherVector)
+    const a = this.mag()
+    const b = anotherVector.mag()
+    const c = this.dist(anotherVector)
 
-    // const a = this.mag()
-    // const b = anotherVector.mag()
-    // const c = this.dist(anotherVector)
+    // const cosA = (b ** 2 + c ** 2 - a ** 2) / (2 * b * c)
+    // const cosB = (a ** 2 + c ** 2 - b ** 2) / (2 * a * c)
+    const cosC = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
 
-    // return acos((a ** 2 + b ** 2 - c ** 2) / (2 * a * b))
-    return acos(
-      (currentMag ** 2 + anotherVectorMag ** 2 - distance ** 2) /
-        (2 * currentMag * anotherVectorMag),
-    )
+    return acos(cosC)
   }
 
   static create(x: number, y: number, z?: number) {
