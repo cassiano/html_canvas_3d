@@ -200,6 +200,7 @@ export const project3dTo2d = ({ x, y, z }: Vector) => {
   return $v((x * focalLength) / divisor, (y * focalLength) / divisor, 0)
 }
 
+// https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 export const centralize = (point?: Vector) => point?.clone().add(SCREEN_CENTER)
 
 export const transform = (point: Vector) => {
