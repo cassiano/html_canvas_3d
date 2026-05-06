@@ -1,6 +1,5 @@
 import { DEPTH, FRAME_WINDOW, GRAVITY } from './constants'
 import { PI } from './util'
-import { SphereMover } from './sphere_mover'
 import {
   animation,
   background,
@@ -12,6 +11,7 @@ import {
   text2d,
 } from './primitives'
 import { $v } from './vector'
+import { CubeSphereMover } from './cube_sphere_mover'
 
 const TARGET_FPS = 120 // Set your desired FPS here
 const FRAME_DURATION = 1000 / TARGET_FPS // How many milliseconds per frame
@@ -33,7 +33,8 @@ animation.onclick = () => {
 const deltaAngle = (2 * PI) / 1e3
 const gravity = $v(0, -GRAVITY, 0)
 // const mover = new CubeMover(10, 0, 0, 0, 100)
-const mover = new SphereMover(10, 0, 300, 0, 100)
+// const mover = new SphereMover(10, 0, 300, 0, 100)
+const mover = new CubeSphereMover(10, 0, 300, 0, 100)
 const weight = gravity.clone().mult(mover.mass)
 
 let yAngle = 0

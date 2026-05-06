@@ -1,6 +1,7 @@
 import { ORIGIN } from './constants'
 import { Mover3D } from './mover_3d'
 import {
+  cube,
   isolateTransformations,
   rotateX,
   rotateY,
@@ -9,7 +10,7 @@ import {
   translate,
 } from './primitives'
 
-export class SphereMover extends Mover3D {
+export class CubeSphereMover extends Mover3D {
   constructor(
     mass: number,
     x: number,
@@ -37,6 +38,7 @@ export class SphereMover extends Mover3D {
       if (zAngle !== undefined) rotateZ(zAngle)
 
       sphere(ORIGIN, this.radius, { color: 'rgb(161, 12, 12)', width: 1 })
+      cube(ORIGIN, this.radius * 2 * 0.7, { color: 'black', width: 2 })
     })
   }
 }
