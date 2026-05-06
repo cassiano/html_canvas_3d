@@ -24,7 +24,7 @@ export const DEFAULT_TRANSFORMATION_MATRIX: transformationMatrix4x4Type =
   // Use ĵ as [0, -1, 0, 0] so the Y-axis in completely inverted, pointing up.
   // prettier-ignore
   [
-  // ȋ   ĵ  k̂  (w)
+  // ȋ   ĵ  k̂ (w)
     [1,  0, 0, 0],
     [0, -1, 0, 0],
     [0,  0, 1, 0],
@@ -85,19 +85,21 @@ export const scale: ScaleOverloadedSignatures = (
   const vector =
     typeof xOrXyzOrVector === 'number'
       ? typeof y === 'number'
-        ? $v(xOrXyzOrVector, y, z) // 1st signature.
+        ? $v(xOrXyzOrVector, y, z!) // 1st signature.
         : $v(xOrXyzOrVector, xOrXyzOrVector, xOrXyzOrVector) // 2nd signature.
       : xOrXyzOrVector // 3rd signature.
+
+  if (vector.isAllOnes()) return
 
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ          ĵ         k̂         (w)
-      [vector.x,  0,        0,        0],
-      [0,         vector.y, 0,        0],
-      [0,         0,        vector.z, 0],
-      [0,         0,        0,        1],
+    //        ȋ          ĵ         k̂ (w)
+      [vector.x,         0,        0, 0],
+      [       0,  vector.y,        0, 0],
+      [       0,         0, vector.z, 0],
+      [       0,         0,        0, 1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
@@ -113,17 +115,19 @@ export const translate: TranslateOverloadedSignatures = (
   z?: number,
 ) => {
   const vector =
-    typeof xOrVector === 'number' ? $v(xOrVector, y!, z) : xOrVector
+    typeof xOrVector === 'number' ? $v(xOrVector, y!, z!) : xOrVector
+
+  if (vector.isAllZeros()) return
 
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ  ĵ  k̂  (w)
+    // ȋ  ĵ  k̂ (w)
       [1, 0, 0, vector.x],
       [0, 1, 0, vector.y],
       [0, 0, 1, vector.z],
-      [0, 0, 0, 1],
+      [0, 0, 0,        1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
@@ -131,50 +135,50 @@ export const translate: TranslateOverloadedSignatures = (
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221OL6ezsueUbeXeq3_HvOMHkaVCwXvLuDK%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 // export const rotate = (angle: number, axis: Vector) => {}
 
-export const rotateX = (xAngle: number) => {
-  if (xAngle === 0) return
+export const rotateX = (angle: number) => {
+  if (angle === 0) return
 
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ  ĵ             k̂            (w)
-      [1, 0,            0,           0],
-      [0, cos(xAngle), -sin(xAngle), 0],
-      [0, sin(xAngle),  cos(xAngle), 0],
-      [0, 0,            0,           1],
+    // ȋ           ĵ            k̂ (w)
+      [1,          0,           0, 0],
+      [0, cos(angle), -sin(angle), 0],
+      [0, sin(angle),  cos(angle), 0],
+      [0,          0,           0, 1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
 
-export const rotateY = (yAngle: number) => {
-  if (yAngle === 0) return
+export const rotateY = (angle: number) => {
+  if (angle === 0) return
 
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ            ĵ   k̂             (w)
-      [cos(yAngle), 0, -sin(yAngle),  0],
-      [0,           1,  0,            0],
-      [sin(yAngle), 0,  cos(yAngle),  0],
-      [0,           0,  0,            1],
+    //          ȋ  ĵ            k̂ (w)
+      [cos(angle), 0, -sin(angle), 0],
+      [         0, 1,           0, 0],
+      [sin(angle), 0,  cos(angle), 0],
+      [         0, 0,           0, 1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
 
-export const rotateZ = (zAngle: number) => {
-  if (zAngle === 0) return
+export const rotateZ = (angle: number) => {
+  if (angle === 0) return
 
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ             ĵ            k̂  (w)
-      [cos(zAngle), -sin(zAngle), 0, 0],
-      [sin(zAngle),  cos(zAngle), 0, 0],
-      [0,            0,           1, 0],
-      [0,            0,           0, 1],
+    //          ȋ            ĵ  k̂ (w)
+      [cos(angle), -sin(angle), 0, 0],
+      [sin(angle),  cos(angle), 0, 0],
+      [         0,           0, 1, 0],
+      [         0,           0, 0, 1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
@@ -186,14 +190,14 @@ export const background = (color: string) => {
 
 export const project3dTo2d = ({ x, y, z }: Vector) => {
   const focalLength = SCREEN_Z_DISTANCE
-  const divisor = z + focalLength // Object should be at z=0 or higher
+  const divisor = z + focalLength // Object should be at z=0 or higher.
 
-  // If the point is behind the camera or exactly on the lens,
-  // we return null so the renderer knows to skip it.
+  // If the point is behind the camera or exactly on the lens, we return `undefined` so the
+  // renderer knows to skip it.
   if (divisor <= 0) return
 
-  // Standard perspective: (coord * focalLength) / (z + focalLength)
-  return $v((x * focalLength) / divisor, (y * focalLength) / divisor)
+  // Standard perspective: (coord * focalLength) / (z + focalLength).
+  return $v((x * focalLength) / divisor, (y * focalLength) / divisor, 0)
 }
 
 export const centralize = (point?: Vector) => point?.clone().add(SCREEN_CENTER)

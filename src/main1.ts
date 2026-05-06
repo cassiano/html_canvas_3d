@@ -34,11 +34,11 @@ animation.onclick = () => {
 }
 
 const draw = () => {
-  // console.log({ millis, frameCount, fps })
+  // console.log({ millis, frameCount, fps, cumulativeFps })
 
   background('lightGray')
   rotateX(-PI / 9)
-  rotateY(PI / 9)
+  rotateY(PI / 9 + millis / 3000)
 
   render3dAxes()
 

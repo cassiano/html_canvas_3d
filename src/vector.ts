@@ -8,6 +8,14 @@ export class Vector {
     this.coords = [x, y, z]
   }
 
+  isAllZeros() {
+    return this.x === 0 && this.y === 0 && this.z === 0
+  }
+
+  isAllOnes() {
+    return this.x === 1 && this.y === 1 && this.z === 1
+  }
+
   get x() {
     return this.coords[0]
   }
