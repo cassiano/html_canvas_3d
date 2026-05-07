@@ -134,7 +134,26 @@ export const translate: TranslateOverloadedSignatures = (
 }
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221OL6ezsueUbeXeq3_HvOMHkaVCwXvLuDK%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-// export const rotate = (angle: number, axis: Vector) => {}
+export const rotate = (angle: number, axis: Vector) => {
+  if (angle === 0) return
+
+  const { x, y, z } = axis.clone().normalize()
+  const c = Math.cos(angle)
+  const s = Math.sin(angle)
+  const t = 1 - c // Used frequently in the formula
+
+  transformationMatrix = multiplyMatrices(
+    transformationMatrix,
+    // prettier-ignore
+    [
+    //                 ȋ                  ĵ                  k̂ (w)
+      [    t * x * x + c, t * x * y + s * z, t * x * z - s * y, 0],
+      [t * x * y - s * z,     t * y * y + c, t * y * z - s * x, 0],
+      [t * x * z + s * y, t * y * z + s * x,     t * z * z + c, 0],
+      [                0,                 0,                 0, 1],
+    ] as const,
+  ) as transformationMatrix4x4Type
+}
 
 export const rotateX = (angle: number) => {
   if (angle === 0) return
