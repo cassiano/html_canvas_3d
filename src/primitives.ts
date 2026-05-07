@@ -158,15 +158,18 @@ export const rotate = (angle: number, axis: Vector) => {
 export const rotateX = (angle: number) => {
   if (angle === 0) return
 
+  const c = Math.cos(angle)
+  const s = Math.sin(angle)
+
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ           ĵ            k̂ (w)
-      [1,          0,           0, 0],
-      [0, cos(angle), -sin(angle), 0],
-      [0, sin(angle),  cos(angle), 0],
-      [0,          0,           0, 1],
+    // ȋ  ĵ   k̂ (w)
+      [1, 0,  0, 0],
+      [0, c, -s, 0],
+      [0, s,  c, 0],
+      [0, 0,  0, 1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
@@ -174,15 +177,18 @@ export const rotateX = (angle: number) => {
 export const rotateY = (angle: number) => {
   if (angle === 0) return
 
+  const c = Math.cos(angle)
+  const s = Math.sin(angle)
+
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    //          ȋ  ĵ            k̂ (w)
-      [cos(angle), 0, -sin(angle), 0],
-      [         0, 1,           0, 0],
-      [sin(angle), 0,  cos(angle), 0],
-      [         0, 0,           0, 1],
+    // ȋ  ĵ   k̂ (w)
+      [c, 0, -s, 0],
+      [0, 1,  0, 0],
+      [s, 0,  c, 0],
+      [0, 0,  0, 1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
@@ -190,15 +196,18 @@ export const rotateY = (angle: number) => {
 export const rotateZ = (angle: number) => {
   if (angle === 0) return
 
+  const c = Math.cos(angle)
+  const s = Math.sin(angle)
+
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    //          ȋ            ĵ  k̂ (w)
-      [cos(angle), -sin(angle), 0, 0],
-      [sin(angle),  cos(angle), 0, 0],
-      [         0,           0, 1, 0],
-      [         0,           0, 0, 1],
+    // ȋ   ĵ  k̂ (w)
+      [c, -s, 0, 0],
+      [s,  c, 0, 0],
+      [0,  0, 1, 0],
+      [0,  0, 0, 1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
