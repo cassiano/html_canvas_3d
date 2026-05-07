@@ -7,7 +7,7 @@ import {
 } from './constants.ts'
 import { $v, Vector } from './vector.ts'
 import { Tuple } from './utility_types.ts'
-import { cos, min, PI, sin, timesForEach } from './util.ts'
+import { cos, min, PI, sin, timesForEach } from './utils.ts'
 
 export const animation = document.getElementById(
   'animation',

@@ -8,7 +8,7 @@ import {
   translate,
 } from './primitives'
 import { Coord3D } from './rubik_cube'
-import { abs } from './util'
+import { abs } from './utils'
 import { createVector, Vector } from './vector'
 
 export class CubieFace {

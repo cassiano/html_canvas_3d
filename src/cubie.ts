@@ -2,7 +2,7 @@ import { CUBIE_SPACING, FACE_COLORS, FACE_NORMALS } from './constants'
 import { CubieFace } from './cubie_face'
 import { isolateTransformations, translate } from './primitives'
 import { RubikCube } from './rubik_cube'
-import { timesForEach } from './util'
+import { timesForEach } from './utils'
 import { createVector, Vector } from './vector'
 
 export class Cubie {

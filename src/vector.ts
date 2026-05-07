@@ -1,4 +1,4 @@
-import { acos, sqrt } from './util'
+import { acos, sqrt } from './utils'
 import { transformationMatrix4x4Type } from './primitives'
 
 export class Vector {
