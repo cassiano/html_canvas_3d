@@ -18,6 +18,8 @@ import { $v } from './vector'
 animation.onclick = () => togglePause()
 
 const draw = () => {
+  // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
+
   background('lightGray')
   rotateX(-PI / 9)
   rotateY(PI / 9 + millis() / 3000)
@@ -42,7 +44,6 @@ const draw = () => {
 
   // Red box.
   isolateTransformations(() => {
-    rotateZ(millis() / 2000)
     rotateZ(millis() / 2000)
     translate(0, 150, 0)
 

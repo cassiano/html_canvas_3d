@@ -17,6 +17,8 @@ animation.onclick = () => togglePause()
 const cube = new RubikCube(CUBIE_SIZE, CUBIES_PER_AXIS)
 
 const draw = () => {
+  // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
+
   background('lightGray')
 
   rotateX(-PI / 5)

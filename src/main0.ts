@@ -25,6 +25,8 @@ const weight = gravity.clone().mult(mover.mass)
 let yAngle = 0
 
 const draw = () => {
+  // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
+
   background('lightGray')
 
   rotateX(-PI / 3)
