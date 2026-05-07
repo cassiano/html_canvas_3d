@@ -10,15 +10,20 @@ export const sample = <T>(items: T[]): T =>
   items[Math.floor(Math.random() * items.length)]
 
 // Frame-related variables and state
-export let frameCount = 0
-export let millis: number
-export let fps: number
-export let cumulativeFps: number
+let frameCount_ = 0
+let millis_: number
+let fps_: number
+let cumulativeFps_: number
 let lastFrameTime = 0
 const frozenStats = { millis: 0, frameCount: 0 }
 
 let paused = false
 let pausedTextDisplayed = false
+
+export const millis = () => millis_
+export const fps = () => fps_
+export const cumulativeFps = () => cumulativeFps_
+export const frameCount = () => frameCount_
 
 export const createFrameLoop = (
   drawFn: () => void,
@@ -32,7 +37,7 @@ export const createFrameLoop = (
 
     if (!paused) {
       pausedTextDisplayed = false
-      millis = currentTime
+      millis_ = currentTime
 
       const deltaTime = currentTime - lastFrameTime
 
@@ -41,17 +46,17 @@ export const createFrameLoop = (
 
         drawFn()
 
-        frameCount++
+        frameCount_++
       }
 
-      cumulativeFps = frameCount / (millis / 1000)
-      fps =
-        (frameCount - frozenStats.frameCount) /
-        ((millis - frozenStats.millis) / 1000)
+      cumulativeFps_ = frameCount_ / (millis_ / 1000)
+      fps_ =
+        (frameCount_ - frozenStats.frameCount) /
+        ((millis_ - frozenStats.millis) / 1000)
 
-      if (frameCount % FRAME_WINDOW === 0) {
-        frozenStats.frameCount = frameCount
-        frozenStats.millis = millis
+      if (frameCount_ % FRAME_WINDOW === 0) {
+        frozenStats.frameCount = frameCount_
+        frozenStats.millis = millis_
       }
     } else if (!pausedTextDisplayed) {
       onPausedFn()

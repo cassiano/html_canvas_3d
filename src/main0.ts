@@ -34,9 +34,9 @@ const draw = () => {
   planeXZ($v(0, -DEPTH, 0), 500, 500, { color: 'violet' })
 
   mover.render({
-    xAngle: millis / 3000,
-    yAngle: millis / 3000,
-    zAngle: millis / 3000,
+    xAngle: millis() / 3000,
+    yAngle: millis() / 3000,
+    zAngle: millis() / 3000,
   })
 
   // Do the physics and animation updates.

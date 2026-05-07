@@ -20,7 +20,7 @@ animation.onclick = () => togglePause()
 const draw = () => {
   background('lightGray')
   rotateX(-PI / 9)
-  rotateY(PI / 9 + millis / 3000)
+  rotateY(PI / 9 + millis() / 3000)
 
   render3dAxes()
 
@@ -42,8 +42,8 @@ const draw = () => {
 
   // Red box.
   isolateTransformations(() => {
-    rotateZ(millis / 2000)
-    rotateZ(millis / 2000)
+    rotateZ(millis() / 2000)
+    rotateZ(millis() / 2000)
     translate(0, 150, 0)
 
     box($v(0, 0, 0), 100, 40, 140, { color: 'red' })
@@ -52,7 +52,7 @@ const draw = () => {
   // Black box.
   isolateTransformations(() => {
     translate(250, 0, 0)
-    rotateZ(millis / 2000)
+    rotateZ(millis() / 2000)
 
     box($v(0, 0, 0), 100, 40, 140, { color: 'black' })
   })
