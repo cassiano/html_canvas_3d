@@ -48,7 +48,7 @@ const draw = () => {
   rotateY(PI / 12 + yAngle)
 
   render3dAxes()
-  planeXZ($v(0, -DEPTH, 0), 200, 200)
+  planeXZ($v(0, -DEPTH, 0), 500, 500, { color: 'violet' })
 
   mover.render({
     xAngle: millis / 3000,
