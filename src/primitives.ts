@@ -1,6 +1,6 @@
 import {
   CIRCLE_SEGMENTS,
-  PLANE_TEXTURE_MESH_LINES,
+  PLANE_TEXTURE_MESH_DENSITY,
   SCREEN_Z_DISTANCE,
   SPHERE_LATITUDE_LINES,
   SPHERE_LONGITUDE_LINES,
@@ -228,7 +228,7 @@ export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
 export const line = (
   pointA: Vector,
   pointB: Vector,
-  { color = 'black', width = 1 } = {},
+  { color = 'black', lineWidth = 1 } = {},
 ) => {
   const projectedA = centralize(project3dTo2d(transform(pointA)))
   const projectedB = centralize(project3dTo2d(transform(pointB)))
@@ -238,7 +238,7 @@ export const line = (
   if (!projectedA || !projectedB) return
 
   ctx.strokeStyle = color
-  ctx.lineWidth = width
+  ctx.lineWidth = lineWidth
   ctx.beginPath()
   ctx.moveTo(projectedA.x, projectedA.y)
   ctx.lineTo(projectedB.x, projectedB.y)
@@ -251,32 +251,33 @@ export const planeXY = (
   height: number,
   { color = 'gray', lineWidth = 1 } = {},
 ) => {
-  box(center, width, height, 0, { color, width: lineWidth })
+  box(center, width, height, 0, { color, lineWidth })
 
   const bottomLeft = center.clone().sub($v(width / 2, height / 2, 0))
 
   // TODO: use polygonal meshes (triangles) to render textures.
-  timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
+
+  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
     line(
       bottomLeft
         .clone()
-        .add($v((width / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0, 0)),
+        .add($v((width / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0, 0)),
       bottomLeft
         .clone()
-        .add($v((width / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), height, 0)),
-      { color, width: lineWidth },
+        .add($v(0, (height / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0)),
+      { color, lineWidth },
     )
   })
 
-  timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
+  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
     line(
       bottomLeft
         .clone()
-        .add($v(0, (height / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0)),
+        .add($v((width / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), height, 0)),
       bottomLeft
         .clone()
-        .add($v(width, (height / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0)),
-      { color, width: lineWidth },
+        .add($v(width, (height / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0)),
+      { color, lineWidth },
     )
   })
 }
@@ -287,32 +288,31 @@ export const planeXZ = (
   depth: number,
   { color = 'gray', lineWidth = 1 } = {},
 ) => {
-  box(center, width, 0, depth, { color, width: lineWidth })
+  box(center, width, 0, depth, { color, lineWidth })
 
   const bottomLeft = center.clone().sub($v(width / 2, 0, depth / 2))
 
-  // TODO: use polygonal meshes (triangles) to render textures.
-  timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
+  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
     line(
       bottomLeft
         .clone()
-        .add($v((width / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0, 0)),
+        .add($v((width / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0, 0)),
       bottomLeft
         .clone()
-        .add($v((width / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0, depth)),
-      { color, width: lineWidth },
+        .add($v(0, 0, (depth / PLANE_TEXTURE_MESH_DENSITY) * (i + 1))),
+      { color, lineWidth },
     )
   })
 
-  timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
+  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
     line(
       bottomLeft
         .clone()
-        .add($v(0, 0, (depth / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1))),
+        .add($v((width / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0, depth)),
       bottomLeft
         .clone()
-        .add($v(width, 0, (depth / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1))),
-      { color, width: lineWidth },
+        .add($v(width, 0, (depth / PLANE_TEXTURE_MESH_DENSITY) * (i + 1))),
+      { color, lineWidth },
     )
   })
 }
@@ -323,32 +323,31 @@ export const planeYZ = (
   depth: number,
   { color = 'gray', lineWidth = 1 } = {},
 ) => {
-  box(center, 0, height, depth, { color, width: lineWidth })
+  box(center, 0, height, depth, { color, lineWidth })
 
   const bottomLeft = center.clone().sub($v(0, height / 2, depth / 2))
 
-  // TODO: use polygonal meshes (triangles) to render textures.
-  timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
+  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
     line(
       bottomLeft
         .clone()
-        .add($v(0, (height / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), 0)),
+        .add($v(0, (height / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0)),
       bottomLeft
         .clone()
-        .add($v(0, (height / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1), depth)),
-      { color, width: lineWidth },
+        .add($v(0, 0, (depth / PLANE_TEXTURE_MESH_DENSITY) * (i + 1))),
+      { color, lineWidth },
     )
   })
 
-  timesForEach(PLANE_TEXTURE_MESH_LINES, i => {
+  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
     line(
       bottomLeft
         .clone()
-        .add($v(0, 0, (depth / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1))),
+        .add($v(0, (height / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), depth)),
       bottomLeft
         .clone()
-        .add($v(0, height, (depth / (PLANE_TEXTURE_MESH_LINES + 1)) * (i + 1))),
-      { color, width: lineWidth },
+        .add($v(0, height, (depth / PLANE_TEXTURE_MESH_DENSITY) * (i + 1))),
+      { color, lineWidth },
     )
   })
 }
@@ -358,7 +357,7 @@ export const box = (
   xSize: number,
   ySize: number,
   zSize: number,
-  { color = 'gray', width = 1 } = {},
+  { color = 'gray', lineWidth = 1 } = {},
 ) => {
   const vertices = [
     $v(xSize / 2, ySize / 2, zSize / 2),
@@ -399,7 +398,7 @@ export const box = (
         const v1 = vertices[connection[i]]
         const v2 = vertices[connection[(i + 1) % connection.length]]
 
-        line(v1, v2, { color, width })
+        line(v1, v2, { color, lineWidth })
       }
     })
   })
@@ -408,12 +407,12 @@ export const box = (
 export const cube = (
   center: Vector,
   size: number,
-  { color = 'gray', width = 1 } = {},
-) => box(center, size, size, size, { color, width })
+  { color = 'gray', lineWidth = 1 } = {},
+) => box(center, size, size, size, { color, lineWidth })
 
 export const circleXY = (
   radius: number,
-  { color = 'gray', width = 1 } = {},
+  { color = 'gray', lineWidth = 1 } = {},
 ) => {
   let previousPoint: Vector | undefined
 
@@ -421,7 +420,7 @@ export const circleXY = (
     const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
 
     if (previousPoint !== undefined)
-      line(previousPoint, currentPoint, { color, width })
+      line(previousPoint, currentPoint, { color, lineWidth })
 
     previousPoint = currentPoint
   }
@@ -430,7 +429,7 @@ export const circleXY = (
 export const sphere = (
   center: Vector,
   radius: number,
-  { color = 'gray', width = 1 } = {},
+  { color = 'gray', lineWidth = 1 } = {},
 ) => {
   isolateTransformations(() => {
     translate(center)
@@ -439,7 +438,7 @@ export const sphere = (
     timesForEach(SPHERE_LONGITUDE_LINES, () => {
       rotateY(PI / SPHERE_LONGITUDE_LINES)
 
-      circleXY(radius, { color, width })
+      circleXY(radius, { color, lineWidth })
     })
 
     // Draw a series of concentric 2D circles as latitude lines.
@@ -451,7 +450,7 @@ export const sphere = (
       isolateTransformations(() => {
         translate(0, radius * cos(theta), 0)
         rotateX(PI / 2)
-        circleXY(radius * sin(theta), { color, width })
+        circleXY(radius * sin(theta), { color, lineWidth })
       })
     }
   })
