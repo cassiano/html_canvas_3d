@@ -32,7 +32,7 @@ export const DEFAULT_TRANSFORMATION_MATRIX: transformationMatrix4x4Type =
     [0,  0, 0, 1],
   ] as const
 
-export let transformationMatrix: transformationMatrix4x4Type
+let transformationMatrix: transformationMatrix4x4Type
 const transformatioMatrixStack: transformationMatrix4x4Type[] = []
 
 const cloneTransformationMatrix = (
