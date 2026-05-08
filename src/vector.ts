@@ -33,7 +33,7 @@ export class Vector {
   }
 
   magSq() {
-    return this.x ** 2 + this.y ** 2 + this.z ** 2
+    return this.x * this.x + this.y * this.y + this.z * this.z
   }
 
   mag() {
@@ -104,11 +104,13 @@ export class Vector {
   }
 
   dist(anotherVector: Vector) {
-    return sqrt(
-      (this.x - anotherVector.x) ** 2 +
-        (this.y - anotherVector.y) ** 2 +
-        (this.z - anotherVector.z) ** 2,
-    )
+    const diff = {
+      x: this.x - anotherVector.x,
+      y: this.y - anotherVector.y,
+      z: this.z - anotherVector.z,
+    }
+
+    return sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z)
   }
 
   equals(anotherVector: Vector) {
@@ -134,9 +136,9 @@ export class Vector {
     const b = anotherVector.mag()
     const c = this.dist(anotherVector)
 
-    // const cosA = (b ** 2 + c ** 2 - a ** 2) / (2 * b * c)
-    // const cosB = (a ** 2 + c ** 2 - b ** 2) / (2 * a * c)
-    const cosC = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
+    // const cosA = (b * b + c * c - a * a) / (2 * b * c)
+    // const cosB = (a * a + c * c - b * b) / (2 * a * c)
+    const cosC = (a * a + b * b - c * c) / (2 * a * b)
 
     return acos(cosC)
   }
