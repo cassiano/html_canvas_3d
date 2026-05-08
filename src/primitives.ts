@@ -500,14 +500,15 @@ export const sphere = (
   isolateTransformations(() => {
     translate(center)
 
-    // Draw a series of concentric 2D circles as longitude lines.
+    // Draw a series of concentric 2D circles as longitude lines, all with the same radius.
     timesForEach(SPHERE_LONGITUDE_LINES, () => {
       rotateY(PI / SPHERE_LONGITUDE_LINES)
 
       circleXY(radius, { color, lineWidth })
     })
 
-    // Draw a series of concentric 2D circles as latitude lines.
+    // Draw a series of 2D circles as latitude lines, with radius increasing when going from the poles
+    // to the equator (center) and decreasing otherwise.
     for (
       let theta = 0;
       theta <= PI;
