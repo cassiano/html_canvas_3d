@@ -25,11 +25,12 @@ export const DEFAULT_TRANSFORMATION_MATRIX: transformationMatrix4x4Type =
   // Use ĵ as [0, -1, 0, 0] so the Y-axis in completely inverted, pointing up.
   // prettier-ignore
   [
-  // ȋ   ĵ  k̂ (w)
-    [1,  0, 0, 0],
-    [0, -1, 0, 0],
-    [0,  0, 1, 0],
-    [0,  0, 0, 1],
+  //  ȋ   ĵ  k̂ (w)
+  // --  -- --
+    [ 1,  0, 0, 0],
+    [ 0, -1, 0, 0],
+    [ 0,  0, 1, 0],
+    [ 0,  0, 0, 1],
   ] as const
 
 let transformationMatrix: transformationMatrix4x4Type
@@ -92,17 +93,22 @@ export const scale: ScaleOverloadedSignatures = (
 
   if (vector.isAllOnes()) return
 
-  transformationMatrix = multiplyMatrices(
-    transformationMatrix,
-    // prettier-ignore
-    [
-    //        ȋ          ĵ         k̂ (w)
-      [vector.x,         0,        0, 0],
-      [       0,  vector.y,        0, 0],
-      [       0,         0, vector.z, 0],
-      [       0,         0,        0, 1],
+  {
+    const { x, y, z } = vector
+
+    transformationMatrix = multiplyMatrices(
+      transformationMatrix,
+      // prettier-ignore
+      [
+    //  ȋ  ĵ  k̂ (w)
+    // -- -- -- ---
+      [ x, 0, 0, 0 ],
+      [ 0, y, 0, 0 ],
+      [ 0, 0, z, 0 ],
+      [ 0, 0, 0, 1 ],
     ] as const,
-  ) as transformationMatrix4x4Type
+    ) as transformationMatrix4x4Type
+  }
 }
 
 interface TranslateOverloadedSignatures {
@@ -121,17 +127,22 @@ export const translate: TranslateOverloadedSignatures = (
 
   if (vector.isAllZeros()) return
 
-  transformationMatrix = multiplyMatrices(
-    transformationMatrix,
-    // prettier-ignore
-    [
-    // ȋ  ĵ  k̂        (w)
-      [1, 0, 0, vector.x],
-      [0, 1, 0, vector.y],
-      [0, 0, 1, vector.z],
-      [0, 0, 0,        1],
+  {
+    const { x, y, z } = vector
+
+    transformationMatrix = multiplyMatrices(
+      transformationMatrix,
+      // prettier-ignore
+      [
+    //  ȋ  ĵ  k̂ (w)
+    // -- -- -- ---
+      [ 1, 0, 0, x ],
+      [ 0, 1, 0, y ],
+      [ 0, 0, 1, z ],
+      [ 0, 0, 0, 1 ],
     ] as const,
-  ) as transformationMatrix4x4Type
+    ) as transformationMatrix4x4Type
+  }
 }
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221OL6ezsueUbeXeq3_HvOMHkaVCwXvLuDK%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
@@ -151,11 +162,12 @@ export const rotate = (angle: number, axis: Vector) => {
     transformationMatrix,
     // prettier-ignore
     [
-    //                 ȋ                  ĵ                  k̂ (w)
-      [    t * x * x + c, t * x * y - s * z, t * x * z + s * y, 0],
-      [t * x * y + s * z,     t * y * y + c, t * y * z - s * x, 0],
-      [t * x * z - s * y, t * y * z + s * x,     t * z * z + c, 0],
-      [                0,                 0,                 0, 1],
+    //                  ȋ                  ĵ                  k̂  (w)
+    //  -----------------  -----------------  -----------------  ---
+      [     t * x * x + c, t * x * y - s * z, t * x * z + s * y,  0 ],
+      [ t * x * y + s * z,     t * y * y + c, t * y * z - s * x,  0 ],
+      [ t * x * z - s * y, t * y * z + s * x,     t * z * z + c,  0 ],
+      [                 0,                 0,                 0,  1 ],
     ] as const,
   ) as transformationMatrix4x4Type
 }
@@ -171,11 +183,12 @@ export const rotateX = (angle: number) => {
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ  ĵ   k̂ (w)
-      [1, 0,  0, 0],
-      [0, c, -s, 0],
-      [0, s,  c, 0],
-      [0, 0,  0, 1],
+    //  ȋ   ĵ   k̂  (w)
+    // --  --  --  ---
+      [ 1,  0,  0,  0 ],
+      [ 0,  c, -s,  0 ],
+      [ 0,  s,  c,  0 ],
+      [ 0,  0,  0,  1 ],
     ] as const,
   ) as transformationMatrix4x4Type
 }
@@ -191,11 +204,12 @@ export const rotateY = (angle: number) => {
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ  ĵ   k̂ (w)
-      [c, 0, -s, 0],
-      [0, 1,  0, 0],
-      [s, 0,  c, 0],
-      [0, 0,  0, 1],
+    //  ȋ   ĵ   k̂  (w)
+    // --  --  --  ---
+      [ c,  0, -s,  0 ],
+      [ 0,  1,  0,  0 ],
+      [ s,  0,  c,  0 ],
+      [ 0,  0,  0,  1 ],
     ] as const,
   ) as transformationMatrix4x4Type
 }
@@ -211,11 +225,12 @@ export const rotateZ = (angle: number) => {
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ   ĵ  k̂ (w)
-      [c, -s, 0, 0],
-      [s,  c, 0, 0],
-      [0,  0, 1, 0],
-      [0,  0, 0, 1],
+    //  ȋ   ĵ   k̂  (w)
+    // --  --  --  ---
+      [ c, -s,  0,  0 ],
+      [ s,  c,  0,  0 ],
+      [ 0,  0,  1,  0 ],
+      [ 0,  0,  0,  1 ],
     ] as const,
   ) as transformationMatrix4x4Type
 }
