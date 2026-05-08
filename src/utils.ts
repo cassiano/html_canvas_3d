@@ -1,6 +1,6 @@
 import { FRAME_WINDOW } from './constants'
 
-export const { PI, sin, cos, tan, min, max, sqrt, abs, acos } = Math
+export const { PI, sin, cos, tan, min, max, sqrt, abs, acos, asin, atan } = Math
 
 export const timesForEach = (count: number, fn: (i: number) => void) => {
   for (let i = 0; i < count; i++) fn(i)
