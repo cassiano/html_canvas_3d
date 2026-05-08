@@ -416,20 +416,20 @@ export const planeYZ = (
 
 export const box = (
   center: Vector,
-  xSize: number,
-  ySize: number,
-  zSize: number,
+  width: number,
+  height: number,
+  depth: number,
   { color = 'gray', lineWidth = 1 } = {},
 ) => {
   const vertices = [
-    $v(xSize / 2, ySize / 2, zSize / 2),
-    $v(xSize / 2, ySize / 2, -zSize / 2),
-    $v(xSize / 2, -ySize / 2, -zSize / 2),
-    $v(xSize / 2, -ySize / 2, zSize / 2),
-    $v(-xSize / 2, ySize / 2, zSize / 2),
-    $v(-xSize / 2, ySize / 2, -zSize / 2),
-    $v(-xSize / 2, -ySize / 2, -zSize / 2),
-    $v(-xSize / 2, -ySize / 2, zSize / 2),
+    $v(width / 2, height / 2, depth / 2),
+    $v(width / 2, height / 2, -depth / 2),
+    $v(width / 2, -height / 2, -depth / 2),
+    $v(width / 2, -height / 2, depth / 2),
+    $v(-width / 2, height / 2, depth / 2),
+    $v(-width / 2, height / 2, -depth / 2),
+    $v(-width / 2, -height / 2, -depth / 2),
+    $v(-width / 2, -height / 2, depth / 2),
   ]
 
   const connections = [
