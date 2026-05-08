@@ -5,7 +5,7 @@ import {
   SPHERE_LATITUDE_LINES,
   SPHERE_LONGITUDE_LINES,
 } from './constants.ts'
-import { $v, Vector } from './vector.ts'
+import { $v, transformationMatrix4x1Type, Vector } from './vector.ts'
 import { Tuple } from './utility_types.ts'
 import { cos, min, PI, sin, timesForEach } from './utils.ts'
 
@@ -265,7 +265,9 @@ export const transform = (point: Vector) => {
     point.to4dMatrix(),
   ) as transformationMatrix4x4Type
 
-  return Vector.from4dMatrix(transformedPoint)
+  return Vector.from4dMatrix(
+    transformedPoint as unknown as transformationMatrix4x1Type,
+  )
 }
 
 export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {

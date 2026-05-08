@@ -1,5 +1,7 @@
 import { acos, sqrt } from './utils'
-import { transformationMatrix4x4Type } from './primitives'
+import { Tuple } from './utility_types'
+
+export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>
 
 export class Vector {
   coords: [x: number, y: number, z: number]
@@ -147,7 +149,7 @@ export class Vector {
     return new Vector(x, y, z)
   }
 
-  static from4dMatrix(matrix: transformationMatrix4x4Type) {
+  static from4dMatrix(matrix: transformationMatrix4x1Type) {
     return Vector.create(matrix[0][0], matrix[1][0], matrix[2][0])
   }
 
