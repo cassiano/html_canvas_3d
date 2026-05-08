@@ -21,8 +21,8 @@ const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
 
   background('lightGray')
-  rotateX(-PI / 9)
-  rotateY(PI / 9 + millis() / 3000)
+  rotateX(-PI / 9) // rotate(-PI / 9, $v(1, 0, 0))
+  rotateY(PI / 9 + millis() / 3000) // rotate(PI / 9 + millis() / 3000, $v(0, 1, 0))
 
   render3dAxes()
 
