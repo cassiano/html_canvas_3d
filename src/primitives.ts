@@ -110,6 +110,7 @@ interface TranslateOverloadedSignatures {
   (vector: Vector): void
 }
 
+// Translate using an "Affine Transformation".
 export const translate: TranslateOverloadedSignatures = (
   xOrVector: number | Vector,
   y?: number,
@@ -124,7 +125,7 @@ export const translate: TranslateOverloadedSignatures = (
     transformationMatrix,
     // prettier-ignore
     [
-    // ȋ  ĵ  k̂ (w)
+    // ȋ  ĵ  k̂        (w)
       [1, 0, 0, vector.x],
       [0, 1, 0, vector.y],
       [0, 0, 1, vector.z],
@@ -134,27 +135,32 @@ export const translate: TranslateOverloadedSignatures = (
 }
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221OL6ezsueUbeXeq3_HvOMHkaVCwXvLuDK%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
+// Counter-clockwise rotation around an arbitrary axis.
 export const rotate = (angle: number, axis: Vector) => {
   if (angle === 0) return
 
-  const { x, y, z } = axis.clone().normalize()
+  const normalizedAxis = axis.clone().normalize()
+
   const c = Math.cos(angle)
   const s = Math.sin(angle)
-  const t = 1 - c // Used frequently in the formula
+  const t = 1 - c // Used frequently in the formula.
+
+  const { x, y, z } = normalizedAxis
 
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
     //                 ȋ                  ĵ                  k̂ (w)
-      [    t * x * x + c, t * x * y + s * z, t * x * z - s * y, 0],
-      [t * x * y - s * z,     t * y * y + c, t * y * z - s * x, 0],
-      [t * x * z + s * y, t * y * z + s * x,     t * z * z + c, 0],
+      [    t * x * x + c, t * x * y - s * z, t * x * z + s * y, 0],
+      [t * x * y + s * z,     t * y * y + c, t * y * z - s * x, 0],
+      [t * x * z - s * y, t * y * z + s * x,     t * z * z + c, 0],
       [                0,                 0,                 0, 1],
     ] as const,
   ) as transformationMatrix4x4Type
 }
 
+// Counter-clockwise rotation around the X axis.
 export const rotateX = (angle: number) => {
   if (angle === 0) return
 
@@ -174,6 +180,7 @@ export const rotateX = (angle: number) => {
   ) as transformationMatrix4x4Type
 }
 
+// Counter-clockwise rotation around the Y axis.
 export const rotateY = (angle: number) => {
   if (angle === 0) return
 
@@ -193,6 +200,7 @@ export const rotateY = (angle: number) => {
   ) as transformationMatrix4x4Type
 }
 
+// Counter-clockwise rotation around the Z axis.
 export const rotateZ = (angle: number) => {
   if (angle === 0) return
 
@@ -280,6 +288,17 @@ export const planeXY = (
   { color = 'gray', lineWidth = 1 } = {},
 ) => {
   box(center, width, height, 0, { color, lineWidth })
+
+  // ctx.beginPath() // Start the shape
+  // ctx.moveTo(50, 50) // Move to starting point
+  // ctx.lineTo(150, 50) // Draw line to right
+  // ctx.lineTo(100, 100) // Draw line to bottom
+  // ctx.closePath() // Close path back to (50,50)
+  // ctx.fillStyle = 'rgba(0, 255, 0, 0.5)'
+  // ctx.strokeStyle = 'black'
+  // ctx.lineWidth = 1
+  // ctx.stroke() // Outline the shape
+  // ctx.fill() // Fill the shape
 
   const bottomLeft = center.clone().sub($v(width / 2, height / 2, 0))
 
