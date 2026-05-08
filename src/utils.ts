@@ -1,4 +1,4 @@
-import { FRAME_WINDOW } from './constants'
+import { FPS_WINDOW } from './constants'
 
 export const { PI, sin, cos, tan, min, max, sqrt, abs, acos, asin, atan } = Math
 
@@ -54,7 +54,7 @@ export const createFrameLoop = (
         (frameCount_ - frozenStats.frameCount) /
         ((millis_ - frozenStats.millis) / 1000)
 
-      if (frameCount_ % FRAME_WINDOW === 0) {
+      if (frameCount_ % FPS_WINDOW === 0) {
         frozenStats.frameCount = frameCount_
         frozenStats.millis = millis_
       }
