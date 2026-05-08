@@ -151,23 +151,25 @@ export const rotate = (angle: number, axis: Vector) => {
   if (angle === 0) return
 
   const normalizedAxis = axis.clone().normalize()
+  const { x, y, z } = normalizedAxis
 
   const c = Math.cos(angle)
   const s = Math.sin(angle)
   const t = 1 - c // Used frequently in the formula.
-
-  const { x, y, z } = normalizedAxis
+  const tx = t * x
+  const ty = t * y
+  const tz = t * z
 
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
     // prettier-ignore
     [
-    //                  ȋ                  ĵ                  k̂  4d
-    //  -----------------  -----------------  -----------------  --
-      [     t * x * x + c, t * x * y - s * z, t * x * z + s * y,  0 ],
-      [ t * x * y + s * z,     t * y * y + c, t * y * z - s * x,  0 ],
-      [ t * x * z - s * y, t * y * z + s * x,     t * z * z + c,  0 ],
-      [                 0,                 0,                 0,  1 ],
+    //               ȋ               ĵ                k̂  4d
+    //  --------------  --------------  ---------------  --
+      [     tx * x + c, tx * y - s * z, tx * z + s * y,  0 ],
+      [ ty * x + s * z,     ty * y + c, ty * z - s * x,  0 ],
+      [ tz * x - s * y, tz * y + s * x,     tz * z + c,  0 ],
+      [              0,              0,              0,  1 ],
     ] as const,
   ) as transformationMatrix4x4Type
 }
