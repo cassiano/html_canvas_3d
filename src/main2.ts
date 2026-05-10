@@ -14,7 +14,7 @@ import { RubikCube } from './rubik_cube'
 
 animation.onclick = () => togglePause()
 
-export const cube = new RubikCube(CUBIE_SIZE, CUBIES_PER_AXIS)
+const cube = new RubikCube(CUBIE_SIZE, CUBIES_PER_AXIS)
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })

@@ -494,6 +494,7 @@ export const sphere = (
       isolateTransformations(() => {
         translate(0, radius * cos(theta), 0)
         rotateX(PI / 2)
+
         circleXY(radius * sin(theta), { color, lineWidth })
       })
     }
