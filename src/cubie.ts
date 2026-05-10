@@ -5,7 +5,7 @@ import {
   SCREEN_Z_DISTANCE,
 } from './constants'
 import { CubieFace } from './cubie_face'
-import { isolateTransformations, transform } from './primitives'
+import { transform } from './primitives'
 import { RubikCube } from './rubik_cube'
 import { timesForEach } from './utils'
 import { createVector, Vector } from './vector'
@@ -40,16 +40,5 @@ export class Cubie {
 
   get distanceFromCamera() {
     return transform(this.center).z + SCREEN_Z_DISTANCE
-  }
-
-  render() {
-    // Sort faces in descending order relative to their distance from the camera.
-    const orderedFaces = this.faces.toSorted(
-      (left, right) => right.distanceFromCamera - left.distanceFromCamera,
-    )
-
-    orderedFaces.forEach(face => {
-      isolateTransformations(() => face.render())
-    })
   }
 }

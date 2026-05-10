@@ -8,9 +8,9 @@ export const CIRCLE_SEGMENTS = 36
 export const SPHERE_LONGITUDE_LINES = 16
 export const SPHERE_LATITUDE_LINES = 16
 
-export const CUBIE_SIZE = 100
-export const CUBIE_SPACING = 0
-export const CUBIES_PER_AXIS = 3
+export const CUBIE_SIZE = 50
+export const CUBIE_SPACING = 20
+export const CUBIES_PER_AXIS = 5
 
 export const FACES: Record<string, number> = {
   front: 0,

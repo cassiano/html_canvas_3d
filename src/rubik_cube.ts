@@ -26,10 +26,12 @@ export class RubikCube {
   }
 
   render() {
-    const sortedCubies = this.cubies.toSorted(
+    const faces = this.cubies.flatMap(cubie => cubie.faces)
+
+    const orderedFaces = faces.toSorted(
       (left, right) => right.distanceFromCamera - left.distanceFromCamera,
     )
 
-    sortedCubies.forEach(cubie => cubie.render())
+    orderedFaces.forEach(face => face.render())
   }
 }
