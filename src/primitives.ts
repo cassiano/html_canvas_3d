@@ -302,14 +302,13 @@ export const line = (
 }
 
 export const planeXY = (
-  center: Vector,
   width: number,
   height: number,
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
-  box(center, width, height, 0, { color, lineWidth })
+  box(width, height, 0, { color, lineWidth })
 
-  const bottomLeft3d = center.sub($v(width / 2, height / 2, 0), false)
+  const bottomLeft3d = $v(-width / 2, -height / 2, 0)
 
   ctx.beginPath() // Start the shape
 
@@ -338,14 +337,13 @@ export const planeXY = (
 }
 
 export const planeXZ = (
-  center: Vector,
   width: number,
   depth: number,
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
-  box(center, width, 0, depth, { color, lineWidth })
+  box(width, 0, depth, { color, lineWidth })
 
-  const bottomLeft3d = center.sub($v(width / 2, 0, depth / 2), false)
+  const bottomLeft3d = $v(-width / 2, 0, -depth / 2)
 
   ctx.beginPath() // Start the shape
 
@@ -374,14 +372,13 @@ export const planeXZ = (
 }
 
 export const planeYZ = (
-  center: Vector,
   height: number,
   depth: number,
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
-  box(center, 0, height, depth, { color, lineWidth })
+  box(0, height, depth, { color, lineWidth })
 
-  const bottomLeft3d = center.sub($v(0, height / 2, depth / 2), false)
+  const bottomLeft3d = $v(0, -height / 2, -depth / 2)
 
   ctx.beginPath() // Start the shape
 
@@ -410,7 +407,6 @@ export const planeYZ = (
 }
 
 export const box = (
-  center: Vector,
   width: number,
   height: number,
   depth: number,
@@ -445,27 +441,20 @@ export const box = (
     // [3, 6],
   ]
 
-  isolateTransformations(() => {
-    translate(center)
+  connections.forEach(connection => {
+    for (let i = 0; i < connection.length; i++) {
+      if (connection.length === 2 && i === 1) continue // handle the simple lines
 
-    connections.forEach(connection => {
-      for (let i = 0; i < connection.length; i++) {
-        if (connection.length === 2 && i === 1) continue // handle the simple lines
+      const v1 = vertices[connection[i]]
+      const v2 = vertices[connection[(i + 1) % connection.length]]
 
-        const v1 = vertices[connection[i]]
-        const v2 = vertices[connection[(i + 1) % connection.length]]
-
-        line(v1, v2, { color, lineWidth })
-      }
-    })
+      line(v1, v2, { color, lineWidth })
+    }
   })
 }
 
-export const cube = (
-  center: Vector,
-  size: number,
-  { color = 'gray', lineWidth = 1 } = {},
-) => box(center, size, size, size, { color, lineWidth })
+export const cube = (size: number, { color = 'gray', lineWidth = 1 } = {}) =>
+  box(size, size, size, { color, lineWidth })
 
 export const circleXY = (
   radius: number,
@@ -484,13 +473,10 @@ export const circleXY = (
 }
 
 export const sphere = (
-  center: Vector,
   radius: number,
   { color = 'gray', lineWidth = 1 } = {},
 ) => {
   isolateTransformations(() => {
-    translate(center)
-
     // Draw a series of concentric 2D circles as longitude lines, all with the same radius.
     timesForEach(SPHERE_LONGITUDE_LINES, () => {
       rotateY(PI / SPHERE_LONGITUDE_LINES)

@@ -1,4 +1,4 @@
-import { ORIGIN, SCREEN_Z_DISTANCE } from './constants'
+import { SCREEN_Z_DISTANCE } from './constants'
 import { Cubie } from './cubie'
 import {
   isolateTransformations,
@@ -41,17 +41,17 @@ export class CubieFace {
       translate(this.center)
 
       if (abs(this.normal.x) === 1)
-        planeYZ(ORIGIN, this.size, this.size, {
+        planeYZ(this.size, this.size, {
           color: this.color,
           lineWidth: 2,
         })
       else if (abs(this.normal.y) === 1)
-        planeXZ(ORIGIN, this.size, this.size, {
+        planeXZ(this.size, this.size, {
           color: this.color,
           lineWidth: 2,
         })
       else if (abs(this.normal.z) === 1)
-        planeXY(ORIGIN, this.size, this.size, {
+        planeXY(this.size, this.size, {
           color: this.color,
           lineWidth: 2,
         })

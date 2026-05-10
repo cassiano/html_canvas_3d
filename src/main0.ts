@@ -3,12 +3,14 @@ import { PI, createFrameLoop, millis, togglePause } from './utils'
 import {
   animation,
   background,
+  isolateTransformations,
   planeXZ,
   render3dAxes,
   resetTransformationMatrix,
   rotateX,
   rotateY,
   text2d,
+  translate,
 } from './primitives'
 import { $v } from './vector'
 import { CubeSphereMover } from './cube_sphere_mover'
@@ -33,7 +35,12 @@ const draw = () => {
   rotateY(PI / 12 + yAngle)
 
   render3dAxes()
-  planeXZ($v(0, -DEPTH, 0), 500, 500, { color: 'violet' })
+
+  isolateTransformations(() => {
+    translate(0, -DEPTH, 0)
+
+    planeXZ(500, 500, { color: 'violet' })
+  })
 
   mover.render({
     xAngle: millis() / 3000,
