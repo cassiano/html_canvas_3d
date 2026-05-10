@@ -67,7 +67,7 @@ const draw = () => {
 }
 
 const onPaused = () => {
-  text2d('PAUSED', $v(0, 200))
+  text2d('PAUSED', $v(0, 300))
 }
 
 const frame = createFrameLoop(
