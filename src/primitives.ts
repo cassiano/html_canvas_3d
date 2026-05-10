@@ -1,6 +1,5 @@
 import {
   CIRCLE_SEGMENTS,
-  PLANE_TEXTURE_MESH_DENSITY,
   SCREEN_Z_DISTANCE,
   SPHERE_LATITUDE_LINES,
   SPHERE_LONGITUDE_LINES,
@@ -150,7 +149,7 @@ export const translate: TranslateOverloadedSignatures = (
 export const rotate = (angle: number, axis: Vector) => {
   if (angle === 0) return
 
-  const normalizedAxis = axis.clone().normalize()
+  const normalizedAxis = axis.normalize(false)
   const { x, y, z } = normalizedAxis
 
   const c = Math.cos(angle)
@@ -255,7 +254,7 @@ export const project3dTo2d = ({ x, y, z }: Vector) => {
 }
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-export const centralize = (point?: Vector) => point?.clone().add(SCREEN_CENTER)
+export const centralize = (point?: Vector) => point?.add(SCREEN_CENTER, false)
 
 export const transform = (point: Vector) => {
   // Notice that a 4x4 matrix multiplied by a 4x1 vector results in another 4x1 vector.
@@ -270,8 +269,10 @@ export const transform = (point: Vector) => {
   )
 }
 
+const toScreen = (point: Vector) => centralize(project3dTo2d(transform(point)))!
+
 export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
-  const projected = centralize(project3dTo2d(transform(coords)))
+  const projected = toScreen(coords)
 
   // Skip rendering if behind camera.
   if (!projected) return
@@ -285,8 +286,8 @@ export const line = (
   pointB: Vector,
   { color = 'black', lineWidth = 1 } = {},
 ) => {
-  const projectedA = centralize(project3dTo2d(transform(pointA)))
-  const projectedB = centralize(project3dTo2d(transform(pointB)))
+  const projectedA = toScreen(pointA)
+  const projectedB = toScreen(pointB)
 
   // If either point is behind the camera, skip the line. (In advanced engines, you'd "clip" the
   // line at the Z-boundary, but skipping is enough to stop the "random lines").
@@ -304,118 +305,108 @@ export const planeXY = (
   center: Vector,
   width: number,
   height: number,
-  { color = 'gray', lineWidth = 1 } = {},
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
   box(center, width, height, 0, { color, lineWidth })
 
-  // ctx.beginPath() // Start the shape
-  // ctx.moveTo(50, 50) // Move to starting point
-  // ctx.lineTo(150, 50) // Draw line to right
-  // ctx.lineTo(100, 100) // Draw line to bottom
-  // ctx.closePath() // Close path back to (50,50)
-  // ctx.fillStyle = 'rgba(0, 255, 0, 0.5)'
-  // ctx.strokeStyle = 'black'
-  // ctx.lineWidth = 1
-  // ctx.stroke() // Outline the shape
-  // ctx.fill() // Fill the shape
+  const bottomLeft3d = center.sub($v(width / 2, height / 2, 0), false)
 
-  const bottomLeft = center.clone().sub($v(width / 2, height / 2, 0))
+  ctx.beginPath() // Start the shape
 
-  // TODO: use polygonal meshes (triangles) to render textures.
+  const bottomLeft2d = toScreen(bottomLeft3d)
+  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
 
-  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
-    line(
-      bottomLeft
-        .clone()
-        .add($v((width / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0, 0)),
-      bottomLeft
-        .clone()
-        .add($v(0, (height / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0)),
-      { color, lineWidth },
-    )
-  })
+  const topLeft2d = toScreen(bottomLeft3d.add($v(0, height, 0), false))
+  ctx.lineTo(topLeft2d.x, topLeft2d.y)
 
-  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
-    line(
-      bottomLeft
-        .clone()
-        .add($v((width / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), height, 0)),
-      bottomLeft
-        .clone()
-        .add($v(width, (height / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0)),
-      { color, lineWidth },
-    )
-  })
+  const topRight2d = toScreen(bottomLeft3d.add($v(width, height, 0), false))
+  ctx.lineTo(topRight2d.x, topRight2d.y)
+
+  const lowerRight2d = toScreen(bottomLeft3d.add($v(width, 0, 0), false))
+  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+
+  ctx.closePath() // Close path
+
+  ctx.save()
+  ctx.globalAlpha = opacity //  Set transparency
+  ctx.fillStyle = color
+  ctx.strokeStyle = 'black'
+  ctx.lineWidth = 1
+  ctx.stroke() // Outline the shape
+  ctx.fill() // Fill the shape
+  ctx.restore()
 }
 
 export const planeXZ = (
   center: Vector,
   width: number,
   depth: number,
-  { color = 'gray', lineWidth = 1 } = {},
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
   box(center, width, 0, depth, { color, lineWidth })
 
-  const bottomLeft = center.clone().sub($v(width / 2, 0, depth / 2))
+  const bottomLeft3d = center.sub($v(width / 2, 0, depth / 2), false)
 
-  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
-    line(
-      bottomLeft
-        .clone()
-        .add($v((width / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0, 0)),
-      bottomLeft
-        .clone()
-        .add($v(0, 0, (depth / PLANE_TEXTURE_MESH_DENSITY) * (i + 1))),
-      { color, lineWidth },
-    )
-  })
+  ctx.beginPath() // Start the shape
 
-  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
-    line(
-      bottomLeft
-        .clone()
-        .add($v((width / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0, depth)),
-      bottomLeft
-        .clone()
-        .add($v(width, 0, (depth / PLANE_TEXTURE_MESH_DENSITY) * (i + 1))),
-      { color, lineWidth },
-    )
-  })
+  const bottomLeft2d = toScreen(bottomLeft3d)
+  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+
+  const topLeft2d = toScreen(bottomLeft3d.add($v(0, 0, depth), false))
+  ctx.lineTo(topLeft2d.x, topLeft2d.y)
+
+  const topRight2d = toScreen(bottomLeft3d.add($v(width, 0, depth), false))
+  ctx.lineTo(topRight2d.x, topRight2d.y)
+
+  const lowerRight2d = toScreen(bottomLeft3d.add($v(width, 0, 0), false))
+  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+
+  ctx.closePath() // Close path
+
+  ctx.save()
+  ctx.globalAlpha = opacity //  Set transparency
+  ctx.fillStyle = color
+  ctx.strokeStyle = 'black'
+  ctx.lineWidth = 1
+  ctx.stroke() // Outline the shape
+  ctx.fill() // Fill the shape
+  ctx.restore()
 }
 
 export const planeYZ = (
   center: Vector,
   height: number,
   depth: number,
-  { color = 'gray', lineWidth = 1 } = {},
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
   box(center, 0, height, depth, { color, lineWidth })
 
-  const bottomLeft = center.clone().sub($v(0, height / 2, depth / 2))
+  const bottomLeft3d = center.sub($v(0, height / 2, depth / 2), false)
 
-  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
-    line(
-      bottomLeft
-        .clone()
-        .add($v(0, (height / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), 0)),
-      bottomLeft
-        .clone()
-        .add($v(0, 0, (depth / PLANE_TEXTURE_MESH_DENSITY) * (i + 1))),
-      { color, lineWidth },
-    )
-  })
+  ctx.beginPath() // Start the shape
 
-  timesForEach(PLANE_TEXTURE_MESH_DENSITY, i => {
-    line(
-      bottomLeft
-        .clone()
-        .add($v(0, (height / PLANE_TEXTURE_MESH_DENSITY) * (i + 1), depth)),
-      bottomLeft
-        .clone()
-        .add($v(0, height, (depth / PLANE_TEXTURE_MESH_DENSITY) * (i + 1))),
-      { color, lineWidth },
-    )
-  })
+  const bottomLeft2d = toScreen(bottomLeft3d)
+  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+
+  const topLeft2d = toScreen(bottomLeft3d.add($v(0, 0, depth), false))
+  ctx.lineTo(topLeft2d.x, topLeft2d.y)
+
+  const topRight2d = toScreen(bottomLeft3d.add($v(0, height, depth), false))
+  ctx.lineTo(topRight2d.x, topRight2d.y)
+
+  const lowerRight2d = toScreen(bottomLeft3d.add($v(0, height, 0), false))
+  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+
+  ctx.closePath() // Close path
+
+  ctx.save()
+  ctx.globalAlpha = opacity //  Set transparency
+  ctx.fillStyle = color
+  ctx.strokeStyle = 'black'
+  ctx.lineWidth = 1
+  ctx.stroke() // Outline the shape
+  ctx.fill() // Fill the shape
+  ctx.restore()
 }
 
 export const box = (
@@ -529,7 +520,7 @@ export const text2d = (message: string, point: Vector) => {
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
-  const position = transform(point).clone().add(SCREEN_CENTER)
+  const position = transform(point).add(SCREEN_CENTER, false)
 
   ctx.fillText(message, position.x, position.y)
 }

@@ -42,39 +42,47 @@ export class Vector {
     return sqrt(this.magSq())
   }
 
-  normalize() {
-    return this.div(this.mag())
+  normalize(inPlace = true) {
+    return this.div(this.mag(), inPlace)
   }
 
-  setMag(magnitude: number) {
-    return this.normalize().mult(magnitude)
+  setMag(magnitude: number, inPlace = true) {
+    return this.normalize(inPlace).mult(magnitude)
   }
 
-  add(anotherVector: Vector) {
-    this.x += anotherVector.x
-    this.y += anotherVector.y
-    this.z += anotherVector.z ?? 0
+  add(anotherVector: Vector, inPlace = true) {
+    const target = inPlace ? this : this.clone()
 
-    return this
+    target.x += anotherVector.x
+    target.y += anotherVector.y
+    target.z += anotherVector.z ?? 0
+
+    return target
   }
 
-  sub(anotherVector: Vector) {
-    return this.add(anotherVector.clone().mult(-1))
+  sub(anotherVector: Vector, inPlace = true) {
+    const target = inPlace ? this : this.clone()
+
+    return target.add(anotherVector.mult(-1, false), inPlace)
   }
 
-  mult(scalarValue: number) {
-    this.x *= scalarValue
-    this.y *= scalarValue
-    this.z *= scalarValue
+  mult(scalarValue: number, inPlace = true) {
+    const target = inPlace ? this : this.clone()
 
-    return this
+    target.x *= scalarValue
+    target.y *= scalarValue
+    target.z *= scalarValue
+
+    return target
   }
 
-  div(scalarValue: number) {
+  div(scalarValue: number, inPlace = true) {
+    const target = inPlace ? this : this.clone()
+
     if (scalarValue === 0)
       throw new Error('Sorry, but division by 0 is not supported')
 
-    return this.mult(1 / scalarValue)
+    return target.mult(1 / scalarValue, inPlace)
   }
 
   toArray() {

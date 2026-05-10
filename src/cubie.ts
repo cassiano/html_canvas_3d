@@ -29,13 +29,20 @@ export class Cubie {
     return this.cube.cubieSize
   }
 
-  render() {
-    // cube(this.position.clone().mult(this.size), this.size)
+  get center() {
+    return this.position.mult(this.size + CUBIE_SPACING, false)
+  }
 
-    this.faces.forEach(face => {
+  render() {
+    // Sort faces in descending order relative to their distance from the camera.
+    const orderedFaces = this.faces.toSorted(
+      (left, right) => right.distanceFromCamera - left.distanceFromCamera,
+    )
+
+    orderedFaces.forEach(face => {
       isolateTransformations(() => {
         // Move to the cubie's center.
-        translate(this.position.clone().mult(this.size + CUBIE_SPACING))
+        translate(this.center)
 
         face.render()
       })

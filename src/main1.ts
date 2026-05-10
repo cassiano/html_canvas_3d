@@ -1,4 +1,11 @@
-import { PI, createFrameLoop, millis, togglePause } from './utils'
+import {
+  PI,
+  createFrameLoop,
+  fps,
+  frameCount,
+  millis,
+  togglePause,
+} from './utils'
 import {
   animation,
   background,
@@ -18,7 +25,7 @@ import { $v } from './vector'
 animation.onclick = () => togglePause()
 
 const draw = () => {
-  // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
+  console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
 
   background('lightGray')
   rotateX(-PI / 9) // rotate(-PI / 9, $v(1, 0, 0))

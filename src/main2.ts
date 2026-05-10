@@ -1,5 +1,5 @@
 import { CUBIE_SIZE, CUBIES_PER_AXIS } from './constants'
-import { PI, createFrameLoop, millis, togglePause } from './utils'
+import { createFrameLoop, millis, PI, togglePause } from './utils'
 import {
   animation,
   background,
@@ -14,7 +14,7 @@ import { RubikCube } from './rubik_cube'
 
 animation.onclick = () => togglePause()
 
-const cube = new RubikCube(CUBIE_SIZE, CUBIES_PER_AXIS)
+export const cube = new RubikCube(CUBIE_SIZE, CUBIES_PER_AXIS)
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
@@ -22,7 +22,7 @@ const draw = () => {
   background('lightGray')
 
   rotateX(-PI / 5)
-  rotateY(PI / 12 + millis() / 5000)
+  rotateY(PI / 12 + millis() / 2000)
 
   render3dAxes()
 

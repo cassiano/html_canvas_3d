@@ -5,6 +5,7 @@ import {
   planeXY,
   planeXZ,
   planeYZ,
+  transform,
   translate,
 } from './primitives'
 import { Coord3D } from './rubik_cube'
@@ -26,10 +27,22 @@ export class CubieFace {
     return this.cubie.size
   }
 
+  get relativeCenter() {
+    return this.normal.mult(this.size / 2, false)
+  }
+
+  get absoluteCenter() {
+    return this.cubie.center.add(this.relativeCenter, false)
+  }
+
+  get distanceFromCamera() {
+    return transform(this.absoluteCenter).z
+  }
+
   render() {
     isolateTransformations(() => {
       // Move to the face's center.
-      translate(this.normal.clone().mult(this.size / 2))
+      translate(this.relativeCenter)
 
       if (abs(this.normal.x) === 1)
         planeYZ(ORIGIN, this.size, this.size, {
