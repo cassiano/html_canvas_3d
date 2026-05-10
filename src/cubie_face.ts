@@ -1,4 +1,4 @@
-import { ORIGIN } from './constants'
+import { ORIGIN, SCREEN_Z_DISTANCE } from './constants'
 import { Cubie } from './cubie'
 import {
   isolateTransformations,
@@ -36,7 +36,7 @@ export class CubieFace {
   }
 
   get distanceFromCamera() {
-    return transform(this.absoluteCenter).z
+    return transform(this.absoluteCenter).z + SCREEN_Z_DISTANCE
   }
 
   render() {
