@@ -10,9 +10,9 @@ export const SPHERE_LONGITUDE_LINES = 16
 export const SPHERE_LATITUDE_LINES = 16
 export const ORIGIN = $v(0, 0, 0)
 
-export const CUBIE_SIZE = 200
+export const CUBIE_SIZE = 100
 export const CUBIE_SPACING = 0
-export const CUBIES_PER_AXIS = 1
+export const CUBIES_PER_AXIS = 3
 
 export const FACES: Record<string, number> = {
   front: 0,

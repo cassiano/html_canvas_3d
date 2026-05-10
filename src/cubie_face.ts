@@ -27,22 +27,18 @@ export class CubieFace {
     return this.cubie.size
   }
 
-  get relativeCenter() {
-    return this.normal.mult(this.size / 2, false)
-  }
-
-  get absoluteCenter() {
-    return this.cubie.center.add(this.relativeCenter, false)
+  get center() {
+    return this.cubie.center.add(this.normal.mult(this.size / 2, false), false)
   }
 
   get distanceFromCamera() {
-    return transform(this.absoluteCenter).z + SCREEN_Z_DISTANCE
+    return transform(this.center).z + SCREEN_Z_DISTANCE
   }
 
   render() {
     isolateTransformations(() => {
       // Move to the face's center.
-      translate(this.relativeCenter)
+      translate(this.center)
 
       if (abs(this.normal.x) === 1)
         planeYZ(ORIGIN, this.size, this.size, {

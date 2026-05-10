@@ -26,6 +26,10 @@ export class RubikCube {
   }
 
   render() {
-    this.cubies.forEach(cubie => cubie.render())
+    const sortedCubies = this.cubies.toSorted(
+      (left, right) => right.distanceFromCamera - left.distanceFromCamera,
+    )
+
+    sortedCubies.forEach(cubie => cubie.render())
   }
 }
