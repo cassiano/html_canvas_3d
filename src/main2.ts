@@ -1,5 +1,5 @@
 import { CUBIE_SIZE, CUBIES_PER_AXIS } from './constants'
-import { createFrameLoop, millis, PI, togglePause } from './utils'
+import { createFrameLoop, millis, PI, sin, togglePause } from './utils'
 import {
   animation,
   background,
@@ -21,8 +21,8 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(-PI / 5)
-  rotateY(PI / 12 + millis() / 5000)
+  rotateX(-PI / 5 + sin(millis() / 5000) * 1.5)
+  rotateY(PI / 12 + millis() / 3000)
 
   render3dAxes()
 

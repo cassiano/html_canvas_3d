@@ -302,61 +302,56 @@ export const line = (
 }
 
 export const planeXY = (
-  width: number,
-  height: number,
+  width: number, // x-axis
+  height: number, // y-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
   box(width, height, 0, { color, lineWidth })
 
-  const bottomLeft3d = $v(-width / 2, -height / 2, 0)
-
-  ctx.beginPath() // Start the shape
-
-  const bottomLeft2d = toScreen(bottomLeft3d)
-  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-
-  const topLeft2d = toScreen(bottomLeft3d.add($v(0, height, 0), false))
-  ctx.lineTo(topLeft2d.x, topLeft2d.y)
-
-  const topRight2d = toScreen(bottomLeft3d.add($v(width, height, 0), false))
-  ctx.lineTo(topRight2d.x, topRight2d.y)
-
-  const lowerRight2d = toScreen(bottomLeft3d.add($v(width, 0, 0), false))
-  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-
-  ctx.closePath() // Close path
-
-  ctx.save()
-  ctx.globalAlpha = opacity //  Set transparency
-  ctx.fillStyle = color
-  ctx.strokeStyle = 'black'
-  ctx.lineWidth = 1
-  ctx.stroke() // Outline the shape
-  ctx.fill() // Fill the shape
-  ctx.restore()
+  // const bottomLeft3d = $v(-width / 2, -height / 2, 0)
+  // fillShapeXY(bottomLeft3d, width, height, { color, lineWidth, opacity })
 }
 
 export const planeXZ = (
-  width: number,
-  depth: number,
+  width: number, // x-axis
+  depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
   box(width, 0, depth, { color, lineWidth })
 
-  const bottomLeft3d = $v(-width / 2, 0, -depth / 2)
+  // const bottomLeft3d = $v(-width / 2, 0, -depth / 2)
+  // fillShapeXZ(bottomLeft3d, width, depth, { color, lineWidth, opacity })
+}
 
+export const planeYZ = (
+  height: number, // y-axis
+  depth: number, // z-axis
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
+) => {
+  box(0, height, depth, { color, lineWidth })
+
+  // const bottomLeft3d = $v(0, -height / 2, -depth / 2)
+  // fillShapeYZ(bottomLeft3d, height, depth, { color, lineWidth, opacity })
+}
+
+const fillShapeXY = (
+  bottomLeft: Vector,
+  width: number, // x-axis
+  height: number, // y-axis
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
+) => {
   ctx.beginPath() // Start the shape
 
-  const bottomLeft2d = toScreen(bottomLeft3d)
+  const bottomLeft2d = toScreen(bottomLeft)
   ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
 
-  const topLeft2d = toScreen(bottomLeft3d.add($v(0, 0, depth), false))
+  const topLeft2d = toScreen(bottomLeft.add($v(0, height, 0), false))
   ctx.lineTo(topLeft2d.x, topLeft2d.y)
 
-  const topRight2d = toScreen(bottomLeft3d.add($v(width, 0, depth), false))
+  const topRight2d = toScreen(bottomLeft.add($v(width, height, 0), false))
   ctx.lineTo(topRight2d.x, topRight2d.y)
 
-  const lowerRight2d = toScreen(bottomLeft3d.add($v(width, 0, 0), false))
+  const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
   ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
 
   ctx.closePath() // Close path
@@ -365,33 +360,30 @@ export const planeXZ = (
   ctx.globalAlpha = opacity //  Set transparency
   ctx.fillStyle = color
   ctx.strokeStyle = 'black'
-  ctx.lineWidth = 1
+  ctx.lineWidth = lineWidth
   ctx.stroke() // Outline the shape
   ctx.fill() // Fill the shape
   ctx.restore()
 }
 
-export const planeYZ = (
-  height: number,
-  depth: number,
+const fillShapeXZ = (
+  bottomLeft: Vector,
+  width: number, // x-axis
+  depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
-  box(0, height, depth, { color, lineWidth })
-
-  const bottomLeft3d = $v(0, -height / 2, -depth / 2)
-
   ctx.beginPath() // Start the shape
 
-  const bottomLeft2d = toScreen(bottomLeft3d)
+  const bottomLeft2d = toScreen(bottomLeft)
   ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
 
-  const topLeft2d = toScreen(bottomLeft3d.add($v(0, 0, depth), false))
+  const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
   ctx.lineTo(topLeft2d.x, topLeft2d.y)
 
-  const topRight2d = toScreen(bottomLeft3d.add($v(0, height, depth), false))
+  const topRight2d = toScreen(bottomLeft.add($v(width, 0, depth), false))
   ctx.lineTo(topRight2d.x, topRight2d.y)
 
-  const lowerRight2d = toScreen(bottomLeft3d.add($v(0, height, 0), false))
+  const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
   ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
 
   ctx.closePath() // Close path
@@ -400,17 +392,49 @@ export const planeYZ = (
   ctx.globalAlpha = opacity //  Set transparency
   ctx.fillStyle = color
   ctx.strokeStyle = 'black'
-  ctx.lineWidth = 1
+  ctx.lineWidth = lineWidth
+  ctx.stroke() // Outline the shape
+  ctx.fill() // Fill the shape
+  ctx.restore()
+}
+
+const fillShapeYZ = (
+  bottomLeft: Vector,
+  height: number, // y-axis
+  depth: number, // z-axis
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
+) => {
+  ctx.beginPath() // Start the shape
+
+  const bottomLeft2d = toScreen(bottomLeft)
+  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+
+  const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
+  ctx.lineTo(topLeft2d.x, topLeft2d.y)
+
+  const topRight2d = toScreen(bottomLeft.add($v(0, height, depth), false))
+  ctx.lineTo(topRight2d.x, topRight2d.y)
+
+  const lowerRight2d = toScreen(bottomLeft.add($v(0, height, 0), false))
+  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+
+  ctx.closePath() // Close path
+
+  ctx.save()
+  ctx.globalAlpha = opacity //  Set transparency
+  ctx.fillStyle = color
+  ctx.strokeStyle = 'black'
+  ctx.lineWidth = lineWidth
   ctx.stroke() // Outline the shape
   ctx.fill() // Fill the shape
   ctx.restore()
 }
 
 export const box = (
-  width: number,
-  height: number,
-  depth: number,
-  { color = 'gray', lineWidth = 1 } = {},
+  width: number, // x-axis
+  height: number, // y-axis
+  depth: number, // z-axis
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
   const vertices = [
     $v(width / 2, height / 2, depth / 2),
@@ -424,37 +448,58 @@ export const box = (
   ]
 
   const connections = [
-    [0, 1, 2, 3], // front face
-    [4, 5, 6, 7], // back face
-    // connecting lines
+    [0, 1, 2, 3], // Front face.
+    [4, 5, 6, 7], // Back face.
+    // Connecting lines.
     [0, 4],
     [1, 5],
     [2, 6],
     [3, 7],
-    // [0, 6],
-    // [1, 7],
-    // [2, 4],
-    // [3, 5],
-    // [0, 5],
-    // [1, 4],
-    // [2, 7],
-    // [3, 6],
   ]
 
-  connections.forEach(connection => {
-    for (let i = 0; i < connection.length; i++) {
-      if (connection.length === 2 && i === 1) continue // handle the simple lines
+  const fillLeftRightFaces = (face: Vector) =>
+    fillShapeYZ(
+      face.add($v(0, -height / 2, -depth / 2), false),
+      height,
+      depth,
+      { color, lineWidth, opacity },
+    )
 
-      const v1 = vertices[connection[i]]
-      const v2 = vertices[connection[(i + 1) % connection.length]]
+  const fillTopBottomFaces = (face: Vector) =>
+    fillShapeXZ(face.add($v(-width / 2, 0, -depth / 2), false), width, depth, {
+      color,
+      lineWidth,
+      opacity,
+    })
 
-      line(v1, v2, { color, lineWidth })
-    }
-  })
+  const fillBackFrontFaces = (face: Vector) =>
+    fillShapeXY(
+      face.add($v(-width / 2, -height / 2, 0), false),
+      width,
+      height,
+      { color, lineWidth, opacity },
+    )
+
+  const faces = [
+    { center: $v(-width / 2, 0, 0), fillFn: fillLeftRightFaces },
+    { center: $v(width / 2, 0, 0), fillFn: fillLeftRightFaces },
+    { center: $v(0, height / 2, 0), fillFn: fillTopBottomFaces },
+    { center: $v(0, -height / 2, 0), fillFn: fillTopBottomFaces },
+    { center: $v(0, 0, depth / 2), fillFn: fillBackFrontFaces },
+    { center: $v(0, 0, -depth / 2), fillFn: fillBackFrontFaces },
+  ] as const
+
+  const orderedFaces = faces.toSorted(
+    (left, right) => transform(right.center).z - transform(left.center).z,
+  )
+
+  orderedFaces.forEach(face => face.fillFn(face.center))
 }
 
-export const cube = (size: number, { color = 'gray', lineWidth = 1 } = {}) =>
-  box(size, size, size, { color, lineWidth })
+export const cube = (
+  size: number,
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
+) => box(size, size, size, { color, lineWidth, opacity })
 
 export const circleXY = (
   radius: number,
@@ -474,7 +519,7 @@ export const circleXY = (
 
 export const sphere = (
   radius: number,
-  { color = 'gray', lineWidth = 1 } = {},
+  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
   isolateTransformations(() => {
     // Draw a series of concentric 2D circles as longitude lines, all with the same radius.

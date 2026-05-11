@@ -1,4 +1,3 @@
-import { ORIGIN } from './constants'
 import { Mover3D } from './mover_3d'
 import {
   isolateTransformations,
@@ -36,7 +35,7 @@ export class SphereMover extends Mover3D {
       if (yAngle !== undefined) rotateY(yAngle)
       if (zAngle !== undefined) rotateZ(zAngle)
 
-      sphere(ORIGIN, this.radius, { color: 'rgb(161, 12, 12)', width: 1 })
+      sphere(this.radius, { color: 'rgb(161, 12, 12)', lineWidth: 1 })
     })
   }
 }

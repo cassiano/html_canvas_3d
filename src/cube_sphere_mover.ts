@@ -37,7 +37,11 @@ export class CubeSphereMover extends Mover3D {
       if (zAngle !== undefined) rotateZ(zAngle)
 
       sphere(this.radius, { color: 'rgb(161, 12, 12)', lineWidth: 1 })
-      cube(this.radius * 2 * 0.7, { color: 'black', lineWidth: 2 })
+      cube(this.radius * 2 * 0.7, {
+        color: 'black',
+        lineWidth: 2,
+        opacity: 0.15,
+      })
     })
   }
 }
