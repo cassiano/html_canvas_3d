@@ -305,34 +305,19 @@ export const planeXY = (
   width: number, // x-axis
   height: number, // y-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => {
-  box(width, height, 0, { color, lineWidth })
-
-  // const bottomLeft3d = $v(-width / 2, -height / 2, 0)
-  // fillShapeXY(bottomLeft3d, width, height, { color, lineWidth, opacity })
-}
+) => box(width, height, 0, { color, lineWidth })
 
 export const planeXZ = (
   width: number, // x-axis
   depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => {
-  box(width, 0, depth, { color, lineWidth })
-
-  // const bottomLeft3d = $v(-width / 2, 0, -depth / 2)
-  // fillShapeXZ(bottomLeft3d, width, depth, { color, lineWidth, opacity })
-}
+) => box(width, 0, depth, { color, lineWidth })
 
 export const planeYZ = (
   height: number, // y-axis
   depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => {
-  box(0, height, depth, { color, lineWidth })
-
-  // const bottomLeft3d = $v(0, -height / 2, -depth / 2)
-  // fillShapeYZ(bottomLeft3d, height, depth, { color, lineWidth, opacity })
-}
+) => box(0, height, depth, { color, lineWidth })
 
 const fillShapeXY = (
   bottomLeft: Vector,
@@ -457,28 +442,50 @@ export const box = (
     [3, 7],
   ]
 
-  const fillLeftRightFaces = (face: Vector) =>
-    fillShapeYZ(
-      face.add($v(0, -height / 2, -depth / 2), false),
-      height,
-      depth,
-      { color, lineWidth, opacity },
-    )
+  let faceAlreadyFilled = false // Used when rendering a plane (width, height or depth is 0).
 
-  const fillTopBottomFaces = (face: Vector) =>
-    fillShapeXZ(face.add($v(-width / 2, 0, -depth / 2), false), width, depth, {
-      color,
-      lineWidth,
-      opacity,
-    })
+  const fillLeftRightFaces = (face: Vector) => {
+    if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
+      fillShapeYZ(
+        face.add($v(0, -height / 2, -depth / 2), false),
+        height,
+        depth,
+        { color, lineWidth, opacity },
+      )
 
-  const fillBackFrontFaces = (face: Vector) =>
-    fillShapeXY(
-      face.add($v(-width / 2, -height / 2, 0), false),
-      width,
-      height,
-      { color, lineWidth, opacity },
-    )
+      faceAlreadyFilled = true
+    }
+  }
+
+  const fillTopBottomFaces = (face: Vector) => {
+    if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
+      fillShapeXZ(
+        face.add($v(-width / 2, 0, -depth / 2), false),
+        width,
+        depth,
+        {
+          color,
+          lineWidth,
+          opacity,
+        },
+      )
+
+      faceAlreadyFilled = true
+    }
+  }
+
+  const fillBackFrontFaces = (face: Vector) => {
+    if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
+      fillShapeXY(
+        face.add($v(-width / 2, -height / 2, 0), false),
+        width,
+        height,
+        { color, lineWidth, opacity },
+      )
+
+      faceAlreadyFilled = true
+    }
+  }
 
   const faces = [
     { center: $v(-width / 2, 0, 0), fillFn: fillLeftRightFaces },
