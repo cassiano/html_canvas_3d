@@ -153,6 +153,14 @@ export class Vector {
     return acos(cosC)
   }
 
+  inBetween(anotherVector: Vector, distanceRatio = 0.5) {
+    return $v(
+      this.x + distanceRatio * (anotherVector.x - this.x),
+      this.y + distanceRatio * (anotherVector.y - this.y),
+      this.z + distanceRatio * (anotherVector.z - this.z),
+    )
+  }
+
   static create(x: number, y: number, z?: number) {
     return new Vector(x, y, z)
   }

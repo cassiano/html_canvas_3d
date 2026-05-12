@@ -7,9 +7,10 @@ export const FPS_WINDOW = 100
 export const CIRCLE_SEGMENTS = 36
 export const SPHERE_LONGITUDE_LINES = 16
 export const SPHERE_LATITUDE_LINES = 16
+export const LINE_SEGMENTS = 20
 
 export const CUBIE_SIZE = 70
-export const CUBIE_SPACING = 30
+export const CUBIE_SPACING = 50
 export const CUBIES_PER_AXIS = 3
 
 export const FACES: Record<string, number> = {

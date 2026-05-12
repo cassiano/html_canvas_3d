@@ -1,5 +1,6 @@
 import {
   CIRCLE_SEGMENTS,
+  LINE_SEGMENTS,
   SCREEN_Z_DISTANCE,
   SPHERE_LATITUDE_LINES,
   SPHERE_LONGITUDE_LINES,
@@ -14,6 +15,18 @@ export const animation = document.getElementById(
 ) as HTMLCanvasElement
 
 export const ctx = animation.getContext('2d')!
+
+let delayedRenderList: { center: Vector; renderFn: () => void }[] = []
+
+export const processDelayedRenders = () => {
+  const orderedList = delayedRenderList.toSorted(
+    (left, right) => right.center.z - left.center.z,
+  )
+
+  orderedList.forEach(item => item.renderFn())
+
+  delayedRenderList.length = 0
+}
 
 export const SCREEN_CENTER = $v(animation.width / 2, animation.height / 2, 0)
 
@@ -281,8 +294,12 @@ export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
   // Skip rendering if behind camera.
   if (!projected) return
 
-  ctx.fillStyle = color
-  ctx.fillRect(projected.x - size / 2, projected.y - size / 2, size, size)
+  const renderFn = () => {
+    ctx.fillStyle = color
+    ctx.fillRect(projected.x - size / 2, projected.y - size / 2, size, size)
+  }
+
+  delayedRenderList.push({ center: transform(coords), renderFn })
 }
 
 export const line = (
@@ -297,12 +314,28 @@ export const line = (
   // line at the Z-boundary, but skipping is enough to stop the "random lines").
   if (!projectedA || !projectedB) return
 
-  ctx.strokeStyle = color
-  ctx.lineWidth = lineWidth
-  ctx.beginPath()
-  ctx.moveTo(projectedA.x, projectedA.y)
-  ctx.lineTo(projectedB.x, projectedB.y)
-  ctx.stroke()
+  let latestPoint = pointA
+
+  timesForEach(LINE_SEGMENTS, i => {
+    const nextPoint = pointA.inBetween(pointB, (1 / LINE_SEGMENTS) * (i + 1))
+    const center = latestPoint.inBetween(nextPoint)
+
+    const { x: x1, y: y1 } = toScreen(latestPoint)
+    const { x: x2, y: y2 } = toScreen(nextPoint)
+
+    latestPoint = nextPoint
+
+    const renderFn = () => {
+      ctx.strokeStyle = color
+      ctx.lineWidth = lineWidth
+      ctx.beginPath()
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
+      ctx.stroke()
+    }
+
+    delayedRenderList.push({ center: transform(center), renderFn })
+  })
 }
 
 export const planeXY = (
@@ -323,104 +356,151 @@ export const planeYZ = (
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => box(0, height, depth, { color, lineWidth })
 
-const fillPlaneXY = (
-  center: Vector,
-  width: number, // x-axis
-  height: number, // y-axis
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
-) => {
-  const bottomLeft = center.sub($v(width / 2, height / 2, 0), false)
-  const bottomLeft2d = toScreen(bottomLeft)
-  const topLeft2d = toScreen(bottomLeft.add($v(0, height, 0), false))
-  const topRight2d = toScreen(bottomLeft.add($v(width, height, 0), false))
-  const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
-
-  ctx.beginPath() // Start the shape
-  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-  ctx.lineTo(topLeft2d.x, topLeft2d.y)
-  ctx.lineTo(topRight2d.x, topRight2d.y)
-  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-  ctx.closePath() // Close path
-
-  ctx.save()
-  ctx.globalAlpha = opacity //  Set transparency
-  ctx.fillStyle = color
-  ctx.strokeStyle = strokeColor
-  ctx.lineWidth = lineWidth
-  ctx.stroke() // Outline the shape
-  ctx.fill() // Fill the shape
-  ctx.restore()
-}
-
-const fillPlaneXZ = (
-  center: Vector,
-  width: number, // x-axis
-  depth: number, // z-axis
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
-) => {
-  const bottomLeft = center.sub($v(width / 2, 0, depth / 2), false)
-  const bottomLeft2d = toScreen(bottomLeft)
-  const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
-  const topRight2d = toScreen(bottomLeft.add($v(width, 0, depth), false))
-  const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
-
-  ctx.beginPath() // Start the shape
-  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-  ctx.lineTo(topLeft2d.x, topLeft2d.y)
-  ctx.lineTo(topRight2d.x, topRight2d.y)
-  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-  ctx.closePath() // Close path
-
-  ctx.save()
-  ctx.globalAlpha = opacity //  Set transparency
-  ctx.fillStyle = color
-  ctx.strokeStyle = strokeColor
-  ctx.lineWidth = lineWidth
-  ctx.stroke() // Outline the shape
-  ctx.fill() // Fill the shape
-  ctx.restore()
-}
-
-const fillPlaneYZ = (
-  center: Vector,
-  height: number, // y-axis
-  depth: number, // z-axis
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
-) => {
-  const bottomLeft = center.sub($v(0, height / 2, depth / 2), false)
-  const bottomLeft2d = toScreen(bottomLeft)
-  const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
-  const topRight2d = toScreen(bottomLeft.add($v(0, height, depth), false))
-  const lowerRight2d = toScreen(bottomLeft.add($v(0, height, 0), false))
-
-  ctx.beginPath() // Start the shape
-  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-  ctx.lineTo(topLeft2d.x, topLeft2d.y)
-  ctx.lineTo(topRight2d.x, topRight2d.y)
-  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-  ctx.closePath() // Close path
-
-  ctx.save()
-  ctx.globalAlpha = opacity //  Set transparency
-  ctx.fillStyle = color
-  ctx.strokeStyle = strokeColor
-  ctx.lineWidth = lineWidth
-  ctx.stroke() // Outline the shape
-  ctx.fill() // Fill the shape
-  ctx.restore()
-}
-
 export const box = (
   width: number, // x-axis
   height: number, // y-axis
   depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
 ) => {
+  //   const fillFace = (
+  //   center: Vector,
+  //   width: number, // x-axis
+  //   height: number, // y-axis
+  //   depth: number, // z-axis
+  //   faceAxes: ['XY', 'XZ', 'YZ']
+  //   { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+  // ) => {
+  //   const bottomLeft = center.sub($v(width / 2, height / 2, depth/2), false)
+  //   const bottomLeft2d = toScreen(bottomLeft)
+  //   const topLeft2d = toScreen(bottomLeft.add($v(0, height, 0), false))
+  //   const topRight2d = toScreen(bottomLeft.add($v(width, height, 0), false))
+  //   const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
+
+  //   const renderFn = () => {
+  //     ctx.beginPath() // Start the shape
+  //     ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+  //     ctx.lineTo(topLeft2d.x, topLeft2d.y)
+  //     ctx.lineTo(topRight2d.x, topRight2d.y)
+  //     ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+  //     ctx.closePath() // Close path
+
+  //     ctx.save()
+  //     ctx.globalAlpha = opacity //  Set transparency
+  //     ctx.fillStyle = color
+  //     ctx.strokeStyle = strokeColor
+  //     ctx.lineWidth = lineWidth
+  //     ctx.stroke() // Outline the shape
+  //     ctx.fill() // Fill the shape
+  //     ctx.restore()
+  //   }
+
+  //   delayedRenderList.push({ center: transform(center), renderFn })
+  // }
+
+  const fillFaceXY = (
+    center: Vector,
+    width: number, // x-axis
+    height: number, // y-axis
+    { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+  ) => {
+    const bottomLeft = center.sub($v(width / 2, height / 2, 0), false)
+    const bottomLeft2d = toScreen(bottomLeft)
+    const topLeft2d = toScreen(bottomLeft.add($v(0, height, 0), false))
+    const topRight2d = toScreen(bottomLeft.add($v(width, height, 0), false))
+    const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
+
+    const renderFn = () => {
+      ctx.beginPath() // Start the shape
+      ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+      ctx.lineTo(topLeft2d.x, topLeft2d.y)
+      ctx.lineTo(topRight2d.x, topRight2d.y)
+      ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+      ctx.closePath() // Close path
+
+      ctx.save()
+      ctx.globalAlpha = opacity //  Set transparency
+      ctx.fillStyle = color
+      ctx.strokeStyle = strokeColor
+      ctx.lineWidth = lineWidth
+      ctx.stroke() // Outline the shape
+      ctx.fill() // Fill the shape
+      ctx.restore()
+    }
+
+    delayedRenderList.push({ center: transform(center), renderFn })
+  }
+
+  const fillFaceXZ = (
+    center: Vector,
+    width: number, // x-axis
+    depth: number, // z-axis
+    { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+  ) => {
+    const bottomLeft = center.sub($v(width / 2, 0, depth / 2), false)
+    const bottomLeft2d = toScreen(bottomLeft)
+    const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
+    const topRight2d = toScreen(bottomLeft.add($v(width, 0, depth), false))
+    const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
+
+    const renderFn = () => {
+      ctx.beginPath() // Start the shape
+      ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+      ctx.lineTo(topLeft2d.x, topLeft2d.y)
+      ctx.lineTo(topRight2d.x, topRight2d.y)
+      ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+      ctx.closePath() // Close path
+
+      ctx.save()
+      ctx.globalAlpha = opacity //  Set transparency
+      ctx.fillStyle = color
+      ctx.strokeStyle = strokeColor
+      ctx.lineWidth = lineWidth
+      ctx.stroke() // Outline the shape
+      ctx.fill() // Fill the shape
+      ctx.restore()
+    }
+
+    delayedRenderList.push({ center: transform(center), renderFn })
+  }
+
+  const fillFaceYZ = (
+    center: Vector,
+    height: number, // y-axis
+    depth: number, // z-axis
+    { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+  ) => {
+    const bottomLeft = center.sub($v(0, height / 2, depth / 2), false)
+    const bottomLeft2d = toScreen(bottomLeft)
+    const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
+    const topRight2d = toScreen(bottomLeft.add($v(0, height, depth), false))
+    const lowerRight2d = toScreen(bottomLeft.add($v(0, height, 0), false))
+
+    const renderFn = () => {
+      ctx.beginPath() // Start the shape
+      ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+      ctx.lineTo(topLeft2d.x, topLeft2d.y)
+      ctx.lineTo(topRight2d.x, topRight2d.y)
+      ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+      ctx.closePath() // Close path
+
+      ctx.save()
+      ctx.globalAlpha = opacity //  Set transparency
+      ctx.fillStyle = color
+      ctx.strokeStyle = strokeColor
+      ctx.lineWidth = lineWidth
+      ctx.stroke() // Outline the shape
+      ctx.fill() // Fill the shape
+      ctx.restore()
+    }
+
+    delayedRenderList.push({ center: transform(center), renderFn })
+  }
+
   let faceAlreadyFilled = false // Used when rendering a plane (when one of width, height or depth is 0).
 
   const fillLeftRightFaces = (face: Vector) => {
     if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
-      fillPlaneYZ(face, height, depth, {
+      fillFaceYZ(face, height, depth, {
         color,
         lineWidth,
         opacity,
@@ -433,7 +513,7 @@ export const box = (
 
   const fillTopBottomFaces = (face: Vector) => {
     if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
-      fillPlaneXZ(face, width, depth, {
+      fillFaceXZ(face, width, depth, {
         color,
         lineWidth,
         opacity,
@@ -446,7 +526,7 @@ export const box = (
 
   const fillBackFrontFaces = (face: Vector) => {
     if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
-      fillPlaneXY(face, width, height, {
+      fillFaceXY(face, width, height, {
         color,
         lineWidth,
         opacity,

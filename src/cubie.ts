@@ -41,4 +41,8 @@ export class Cubie {
   get distanceFromCamera() {
     return transform(this.center).z + SCREEN_Z_DISTANCE
   }
+
+  render() {
+    this.faces.forEach(face => face.render())
+  }
 }

@@ -4,6 +4,7 @@ import {
   background,
   box,
   isolateTransformations,
+  processDelayedRenders,
   render3dAxes,
   resetTransformationMatrix,
   rotateX,
@@ -32,7 +33,7 @@ const draw = () => {
     scale(0.5)
     scale(0.5)
 
-    box(100, 40, 140, { color: 'green' })
+    box(100, 40, 250, { color: 'green' })
   })
 
   // Blue box.
@@ -40,7 +41,7 @@ const draw = () => {
     translate(100, -100, 0)
     translate(100, -100, 0)
 
-    box(100, 40, 140, { color: 'blue' })
+    box(100, 40, 250, { color: 'blue' })
   })
 
   // Red box.
@@ -48,7 +49,7 @@ const draw = () => {
     rotateZ(millis() / 2000)
     translate(0, 150, 0)
 
-    box(100, 40, 140, { color: 'red' })
+    box(100, 40, 250, { color: 'red' })
   })
 
   // Orange box.
@@ -56,7 +57,7 @@ const draw = () => {
     translate(250, 0, 0)
     rotateZ(millis() / 2000)
 
-    box(100, 40, 140, { color: 'orange' })
+    box(100, 40, 250, { color: 'orange' })
   })
 }
 
@@ -68,6 +69,7 @@ const frame = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
+    processDelayedRenders()
   },
   onPaused,
   120,
