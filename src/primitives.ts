@@ -342,19 +342,19 @@ export const planeXY = (
   width: number, // x-axis
   height: number, // y-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => box(width, height, 0, { color, lineWidth })
+) => box(width, height, 0, { color, lineWidth, opacity })
 
 export const planeXZ = (
   width: number, // x-axis
   depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => box(width, 0, depth, { color, lineWidth })
+) => box(width, 0, depth, { color, lineWidth, opacity })
 
 export const planeYZ = (
   height: number, // y-axis
   depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => box(0, height, depth, { color, lineWidth })
+) => box(0, height, depth, { color, lineWidth, opacity })
 
 export const box = (
   width: number, // x-axis

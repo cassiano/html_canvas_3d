@@ -44,16 +44,19 @@ export class CubieFace {
         planeYZ(this.size, this.size, {
           color: this.color,
           lineWidth: 2,
+          opacity: 1,
         })
       else if (abs(this.normal.y) === 1)
         planeXZ(this.size, this.size, {
           color: this.color,
           lineWidth: 2,
+          opacity: 1,
         })
       else if (abs(this.normal.z) === 1)
         planeXY(this.size, this.size, {
           color: this.color,
           lineWidth: 2,
+          opacity: 1,
         })
     })
   }
