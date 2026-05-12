@@ -425,28 +425,7 @@ export const box = (
   depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
-  const vertices = [
-    $v(width / 2, height / 2, depth / 2),
-    $v(width / 2, height / 2, -depth / 2),
-    $v(width / 2, -height / 2, -depth / 2),
-    $v(width / 2, -height / 2, depth / 2),
-    $v(-width / 2, height / 2, depth / 2),
-    $v(-width / 2, height / 2, -depth / 2),
-    $v(-width / 2, -height / 2, -depth / 2),
-    $v(-width / 2, -height / 2, depth / 2),
-  ]
-
-  const connections = [
-    [0, 1, 2, 3], // Front face.
-    [4, 5, 6, 7], // Back face.
-    // Connecting lines.
-    [0, 4],
-    [1, 5],
-    [2, 6],
-    [3, 7],
-  ]
-
-  let faceAlreadyFilled = false // Used when rendering a plane (width, height or depth is 0).
+  let faceAlreadyFilled = false // Used when rendering a plane (when one of width, height or depth is 0).
 
   const fillLeftRightFaces = (face: Vector) => {
     if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
