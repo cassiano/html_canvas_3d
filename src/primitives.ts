@@ -323,96 +323,87 @@ export const planeYZ = (
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => box(0, height, depth, { color, lineWidth })
 
-const fillShapeXY = (
-  bottomLeft: Vector,
+const fillPlaneXY = (
+  center: Vector,
   width: number, // x-axis
   height: number, // y-axis
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
 ) => {
-  ctx.beginPath() // Start the shape
-
+  const bottomLeft = center.sub($v(width / 2, height / 2, 0), false)
   const bottomLeft2d = toScreen(bottomLeft)
-  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-
   const topLeft2d = toScreen(bottomLeft.add($v(0, height, 0), false))
-  ctx.lineTo(topLeft2d.x, topLeft2d.y)
-
   const topRight2d = toScreen(bottomLeft.add($v(width, height, 0), false))
-  ctx.lineTo(topRight2d.x, topRight2d.y)
-
   const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
-  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
 
+  ctx.beginPath() // Start the shape
+  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+  ctx.lineTo(topLeft2d.x, topLeft2d.y)
+  ctx.lineTo(topRight2d.x, topRight2d.y)
+  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
   ctx.closePath() // Close path
 
   ctx.save()
   ctx.globalAlpha = opacity //  Set transparency
   ctx.fillStyle = color
-  ctx.strokeStyle = 'black'
+  ctx.strokeStyle = strokeColor
   ctx.lineWidth = lineWidth
   ctx.stroke() // Outline the shape
   ctx.fill() // Fill the shape
   ctx.restore()
 }
 
-const fillShapeXZ = (
-  bottomLeft: Vector,
+const fillPlaneXZ = (
+  center: Vector,
   width: number, // x-axis
   depth: number, // z-axis
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
 ) => {
-  ctx.beginPath() // Start the shape
-
+  const bottomLeft = center.sub($v(width / 2, 0, depth / 2), false)
   const bottomLeft2d = toScreen(bottomLeft)
-  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-
   const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
-  ctx.lineTo(topLeft2d.x, topLeft2d.y)
-
   const topRight2d = toScreen(bottomLeft.add($v(width, 0, depth), false))
-  ctx.lineTo(topRight2d.x, topRight2d.y)
-
   const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
-  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
 
+  ctx.beginPath() // Start the shape
+  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+  ctx.lineTo(topLeft2d.x, topLeft2d.y)
+  ctx.lineTo(topRight2d.x, topRight2d.y)
+  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
   ctx.closePath() // Close path
 
   ctx.save()
   ctx.globalAlpha = opacity //  Set transparency
   ctx.fillStyle = color
-  ctx.strokeStyle = 'black'
+  ctx.strokeStyle = strokeColor
   ctx.lineWidth = lineWidth
   ctx.stroke() // Outline the shape
   ctx.fill() // Fill the shape
   ctx.restore()
 }
 
-const fillShapeYZ = (
-  bottomLeft: Vector,
+const fillPlaneYZ = (
+  center: Vector,
   height: number, // y-axis
   depth: number, // z-axis
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
 ) => {
-  ctx.beginPath() // Start the shape
-
+  const bottomLeft = center.sub($v(0, height / 2, depth / 2), false)
   const bottomLeft2d = toScreen(bottomLeft)
-  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-
   const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
-  ctx.lineTo(topLeft2d.x, topLeft2d.y)
-
   const topRight2d = toScreen(bottomLeft.add($v(0, height, depth), false))
-  ctx.lineTo(topRight2d.x, topRight2d.y)
-
   const lowerRight2d = toScreen(bottomLeft.add($v(0, height, 0), false))
-  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
 
+  ctx.beginPath() // Start the shape
+  ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+  ctx.lineTo(topLeft2d.x, topLeft2d.y)
+  ctx.lineTo(topRight2d.x, topRight2d.y)
+  ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
   ctx.closePath() // Close path
 
   ctx.save()
   ctx.globalAlpha = opacity //  Set transparency
   ctx.fillStyle = color
-  ctx.strokeStyle = 'black'
+  ctx.strokeStyle = strokeColor
   ctx.lineWidth = lineWidth
   ctx.stroke() // Outline the shape
   ctx.fill() // Fill the shape
@@ -423,18 +414,18 @@ export const box = (
   width: number, // x-axis
   height: number, // y-axis
   depth: number, // z-axis
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
 ) => {
   let faceAlreadyFilled = false // Used when rendering a plane (when one of width, height or depth is 0).
 
   const fillLeftRightFaces = (face: Vector) => {
     if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
-      fillShapeYZ(
-        face.add($v(0, -height / 2, -depth / 2), false),
-        height,
-        depth,
-        { color, lineWidth, opacity },
-      )
+      fillPlaneYZ(face, height, depth, {
+        color,
+        lineWidth,
+        opacity,
+        strokeColor,
+      })
 
       faceAlreadyFilled = true
     }
@@ -442,16 +433,12 @@ export const box = (
 
   const fillTopBottomFaces = (face: Vector) => {
     if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
-      fillShapeXZ(
-        face.add($v(-width / 2, 0, -depth / 2), false),
-        width,
-        depth,
-        {
-          color,
-          lineWidth,
-          opacity,
-        },
-      )
+      fillPlaneXZ(face, width, depth, {
+        color,
+        lineWidth,
+        opacity,
+        strokeColor,
+      })
 
       faceAlreadyFilled = true
     }
@@ -459,12 +446,12 @@ export const box = (
 
   const fillBackFrontFaces = (face: Vector) => {
     if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
-      fillShapeXY(
-        face.add($v(-width / 2, -height / 2, 0), false),
-        width,
-        height,
-        { color, lineWidth, opacity },
-      )
+      fillPlaneXY(face, width, height, {
+        color,
+        lineWidth,
+        opacity,
+        strokeColor,
+      })
 
       faceAlreadyFilled = true
     }
@@ -488,8 +475,8 @@ export const box = (
 
 export const cube = (
   size: number,
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => box(size, size, size, { color, lineWidth, opacity })
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+) => box(size, size, size, { color, lineWidth, opacity, strokeColor })
 
 export const circleXY = (
   radius: number,
