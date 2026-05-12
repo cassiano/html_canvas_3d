@@ -1,6 +1,7 @@
 import { Coord3D } from './rubik_cube'
 
 export const GRAVITY = 0.05
+export const FPS = 120
 export const DEPTH = 2000
 export const SCREEN_Z_DISTANCE = 400
 export const FPS_WINDOW = 100

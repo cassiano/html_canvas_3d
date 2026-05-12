@@ -16,6 +16,7 @@ import {
 } from './primitives'
 import { $v } from './vector'
 import { PI } from './math_utils'
+import { FPS } from './constants'
 
 animation.onclick = () => togglePause()
 
@@ -72,7 +73,7 @@ const frame = createFrameLoop(
     processDeferredRenders()
   },
   onPaused,
-  120,
+  FPS,
 )
 
 // Start the animation loop.

@@ -1,4 +1,4 @@
-import { DEPTH, GRAVITY } from './constants'
+import { DEPTH, FPS, GRAVITY } from './constants'
 import { createFrameLoop, millis, togglePause } from './utils'
 import {
   animation,
@@ -69,7 +69,7 @@ const frame = createFrameLoop(
     processDeferredRenders()
   },
   onPaused,
-  120,
+  FPS,
 )
 
 // Start the animation loop.

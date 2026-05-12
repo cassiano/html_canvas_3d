@@ -1,4 +1,4 @@
-import { CUBIE_SIZE, CUBIES_PER_AXIS } from './constants'
+import { CUBIE_SIZE, CUBIES_PER_AXIS, FPS } from './constants'
 import { createFrameLoop, millis, togglePause } from './utils'
 import {
   animation,
@@ -42,7 +42,7 @@ const frame = createFrameLoop(
     processDeferredRenders()
   },
   onPaused,
-  120,
+  FPS,
 )
 
 // Start the animation loop.
