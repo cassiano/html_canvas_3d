@@ -4,7 +4,7 @@ import {
   background,
   box,
   isolateTransformations,
-  processDelayedRenders,
+  processDeferredRenders,
   render3dAxes,
   resetTransformationMatrix,
   rotateX,
@@ -69,7 +69,7 @@ const frame = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
-    processDelayedRenders()
+    processDeferredRenders()
   },
   onPaused,
   120,

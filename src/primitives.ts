@@ -16,16 +16,16 @@ export const animation = document.getElementById(
 
 export const ctx = animation.getContext('2d')!
 
-let delayedRenderList: { center: Vector; renderFn: () => void }[] = []
+let deferredRenderList: { center: Vector; renderFn: () => void }[] = []
 
-export const processDelayedRenders = () => {
-  const orderedList = delayedRenderList.toSorted(
+export const processDeferredRenders = () => {
+  const orderedList = deferredRenderList.toSorted(
     (left, right) => right.center.z - left.center.z,
   )
 
-  orderedList.forEach(item => item.renderFn())
+  orderedList.forEach(element => element.renderFn())
 
-  delayedRenderList.length = 0
+  deferredRenderList.length = 0
 }
 
 export const SCREEN_CENTER = $v(animation.width / 2, animation.height / 2, 0)
@@ -299,7 +299,7 @@ export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
     ctx.fillRect(projected.x - size / 2, projected.y - size / 2, size, size)
   }
 
-  delayedRenderList.push({ center: transform(coords), renderFn })
+  deferredRenderList.push({ center: transform(coords), renderFn })
 }
 
 export const line = (
@@ -334,7 +334,7 @@ export const line = (
       ctx.stroke()
     }
 
-    delayedRenderList.push({ center: transform(center), renderFn })
+    deferredRenderList.push({ center: transform(center), renderFn })
   })
 }
 
@@ -362,46 +362,38 @@ export const box = (
   depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
 ) => {
-  //   const fillFace = (
-  //   center: Vector,
-  //   width: number, // x-axis
-  //   height: number, // y-axis
-  //   depth: number, // z-axis
-  //   faceAxes: ['XY', 'XZ', 'YZ']
-  //   { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
-  // ) => {
-  //   const bottomLeft = center.sub($v(width / 2, height / 2, depth/2), false)
-  //   const bottomLeft2d = toScreen(bottomLeft)
-  //   const topLeft2d = toScreen(bottomLeft.add($v(0, height, 0), false))
-  //   const topRight2d = toScreen(bottomLeft.add($v(width, height, 0), false))
-  //   const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
+  const renderFace = (
+    center: Vector,
+    bottomLeft2d: Vector,
+    topLeft2d: Vector,
+    topRight2d: Vector,
+    lowerRight2d: Vector,
+  ) => {
+    const renderFn = () => {
+      ctx.beginPath() // Start the shape
+      ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
+      ctx.lineTo(topLeft2d.x, topLeft2d.y)
+      ctx.lineTo(topRight2d.x, topRight2d.y)
+      ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
+      ctx.closePath() // Close path
 
-  //   const renderFn = () => {
-  //     ctx.beginPath() // Start the shape
-  //     ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-  //     ctx.lineTo(topLeft2d.x, topLeft2d.y)
-  //     ctx.lineTo(topRight2d.x, topRight2d.y)
-  //     ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-  //     ctx.closePath() // Close path
+      ctx.save()
+      ctx.globalAlpha = opacity //  Set transparency
+      ctx.fillStyle = color
+      ctx.strokeStyle = strokeColor
+      ctx.lineWidth = lineWidth
+      ctx.stroke() // Outline the shape
+      ctx.fill() // Fill the shape
+      ctx.restore()
+    }
 
-  //     ctx.save()
-  //     ctx.globalAlpha = opacity //  Set transparency
-  //     ctx.fillStyle = color
-  //     ctx.strokeStyle = strokeColor
-  //     ctx.lineWidth = lineWidth
-  //     ctx.stroke() // Outline the shape
-  //     ctx.fill() // Fill the shape
-  //     ctx.restore()
-  //   }
-
-  //   delayedRenderList.push({ center: transform(center), renderFn })
-  // }
+    deferredRenderList.push({ center: transform(center), renderFn })
+  }
 
   const fillFaceXY = (
     center: Vector,
     width: number, // x-axis
     height: number, // y-axis
-    { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
   ) => {
     const bottomLeft = center.sub($v(width / 2, height / 2, 0), false)
     const bottomLeft2d = toScreen(bottomLeft)
@@ -409,32 +401,13 @@ export const box = (
     const topRight2d = toScreen(bottomLeft.add($v(width, height, 0), false))
     const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
 
-    const renderFn = () => {
-      ctx.beginPath() // Start the shape
-      ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-      ctx.lineTo(topLeft2d.x, topLeft2d.y)
-      ctx.lineTo(topRight2d.x, topRight2d.y)
-      ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-      ctx.closePath() // Close path
-
-      ctx.save()
-      ctx.globalAlpha = opacity //  Set transparency
-      ctx.fillStyle = color
-      ctx.strokeStyle = strokeColor
-      ctx.lineWidth = lineWidth
-      ctx.stroke() // Outline the shape
-      ctx.fill() // Fill the shape
-      ctx.restore()
-    }
-
-    delayedRenderList.push({ center: transform(center), renderFn })
+    renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
   }
 
   const fillFaceXZ = (
     center: Vector,
     width: number, // x-axis
     depth: number, // z-axis
-    { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
   ) => {
     const bottomLeft = center.sub($v(width / 2, 0, depth / 2), false)
     const bottomLeft2d = toScreen(bottomLeft)
@@ -442,32 +415,13 @@ export const box = (
     const topRight2d = toScreen(bottomLeft.add($v(width, 0, depth), false))
     const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
 
-    const renderFn = () => {
-      ctx.beginPath() // Start the shape
-      ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-      ctx.lineTo(topLeft2d.x, topLeft2d.y)
-      ctx.lineTo(topRight2d.x, topRight2d.y)
-      ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-      ctx.closePath() // Close path
-
-      ctx.save()
-      ctx.globalAlpha = opacity //  Set transparency
-      ctx.fillStyle = color
-      ctx.strokeStyle = strokeColor
-      ctx.lineWidth = lineWidth
-      ctx.stroke() // Outline the shape
-      ctx.fill() // Fill the shape
-      ctx.restore()
-    }
-
-    delayedRenderList.push({ center: transform(center), renderFn })
+    renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
   }
 
   const fillFaceYZ = (
     center: Vector,
     height: number, // y-axis
     depth: number, // z-axis
-    { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
   ) => {
     const bottomLeft = center.sub($v(0, height / 2, depth / 2), false)
     const bottomLeft2d = toScreen(bottomLeft)
@@ -475,64 +429,28 @@ export const box = (
     const topRight2d = toScreen(bottomLeft.add($v(0, height, depth), false))
     const lowerRight2d = toScreen(bottomLeft.add($v(0, height, 0), false))
 
-    const renderFn = () => {
-      ctx.beginPath() // Start the shape
-      ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-      ctx.lineTo(topLeft2d.x, topLeft2d.y)
-      ctx.lineTo(topRight2d.x, topRight2d.y)
-      ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-      ctx.closePath() // Close path
-
-      ctx.save()
-      ctx.globalAlpha = opacity //  Set transparency
-      ctx.fillStyle = color
-      ctx.strokeStyle = strokeColor
-      ctx.lineWidth = lineWidth
-      ctx.stroke() // Outline the shape
-      ctx.fill() // Fill the shape
-      ctx.restore()
-    }
-
-    delayedRenderList.push({ center: transform(center), renderFn })
+    renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
   }
 
   let faceAlreadyFilled = false // Used when rendering a plane (when one of width, height or depth is 0).
 
   const fillLeftRightFaces = (face: Vector) => {
     if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
-      fillFaceYZ(face, height, depth, {
-        color,
-        lineWidth,
-        opacity,
-        strokeColor,
-      })
-
+      fillFaceYZ(face, height, depth)
       faceAlreadyFilled = true
     }
   }
 
   const fillTopBottomFaces = (face: Vector) => {
     if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
-      fillFaceXZ(face, width, depth, {
-        color,
-        lineWidth,
-        opacity,
-        strokeColor,
-      })
-
+      fillFaceXZ(face, width, depth)
       faceAlreadyFilled = true
     }
   }
 
   const fillBackFrontFaces = (face: Vector) => {
     if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
-      fillFaceXY(face, width, height, {
-        color,
-        lineWidth,
-        opacity,
-        strokeColor,
-      })
-
+      fillFaceXY(face, width, height)
       faceAlreadyFilled = true
     }
   }
@@ -625,15 +543,15 @@ export const render3dAxes = () => {
   const zPos = $v(0, 0, AXIS_LENGTH / 2)
 
   // X-axis
-  line(xNeg, xPos, { color: 'red' })
+  line(xNeg, xPos, { color: 'darkRed' })
   point(xPos, { color: 'red', size: 12 })
 
   // Y-axis
-  line(yNeg, yPos, { color: 'green' })
+  line(yNeg, yPos, { color: 'darkGreen' })
   point(yPos, { color: 'green', size: 12 })
 
   // Z-axis
-  line(zNeg, zPos, { color: 'blue' })
+  line(zNeg, zPos, { color: 'darkBlue' })
   point(zPos, { color: 'blue', size: 12 })
 }
 

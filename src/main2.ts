@@ -3,7 +3,7 @@ import { createFrameLoop, millis, togglePause } from './utils'
 import {
   animation,
   background,
-  processDelayedRenders,
+  processDeferredRenders,
   render3dAxes,
   resetTransformationMatrix,
   rotateX,
@@ -39,7 +39,7 @@ const frame = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
-    processDelayedRenders()
+    processDeferredRenders()
   },
   onPaused,
   120,
