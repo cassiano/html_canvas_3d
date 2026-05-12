@@ -1,4 +1,4 @@
-import { acos, sqrt } from './utils'
+import { acos, sqrt } from './math_utils'
 import { Tuple } from './utility_types'
 
 export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>

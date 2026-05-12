@@ -1,6 +1,5 @@
 import { FPS_WINDOW } from './constants'
-
-export const { PI, sin, cos, tan, min, max, sqrt, abs, acos, asin, atan } = Math
+import { isolateTransformations } from './primitives.ts'
 
 export const timesForEach = (count: number, fn: (i: number) => void) => {
   for (let i = 0; i < count; i++) fn(i)
@@ -44,7 +43,7 @@ export const createFrameLoop = (
       if (deltaTime >= frameDuration) {
         lastFrameTime = currentTime - (deltaTime % frameDuration)
 
-        drawFn()
+        isolateTransformations(drawFn)
 
         frameCount_++
       }

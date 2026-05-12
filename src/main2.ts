@@ -1,5 +1,5 @@
 import { CUBIE_SIZE, CUBIES_PER_AXIS } from './constants'
-import { createFrameLoop, millis, PI, sin, togglePause } from './utils'
+import { createFrameLoop, millis, togglePause } from './utils'
 import {
   animation,
   background,
@@ -11,6 +11,7 @@ import {
 } from './primitives'
 import { $v } from './vector'
 import { RubikCube } from './rubik_cube'
+import { PI, sin } from './math_utils'
 
 animation.onclick = () => togglePause()
 
@@ -30,7 +31,7 @@ const draw = () => {
 }
 
 const onPaused = () => {
-  text2d('PAUSED', $v(0, 400))
+  text2d('PAUSED', $v(0, 300))
 }
 
 const frame = createFrameLoop(

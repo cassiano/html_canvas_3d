@@ -6,7 +6,8 @@ import {
 } from './constants.ts'
 import { $v, transformationMatrix4x1Type, Vector } from './vector.ts'
 import { Tuple } from './utility_types.ts'
-import { cos, min, PI, sin, timesForEach } from './utils.ts'
+import { timesForEach } from './utils.ts'
+import { cos, min, PI, sin } from './math_utils.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -32,7 +33,10 @@ export const DEFAULT_TRANSFORMATION_MATRIX: transformationMatrix4x4Type =
     [ 0,  0,  0,  1 ],
   ] as const
 
-let transformationMatrix: transformationMatrix4x4Type
+let transformationMatrix: transformationMatrix4x4Type =
+  DEFAULT_TRANSFORMATION_MATRIX.map(row => [
+    ...row,
+  ]) as transformationMatrix4x4Type
 const transformatioMatrixStack: transformationMatrix4x4Type[] = []
 
 const cloneTransformationMatrix = (

@@ -1,5 +1,5 @@
 import { DEPTH, GRAVITY } from './constants'
-import { PI, createFrameLoop, millis, togglePause } from './utils'
+import { createFrameLoop, millis, togglePause } from './utils'
 import {
   animation,
   background,
@@ -14,6 +14,7 @@ import {
 } from './primitives'
 import { $v } from './vector'
 import { CubeSphereMover } from './cube_sphere_mover'
+import { PI } from './math_utils'
 
 animation.onclick = () => togglePause()
 
@@ -57,7 +58,7 @@ const draw = () => {
 }
 
 const onPaused = () => {
-  text2d('PAUSED', $v(0, 600))
+  text2d('PAUSED', $v(0, 300))
 }
 
 const frame = createFrameLoop(

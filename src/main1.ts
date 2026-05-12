@@ -1,11 +1,4 @@
-import {
-  PI,
-  createFrameLoop,
-  fps,
-  frameCount,
-  millis,
-  togglePause,
-} from './utils'
+import { createFrameLoop, fps, frameCount, millis, togglePause } from './utils'
 import {
   animation,
   background,
@@ -21,6 +14,7 @@ import {
   translate,
 } from './primitives'
 import { $v } from './vector'
+import { PI } from './math_utils'
 
 animation.onclick = () => togglePause()
 
@@ -57,12 +51,12 @@ const draw = () => {
     box(100, 40, 140, { color: 'red' })
   })
 
-  // Black box.
+  // Orange box.
   isolateTransformations(() => {
     translate(250, 0, 0)
     rotateZ(millis() / 2000)
 
-    box(100, 40, 140, { color: 'black' })
+    box(100, 40, 140, { color: 'orange' })
   })
 }
 
