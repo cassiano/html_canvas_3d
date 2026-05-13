@@ -1,4 +1,4 @@
-import { createFrameLoop, fps, frameCount, millis, togglePause } from './utils'
+import { createFrameLoop, fps, millis, togglePause } from './../utils'
 import {
   animation,
   background,
@@ -13,15 +13,16 @@ import {
   scale,
   text2d,
   translate,
-} from './primitives'
-import { $v } from './vector'
-import { PI } from './math_utils'
-import { FPS } from './constants'
+} from './../primitives'
+import { $v } from './../vector'
+import { PI } from './../math_utils'
+import { FPS } from './../constants'
 
 animation.onclick = () => togglePause()
 
 const draw = () => {
-  console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
+  // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
+  console.log({ fps: fps() })
 
   background('lightGray')
   rotateX(-PI / 9)
