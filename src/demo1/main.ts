@@ -25,8 +25,6 @@ const gravity = $v(0, -GRAVITY, 0)
 const mover = new CubeSphereMover(10, 0, 300, 0, 100)
 const weight = gravity.mult(mover.mass, false)
 
-let yAngle = 0
-
 // -------------------------------------------------------------------------------------------------
 
 animation.onclick = () => togglePause()
@@ -38,7 +36,7 @@ const draw = () => {
   background('lightGray')
 
   rotateX(-PI / 3)
-  rotateY(PI / 12 + yAngle)
+  rotateY(PI / 12 + millis() / 2000)
 
   render3dAxes()
 
@@ -58,8 +56,6 @@ const draw = () => {
   mover.update(DEPTH)
   mover.checkEdges(DEPTH)
   mover.applyForce(weight)
-
-  yAngle += deltaAngle
 }
 
 const onPaused = () => {
