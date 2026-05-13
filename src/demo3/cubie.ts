@@ -1,5 +1,5 @@
 import { SCREEN_Z_DISTANCE } from './../constants'
-import { timesForEach } from './../utils'
+import { timesMap } from './../utils'
 import { transform } from './../primitives'
 import { $v, Vector } from './../vector'
 import { CubieFace } from './cubie_face.ts'
@@ -17,13 +17,11 @@ export class Cubie {
     z: number,
   ) {
     this.position = $v(x, y, z)
-    this.faces = []
 
-    timesForEach(6, i => {
-      const face = new CubieFace(this, FACE_COLORS[i], FACE_NORMALS[i])
-
-      this.faces.push(face)
-    })
+    this.faces = timesMap(
+      6,
+      i => new CubieFace(this, FACE_COLORS[i], FACE_NORMALS[i]),
+    )
   }
 
   get size() {
