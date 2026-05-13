@@ -449,25 +449,25 @@ export const box = (
 
   let faceAlreadyFilled = false // Used when rendering a plane (when one of width, height or depth is 0).
 
-  const fillLeftRightFaces = (face: Vector) => {
+  const fillLeftRightFaces = (center: Vector) => {
     if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
-      fillFaceYZ(face, height, depth)
+      fillFaceYZ(center, height, depth)
 
       faceAlreadyFilled = true
     }
   }
 
-  const fillTopBottomFaces = (face: Vector) => {
+  const fillTopBottomFaces = (center: Vector) => {
     if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
-      fillFaceXZ(face, width, depth)
+      fillFaceXZ(center, width, depth)
 
       faceAlreadyFilled = true
     }
   }
 
-  const fillBackFrontFaces = (face: Vector) => {
+  const fillBackFrontFaces = (center: Vector) => {
     if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
-      fillFaceXY(face, width, height)
+      fillFaceXY(center, width, height)
 
       faceAlreadyFilled = true
     }
