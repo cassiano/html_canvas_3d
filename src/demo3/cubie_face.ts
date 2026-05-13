@@ -1,9 +1,7 @@
 import { SCREEN_Z_DISTANCE } from './../constants'
 import {
+  box,
   isolateTransformations,
-  planeXY,
-  planeXZ,
-  planeYZ,
   transform,
   translate,
 } from './../primitives'
@@ -37,27 +35,14 @@ export class CubieFace {
 
   render() {
     isolateTransformations(() => {
-      // Move to the face's center.
       translate(this.center)
 
-      if (abs(this.normal.x) === 1)
-        planeYZ(this.size, this.size, {
-          color: this.color,
-          lineWidth: 2,
-          opacity: 1,
-        })
-      else if (abs(this.normal.y) === 1)
-        planeXZ(this.size, this.size, {
-          color: this.color,
-          lineWidth: 2,
-          opacity: 1,
-        })
-      else if (abs(this.normal.z) === 1)
-        planeXY(this.size, this.size, {
-          color: this.color,
-          lineWidth: 2,
-          opacity: 1,
-        })
+      box(
+        abs(this.normal.x) === 1 ? 0 : this.size,
+        abs(this.normal.y) === 1 ? 0 : this.size,
+        abs(this.normal.z) === 1 ? 0 : this.size,
+        { color: this.color, opacity: 1 },
+      )
     })
   }
 }
