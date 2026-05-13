@@ -16,11 +16,11 @@ export const animation = document.getElementById(
 
 export const ctx = animation.getContext('2d')!
 
-let deferredRenderList: { center: Vector; renderFn: () => void }[] = []
+let deferredRenderList: { z: number; renderFn: () => void }[] = []
 
 export const processDeferredRenders = () => {
   const orderedList = deferredRenderList.toSorted(
-    (left, right) => right.center.z - left.center.z,
+    (left, right) => right.z - left.z,
   )
 
   orderedList.forEach(element => element.renderFn())
@@ -299,7 +299,7 @@ export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
     ctx.fillRect(projected.x - size / 2, projected.y - size / 2, size, size)
   }
 
-  deferredRenderList.push({ center: transform(coords), renderFn })
+  deferredRenderList.push({ z: calculateZ(coords), renderFn })
 }
 
 export const line = (
@@ -334,7 +334,7 @@ export const line = (
       ctx.stroke()
     }
 
-    deferredRenderList.push({ center: transform(center), renderFn })
+    deferredRenderList.push({ z: calculateZ(center), renderFn })
   })
 }
 
@@ -387,7 +387,7 @@ export const box = (
       ctx.restore()
     }
 
-    deferredRenderList.push({ center: transform(center), renderFn })
+    deferredRenderList.push({ z: calculateZ(center), renderFn })
   }
 
   const fillFaceXY = (
@@ -584,4 +584,15 @@ export const multiplyMatrices = (
   }
 
   return result
+}
+
+const calculateZ = (point: Vector): number => {
+  const thirdRow = transformationMatrix[2]
+
+  return (
+    thirdRow[0] * point.x +
+    thirdRow[1] * point.y +
+    thirdRow[2] * point.z +
+    thirdRow[3] * 1
+  )
 }
