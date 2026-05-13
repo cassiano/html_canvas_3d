@@ -1,4 +1,3 @@
-export const GRAVITY = 0.25
 export const FPS = 120
 export const DEPTH = 2000
 export const SCREEN_Z_DISTANCE = 400

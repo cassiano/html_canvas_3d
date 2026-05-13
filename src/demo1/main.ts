@@ -1,5 +1,5 @@
-import { DEPTH, FPS, GRAVITY } from '../constants'
-import { createFrameLoop, millis, togglePause } from '../utils'
+import { DEPTH, FPS } from '../constants'
+import { createFrameLoop, fps, millis, togglePause } from '../utils'
 import {
   animation,
   background,
@@ -17,6 +17,7 @@ import { $v } from '../vector'
 import { PI } from '../math_utils'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
 
+const GRAVITY = 0.1
 const deltaAngle = (2 * PI) / 1e3
 const gravity = $v(0, -GRAVITY, 0)
 // const mover = new CubeMover(10, 0, 0, 0, 100)
@@ -32,6 +33,7 @@ animation.onclick = () => togglePause()
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
+  console.log({ fps: fps() })
 
   background('lightGray')
 
@@ -43,7 +45,7 @@ const draw = () => {
   isolateTransformations(() => {
     translate(0, -DEPTH, 0)
 
-    planeXZ(500, 500, { color: 'violet' })
+    planeXZ(500, 500, { color: 'yellow' })
   })
 
   mover.render({
