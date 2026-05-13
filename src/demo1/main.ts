@@ -1,4 +1,4 @@
-import { DEPTH, FPS } from '../constants'
+import { FPS } from '../constants'
 import { createFrameLoop, fps, millis, togglePause } from '../utils'
 import {
   animation,
@@ -17,6 +17,7 @@ import { $v } from '../vector'
 import { PI } from '../math_utils'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
 
+const DEPTH = 2000
 const GRAVITY = 0.1
 const deltaAngle = (2 * PI) / 1e3
 const gravity = $v(0, -GRAVITY, 0)
