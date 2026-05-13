@@ -27,7 +27,7 @@ export class CubieFace {
         abs(this.normal.x) === 1 ? 0 : this.size,
         abs(this.normal.y) === 1 ? 0 : this.size,
         abs(this.normal.z) === 1 ? 0 : this.size,
-        { color: this.color, opacity: 1 },
+        { color: this.color },
       )
     })
   }
