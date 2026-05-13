@@ -7,6 +7,7 @@ import {
   sphere,
   translate,
 } from '../primitives'
+import { millis } from '../utils'
 import { Mover3D } from './mover_3d'
 
 export class CubeSphereMover extends Mover3D {
@@ -24,17 +25,13 @@ export class CubeSphereMover extends Mover3D {
     return this.radius
   }
 
-  render({
-    xAngle,
-    yAngle,
-    zAngle,
-  }: { xAngle?: number; yAngle?: number; zAngle?: number } = {}) {
+  render() {
     isolateTransformations(() => {
       translate(this.position)
 
-      if (xAngle !== undefined) rotateX(xAngle)
-      if (yAngle !== undefined) rotateY(yAngle)
-      if (zAngle !== undefined) rotateZ(zAngle)
+      rotateX(millis() / 1000)
+      rotateY(millis() / 2000)
+      rotateZ(millis() / 3000)
 
       sphere(this.radius, { color: 'black', lineWidth: 1 })
       cube(this.radius * 2 * 0.7, {

@@ -47,11 +47,7 @@ const draw = () => {
     planeXZ(500, 500, { color: 'yellow' })
   })
 
-  mover.render({
-    xAngle: millis() / 3000,
-    yAngle: millis() / 3000,
-    zAngle: millis() / 3000,
-  })
+  mover.render()
 
   // Do the physics and animation updates.
   mover.update(DEPTH)
