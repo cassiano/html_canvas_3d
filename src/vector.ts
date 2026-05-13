@@ -161,23 +161,6 @@ export class Vector {
     )
   }
 
-  // splitPath(anotherVector: Vector, totalSegments: number) {
-  //   const segments: Vector[] = []
-
-  //   let latestPoint: Vector = this
-
-  //   timesForEach(totalSegments, i => {
-  //     const nextPoint = this.inBetween(anotherVector, (1 / totalSegments) * (i + 1))
-  //     const center = latestPoint.inBetween(nextPoint)
-
-  //     segments.push()
-
-  //     latestPoint = nextPoint
-  //   })
-
-  //   return segments
-  // }
-
   static create(x: number, y: number, z?: number) {
     return new Vector(x, y, z)
   }
