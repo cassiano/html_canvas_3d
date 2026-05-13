@@ -26,6 +26,8 @@ import { $v, Vector } from './vector'
 import { abs, PI, sin } from './math_utils'
 import { Tuple } from './utility_types'
 
+// -------------------------------------------------------------------------------------------------
+
 const CUBIE_SIZE = 30
 const CUBIE_SPACING = 25
 const CUBIES_PER_AXIS = 7
@@ -55,9 +57,13 @@ const FACE_NORMALS: Record<number, Coord3D> = {
   [FACES.bottom]: [0, -1, 0], // Normal unit vector towards -y
 } as const
 
+// -------------------------------------------------------------------------------------------------
+
 export type Coord3D = Tuple<number, 3>
 
-export class RubikCube {
+// -------------------------------------------------------------------------------------------------
+
+class RubikCube {
   cubies: Cubie[]
 
   constructor(
@@ -84,7 +90,9 @@ export class RubikCube {
   }
 }
 
-export class Cubie {
+// -------------------------------------------------------------------------------------------------
+
+class Cubie {
   position: Vector
   faces: CubieFace[]
 
@@ -121,7 +129,9 @@ export class Cubie {
   }
 }
 
-export class CubieFace {
+// -------------------------------------------------------------------------------------------------
+
+class CubieFace {
   normal: Vector
 
   constructor(
@@ -170,6 +180,8 @@ export class CubieFace {
     })
   }
 }
+
+// -------------------------------------------------------------------------------------------------
 
 animation.onclick = () => togglePause()
 

@@ -19,6 +19,8 @@ import {
 import { $v, Vector } from './vector'
 import { PI } from './math_utils'
 
+// -------------------------------------------------------------------------------------------------
+
 class Mover3D {
   position: Vector
   velocity: Vector
@@ -73,6 +75,8 @@ class Mover3D {
   }
 }
 
+// -------------------------------------------------------------------------------------------------
+
 class CubeMover extends Mover3D {
   constructor(
     mass: number,
@@ -105,6 +109,8 @@ class CubeMover extends Mover3D {
   }
 }
 
+// -------------------------------------------------------------------------------------------------
+
 class SphereMover extends Mover3D {
   constructor(
     mass: number,
@@ -136,6 +142,8 @@ class SphereMover extends Mover3D {
     })
   }
 }
+
+// -------------------------------------------------------------------------------------------------
 
 class CubeSphereMover extends Mover3D {
   constructor(
@@ -173,6 +181,8 @@ class CubeSphereMover extends Mover3D {
     })
   }
 }
+
+// -------------------------------------------------------------------------------------------------
 
 animation.onclick = () => togglePause()
 
