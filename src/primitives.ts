@@ -305,7 +305,7 @@ export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
 export const line = (
   pointA: Vector,
   pointB: Vector,
-  { color = 'black', lineWidth = 1 } = {},
+  { color = 'black', lineWidth = 1, avoidSplit = false } = {},
 ) => {
   const projectedA = toScreen(pointA)
   const projectedB = toScreen(pointB)
@@ -314,28 +314,43 @@ export const line = (
   // line at the Z-boundary, but skipping is enough to stop the "random lines").
   if (!projectedA || !projectedB) return
 
-  let latestPoint = pointA
-
-  timesForEach(LINE_SEGMENTS, i => {
-    const nextPoint = pointA.inBetween(pointB, (1 / LINE_SEGMENTS) * (i + 1))
-    const center = latestPoint.inBetween(nextPoint)
-
-    const { x: x1, y: y1 } = toScreen(latestPoint)
-    const { x: x2, y: y2 } = toScreen(nextPoint)
-
-    latestPoint = nextPoint
+  if (avoidSplit) {
+    const center = pointA.inBetween(pointB)
 
     const renderFn = () => {
       ctx.strokeStyle = color
       ctx.lineWidth = lineWidth
       ctx.beginPath()
-      ctx.moveTo(x1, y1)
-      ctx.lineTo(x2, y2)
+      ctx.moveTo(projectedA.x, projectedA.y)
+      ctx.lineTo(projectedB.x, projectedB.y)
       ctx.stroke()
     }
 
     deferredRenderList.push({ z: calculateZ(center), renderFn })
-  })
+  } else {
+    let latestPoint = pointA
+
+    timesForEach(LINE_SEGMENTS, i => {
+      const nextPoint = pointA.inBetween(pointB, (1 / LINE_SEGMENTS) * (i + 1))
+      const center = latestPoint.inBetween(nextPoint)
+
+      const { x: x1, y: y1 } = toScreen(latestPoint)
+      const { x: x2, y: y2 } = toScreen(nextPoint)
+
+      latestPoint = nextPoint
+
+      const renderFn = () => {
+        ctx.strokeStyle = color
+        ctx.lineWidth = lineWidth
+        ctx.beginPath()
+        ctx.moveTo(x1, y1)
+        ctx.lineTo(x2, y2)
+        ctx.stroke()
+      }
+
+      deferredRenderList.push({ z: calculateZ(center), renderFn })
+    })
+  }
 }
 
 export const planeXY = (
@@ -485,7 +500,7 @@ export const circleXY = (
     const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
 
     if (previousPoint !== undefined)
-      line(previousPoint, currentPoint, { color, lineWidth })
+      line(previousPoint, currentPoint, { color, lineWidth, avoidSplit: true })
 
     previousPoint = currentPoint
   }
@@ -585,13 +600,13 @@ export const multiplyMatrices = (
   return result
 }
 
-const calculateZ = (point: Vector): number => {
+const calculateZ = (point3d: Vector): number => {
   const thirdRow = transformationMatrix[2]
 
   return (
-    thirdRow[0] * point.x +
-    thirdRow[1] * point.y +
-    thirdRow[2] * point.z +
+    thirdRow[0] * point3d.x +
+    thirdRow[1] * point3d.y +
+    thirdRow[2] * point3d.z +
     thirdRow[3] * 1
   )
 }
