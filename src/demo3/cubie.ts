@@ -1,9 +1,14 @@
 import { SCREEN_Z_DISTANCE } from './../constants'
 import { timesMap } from './../utils'
-import { transform } from './../primitives'
+import { isolateTransformations, transform, translate } from './../primitives'
 import { $v, Vector } from './../vector'
 import { CubieFace } from './cubie_face.ts'
-import { CUBIE_SPACING, FACE_COLORS, FACE_NORMALS } from './constants.ts'
+import {
+  CUBIE_SPACING,
+  FACE_COLORS,
+  FACE_NORMALS,
+  FACES_PER_CUBIE,
+} from './constants.ts'
 import { RubikCube } from './rubik_cube.ts'
 
 export class Cubie {
@@ -19,7 +24,7 @@ export class Cubie {
     this.position = $v(x, y, z)
 
     this.faces = timesMap(
-      6,
+      FACES_PER_CUBIE,
       i => new CubieFace(this, FACE_COLORS[i], FACE_NORMALS[i]),
     )
   }
@@ -37,6 +42,23 @@ export class Cubie {
   }
 
   render() {
-    this.faces.forEach(face => face.render())
+    isolateTransformations(() => {
+      translate(this.center)
+
+      // rotateX(
+      //   ((this.position.x + this.position.y + this.position.z) * millis()) /
+      //     3000,
+      // )
+      // rotateY(
+      //   ((this.position.x - this.position.y + this.position.z) * millis()) /
+      //     3000,
+      // )
+      // rotateZ(
+      //   ((this.position.x + this.position.y - this.position.z) * millis()) /
+      //     3000,
+      // )
+
+      this.faces.forEach(face => face.render())
+    })
   }
 }

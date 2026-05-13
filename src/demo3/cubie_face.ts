@@ -1,10 +1,4 @@
-import { SCREEN_Z_DISTANCE } from './../constants'
-import {
-  box,
-  isolateTransformations,
-  transform,
-  translate,
-} from './../primitives'
+import { box, isolateTransformations, translate } from './../primitives'
 import { Vector } from './../vector'
 import { abs } from './../math_utils'
 import { Cubie } from './cubie'
@@ -20,12 +14,9 @@ export class CubieFace {
     return this.cubie.size
   }
 
+  // Relative to its cubie (container).
   get center() {
-    return this.cubie.center.add(this.normal.mult(this.size / 2, false), false)
-  }
-
-  get distanceFromCamera() {
-    return transform(this.center).z + SCREEN_Z_DISTANCE
+    return this.normal.mult(this.size / 2, false)
   }
 
   render() {

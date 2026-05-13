@@ -3,6 +3,8 @@ import { $v, Vector } from '../vector'
 
 export type Coord3D = Tuple<number, 3>
 
+export const FACES_PER_CUBIE = 6
+
 export const CUBIE_SIZE = 25
 export const CUBIE_SPACING = 25
 export const CUBIES_PER_AXIS = 7
