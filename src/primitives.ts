@@ -437,6 +437,7 @@ export const box = (
   const fillLeftRightFaces = (face: Vector) => {
     if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
       fillFaceYZ(face, height, depth)
+
       faceAlreadyFilled = true
     }
   }
@@ -444,6 +445,7 @@ export const box = (
   const fillTopBottomFaces = (face: Vector) => {
     if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
       fillFaceXZ(face, width, depth)
+
       faceAlreadyFilled = true
     }
   }
@@ -451,6 +453,7 @@ export const box = (
   const fillBackFrontFaces = (face: Vector) => {
     if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
       fillFaceXY(face, width, height)
+
       faceAlreadyFilled = true
     }
   }
@@ -464,11 +467,7 @@ export const box = (
     { center: $v(0, 0, -depth / 2), fillFn: fillBackFrontFaces },
   ] as const
 
-  const orderedFaces = faces.toSorted(
-    (left, right) => transform(right.center).z - transform(left.center).z,
-  )
-
-  orderedFaces.forEach(face => face.fillFn(face.center))
+  faces.forEach(face => face.fillFn(face.center))
 }
 
 export const cube = (

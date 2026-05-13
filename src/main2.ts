@@ -26,9 +26,9 @@ import { $v, Vector } from './vector'
 import { abs, PI, sin } from './math_utils'
 import { Tuple } from './utility_types'
 
-const CUBIE_SIZE = 40
-const CUBIE_SPACING = 30
-const CUBIES_PER_AXIS = 5
+const CUBIE_SIZE = 30
+const CUBIE_SPACING = 25
+const CUBIES_PER_AXIS = 7
 
 const FACES: Record<string, number> = {
   front: 0,
