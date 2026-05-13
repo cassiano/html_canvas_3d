@@ -5,21 +5,16 @@ import {
   transform,
   translate,
 } from './../primitives'
-import { $v, Vector } from './../vector'
+import { Vector } from './../vector'
 import { abs } from './../math_utils'
 import { Cubie } from './cubie'
-import { Coord3D } from './constants.ts'
 
 export class CubieFace {
-  normal: Vector
-
   constructor(
     public cubie: Cubie,
     public color: string,
-    normal: Coord3D,
-  ) {
-    this.normal = $v(...normal)
-  }
+    public normal: Vector,
+  ) {}
 
   get size() {
     return this.cubie.size
