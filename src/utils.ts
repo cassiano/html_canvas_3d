@@ -5,6 +5,27 @@ export const timesForEach = (count: number, fn: (i: number) => void) => {
   for (let i = 0; i < count; i++) fn(i)
 }
 
+export const timesMap = <T>(count: number, fn: (index: number) => T): T[] => {
+  const results: T[] = []
+
+  for (let i = 0; i < count; i++) results[i] = fn(i)
+
+  return results
+}
+
+export const timesReduce = <T>(
+  count: number,
+  fn: (acc: T, item: number) => T,
+  initialAcc?: T,
+): T => {
+  const startIndex = initialAcc === undefined ? 1 : 0
+  let acc = initialAcc ?? (0 as T)
+
+  for (let i = startIndex; i < count; i++) acc = fn(acc, i)
+
+  return acc
+}
+
 export const sample = <T>(items: T[]): T =>
   items[Math.floor(Math.random() * items.length)]
 
