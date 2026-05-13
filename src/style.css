@@ -51,7 +51,11 @@
 }
 
 body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  height: 100vh;
   margin: 0;
+  background-color: #222;
 }
 
 h1,
@@ -293,4 +297,55 @@ code {
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+/* Canvas Layout Styles */
+#menu {
+  background-color: #333;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 150px;
+  gap: 10px;
+}
+
+#menu h1 {
+  color: #fff;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+#menu button {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #555;
+  color: #fff;
+  border: 1px solid #777;
+  border-radius: 4px;
+}
+
+#menu button:hover {
+  background-color: #666;
+}
+
+#menu button.active {
+  background-color: #0078d4;
+  border-color: #0078d4;
+}
+
+#canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #222;
+}
+
+#animation {
+  cursor: auto;
 }

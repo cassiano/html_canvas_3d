@@ -51,9 +51,13 @@ export const createFrameLoop = (
   targetFPS: number = 120,
 ) => {
   const frameDuration = 1000 / targetFPS
+  let running = false
+  let animationId: number | null = null
 
   const frame = (currentTime: number) => {
-    requestAnimationFrame(frame)
+    if (!running) return
+
+    animationId = requestAnimationFrame(frame)
 
     if (!paused) {
       pausedTextDisplayed = false
@@ -85,7 +89,25 @@ export const createFrameLoop = (
     }
   }
 
-  return frame
+  const start = () => {
+    if (!running) {
+      running = true
+
+      requestAnimationFrame(frame)
+    }
+  }
+
+  const stop = () => {
+    running = false
+
+    if (animationId !== null) {
+      cancelAnimationFrame(animationId)
+
+      animationId = null
+    }
+  }
+
+  return { start, stop }
 }
 
 export const togglePause = () => {

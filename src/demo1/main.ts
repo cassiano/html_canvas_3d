@@ -66,7 +66,7 @@ const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
-const frame = createFrameLoop(
+const { start, stop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
@@ -76,5 +76,4 @@ const frame = createFrameLoop(
   FPS,
 )
 
-// Start the animation loop.
-requestAnimationFrame(frame)
+export { start, stop }
