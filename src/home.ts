@@ -4,6 +4,7 @@ const canvasContainer = document.getElementById(
 ) as HTMLDivElement
 
 const DEMO_COUNT = 4
+const DEFAULT_DEMO = 0
 
 const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.js`)
 
@@ -88,5 +89,5 @@ timesForEach(DEMO_COUNT, i => {
 })
 
 // Load demo1 by default
-loadDemo(demoPaths[2])
-setActiveButton(demoPaths[2])
+loadDemo(demoPaths[DEFAULT_DEMO])
+setActiveButton(demoPaths[DEFAULT_DEMO])
