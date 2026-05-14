@@ -13,6 +13,40 @@ export const timesMap = <T>(count: number, fn: (index: number) => T): T[] => {
   return results
 }
 
+// AI-generated.
+export const timesMapN = <C extends number[], T>(
+  counts: [...C],
+  fn: (...indices: { [K in keyof C]: number }) => T,
+): T[] => {
+  const results: T[] = []
+  const dimensions = counts.length
+
+  // A temporary array to track the current index at each level of recursion
+  const currentIndices = new Array(dimensions) as { [K in keyof C]: number }
+
+  const iterate = (dimIndex: number) => {
+    // Base case: we have reached the innermost dimension
+    if (dimIndex === dimensions) {
+      results.push(fn(...currentIndices))
+      return
+    }
+
+    // Recursive step: iterate through the current dimension
+    const count = counts[dimIndex]
+    for (let i = 0; i < count; i++) {
+      currentIndices[dimIndex] = i as any // Cast index to match the mapped tuple type
+      iterate(dimIndex + 1)
+    }
+  }
+
+  // Start recursion if there are dimensions, otherwise return empty
+  if (dimensions > 0) {
+    iterate(0)
+  }
+
+  return results
+}
+
 export const timesReduce = <T>(
   count: number,
   fn: (acc: T, item: number) => T,
