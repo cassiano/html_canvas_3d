@@ -5,7 +5,12 @@ import {
   SPHERE_LATITUDE_LINES,
   SPHERE_LONGITUDE_LINES,
 } from './constants.ts'
-import { $v, transformationMatrix4x1Type, Vector } from './vector.ts'
+import {
+  $v,
+  FOURTH_DIMENSION_COORD,
+  transformationMatrix4x1Type,
+  Vector,
+} from './vector.ts'
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { cos, min, PI, sin } from './math_utils.ts'
@@ -607,6 +612,6 @@ const calculateZ = (point3d: Vector): number => {
     thirdRow[0] * point3d.x +
     thirdRow[1] * point3d.y +
     thirdRow[2] * point3d.z +
-    thirdRow[3] * 1
+    thirdRow[3] * FOURTH_DIMENSION_COORD
   )
 }

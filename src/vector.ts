@@ -3,6 +3,8 @@ import { Tuple } from './utility_types'
 
 export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>
 
+export const FOURTH_DIMENSION_COORD = 1
+
 export class Vector {
   coords: [x: number, y: number, z: number]
 
@@ -94,7 +96,7 @@ export class Vector {
   }
 
   to4dMatrix() {
-    return [[this.x], [this.y], [this.z], [1]] // 4x1 matrix.
+    return [[this.x], [this.y], [this.z], [FOURTH_DIMENSION_COORD]] // 4x1 matrix.
   }
 
   dot(anotherVector: Vector) {
