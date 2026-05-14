@@ -1,50 +1,54 @@
+import { timesForEach, timesMap, timesReduce } from './utils.ts'
 const canvasContainer = document.getElementById(
   'canvas-container',
 ) as HTMLDivElement
 
-const demo1Button = document.getElementById('demo1') as HTMLButtonElement
-const demo2Button = document.getElementById('demo2') as HTMLButtonElement
-const demo3Button = document.getElementById('demo3') as HTMLButtonElement
-const demo4Button = document.getElementById('demo4') as HTMLButtonElement
+const DEMO_COUNT = 4
+
+const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.js`)
+
+const demoButtons: HTMLButtonElement[] = timesMap(
+  DEMO_COUNT,
+  i => document.getElementById(`demo${i + 1}`) as HTMLButtonElement,
+)
 
 let currentDemo: { start: () => void; stop: () => void } | null = null
 let currentButton: HTMLButtonElement | null = null
-let currentDemoPath = './demo1/main.js'
+let currentDemoPath = demoPaths[2]
 
-const DEMO_PATHS = [
-  './demo1/main.js',
-  './demo2/main.js',
-  './demo3/main.js',
-  './demo4/main.js',
-]
+const demoButtonMap = timesReduce(
+  DEMO_COUNT,
+  (acc: Record<string, HTMLButtonElement>, i) => {
+    acc[demoPaths[i]] = demoButtons[i]
 
-const demoButtonMap = {
-  [DEMO_PATHS[0]]: demo1Button,
-  [DEMO_PATHS[1]]: demo2Button,
-  [DEMO_PATHS[2]]: demo3Button,
-  [DEMO_PATHS[3]]: demo4Button,
-}
+    return acc
+  },
+  {},
+)
 
 function showDemo() {
   canvasContainer.style.display = 'flex'
 }
 
 function navigateDemo(delta: number) {
-  const currentIndex = DEMO_PATHS.indexOf(currentDemoPath)
+  const currentIndex = demoPaths.indexOf(currentDemoPath)
+
   if (currentIndex === -1) return
 
-  const nextIndex =
-    (currentIndex + delta + DEMO_PATHS.length) % DEMO_PATHS.length
-  const nextPath = DEMO_PATHS[nextIndex]
+  const nextIndex = (currentIndex + delta + demoPaths.length) % demoPaths.length
+  const nextPath = demoPaths[nextIndex]
+
   switchDemo(nextPath)
 }
 
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'ArrowUp') {
     event.preventDefault()
+
     navigateDemo(-1)
   } else if (event.key === 'ArrowDown') {
     event.preventDefault()
+
     navigateDemo(1)
   }
 }
@@ -54,7 +58,7 @@ document.addEventListener('keydown', handleKeydown)
 function setActiveButton(demoPath: string) {
   currentButton?.classList.remove('active')
 
-  currentButton = demoButtonMap[demoPath as keyof typeof demoButtonMap]
+  currentButton = demoButtonMap[demoPath]
   currentButton.classList.add('active')
 }
 
@@ -79,11 +83,10 @@ async function loadDemo(demoPath: string) {
   }
 }
 
-demo1Button.addEventListener('click', () => switchDemo('./demo1/main.js'))
-demo2Button.addEventListener('click', () => switchDemo('./demo2/main.js'))
-demo3Button.addEventListener('click', () => switchDemo('./demo3/main.js'))
-demo4Button.addEventListener('click', () => switchDemo('./demo4/main.js'))
+timesForEach(DEMO_COUNT, i => {
+  demoButtons[i].addEventListener('click', () => switchDemo(demoPaths[i]))
+})
 
 // Load demo1 by default
-loadDemo('./demo1/main.js')
-setActiveButton('./demo1/main.js')
+loadDemo(demoPaths[2])
+setActiveButton(demoPaths[2])
