@@ -15,7 +15,7 @@ const demoButtons: HTMLButtonElement[] = timesMap(
 
 let currentDemo: { start: () => void; stop: () => void } | null = null
 let currentButton: HTMLButtonElement | null = null
-let currentDemoPath = demoPaths[2]
+let currentDemoPath = demoPaths[DEFAULT_DEMO]
 
 const demoButtonMap = timesReduce(
   DEMO_COUNT,
