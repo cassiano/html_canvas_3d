@@ -8,7 +8,7 @@ import {
 import {
   animation,
   background,
-  processDeferredRenders,
+  render3dScene,
   radians,
   render3dAxes,
   resetTransformationMatrix,
@@ -116,7 +116,7 @@ const { start, stop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
-    processDeferredRenders()
+    render3dScene()
   },
   onPaused,
   FPS,

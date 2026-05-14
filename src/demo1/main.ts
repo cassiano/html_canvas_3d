@@ -5,7 +5,7 @@ import {
   background,
   isolateTransformations,
   planeXZ,
-  processDeferredRenders,
+  render3dScene,
   render3dAxes,
   resetTransformationMatrix,
   rotateX,
@@ -63,7 +63,7 @@ const { start, stop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
-    processDeferredRenders()
+    render3dScene()
   },
   onPaused,
   FPS,

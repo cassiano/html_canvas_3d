@@ -19,6 +19,10 @@ export class CubieFace {
     return this.normal.mult(this.size / 2, false)
   }
 
+  get absoluteCenter() {
+    return this.cubie.center.add(this.center, false)
+  }
+
   render() {
     isolateTransformations(() => {
       translate(this.center)

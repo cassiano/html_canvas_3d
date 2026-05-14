@@ -18,7 +18,7 @@ export const ctx = animation.getContext('2d')!
 
 let deferredRenderList: { z: number; renderFn: () => void }[] = []
 
-export const processDeferredRenders = () => {
+export const render3dScene = () => {
   const orderedList = deferredRenderList.toSorted(
     (left, right) => right.z - left.z,
   )
