@@ -14,7 +14,7 @@ export class CubieFace {
     return this.cubie.size
   }
 
-  // Relative to its cubie (container).
+  // Relative center (to its cubie center).
   get center() {
     return this.normal.mult(this.size / 2, false)
   }
