@@ -605,6 +605,11 @@ export const multiplyMatrices = (
   return result
 }
 
+export const inverseMultiplyMatrices = (
+  leftMatrix: number[][],
+  rightMatrix: number[][],
+): number[][] => multiplyMatrices(rightMatrix, leftMatrix)
+
 const calculateZ = (point3d: Vector): number => {
   const thirdRow = transformationMatrix[2]
 
