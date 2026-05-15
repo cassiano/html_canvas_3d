@@ -17,7 +17,7 @@ export class RubikCube {
           y - (cubiesPerAxis - 1) / 2,
           z - (cubiesPerAxis - 1) / 2,
         ),
-    )
+    ).flat(2)
   }
 
   render() {

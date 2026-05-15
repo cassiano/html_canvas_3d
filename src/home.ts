@@ -1,4 +1,9 @@
 import { timesForEach, timesMap, timesReduce } from './utils.ts'
+
+///////////////////////
+// AI-generated code //
+///////////////////////
+
 const canvasContainer = document.getElementById(
   'canvas-container',
 ) as HTMLDivElement
