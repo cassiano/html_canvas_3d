@@ -56,6 +56,10 @@ function handleKeydown(event: KeyboardEvent) {
     event.preventDefault()
 
     navigateDemo(1)
+  } else if (+event.key >= 1 && +event.key <= DEMO_COUNT) {
+    event.preventDefault()
+
+    switchDemo(demoPaths[+event.key - 1])
   }
 }
 
