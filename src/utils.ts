@@ -143,7 +143,7 @@ export const timesMapN = <C extends number[], T>(
     if (dimIndex === dimensions) {
       // We cast currentIndices to C because the logic guarantees
       // the length and types match at this depth.
-      return fn(...(currentIndices as unknown as C))
+      return fn(...(currentIndices as C))
     }
 
     const count = counts[dimIndex]
