@@ -180,3 +180,11 @@ export class Vector {
 
 export const $v = Vector.create
 export const createVector = $v // Synonym for `$v`, as used by p5.js.
+
+export const AXES = { x: $v(1, 0, 0), y: $v(0, 1, 0), z: $v(0, 0, 1) }
+
+export const NEGATIVE_AXES = {
+  x: $v(-1, 0, 0),
+  y: $v(0, -1, 0),
+  z: $v(0, 0, -1),
+}
