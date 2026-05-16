@@ -1,5 +1,5 @@
 import { Tuple } from '../utility_types'
-import { AXES, NEGATIVE_AXES, Vector } from '../vector'
+import { AXES, Vector } from '../vector'
 
 export type Coord3D = Tuple<number, 3>
 
@@ -30,8 +30,8 @@ export const FACE_COLORS: Record<number, string> = {
 export const FACE_NORMALS: Record<number, Vector> = {
   [FACES.front]: AXES.z, // Normal unit vector towards +z
   [FACES.right]: AXES.x, // Normal unit vector towards +x
-  [FACES.back]: NEGATIVE_AXES.z, // Normal unit vector towards -z
-  [FACES.left]: NEGATIVE_AXES.x, // Normal unit vector towards -x
+  [FACES.back]: AXES['-z'], // Normal unit vector towards -z
+  [FACES.left]: AXES['-x'], // Normal unit vector towards -x
   [FACES.top]: AXES.y, // Normal unit vector towards +y
-  [FACES.bottom]: NEGATIVE_AXES.y, // Normal unit vector towards -y
+  [FACES.bottom]: AXES['-y'], // Normal unit vector towards -y
 } as const
