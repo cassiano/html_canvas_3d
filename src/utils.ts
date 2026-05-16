@@ -1,6 +1,8 @@
 import { FPS_WINDOW } from './constants'
 import { isolateTransformations } from './primitives.ts'
 
+export const logJson = (object: unknown) => console.log(JSON.stringify(object))
+
 export const timesForEach = (count: number, fn: (i: number) => void) => {
   for (let i = 0; i < count; i++) fn(i)
 }
