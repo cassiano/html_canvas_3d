@@ -1,7 +1,7 @@
 import {
   CIRCLE_SEGMENTS,
   LINE_SEGMENTS,
-  SCREEN_Z_DISTANCE,
+  FOCAL_LENGTH,
   SPHERE_LATITUDE_LINES,
   SPHERE_LONGITUDE_LINES,
 } from './constants.ts'
@@ -267,7 +267,7 @@ export const background = (color: string) => {
 }
 
 export const project3dTo2d = ({ x, y, z }: Vector) => {
-  const focalLength = SCREEN_Z_DISTANCE
+  const focalLength = FOCAL_LENGTH
   const divisor = z + focalLength // Object should be at z=0 or higher.
 
   // If the point is behind the camera or exactly on the lens, we return `undefined` so the
@@ -437,7 +437,7 @@ export const box = (
     center: Vector,
     width: number, // x-axis
     height: number, // y-axis
-  ): boolean => {
+  ) => {
     const bottomLeft = center.clone().sub($v(width / 2, height / 2, 0))
     const bottomLeft2d = toScreen(bottomLeft)
     const topLeft2d = toScreen(bottomLeft.clone().add($v(0, height, 0)))
@@ -445,15 +445,13 @@ export const box = (
     const lowerRight2d = toScreen(bottomLeft.clone().add($v(width, 0, 0)))
 
     renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
-
-    return true
   }
 
   const fillFaceXZ = (
     center: Vector,
     width: number, // x-axis
     depth: number, // z-axis
-  ): boolean => {
+  ) => {
     const bottomLeft = center.clone().sub($v(width / 2, 0, depth / 2))
     const bottomLeft2d = toScreen(bottomLeft)
     const topLeft2d = toScreen(bottomLeft.clone().add($v(0, 0, depth)))
@@ -461,15 +459,13 @@ export const box = (
     const lowerRight2d = toScreen(bottomLeft.clone().add($v(width, 0, 0)))
 
     renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
-
-    return true
   }
 
   const fillFaceYZ = (
     center: Vector,
     height: number, // y-axis
     depth: number, // z-axis
-  ): boolean => {
+  ) => {
     const bottomLeft = center.clone().sub($v(0, height / 2, depth / 2))
     const bottomLeft2d = toScreen(bottomLeft)
     const topLeft2d = toScreen(bottomLeft.clone().add($v(0, 0, depth)))
@@ -477,25 +473,32 @@ export const box = (
     const lowerRight2d = toScreen(bottomLeft.clone().add($v(0, height, 0)))
 
     renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
-
-    return true
   }
 
   let faceAlreadyFilled = false // Used when rendering a plane (when one of width, height or depth is 0).
 
   const fillLeftRightFaces = (center: Vector) => {
-    if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled))
-      faceAlreadyFilled = fillFaceYZ(center, height, depth)
+    if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
+      fillFaceYZ(center, height, depth)
+
+      faceAlreadyFilled = true
+    }
   }
 
   const fillTopBottomFaces = (center: Vector) => {
-    if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled))
-      faceAlreadyFilled = fillFaceXZ(center, width, depth)
+    if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
+      fillFaceXZ(center, width, depth)
+
+      faceAlreadyFilled = true
+    }
   }
 
   const fillBackFrontFaces = (center: Vector) => {
-    if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled))
-      faceAlreadyFilled = fillFaceXY(center, width, height)
+    if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
+      fillFaceXY(center, width, height)
+
+      faceAlreadyFilled = true
+    }
   }
 
   const faces = [
@@ -525,15 +528,17 @@ export const box = (
 
   faces.forEach(face => {
     const cameraToTransformedFaceCenter = transform(face.center).sub(
-      $v(0, 0, -SCREEN_Z_DISTANCE),
+      $v(0, 0, -FOCAL_LENGTH),
     )
 
     const transformedNormal = transform(face.normal, {
       isNormal: true,
     }).normalize()
 
-    if (cameraToTransformedFaceCenter.dot(transformedNormal) < 0)
-      face.fillFn(face.center)
+    // Skip rendering face if the 2 vectors point in same direction.
+    if (cameraToTransformedFaceCenter.dot(transformedNormal) >= 0) return
+
+    face.fillFn(face.center)
   })
 }
 
