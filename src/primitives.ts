@@ -22,11 +22,13 @@ export const animation = document.getElementById(
 
 export const ctx = animation.getContext('2d')!
 
-let deferredRenderList: { z: number; renderFn: () => void }[] = []
+let deferredRenderList: { id: number; z: number; renderFn: () => void }[] = []
 
 export const render3dScene = () => {
   const orderedList = deferredRenderList.toSorted((left, right) =>
-    abs(right.z - left.z) < Number.EPSILON ? 0 : right.z - left.z,
+    abs(right.z - left.z) < Number.EPSILON
+      ? right.id - left.id
+      : right.z - left.z,
   )
 
   orderedList.forEach(element => element.renderFn())
@@ -309,7 +311,11 @@ export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
     ctx.fillRect(projected.x - size / 2, projected.y - size / 2, size, size)
   }
 
-  deferredRenderList.push({ z: calculateZ(coords), renderFn })
+  deferredRenderList.push({
+    id: deferredRenderList.length,
+    z: calculateZ(coords),
+    renderFn,
+  })
 }
 
 export const line = (
@@ -336,7 +342,11 @@ export const line = (
       ctx.stroke()
     }
 
-    deferredRenderList.push({ z: calculateZ(center), renderFn })
+    deferredRenderList.push({
+      id: deferredRenderList.length,
+      z: calculateZ(center),
+      renderFn,
+    })
   } else {
     let latestPoint = pointA
 
@@ -358,7 +368,11 @@ export const line = (
         ctx.stroke()
       }
 
-      deferredRenderList.push({ z: calculateZ(center), renderFn })
+      deferredRenderList.push({
+        id: deferredRenderList.length,
+        z: calculateZ(center),
+        renderFn,
+      })
     })
   }
 }
@@ -412,7 +426,11 @@ export const box = (
       ctx.restore()
     }
 
-    deferredRenderList.push({ z: calculateZ(center), renderFn })
+    deferredRenderList.push({
+      id: deferredRenderList.length,
+      z: calculateZ(center),
+      renderFn,
+    })
   }
 
   const fillFaceXY = (
