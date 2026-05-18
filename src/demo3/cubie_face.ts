@@ -16,11 +16,11 @@ export class CubieFace {
 
   // Relative center (to its cubie's center).
   get center() {
-    return this.normal.mult(this.size / 2, false)
+    return this.normal.clone().mult(this.size / 2)
   }
 
   get absoluteCenter() {
-    return this.cubie.center.add(this.center, false)
+    return this.cubie.center.clone().add(this.center)
   }
 
   render() {

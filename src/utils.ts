@@ -92,6 +92,8 @@ export const createFrameLoop = (
   }
 
   const start = () => {
+    paused = false
+
     if (!running) {
       running = true
 

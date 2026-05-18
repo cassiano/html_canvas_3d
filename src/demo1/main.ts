@@ -24,7 +24,7 @@ const gravity = $v(0, -GRAVITY, 0)
 // const mover = new CubeMover(10, 0, 0, 0, 100)
 // const mover = new SphereMover(10, 0, 300, 0, 100)
 const mover = new CubeSphereMover(10, 0, 300, 0, 100)
-const weight = gravity.mult(mover.mass, false)
+const weight = gravity.clone().mult(mover.mass)
 
 // -------------------------------------------------------------------------------------------------
 

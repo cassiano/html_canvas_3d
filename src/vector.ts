@@ -44,47 +44,39 @@ export class Vector {
     return sqrt(this.magSq())
   }
 
-  normalize(inPlace = true) {
-    return this.div(this.mag(), inPlace)
+  normalize() {
+    return this.div(this.mag())
   }
 
-  setMag(magnitude: number, inPlace = true) {
-    return this.normalize(inPlace).mult(magnitude)
+  setMag(magnitude: number) {
+    return this.normalize().mult(magnitude)
   }
 
-  add(anotherVector: Vector, inPlace = true) {
-    const target = inPlace ? this : this.clone()
+  add(anotherVector: Vector) {
+    this.x += anotherVector.x
+    this.y += anotherVector.y
+    this.z += anotherVector.z
 
-    target.x += anotherVector.x
-    target.y += anotherVector.y
-    target.z += anotherVector.z ?? 0
-
-    return target
+    return this
   }
 
-  sub(anotherVector: Vector, inPlace = true) {
-    const target = inPlace ? this : this.clone()
-
-    return target.add(anotherVector.mult(-1, false), inPlace)
+  sub(anotherVector: Vector) {
+    return this.add(anotherVector.clone().mult(-1))
   }
 
-  mult(scalarValue: number, inPlace = true) {
-    const target = inPlace ? this : this.clone()
+  mult(scalarValue: number) {
+    this.x *= scalarValue
+    this.y *= scalarValue
+    this.z *= scalarValue
 
-    target.x *= scalarValue
-    target.y *= scalarValue
-    target.z *= scalarValue
-
-    return target
+    return this
   }
 
-  div(scalarValue: number, inPlace = true) {
-    const target = inPlace ? this : this.clone()
-
+  div(scalarValue: number) {
     if (scalarValue === 0)
       throw new Error('Sorry, but division by 0 is not supported')
 
-    return target.mult(1 / scalarValue, inPlace)
+    return this.mult(1 / scalarValue)
   }
 
   toArray() {
@@ -96,7 +88,8 @@ export class Vector {
   }
 
   to4dMatrix() {
-    return [[this.x], [this.y], [this.z], [FOURTH_DIMENSION_COORD]] // 4x1 matrix.
+    // 4x1 matrix.
+    return [[this.x], [this.y], [this.z], [FOURTH_DIMENSION_COORD]]
   }
 
   dot(anotherVector: Vector) {
@@ -116,13 +109,17 @@ export class Vector {
   }
 
   dist(anotherVector: Vector) {
+    return sqrt(this.distSq(anotherVector))
+  }
+
+  distSq(anotherVector: Vector) {
     const diff = {
       x: this.x - anotherVector.x,
       y: this.y - anotherVector.y,
       z: this.z - anotherVector.z,
     }
 
-    return sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z)
+    return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z
   }
 
   equals(anotherVector: Vector) {

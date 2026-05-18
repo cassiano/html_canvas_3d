@@ -33,7 +33,7 @@ export class Cubie {
   }
 
   get center() {
-    return this.position.mult(this.size + CUBIE_SPACING, false)
+    return this.position.clone().mult(this.size + CUBIE_SPACING)
   }
 
   render() {

@@ -7,13 +7,14 @@ import {
 } from './constants.ts'
 import {
   $v,
+  AXES,
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
   Vector,
 } from './vector.ts'
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
-import { cos, min, PI, sin } from './math_utils.ts'
+import { abs, cos, min, PI, sin } from './math_utils.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -24,8 +25,8 @@ export const ctx = animation.getContext('2d')!
 let deferredRenderList: { z: number; renderFn: () => void }[] = []
 
 export const render3dScene = () => {
-  const orderedList = deferredRenderList.toSorted(
-    (left, right) => right.z - left.z,
+  const orderedList = deferredRenderList.toSorted((left, right) =>
+    abs(right.z - left.z) < Number.EPSILON ? 0 : right.z - left.z,
   )
 
   orderedList.forEach(element => element.renderFn())
@@ -171,7 +172,7 @@ export const translate: TranslateOverloadedSignatures = (
 export const rotate = (angle: number, axis: Vector) => {
   if (angle === 0) return
 
-  const normalizedAxis = axis.normalize(false)
+  const normalizedAxis = axis.clone().normalize()
   const { x, y, z } = normalizedAxis
 
   const c = Math.cos(angle)
@@ -185,7 +186,7 @@ export const rotate = (angle: number, axis: Vector) => {
     transformationMatrix,
     // prettier-ignore
     [
-    //               ȋ               ĵ                k̂  4d
+    //        ȋ               ĵ                k̂         4d
     //  --------------  --------------  ---------------  --
       [     tx * x + c, tx * y - s * z, tx * z + s * y,  0 ],
       [ ty * x + s * z,     ty * y + c, ty * z - s * x,  0 ],
@@ -276,14 +277,18 @@ export const project3dTo2d = ({ x, y, z }: Vector) => {
 }
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-export const centralize = (point?: Vector) => point?.add(SCREEN_CENTER, false)
+export const centralize = (point?: Vector) => point?.clone().add(SCREEN_CENTER)
 
-export const transform = (point: Vector) => {
+export const transform = (point: Vector, { isNormal = false } = {}) => {
+  const pointAs4dMatrix = point.to4dMatrix()
+
+  if (isNormal) pointAs4dMatrix[3][0] = 0 // Ignore the 4th dimension (used for translations) when transforming normals.
+
   // Notice that a 4x4 matrix multiplied by a 4x1 vector results in another 4x1 vector.
   // Also notice that we use Post-multiplication. See https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221k6P5M79qGEqAjs7Wp_-21Jqwgzl8_Z6l%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
   const transformedPoint = multiplyMatrices(
     transformationMatrix,
-    point.to4dMatrix(),
+    pointAs4dMatrix,
   ) as transformationMatrix4x4Type
 
   return Vector.from4dMatrix(
@@ -414,80 +419,104 @@ export const box = (
     center: Vector,
     width: number, // x-axis
     height: number, // y-axis
-  ) => {
-    const bottomLeft = center.sub($v(width / 2, height / 2, 0), false)
+  ): boolean => {
+    const bottomLeft = center.clone().sub($v(width / 2, height / 2, 0))
     const bottomLeft2d = toScreen(bottomLeft)
-    const topLeft2d = toScreen(bottomLeft.add($v(0, height, 0), false))
-    const topRight2d = toScreen(bottomLeft.add($v(width, height, 0), false))
-    const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
+    const topLeft2d = toScreen(bottomLeft.clone().add($v(0, height, 0)))
+    const topRight2d = toScreen(bottomLeft.clone().add($v(width, height, 0)))
+    const lowerRight2d = toScreen(bottomLeft.clone().add($v(width, 0, 0)))
 
     renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
+
+    return true
   }
 
   const fillFaceXZ = (
     center: Vector,
     width: number, // x-axis
     depth: number, // z-axis
-  ) => {
-    const bottomLeft = center.sub($v(width / 2, 0, depth / 2), false)
+  ): boolean => {
+    const bottomLeft = center.clone().sub($v(width / 2, 0, depth / 2))
     const bottomLeft2d = toScreen(bottomLeft)
-    const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
-    const topRight2d = toScreen(bottomLeft.add($v(width, 0, depth), false))
-    const lowerRight2d = toScreen(bottomLeft.add($v(width, 0, 0), false))
+    const topLeft2d = toScreen(bottomLeft.clone().add($v(0, 0, depth)))
+    const topRight2d = toScreen(bottomLeft.clone().add($v(width, 0, depth)))
+    const lowerRight2d = toScreen(bottomLeft.clone().add($v(width, 0, 0)))
 
     renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
+
+    return true
   }
 
   const fillFaceYZ = (
     center: Vector,
     height: number, // y-axis
     depth: number, // z-axis
-  ) => {
-    const bottomLeft = center.sub($v(0, height / 2, depth / 2), false)
+  ): boolean => {
+    const bottomLeft = center.clone().sub($v(0, height / 2, depth / 2))
     const bottomLeft2d = toScreen(bottomLeft)
-    const topLeft2d = toScreen(bottomLeft.add($v(0, 0, depth), false))
-    const topRight2d = toScreen(bottomLeft.add($v(0, height, depth), false))
-    const lowerRight2d = toScreen(bottomLeft.add($v(0, height, 0), false))
+    const topLeft2d = toScreen(bottomLeft.clone().add($v(0, 0, depth)))
+    const topRight2d = toScreen(bottomLeft.clone().add($v(0, height, depth)))
+    const lowerRight2d = toScreen(bottomLeft.clone().add($v(0, height, 0)))
 
     renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
+
+    return true
   }
 
   let faceAlreadyFilled = false // Used when rendering a plane (when one of width, height or depth is 0).
 
   const fillLeftRightFaces = (center: Vector) => {
-    if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
-      fillFaceYZ(center, height, depth)
-
-      faceAlreadyFilled = true
-    }
+    if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled))
+      faceAlreadyFilled = fillFaceYZ(center, height, depth)
   }
 
   const fillTopBottomFaces = (center: Vector) => {
-    if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
-      fillFaceXZ(center, width, depth)
-
-      faceAlreadyFilled = true
-    }
+    if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled))
+      faceAlreadyFilled = fillFaceXZ(center, width, depth)
   }
 
   const fillBackFrontFaces = (center: Vector) => {
-    if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
-      fillFaceXY(center, width, height)
-
-      faceAlreadyFilled = true
-    }
+    if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled))
+      faceAlreadyFilled = fillFaceXY(center, width, height)
   }
 
   const faces = [
-    { center: $v(-width / 2, 0, 0), fillFn: fillLeftRightFaces },
-    { center: $v(width / 2, 0, 0), fillFn: fillLeftRightFaces },
-    { center: $v(0, height / 2, 0), fillFn: fillTopBottomFaces },
-    { center: $v(0, -height / 2, 0), fillFn: fillTopBottomFaces },
-    { center: $v(0, 0, depth / 2), fillFn: fillBackFrontFaces },
-    { center: $v(0, 0, -depth / 2), fillFn: fillBackFrontFaces },
+    {
+      center: $v(-width / 2, 0, 0),
+      normal: AXES['-x'],
+      fillFn: fillLeftRightFaces,
+    },
+    { center: $v(width / 2, 0, 0), normal: AXES.x, fillFn: fillLeftRightFaces },
+    {
+      center: $v(0, height / 2, 0),
+      normal: AXES.y,
+      fillFn: fillTopBottomFaces,
+    },
+    {
+      center: $v(0, -height / 2, 0),
+      normal: AXES['-y'],
+      fillFn: fillTopBottomFaces,
+    },
+    { center: $v(0, 0, depth / 2), normal: AXES.z, fillFn: fillBackFrontFaces },
+    {
+      center: $v(0, 0, -depth / 2),
+      normal: AXES['-z'],
+      fillFn: fillBackFrontFaces,
+    },
   ] as const
 
-  faces.forEach(face => face.fillFn(face.center))
+  faces.forEach(face => {
+    const cameraToTransformedFaceCenter = transform(face.center).sub(
+      $v(0, 0, -SCREEN_Z_DISTANCE),
+    )
+
+    const transformedNormal = transform(face.normal, {
+      isNormal: true,
+    }).normalize()
+
+    if (cameraToTransformedFaceCenter.dot(transformedNormal) < 0)
+      face.fillFn(face.center)
+  })
 }
 
 export const cube = (
@@ -546,7 +575,7 @@ export const text2d = (message: string, point: Vector) => {
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
-  const position = transform(point).add(SCREEN_CENTER, false)
+  const position = transform(point).clone().add(SCREEN_CENTER)
 
   ctx.fillText(message, position.x, position.y)
 }
