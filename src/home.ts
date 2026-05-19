@@ -9,7 +9,7 @@ const canvasContainer = document.getElementById(
 ) as HTMLDivElement
 
 const DEMO_COUNT = 4
-const DEFAULT_DEMO = 0
+const DEFAULT_DEMO = 3 // Starting with 1.
 
 const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.js`)
 
@@ -20,7 +20,7 @@ const demoButtons: HTMLButtonElement[] = timesMap(
 
 let currentDemo: { start: () => void; stop: () => void } | null = null
 let currentButton: HTMLButtonElement | null = null
-let currentDemoPath = demoPaths[DEFAULT_DEMO]
+let currentDemoPath = demoPaths[DEFAULT_DEMO - 1]
 
 const demoButtonMap = timesReduce(
   DEMO_COUNT,
@@ -98,5 +98,5 @@ timesForEach(DEMO_COUNT, i => {
 })
 
 // Load demo1 by default
-loadDemo(demoPaths[DEFAULT_DEMO])
-setActiveButton(demoPaths[DEFAULT_DEMO])
+loadDemo(demoPaths[DEFAULT_DEMO - 1])
+setActiveButton(demoPaths[DEFAULT_DEMO - 1])

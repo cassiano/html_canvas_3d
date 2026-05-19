@@ -7,7 +7,6 @@ import {
 } from './constants.ts'
 import {
   $v,
-  AXES,
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
   Vector,
@@ -16,19 +15,29 @@ import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { abs, cos, min, PI, sin } from './math_utils.ts'
 
+type Options3dType = {
+  color: string
+  lineWidth: number
+  opacity: number
+  strokeColor: string
+}
+
 export const animation = document.getElementById(
   'animation',
 ) as HTMLCanvasElement
 
 export const ctx = animation.getContext('2d')!
 
-let deferredRenderList: { id: number; z: number; renderFn: () => void }[] = []
+let deferredRenderList: {
+  // source: string
+  id: number
+  z: number
+  renderFn: () => void
+}[] = []
 
 export const render3dScene = () => {
   const orderedList = deferredRenderList.toSorted((left, right) =>
-    abs(right.z - left.z) < Number.EPSILON
-      ? right.id - left.id
-      : right.z - left.z,
+    abs(right.z - left.z) < 1e-10 ? left.id - right.id : right.z - left.z,
   )
 
   orderedList.forEach(element => element.renderFn())
@@ -300,63 +309,74 @@ export const transform = (point: Vector, { isNormal = false } = {}) => {
 
 const toScreen = (point: Vector) => centralize(project3dTo2d(transform(point)))!
 
-export const point = (coords: Vector, { color = 'black', size = 1 } = {}) => {
-  const projected = toScreen(coords)
+export const point = (point3d: Vector, { color = 'black', size = 1 } = {}) => {
+  const screenCoords = toScreen(point3d)
 
   // Skip rendering if behind camera.
-  if (!projected) return
+  if (!screenCoords) return
 
   const renderFn = () => {
     ctx.fillStyle = color
-    ctx.fillRect(projected.x - size / 2, projected.y - size / 2, size, size)
+    ctx.fillRect(
+      screenCoords.x - size / 2,
+      screenCoords.y - size / 2,
+      size,
+      size,
+    )
   }
 
   deferredRenderList.push({
+    // source: `point ${point3d.toString()}`,
     id: deferredRenderList.length,
-    z: calculateZ(coords),
+    z: calculateZ(point3d),
     renderFn,
   })
 }
 
 export const line = (
-  pointA: Vector,
-  pointB: Vector,
+  point3dA: Vector,
+  point3dB: Vector,
   { color = 'black', lineWidth = 1, avoidSplit = false } = {},
 ) => {
-  const projectedA = toScreen(pointA)
-  const projectedB = toScreen(pointB)
+  const screenA = toScreen(point3dA)
+  const screenB = toScreen(point3dB)
 
   // If either point is behind the camera, skip the line. (In advanced engines, you'd "clip" the
   // line at the Z-boundary, but skipping is enough to stop the "random lines").
-  if (!projectedA || !projectedB) return
+  if (!screenA || !screenB) return
 
   if (avoidSplit) {
-    const center = pointA.inBetween(pointB)
+    const center = point3dA.inBetween(point3dB)
 
     const renderFn = () => {
       ctx.strokeStyle = color
       ctx.lineWidth = lineWidth
       ctx.beginPath()
-      ctx.moveTo(projectedA.x, projectedA.y)
-      ctx.lineTo(projectedB.x, projectedB.y)
+      ctx.moveTo(screenA.x, screenA.y)
+      ctx.lineTo(screenB.x, screenB.y)
       ctx.stroke()
     }
 
     deferredRenderList.push({
+      // source: `line from A=${point3dA.toString()} to B=${point3dB.toString()}`,
       id: deferredRenderList.length,
       z: calculateZ(center),
       renderFn,
     })
   } else {
-    let latestPoint = pointA
+    let latestPoint = point3dA
 
     timesForEach(LINE_SEGMENTS, i => {
-      const nextPoint = pointA.inBetween(pointB, (1 / LINE_SEGMENTS) * (i + 1))
+      const nextPoint = point3dA.inBetween(
+        point3dB,
+        (1 / LINE_SEGMENTS) * (i + 1),
+      )
       const center = latestPoint.inBetween(nextPoint)
 
       const { x: x1, y: y1 } = toScreen(latestPoint)
       const { x: x2, y: y2 } = toScreen(nextPoint)
 
+      const previousLatestAsString = latestPoint.toString()
       latestPoint = nextPoint
 
       const renderFn = () => {
@@ -369,6 +389,7 @@ export const line = (
       }
 
       deferredRenderList.push({
+        // source: `line segment with center ${center.toString()} from ${previousLatestAsString} to ${nextPoint.toString()}`,
         id: deferredRenderList.length,
         z: calculateZ(center),
         renderFn,
@@ -377,23 +398,100 @@ export const line = (
   }
 }
 
-export const planeXY = (
+export const triangle2d = (
+  point2dA: Vector,
+  point2dB: Vector,
+  point2dC: Vector,
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+) => {
+  const screenA = toScreen(point2dA)
+  const screenB = toScreen(point2dB)
+  const screenC = toScreen(point2dC)
+
+  if (!screenA || !screenB || !screenC) return
+
+  const renderFn = () => {
+    ctx.beginPath() // Start the shape
+    ctx.moveTo(screenA.x, screenA.y) // Move to starting point
+    ctx.lineTo(screenB.x, screenB.y)
+    ctx.lineTo(screenC.x, screenC.y)
+    ctx.closePath() // Close path
+
+    ctx.save()
+    ctx.globalAlpha = opacity //  Set transparency
+    ctx.fillStyle = color
+    ctx.strokeStyle = strokeColor
+    ctx.lineWidth = lineWidth
+    ctx.stroke() // Outline the shape
+    ctx.fill() // Fill the shape
+    ctx.restore()
+  }
+
+  const centroid2d = $v(
+    (point2dA.x + point2dB.x + point2dC.x) / 3,
+    (point2dA.y + point2dB.y + point2dC.y) / 3,
+  )
+
+  deferredRenderList.push({
+    // source: `triangle with A=${point2dA.toString()}, B=${point2dB.toString()} and C=${point2dC.toString()}`,
+    id: deferredRenderList.length,
+    z: calculateZ(centroid2d),
+    renderFn,
+  })
+}
+
+export const quadrilateral2d = (
+  point2dA: Vector,
+  point2dB: Vector,
+  point2dC: Vector,
+  point2dD: Vector,
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+) => {
+  const options = {
+    color,
+    lineWidth,
+    opacity,
+    strokeColor,
+  }
+
+  triangle2d(point2dA, point2dB, point2dC, options)
+  triangle2d(point2dA, point2dC, point2dD, options)
+}
+
+export const rect2d = (
   width: number, // x-axis
   height: number, // y-axis
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => box(width, height, 0, { color, lineWidth, opacity })
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+) => {
+  const options = {
+    color,
+    lineWidth,
+    opacity,
+    strokeColor,
+  }
 
-export const planeXZ = (
-  width: number, // x-axis
-  depth: number, // z-axis
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => box(width, 0, depth, { color, lineWidth, opacity })
+  quadrilateral2d(
+    $v(-width / 2, -height / 2), // A
+    $v(width / 2, -height / 2), // B
+    $v(width / 2, height / 2), // C
+    $v(-width / 2, height / 2), // D
+    options,
+  )
+}
 
-export const planeYZ = (
-  height: number, // y-axis
-  depth: number, // z-axis
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => box(0, height, depth, { color, lineWidth, opacity })
+export const square2d = (
+  side: number,
+  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+) => {
+  const options = {
+    color,
+    lineWidth,
+    opacity,
+    strokeColor,
+  }
+
+  rect2d(side, side, options)
+}
 
 export const box = (
   width: number, // x-axis
@@ -401,144 +499,57 @@ export const box = (
   depth: number, // z-axis
   { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
 ) => {
-  const renderFace = (
-    center: Vector,
-    bottomLeft2d: Vector,
-    topLeft2d: Vector,
-    topRight2d: Vector,
-    lowerRight2d: Vector,
-  ) => {
-    const renderFn = () => {
-      ctx.beginPath() // Start the shape
-      ctx.moveTo(bottomLeft2d.x, bottomLeft2d.y) // Move to starting point
-      ctx.lineTo(topLeft2d.x, topLeft2d.y)
-      ctx.lineTo(topRight2d.x, topRight2d.y)
-      ctx.lineTo(lowerRight2d.x, lowerRight2d.y)
-      ctx.closePath() // Close path
-
-      ctx.save()
-      ctx.globalAlpha = opacity //  Set transparency
-      ctx.fillStyle = color
-      ctx.strokeStyle = strokeColor
-      ctx.lineWidth = lineWidth
-      ctx.stroke() // Outline the shape
-      ctx.fill() // Fill the shape
-      ctx.restore()
-    }
-
-    deferredRenderList.push({
-      id: deferredRenderList.length,
-      z: calculateZ(center),
-      renderFn,
-    })
+  const options = {
+    color,
+    lineWidth,
+    opacity,
+    strokeColor,
   }
 
-  const fillFaceXY = (
-    center: Vector,
-    width: number, // x-axis
-    height: number, // y-axis
-  ) => {
-    const bottomLeft = center.clone().sub($v(width / 2, height / 2, 0))
-    const bottomLeft2d = toScreen(bottomLeft)
-    const topLeft2d = toScreen(bottomLeft.clone().add($v(0, height, 0)))
-    const topRight2d = toScreen(bottomLeft.clone().add($v(width, height, 0)))
-    const lowerRight2d = toScreen(bottomLeft.clone().add($v(width, 0, 0)))
+  // Back face (-z).
+  isolateTransformations(() => {
+    translate(0, 0, -depth / 2)
 
-    renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
-  }
+    rect2d(width, height, options)
+  })
 
-  const fillFaceXZ = (
-    center: Vector,
-    width: number, // x-axis
-    depth: number, // z-axis
-  ) => {
-    const bottomLeft = center.clone().sub($v(width / 2, 0, depth / 2))
-    const bottomLeft2d = toScreen(bottomLeft)
-    const topLeft2d = toScreen(bottomLeft.clone().add($v(0, 0, depth)))
-    const topRight2d = toScreen(bottomLeft.clone().add($v(width, 0, depth)))
-    const lowerRight2d = toScreen(bottomLeft.clone().add($v(width, 0, 0)))
+  // Front face (+z).
+  isolateTransformations(() => {
+    translate(0, 0, depth / 2)
 
-    renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
-  }
+    rect2d(width, height, options)
+  })
 
-  const fillFaceYZ = (
-    center: Vector,
-    height: number, // y-axis
-    depth: number, // z-axis
-  ) => {
-    const bottomLeft = center.clone().sub($v(0, height / 2, depth / 2))
-    const bottomLeft2d = toScreen(bottomLeft)
-    const topLeft2d = toScreen(bottomLeft.clone().add($v(0, 0, depth)))
-    const topRight2d = toScreen(bottomLeft.clone().add($v(0, height, depth)))
-    const lowerRight2d = toScreen(bottomLeft.clone().add($v(0, height, 0)))
+  // Left face (-x).
+  isolateTransformations(() => {
+    translate(-width / 2, 0, 0)
+    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
 
-    renderFace(center, bottomLeft2d, topLeft2d, topRight2d, lowerRight2d)
-  }
+    rect2d(depth, height, options)
+  })
 
-  let faceAlreadyFilled = false // Used when rendering a plane (when one of width, height or depth is 0).
+  // Right face (+x).
+  isolateTransformations(() => {
+    translate(width / 2, 0, 0)
+    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
 
-  const fillLeftRightFaces = (center: Vector) => {
-    if (height > 0 && depth > 0 && (width > 0 || !faceAlreadyFilled)) {
-      fillFaceYZ(center, height, depth)
+    rect2d(depth, height, options)
+  })
 
-      faceAlreadyFilled = true
-    }
-  }
+  // Bottom face (-y).
+  isolateTransformations(() => {
+    translate(0, -height / 2, 0)
+    rotateX(-PI / 2) // Turn 90ᵒ clockwise.
 
-  const fillTopBottomFaces = (center: Vector) => {
-    if (width > 0 && depth > 0 && (height > 0 || !faceAlreadyFilled)) {
-      fillFaceXZ(center, width, depth)
+    rect2d(width, depth, options)
+  })
 
-      faceAlreadyFilled = true
-    }
-  }
+  // Top face (+y).
+  isolateTransformations(() => {
+    translate(0, height / 2, 0)
+    rotateX(-PI / 2) // Turn 90ᵒ clockwise.
 
-  const fillBackFrontFaces = (center: Vector) => {
-    if (width > 0 && height > 0 && (depth > 0 || !faceAlreadyFilled)) {
-      fillFaceXY(center, width, height)
-
-      faceAlreadyFilled = true
-    }
-  }
-
-  const faces = [
-    {
-      center: $v(-width / 2, 0, 0),
-      normal: AXES['-x'],
-      fillFn: fillLeftRightFaces,
-    },
-    { center: $v(width / 2, 0, 0), normal: AXES.x, fillFn: fillLeftRightFaces },
-    {
-      center: $v(0, height / 2, 0),
-      normal: AXES.y,
-      fillFn: fillTopBottomFaces,
-    },
-    {
-      center: $v(0, -height / 2, 0),
-      normal: AXES['-y'],
-      fillFn: fillTopBottomFaces,
-    },
-    { center: $v(0, 0, depth / 2), normal: AXES.z, fillFn: fillBackFrontFaces },
-    {
-      center: $v(0, 0, -depth / 2),
-      normal: AXES['-z'],
-      fillFn: fillBackFrontFaces,
-    },
-  ] as const
-
-  faces.forEach(face => {
-    const cameraToTransformedFaceCenter = transform(face.center).sub(
-      $v(0, 0, -FOCAL_LENGTH),
-    )
-
-    const transformedNormal = transform(face.normal, {
-      isNormal: true,
-    }).normalize()
-
-    // Skip rendering face if the 2 vectors point in same direction.
-    if (cameraToTransformedFaceCenter.dot(transformedNormal) >= 0) return
-
-    face.fillFn(face.center)
+    rect2d(width, depth, options)
   })
 }
 
@@ -547,7 +558,7 @@ export const cube = (
   { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
 ) => box(size, size, size, { color, lineWidth, opacity, strokeColor })
 
-export const circleXY = (
+export const circle2d = (
   radius: number,
   { color = 'gray', lineWidth = 1 } = {},
 ) => {
@@ -572,7 +583,7 @@ export const sphere = (
     timesForEach(SPHERE_LONGITUDE_LINES, () => {
       rotateY(PI / SPHERE_LONGITUDE_LINES)
 
-      circleXY(radius, { color, lineWidth })
+      circle2d(radius, { color, lineWidth })
     })
 
     // Draw a series of 2D circles as latitude lines, with radius increasing when going from the poles
@@ -586,7 +597,7 @@ export const sphere = (
         translate(0, radius * cos(theta), 0)
         rotateX(PI / 2)
 
-        circleXY(radius * sin(theta), { color, lineWidth })
+        circle2d(radius * sin(theta), { color, lineWidth })
       })
     }
   })

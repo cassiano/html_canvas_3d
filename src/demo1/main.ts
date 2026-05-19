@@ -4,7 +4,6 @@ import {
   animation,
   background,
   isolateTransformations,
-  planeXZ,
   render3dScene,
   render3dAxes,
   resetTransformationMatrix,
@@ -12,6 +11,7 @@ import {
   rotateY,
   text2d,
   translate,
+  rect2d,
 } from '../primitives'
 import { $v } from '../vector'
 import { PI } from '../math_utils'
@@ -19,7 +19,6 @@ import { CubeSphereMover } from './cube_sphere_mover.ts'
 
 const DEPTH = 2000
 const GRAVITY = 0.1
-const deltaAngle = (2 * PI) / 1e3
 const gravity = $v(0, -GRAVITY, 0)
 // const mover = new CubeMover(10, 0, 0, 0, 100)
 // const mover = new SphereMover(10, 0, 300, 0, 100)
@@ -43,8 +42,9 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, -DEPTH, 0)
+    rotateX(PI / 2)
 
-    planeXZ(500, 500, { color: 'yellow' })
+    rect2d(500, 500, { color: 'yellow' })
   })
 
   mover.render()

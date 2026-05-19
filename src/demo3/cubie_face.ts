@@ -1,7 +1,17 @@
-import { box, isolateTransformations, translate } from './../primitives'
+import {
+  isolateTransformations,
+  line,
+  point,
+  rotateX,
+  rotateY,
+  square2d,
+  translate,
+} from './../primitives'
 import { Vector } from './../vector'
-import { abs } from './../math_utils'
+import { abs, max, PI, sign } from './../math_utils'
 import { Cubie } from './cubie'
+import { ORIGIN } from '../constants'
+import { MIN_NORMAL_LENGTH } from './constants'
 
 export class CubieFace {
   constructor(
@@ -24,15 +34,28 @@ export class CubieFace {
   }
 
   render() {
+    // if (!this.cubie.position.equals(3, 3, 3)) return
+
     isolateTransformations(() => {
       translate(this.center)
 
-      box(
-        abs(this.normal.x) === 1 ? 0 : this.size,
-        abs(this.normal.y) === 1 ? 0 : this.size,
-        abs(this.normal.z) === 1 ? 0 : this.size,
-        { color: this.color },
-      )
+      isolateTransformations(() => {
+        if (abs(this.normal.x) === 1) {
+          rotateY((-sign(this.normal.x) * PI) / 2)
+        } else if (abs(this.normal.y) === 1) {
+          rotateX((-sign(this.normal.y) * PI) / 2)
+        } else if (this.normal.z === -1) {
+          rotateX(-PI)
+        }
+
+        square2d(this.size, { color: this.color })
+      })
+
+      // Render the normal.
+      const normalLength = max(MIN_NORMAL_LENGTH, this.size / 5)
+      const scaledNormal = this.normal.clone().mult(normalLength)
+      line(ORIGIN, scaledNormal, { color: 'black' })
+      point(scaledNormal, { color: 'black', size: normalLength / 10 })
     })
   }
 }

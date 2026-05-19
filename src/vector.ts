@@ -52,7 +52,15 @@ export class Vector {
     return this.normalize().mult(magnitude)
   }
 
-  add(anotherVector: Vector) {
+  add(x: number, y: number, z: number): Vector
+  add(anotherVector: Vector): Vector
+  add(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
     this.x += anotherVector.x
     this.y += anotherVector.y
     this.z += anotherVector.z
@@ -60,7 +68,15 @@ export class Vector {
     return this
   }
 
-  sub(anotherVector: Vector) {
+  sub(x: number, y: number, z: number): Vector
+  sub(anotherVector: Vector): Vector
+  sub(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
     return this.add(anotherVector.clone().mult(-1))
   }
 
@@ -92,7 +108,15 @@ export class Vector {
     return [[this.x], [this.y], [this.z], [FOURTH_DIMENSION_COORD]]
   }
 
-  dot(anotherVector: Vector) {
+  dot(x: number, y: number, z: number): number
+  dot(anotherVector: Vector): number
+  dot(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
     return (
       this.x * anotherVector.x +
       this.y * anotherVector.y +
@@ -100,7 +124,15 @@ export class Vector {
     )
   }
 
-  cross(anotherVector: Vector) {
+  cross(x: number, y: number, z: number): Vector
+  cross(anotherVector: Vector): Vector
+  cross(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
     return Vector.create(
       this.y * anotherVector.z - this.z * anotherVector.y,
       -(this.x * anotherVector.z - this.z * anotherVector.x),
@@ -108,11 +140,27 @@ export class Vector {
     )
   }
 
-  dist(anotherVector: Vector) {
+  dist(x: number, y: number, z: number): number
+  dist(anotherVector: Vector): number
+  dist(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
     return sqrt(this.distSq(anotherVector))
   }
 
-  distSq(anotherVector: Vector) {
+  distSq(x: number, y: number, z: number): number
+  distSq(anotherVector: Vector): number
+  distSq(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
     const diff = {
       x: this.x - anotherVector.x,
       y: this.y - anotherVector.y,
@@ -122,7 +170,15 @@ export class Vector {
     return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z
   }
 
-  equals(anotherVector: Vector) {
+  equals(x: number, y: number, z: number): boolean
+  equals(anotherVector: Vector): boolean
+  equals(xOrAnotherVector: number | Vector, y?: number, z?: number): boolean {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
     return (
       this.x === anotherVector.x &&
       this.y === anotherVector.y &&
@@ -140,7 +196,19 @@ export class Vector {
 
   // Use the "Law of Cosines" to calculate the angle between the 2 vectors.
   // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221gYM9JH1RKYt1t5jEUHob3QixN68SKmZd%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-  angleBetween(anotherVector: Vector) {
+  angleBetween(x: number, y: number, z: number): number
+  angleBetween(anotherVector: Vector): number
+  angleBetween(
+    xOrAnotherVector: number | Vector,
+    y?: number,
+    z?: number,
+  ): number {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
     const a = this.mag()
     const b = anotherVector.mag()
     const c = this.dist(anotherVector)
@@ -152,11 +220,28 @@ export class Vector {
     return acos(cosC)
   }
 
-  inBetween(anotherVector: Vector, distanceRatio = 0.5) {
+  inBetween(x: number, y: number, z: number, distanceRatio?: number): Vector
+  inBetween(anotherVector: Vector, distanceRatio?: number): Vector
+  inBetween(
+    xOrAnotherVector: number | Vector,
+    yOrDistanceRatio?: number,
+    z?: number,
+    distanceRatio?: number,
+  ): Vector {
+    const anotherVector = this.inferAnotherVectorFromParms(
+      xOrAnotherVector,
+      yOrDistanceRatio,
+      z,
+    )
+    const actualDistanceRatio =
+      (typeof xOrAnotherVector === 'number'
+        ? distanceRatio
+        : yOrDistanceRatio) ?? 0.5
+
     return $v(
-      this.x + distanceRatio * (anotherVector.x - this.x),
-      this.y + distanceRatio * (anotherVector.y - this.y),
-      this.z + distanceRatio * (anotherVector.z - this.z),
+      this.x + actualDistanceRatio * (anotherVector.x - this.x),
+      this.y + actualDistanceRatio * (anotherVector.y - this.y),
+      this.z + actualDistanceRatio * (anotherVector.z - this.z),
     )
   }
 
@@ -172,6 +257,16 @@ export class Vector {
     yield this.x
     yield this.y
     yield this.z
+  }
+
+  private inferAnotherVectorFromParms = (
+    xOrAnotherVector: number | Vector,
+    y?: number,
+    z?: number,
+  ) => {
+    return typeof xOrAnotherVector === 'number'
+      ? $v(xOrAnotherVector, y!, z!) // 1st signature: (x, y, z)
+      : xOrAnotherVector // 2nd signature: (anotherVector)
   }
 }
 
