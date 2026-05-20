@@ -1,6 +1,9 @@
 import { FPS_WINDOW } from './constants.ts'
 import { isolateTransformations } from './primitives.ts'
 
+declare function requestAnimationFrame(callback: (time: number) => void): number
+declare function cancelAnimationFrame(handle: number): void
+
 export const logJson = (object: unknown) => console.log(JSON.stringify(object))
 
 export const timesForEach = (count: number, fn: (i: number) => void) => {
