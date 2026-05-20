@@ -4,6 +4,7 @@ import {
   FOCAL_LENGTH,
   SPHERE_LATITUDE_LINES,
   SPHERE_LONGITUDE_LINES,
+  Z_EPSILON,
 } from './constants.ts'
 import {
   $v,
@@ -37,7 +38,7 @@ let deferredRenderList: {
 
 export const render3dScene = () => {
   const orderedList = deferredRenderList.toSorted((left, right) =>
-    abs(right.z - left.z) < 1e-10 ? left.id - right.id : right.z - left.z,
+    abs(right.z - left.z) < Z_EPSILON ? left.id - right.id : right.z - left.z,
   )
 
   orderedList.forEach(element => element.renderFn())
@@ -120,9 +121,9 @@ export const scale: ScaleOverloadedSignatures = (
   const vector =
     typeof xOrXyzOrVector === 'number'
       ? typeof y === 'number'
-        ? $v(xOrXyzOrVector, y, z!) // 1st signature.
-        : $v(xOrXyzOrVector, xOrXyzOrVector, xOrXyzOrVector) // 2nd signature.
-      : xOrXyzOrVector // 3rd signature.
+        ? $v(xOrXyzOrVector, y, z!) // 1st signature: (x, y, z)
+        : $v(xOrXyzOrVector, xOrXyzOrVector, xOrXyzOrVector) // 2nd signature: (xyz)
+      : xOrXyzOrVector // 3rd signature: (vector)
 
   if (vector.isAllOnes()) return
 
@@ -310,19 +311,14 @@ export const transform = (point: Vector, { isNormal = false } = {}) => {
 const toScreen = (point: Vector) => centralize(project3dTo2d(transform(point)))!
 
 export const point = (point3d: Vector, { color = 'black', size = 1 } = {}) => {
-  const screenCoords = toScreen(point3d)
+  const screen = toScreen(point3d)
 
-  // Skip rendering if behind camera.
-  if (!screenCoords) return
+  // Skip rendering if point is behind camera.
+  if (!screen) return
 
   const renderFn = () => {
     ctx.fillStyle = color
-    ctx.fillRect(
-      screenCoords.x - size / 2,
-      screenCoords.y - size / 2,
-      size,
-      size,
-    )
+    ctx.fillRect(screen.x - size / 2, screen.y - size / 2, size, size)
   }
 
   deferredRenderList.push({
@@ -341,8 +337,7 @@ export const line = (
   const screenA = toScreen(point3dA)
   const screenB = toScreen(point3dB)
 
-  // If either point is behind the camera, skip the line. (In advanced engines, you'd "clip" the
-  // line at the Z-boundary, but skipping is enough to stop the "random lines").
+  // Skip rendering if either point is behind camera.
   if (!screenA || !screenB) return
 
   if (avoidSplit) {
@@ -402,12 +397,19 @@ export const triangle2d = (
   point2dA: Vector,
   point2dB: Vector,
   point2dC: Vector,
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+  {
+    color = 'gray',
+    lineWidth = 1,
+    opacity = 1,
+    strokeColor = 'black',
+    noStroke = false,
+  } = {},
 ) => {
   const screenA = toScreen(point2dA)
   const screenB = toScreen(point2dB)
   const screenC = toScreen(point2dC)
 
+  // Skip rendering if any point is behind camera.
   if (!screenA || !screenB || !screenC) return
 
   const renderFn = () => {
@@ -420,9 +422,13 @@ export const triangle2d = (
     ctx.save()
     ctx.globalAlpha = opacity //  Set transparency
     ctx.fillStyle = color
-    ctx.strokeStyle = strokeColor
-    ctx.lineWidth = lineWidth
-    ctx.stroke() // Outline the shape
+
+    if (!noStroke) {
+      ctx.strokeStyle = strokeColor
+      ctx.lineWidth = lineWidth
+      ctx.stroke() // Outline the shape
+    }
+
     ctx.fill() // Fill the shape
     ctx.restore()
   }
@@ -452,10 +458,15 @@ export const quadrilateral2d = (
     lineWidth,
     opacity,
     strokeColor,
+    // noStroke: true,
   }
 
   triangle2d(point2dA, point2dB, point2dC, options)
   triangle2d(point2dA, point2dC, point2dD, options)
+  // line(point2dA, point2dB, { avoidSplit: true })
+  // line(point2dB, point2dC, { avoidSplit: true })
+  // line(point2dC, point2dD, { avoidSplit: true })
+  // line(point2dD, point2dA, { avoidSplit: true })
 }
 
 export const rect2d = (

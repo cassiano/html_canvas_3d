@@ -1,17 +1,13 @@
 import {
   isolateTransformations,
-  line,
-  point,
   rotateX,
   rotateY,
   square2d,
   translate,
 } from './../primitives'
 import { Vector } from './../vector'
-import { abs, max, PI, sign } from './../math_utils'
+import { abs, PI, sign } from './../math_utils'
 import { Cubie } from './cubie'
-import { ORIGIN } from '../constants'
-import { MIN_NORMAL_LENGTH } from './constants'
 
 export class CubieFace {
   constructor(
@@ -52,10 +48,10 @@ export class CubieFace {
       })
 
       // Render the normal.
-      const normalLength = max(MIN_NORMAL_LENGTH, this.size / 5)
-      const scaledNormal = this.normal.clone().mult(normalLength)
-      line(ORIGIN, scaledNormal, { color: 'black' })
-      point(scaledNormal, { color: 'black', size: normalLength / 10 })
+      // const normalLength = max(MIN_NORMAL_LENGTH, this.size / 5)
+      // const scaledNormal = this.normal.clone().mult(normalLength)
+      // line(ORIGIN, scaledNormal, { color: 'black' })
+      // point(scaledNormal, { color: 'black', size: normalLength / 10 })
     })
   }
 }
