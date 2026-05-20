@@ -114,19 +114,6 @@ export class Vector {
     return this.mult(1 / scalarValue)
   }
 
-  toArray() {
-    return [...this]
-  }
-
-  toString() {
-    return JSON.stringify(this.toArray())
-  }
-
-  to4dMatrix() {
-    // 4x1 matrix.
-    return [[this.x], [this.y], [this.z], [FOURTH_DIMENSION_COORD]]
-  }
-
   dot(x: number, y: number, z: number): number
   dot(anotherVector: Vector): number
   dot(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
@@ -256,13 +243,26 @@ export class Vector {
     const actualInterpolationAmount =
       (typeof xOrAnotherVector === 'number'
         ? interpolationAmount
-        : yOrInterpolationAmount) ?? 0.5
+        : yOrInterpolationAmount) ?? 0.5 // 0.5 = Default interpolation amount.
 
     return $v(
       this.x + actualInterpolationAmount * (anotherVector.x - this.x),
       this.y + actualInterpolationAmount * (anotherVector.y - this.y),
       this.z + actualInterpolationAmount * (anotherVector.z - this.z),
     )
+  }
+
+  toArray() {
+    return this.coords
+  }
+
+  toString() {
+    return JSON.stringify(this.toArray())
+  }
+
+  to4dMatrix() {
+    // 4x1 matrix.
+    return [[this.x], [this.y], [this.z], [FOURTH_DIMENSION_COORD]]
   }
 
   static create(x: number, y: number, z?: number) {
@@ -273,7 +273,7 @@ export class Vector {
     return Vector.create(matrix[0][0], matrix[1][0], matrix[2][0])
   }
 
-  *[Symbol.iterator]() {
+  *[Symbol.iterator](): Generator<number, void, unknown> {
     yield this.x
     yield this.y
     yield this.z
