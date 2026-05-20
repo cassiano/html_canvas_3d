@@ -239,28 +239,29 @@ export class Vector {
     return acos(cosC)
   }
 
-  inBetween(x: number, y: number, z: number, distanceRatio?: number): Vector
-  inBetween(anotherVector: Vector, distanceRatio?: number): Vector
-  inBetween(
+  // https://p5js.org/reference/p5.Vector/lerp/
+  lerp(x: number, y: number, z: number, interpolationAmount?: number): Vector
+  lerp(anotherVector: Vector, interpolationAmount?: number): Vector
+  lerp(
     xOrAnotherVector: number | Vector,
-    yOrDistanceRatio?: number,
+    yOrInterpolationAmount?: number,
     z?: number,
-    distanceRatio?: number,
+    interpolationAmount?: number,
   ): Vector {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
-      yOrDistanceRatio,
+      yOrInterpolationAmount,
       z,
     )
-    const actualDistanceRatio =
+    const actualInterpolationAmount =
       (typeof xOrAnotherVector === 'number'
-        ? distanceRatio
-        : yOrDistanceRatio) ?? 0.5
+        ? interpolationAmount
+        : yOrInterpolationAmount) ?? 0.5
 
     return $v(
-      this.x + actualDistanceRatio * (anotherVector.x - this.x),
-      this.y + actualDistanceRatio * (anotherVector.y - this.y),
-      this.z + actualDistanceRatio * (anotherVector.z - this.z),
+      this.x + actualInterpolationAmount * (anotherVector.x - this.x),
+      this.y + actualInterpolationAmount * (anotherVector.y - this.y),
+      this.z + actualInterpolationAmount * (anotherVector.z - this.z),
     )
   }
 

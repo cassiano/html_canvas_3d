@@ -341,7 +341,7 @@ export const line = (
   if (!screenA || !screenB) return
 
   if (avoidSplit) {
-    const center = point3dA.inBetween(point3dB)
+    const center = point3dA.lerp(point3dB)
 
     const renderFn = () => {
       ctx.strokeStyle = color
@@ -362,11 +362,8 @@ export const line = (
     let latestPoint = point3dA
 
     timesForEach(LINE_SEGMENTS, i => {
-      const nextPoint = point3dA.inBetween(
-        point3dB,
-        (1 / LINE_SEGMENTS) * (i + 1),
-      )
-      const center = latestPoint.inBetween(nextPoint)
+      const nextPoint = point3dA.lerp(point3dB, (1 / LINE_SEGMENTS) * (i + 1))
+      const center = latestPoint.lerp(nextPoint)
 
       const { x: x1, y: y1 } = toScreen(latestPoint)
       const { x: x2, y: y2 } = toScreen(nextPoint)

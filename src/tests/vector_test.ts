@@ -148,20 +148,20 @@ test('Vector - AngleBetween', () => {
   assertAlmostEquals(angle, Math.PI / 2)
 })
 
-test('Vector - InBetween (LERP)', () => {
+test('Vector - lerp (Linear intERPolation)', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(10, 10, 10)
 
   // Default ratio 0.5
-  const mid = v1.inBetween(v2)
+  const mid = v1.lerp(v2)
   assertEquals(mid.coords, [5, 5, 5])
 
   // Specific ratio 0.2 via Vector
-  const low = v1.inBetween(v2, 0.2)
+  const low = v1.lerp(v2, 0.2)
   assertEquals(low.coords, [2, 2, 2])
 
   // Specific ratio 0.8 via coordinates
-  const high = v1.inBetween(10, 10, 10, 0.8)
+  const high = v1.lerp(10, 10, 10, 0.8)
   assertEquals(high.coords, [8, 8, 8])
 })
 
