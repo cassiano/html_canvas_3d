@@ -1,4 +1,4 @@
-import { FPS_WINDOW } from './constants'
+import { FPS_WINDOW } from './constants.ts'
 import { isolateTransformations } from './primitives.ts'
 
 export const logJson = (object: unknown) => console.log(JSON.stringify(object))

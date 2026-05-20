@@ -4,7 +4,7 @@ import {
   millis,
   timesReduce,
   togglePause,
-} from './../utils'
+} from './../utils.ts'
 import {
   animation,
   background,
@@ -15,13 +15,13 @@ import {
   rotateX,
   rotateY,
   text2d,
-} from './../primitives'
-import { $v } from './../vector'
-import { PI } from './../math_utils'
-import { FPS } from './../constants'
+} from './../primitives.ts'
+import { $v } from './../vector.ts'
+import { PI } from './../math_utils.ts'
+import { FPS } from './../constants.ts'
 import { memoize } from '@cdandrea/memoize-ts'
-import { LSystem } from './l_system'
-import { Turtle } from './turtle'
+import { LSystem } from './l_system.ts'
+import { Turtle } from './turtle.ts'
 
 const SQUARE_SIDES = 4
 

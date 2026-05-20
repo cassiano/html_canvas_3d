@@ -1,6 +1,6 @@
-import { timesMap } from './../utils'
-import { isolateTransformations, translate } from './../primitives'
-import { $v, Vector } from './../vector'
+import { timesMap } from './../utils.ts'
+import { isolateTransformations, translate } from './../primitives.ts'
+import { $v, Vector } from './../vector.ts'
 import { CubieFace } from './cubie_face.ts'
 import {
   CUBIE_SPACING,

@@ -4,10 +4,10 @@ import {
   rotateY,
   square2d,
   translate,
-} from './../primitives'
-import { Vector } from './../vector'
-import { abs, PI, sign } from './../math_utils'
-import { Cubie } from './cubie'
+} from './../primitives.ts'
+import { Vector } from '../vector.ts'
+import { abs, PI, sign } from '../math_utils.ts'
+import { Cubie } from './cubie.ts'
 
 export class CubieFace {
   constructor(

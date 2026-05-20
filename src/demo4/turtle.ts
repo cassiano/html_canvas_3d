@@ -8,8 +8,8 @@ import {
   rotateZ,
   scale,
   translate,
-} from '../primitives'
-import { $v } from '../vector'
+} from '../primitives.ts'
+import { $v } from '../vector.ts'
 
 const TINY_AXIS_LENGTH = 50
 

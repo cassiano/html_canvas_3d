@@ -1,5 +1,5 @@
-import { FPS } from './../constants'
-import { createFrameLoop, fps, millis, togglePause } from './../utils'
+import { FPS } from './../constants.ts'
+import { createFrameLoop, fps, millis, togglePause } from './../utils.ts'
 import {
   animation,
   background,
@@ -9,10 +9,10 @@ import {
   rotateX,
   rotateY,
   text2d,
-} from './../primitives'
-import { $v } from './../vector'
-import { PI, sin } from './../math_utils'
-import { RubikCube } from './rubik_cube'
+} from './../primitives.ts'
+import { $v } from './../vector.ts'
+import { PI, sin } from './../math_utils.ts'
+import { RubikCube } from './rubik_cube.ts'
 import { CUBIE_SIZE, CUBIES_PER_AXIS } from './constants.ts'
 
 const cube = new RubikCube(CUBIE_SIZE, CUBIES_PER_AXIS)
