@@ -39,18 +39,21 @@ test('Vector - Constructor and Getters/Setters', () => {
 test('Vector - Clone', () => {
   const v1 = $v(1, 2, 3)
   const v2 = v1.clone()
+
   assertEquals(v1.coords, v2.coords)
   assertNotEquals(v1, v2) // Ensure it's a different reference
 })
 
 test('Vector - Magnitude calculations', () => {
   const v = $v(3, 4, 0)
+
   assertEquals(v.magSq(), 25)
   assertEquals(v.mag(), 5)
 })
 
 test('Vector - Normalize and setMag', () => {
   const v = $v(10, 0, 0)
+
   v.normalize()
   assertEquals(v.x, 1)
   assertEquals(v.mag(), 1)
@@ -94,6 +97,7 @@ test('Vector - Mult and Div', () => {
 test('Vector - Dot Product', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
+
   // (1*4) + (2*5) + (3*6) = 4 + 10 + 18 = 32
   assertEquals(v1.dot(v2), 32)
   assertEquals(v1.dot(4, 5, 6), 32)
@@ -110,12 +114,14 @@ test('Vector - Cross Product', () => {
 test('Vector - Distance', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(3, 4, 0)
+
   assertEquals(v1.dist(v2), 5)
   assertEquals(v1.distSq(v2), 25)
 })
 
 test('Vector - Equality and Helpers', () => {
   const v = $v(1, 1, 1)
+
   assertEquals(v.equals(1, 1, 1), true)
   assertEquals(v.isAllOnes(), true)
   assertEquals(v.isAllZeros(), false)
@@ -199,12 +205,14 @@ test('Constants - AXES values', () => {
 
 test('Vector - Constructor defaults', () => {
   const v = new Vector(5, 10)
+
   assertEquals(v.z, 0, 'z should default to 0')
 })
 
 test('Vector - Factory Aliases', () => {
   const v1 = $v(1, 2, 3)
   const v2 = createVector(1, 2, 3)
+
   assert(v1.equals(v2))
 })
 
@@ -215,6 +223,7 @@ test('Vector - Getters and Setters', () => {
   v.x = 1
   v.y = 2
   v.z = 3
+
   assertEquals(v.coords, [1, 2, 3])
   assertEquals(v.x, 1)
   assertEquals(v.y, 2)
@@ -225,6 +234,7 @@ test('Vector - Getters and Setters', () => {
 
 test('Vector - Method Chaining (Fluent API)', () => {
   const v = $v(1, 1, 1)
+
   // add, sub, mult, div, setMag, normalize all return 'this'
   const result = v
     .add(1, 1, 1)
@@ -238,13 +248,16 @@ test('Vector - Method Chaining (Fluent API)', () => {
 
 test('Vector - add/sub overloads', () => {
   const v = $v(1, 2, 3)
+
   v.add(1, 1, 1) // numbers
   assertEquals(v.coords, [2, 3, 4])
+
   v.add($v(1, 1, 1)) // vector
   assertEquals(v.coords, [3, 4, 5])
 
   v.sub(1, 1, 1)
   assertEquals(v.coords, [2, 3, 4])
+
   v.sub($v(1, 1, 1))
   assertEquals(v.coords, [1, 2, 3])
 })
@@ -253,18 +266,21 @@ test('Vector - add/sub overloads', () => {
 
 test('Vector - mag and magSq', () => {
   const v = $v(0, 3, 4)
+
   assertEquals(v.magSq(), 25)
   assertEquals(v.mag(), 5)
 })
 
 test('Vector - normalize handles zero vector', () => {
   const v = $v(0, 0, 0)
+
   // normalize calls div(mag), which is div(0)
   assertThrows(() => v.normalize(), Error, 'division by 0')
 })
 
 test('Vector - dot product overloads', () => {
   const v = $v(1, 2, 3)
+
   // (1*2)+(2*0)+(3*1) = 5
   assertEquals(v.dot(2, 0, 1), 5)
   assertEquals(v.dot($v(2, 0, 1)), 5)
@@ -299,6 +315,7 @@ test('Vector - angleBetween overloads', () => {
 
   // Angle between same vector should be 0
   assertAlmostEquals(v1.angleBetween(1, 0, 0), 0)
+
   // Angle between opposite vectors should be PI
   assertAlmostEquals(v1.angleBetween(-1, 0, 0), Math.PI)
 })
@@ -328,6 +345,7 @@ test('Vector - isAllZeros and isAllOnes', () => {
 
 test('Vector - equals overload', () => {
   const v = $v(1, 2, 3)
+
   assert(v.equals(1, 2, 3))
   assert(v.equals($v(1, 2, 3)))
   assert(!v.equals(1, 2, 4))
@@ -366,9 +384,9 @@ test('Vector - toArray and toString', () => {
 test('Vector - Iterator protocol', () => {
   const v = $v(7, 8, 9)
   const results: number[] = []
-  for (const coord of v) {
-    results.push(coord)
-  }
+
+  for (const coord of v) results.push(coord)
+
   assertEquals(results, [7, 8, 9])
 
   const [x, y, z] = v
@@ -388,5 +406,6 @@ test('Vector - clone is deep enough', () => {
 test('Vector - setMag magnitude check', () => {
   const v = $v(1, 1, 1) // length sqrt(3)
   v.setMag(10)
+
   assertAlmostEquals(v.mag(), 10)
 })
