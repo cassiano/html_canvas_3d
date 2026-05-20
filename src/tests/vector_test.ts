@@ -6,7 +6,7 @@ import {
   assertThrows,
   assertAlmostEquals,
   assert,
-} from 'https://deno.land/std@0.212.0/assert/mod.ts'
+} from '@std/assert'
 
 import {
   Vector,
@@ -15,7 +15,7 @@ import {
   AXES,
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
-} from '../vector.ts' // Adjust path as needed
+} from '../vector.ts'
 
 Deno.test('Vector - Constructor and Getters/Setters', () => {
   const v = new Vector(1, 2, 3)
