@@ -438,6 +438,8 @@ export const triangle2d = (
     (point2dA.y + point2dB.y + point2dC.y) / 3,
   )
 
+  const normal = centroid2d.clone().setZ(1)
+
   deferredRenderList.push({
     // source: `triangle with A=${point2dA.toString()}, B=${point2dB.toString()} and C=${point2dC.toString()}`,
     id: deferredRenderList.length,
@@ -481,13 +483,12 @@ export const rect2d = (
     strokeColor,
   }
 
-  quadrilateral2d(
-    $v(-width / 2, -height / 2), // A
-    $v(width / 2, -height / 2), // B
-    $v(width / 2, height / 2), // C
-    $v(-width / 2, height / 2), // D
-    options,
-  )
+  const point2dA = $v(-width / 2, -height / 2)
+  const point2dB = $v(width / 2, -height / 2)
+  const point2dC = $v(width / 2, height / 2)
+  const point2dD = $v(-width / 2, height / 2)
+
+  quadrilateral2d(point2dA, point2dB, point2dC, point2dD, options)
 }
 
 export const square2d = (
@@ -520,6 +521,7 @@ export const box = (
   // Back face (-z).
   isolateTransformations(() => {
     translate(0, 0, -depth / 2)
+    rotateX(PI)
 
     rect2d(width, height, options)
   })
@@ -542,7 +544,7 @@ export const box = (
   // Right face (+x).
   isolateTransformations(() => {
     translate(width / 2, 0, 0)
-    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
+    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise.
 
     rect2d(depth, height, options)
   })
@@ -550,7 +552,7 @@ export const box = (
   // Bottom face (-y).
   isolateTransformations(() => {
     translate(0, -height / 2, 0)
-    rotateX(-PI / 2) // Turn 90ᵒ clockwise.
+    rotateX(PI / 2) // Turn 90ᵒ counter-clockwise.
 
     rect2d(width, depth, options)
   })

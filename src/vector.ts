@@ -32,7 +32,25 @@ export class Vector {
     this.coords[2] = newZ
   }
 
-  clone() {
+  setX(newX: number): Vector {
+    this.coords[0] = newX
+
+    return this
+  }
+
+  setY(newY: number): Vector {
+    this.coords[1] = newY
+
+    return this
+  }
+
+  setZ(newZ: number): Vector {
+    this.coords[2] = newZ
+
+    return this
+  }
+
+  clone(): Vector {
     return Vector.create(...this.coords)
   }
 
@@ -44,7 +62,7 @@ export class Vector {
     return sqrt(this.magSq())
   }
 
-  normalize() {
+  normalize(): Vector {
     return this.div(this.mag())
   }
 
@@ -55,7 +73,7 @@ export class Vector {
   add(x: number, y: number, z: number): Vector
   add(anotherVector: Vector): Vector
   add(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
@@ -71,7 +89,7 @@ export class Vector {
   sub(x: number, y: number, z: number): Vector
   sub(anotherVector: Vector): Vector
   sub(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
@@ -88,7 +106,7 @@ export class Vector {
     return this
   }
 
-  div(scalarValue: number) {
+  div(scalarValue: number): Vector {
     if (scalarValue === 0)
       throw new Error('Sorry, but division by 0 is not supported')
 
@@ -111,7 +129,7 @@ export class Vector {
   dot(x: number, y: number, z: number): number
   dot(anotherVector: Vector): number
   dot(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
@@ -127,7 +145,7 @@ export class Vector {
   cross(x: number, y: number, z: number): Vector
   cross(anotherVector: Vector): Vector
   cross(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
@@ -143,7 +161,7 @@ export class Vector {
   dist(x: number, y: number, z: number): number
   dist(anotherVector: Vector): number
   dist(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
@@ -155,7 +173,7 @@ export class Vector {
   distSq(x: number, y: number, z: number): number
   distSq(anotherVector: Vector): number
   distSq(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
@@ -173,7 +191,7 @@ export class Vector {
   equals(x: number, y: number, z: number): boolean
   equals(anotherVector: Vector): boolean
   equals(xOrAnotherVector: number | Vector, y?: number, z?: number): boolean {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
@@ -203,7 +221,7 @@ export class Vector {
     y?: number,
     z?: number,
   ): number {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
@@ -228,7 +246,7 @@ export class Vector {
     z?: number,
     distanceRatio?: number,
   ): Vector {
-    const anotherVector = this.inferAnotherVectorFromParms(
+    const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       yOrDistanceRatio,
       z,
@@ -259,7 +277,7 @@ export class Vector {
     yield this.z
   }
 
-  private inferAnotherVectorFromParms = (
+  private inferAnotherVectorFromParams = (
     xOrAnotherVector: number | Vector,
     y?: number,
     z?: number,
