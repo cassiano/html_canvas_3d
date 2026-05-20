@@ -371,7 +371,7 @@ export const line = (
       const { x: x1, y: y1 } = toScreen(latestPoint)
       const { x: x2, y: y2 } = toScreen(nextPoint)
 
-      const previousLatestAsString = latestPoint.toString()
+      // const previousLatestAsString = latestPoint.toString()
       latestPoint = nextPoint
 
       const renderFn = () => {
@@ -438,7 +438,7 @@ export const triangle2d = (
     (point2dA.y + point2dB.y + point2dC.y) / 3,
   )
 
-  const normal = centroid2d.clone().setZ(1)
+  // const normal = centroid2d.clone().setZ(1)
 
   deferredRenderList.push({
     // source: `triangle with A=${point2dA.toString()}, B=${point2dB.toString()} and C=${point2dC.toString()}`,
@@ -589,6 +589,7 @@ export const circle2d = (
 
 export const sphere = (
   radius: number,
+  // deno-lint-ignore no-unused-vars
   { color = 'gray', lineWidth = 1, opacity = 1 } = {},
 ) => {
   isolateTransformations(() => {
