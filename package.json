@@ -10,6 +10,6 @@
   },
   "devDependencies": {
     "deno": "^2.7.14",
-    "vite": "^8.0.10"
+    "vite": "^8.0.13"
   }
 }
