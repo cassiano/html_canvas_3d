@@ -1,5 +1,10 @@
 /// <reference lib="deno.ns" />
 
+// To execute tests, run:
+//
+// `deno test`
+// `deno test --watch`
+
 import {
   assertEquals,
   assertNotEquals,
