@@ -29,7 +29,7 @@ export const animation = document.getElementById(
 
 export const ctx = animation.getContext('2d')!
 
-let deferredRenderList: {
+const deferredRenderList: {
   // source: string
   id: number
   z: number
