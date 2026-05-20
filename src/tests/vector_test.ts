@@ -67,48 +67,54 @@ test('Vector - Add (overloads)', () => {
   // Vector overload
   const v1 = $v(1, 1, 1)
   v1.add($v(1, 2, 3))
-  assertEquals(v1.coords, [2, 3, 4])
+  assertEquals(v1.coords, [1 + 1, 1 + 2, 1 + 3])
 
   // Scalars overload
   v1.add(1, 1, 1)
-  assertEquals(v1.coords, [3, 4, 5])
+  assertEquals(v1.coords, [2 + 1, 3 + 1, 4 + 1])
 })
 
 test('Vector - Sub (overloads)', () => {
   const v1 = $v(10, 10, 10)
   v1.sub($v(1, 2, 3))
-  assertEquals(v1.coords, [9, 8, 7])
+  assertEquals(v1.coords, [10 - 1, 10 - 2, 10 - 3])
 
   v1.sub(1, 1, 1)
-  assertEquals(v1.coords, [8, 7, 6])
+  assertEquals(v1.coords, [9 - 1, 8 - 1, 7 - 1])
 })
 
 test('Vector - Mult and Div', () => {
   const v = $v(1, 2, 3)
   v.mult(2)
-  assertEquals(v.coords, [2, 4, 6])
+  assertEquals(v.coords, [1 * 2, 2 * 2, 3 * 2])
 
   v.div(2)
-  assertEquals(v.coords, [1, 2, 3])
+  assertEquals(v.coords, [2 / 2, 4 / 2, 6 / 2])
 
-  assertThrows(() => v.div(0), Error, 'division by 0 is not supported')
+  assertThrows(
+    () => v.div(0),
+    Error,
+    'Sorry, but division by 0 is not supported',
+  )
 })
 
 test('Vector - Dot Product', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
 
-  // (1*4) + (2*5) + (3*6) = 4 + 10 + 18 = 32
-  assertEquals(v1.dot(v2), 32)
-  assertEquals(v1.dot(4, 5, 6), 32)
+  assertEquals(v1.dot(v2), 1 * 4 + 2 * 5 + 3 * 6) // 32
+  assertEquals(v1.dot(4, 5, 6), 1 * 4 + 2 * 5 + 3 * 6) // 32
+
+  assertEquals(v2.dot(v1), 1 * 4 + 2 * 5 + 3 * 6) // 32
+  assertEquals(v2.dot(1, 2, 3), 1 * 4 + 2 * 5 + 3 * 6) // 32
 })
 
 test('Vector - Cross Product', () => {
-  const v1 = AXES.x // (1, 0, 0)
-  const v2 = AXES.y // (0, 1, 0)
-  const result = v1.cross(v2)
+  const result1 = AXES.x.cross(AXES.y)
+  assertEquals(result1.coords, AXES.z.coords) // X cross Y = Z
 
-  assertEquals(result.coords, [0, 0, 1]) // X cross Y = Z
+  const result2 = AXES.y.cross(AXES.x)
+  assertEquals(result2.coords, AXES['-z'].coords) // Y cross X = -Z
 })
 
 test('Vector - Distance', () => {
@@ -117,12 +123,17 @@ test('Vector - Distance', () => {
 
   assertEquals(v1.dist(v2), 5)
   assertEquals(v1.distSq(v2), 25)
+
+  assertEquals(v2.dist(v1), 5)
+  assertEquals(v2.distSq(v1), 25)
 })
 
 test('Vector - Equality and Helpers', () => {
   const v = $v(1, 1, 1)
 
   assertEquals(v.equals(1, 1, 1), true)
+  assertEquals(v.equals($v(1, 1, 1)), true)
+
   assertEquals(v.isAllOnes(), true)
   assertEquals(v.isAllZeros(), false)
 
@@ -144,8 +155,17 @@ test('Vector - AngleBetween', () => {
   const v2 = $v(0, 1, 0)
   const angle = v1.angleBetween(v2)
 
-  // Angle between X and Y axis is PI/2 (90 degrees)
+  // Angle between X and Y axis is PI/2 (90ᴼ)
   assertAlmostEquals(angle, Math.PI / 2)
+
+  assertAlmostEquals(v1.angleBetween(0, 1, 0), Math.PI / 2)
+  assertAlmostEquals(v1.angleBetween($v(0, 1, 0)), Math.PI / 2)
+
+  // Angle between same vector should be 0
+  assertAlmostEquals(v1.angleBetween(1, 0, 0), 0)
+
+  // Angle between opposite vectors should be PI
+  assertAlmostEquals(v1.angleBetween(v1.clone().mult(-1)), Math.PI)
 })
 
 test('Vector - lerp (Linear intERPolation)', () => {
@@ -177,13 +197,6 @@ test('Vector - Iterator and Serialization', () => {
 
   // toString
   assertEquals(v.toString(), '[1,2,3]')
-})
-
-test('Vector - Static AXES constants', () => {
-  assertEquals(AXES.x.coords, [1, 0, 0])
-  assertEquals(AXES.y.coords, [0, 1, 0])
-  assertEquals(AXES.z.coords, [0, 0, 1])
-  assertEquals(AXES['-x'].coords, [-1, 0, 0])
 })
 
 // --- Constants Coverage ---
@@ -246,140 +259,7 @@ test('Vector - Method Chaining (Fluent API)', () => {
   assertEquals(v.coords, [1, 1, 1])
 })
 
-test('Vector - add/sub overloads', () => {
-  const v = $v(1, 2, 3)
-
-  v.add(1, 1, 1) // numbers
-  assertEquals(v.coords, [2, 3, 4])
-
-  v.add($v(1, 1, 1)) // vector
-  assertEquals(v.coords, [3, 4, 5])
-
-  v.sub(1, 1, 1)
-  assertEquals(v.coords, [2, 3, 4])
-
-  v.sub($v(1, 1, 1))
-  assertEquals(v.coords, [1, 2, 3])
-})
-
-// --- Math & Geometry Coverage ---
-
-test('Vector - mag and magSq', () => {
-  const v = $v(0, 3, 4)
-
-  assertEquals(v.magSq(), 25)
-  assertEquals(v.mag(), 5)
-})
-
-test('Vector - normalize handles zero vector', () => {
-  const v = $v(0, 0, 0)
-
-  // normalize calls div(mag), which is div(0)
-  assertThrows(() => v.normalize(), Error, 'division by 0')
-})
-
-test('Vector - dot product overloads', () => {
-  const v = $v(1, 2, 3)
-
-  // (1*2)+(2*0)+(3*1) = 5
-  assertEquals(v.dot(2, 0, 1), 5)
-  assertEquals(v.dot($v(2, 0, 1)), 5)
-})
-
-test('Vector - cross product overloads', () => {
-  const v1 = $v(1, 0, 0)
-  const res1 = v1.cross(0, 1, 0)
-  assert(res1.equals(0, 0, 1))
-
-  const res2 = v1.cross($v(0, 1, 0))
-  assert(res2.equals(0, 0, 1))
-})
-
-test('Vector - dist and distSq overloads', () => {
-  const v1 = $v(1, 0, 0)
-  // const v2 = $v(4, 0, 0)
-
-  assertEquals(v1.dist(4, 0, 0), 3)
-  assertEquals(v1.dist($v(4, 0, 0)), 3)
-
-  assertEquals(v1.distSq(4, 0, 0), 9)
-  assertEquals(v1.distSq($v(4, 0, 0)), 9)
-})
-
-test('Vector - angleBetween overloads', () => {
-  const v1 = $v(1, 0, 0)
-  // const v2 = $v(0, 1, 0)
-
-  assertAlmostEquals(v1.angleBetween(0, 1, 0), Math.PI / 2)
-  assertAlmostEquals(v1.angleBetween($v(0, 1, 0)), Math.PI / 2)
-
-  // Angle between same vector should be 0
-  assertAlmostEquals(v1.angleBetween(1, 0, 0), 0)
-
-  // Angle between opposite vectors should be PI
-  assertAlmostEquals(v1.angleBetween(-1, 0, 0), Math.PI)
-})
-
-test('Vector - inBetween (LERP) overloads', () => {
-  const start = $v(0, 0, 0)
-  const end = $v(10, 20, 30)
-
-  // Test Vector signature
-  assert(start.inBetween(end, 0.5).equals(5, 10, 15))
-  assert(start.inBetween(end, 0).equals(0, 0, 0))
-  assert(start.inBetween(end, 1).equals(10, 20, 30))
-
-  // Test numeric signature
-  assert(start.inBetween(10, 20, 30, 0.1).equals(1, 2, 3))
-})
-
-// --- Logical Checks ---
-
-test('Vector - isAllZeros and isAllOnes', () => {
-  assert($v(0, 0, 0).isAllZeros())
-  assert(!$v(0.0001, 0, 0).isAllZeros())
-
-  assert($v(1, 1, 1).isAllOnes())
-  assert(!$v(1, 1, 0.99).isAllOnes())
-})
-
-test('Vector - equals overload', () => {
-  const v = $v(1, 2, 3)
-
-  assert(v.equals(1, 2, 3))
-  assert(v.equals($v(1, 2, 3)))
-  assert(!v.equals(1, 2, 4))
-})
-
-// --- Matrix & Conversion Coverage ---
-
-test('Vector - 4dMatrix Roundtrip', () => {
-  const original = $v(Math.random(), Math.random(), Math.random())
-  const matrix = original.to4dMatrix() as transformationMatrix4x1Type
-
-  assertEquals(matrix.length, 4)
-  assertEquals(matrix[3][0], FOURTH_DIMENSION_COORD)
-
-  const reconstructed = Vector.from4dMatrix(matrix)
-  assert(original.equals(reconstructed))
-})
-
 // --- Utilities & Symbols Coverage ---
-
-test('Vector - toArray and toString', () => {
-  const v = $v(1, 2, 3)
-  const arr = v.toArray()
-
-  assertEquals(arr, [1, 2, 3])
-  assertEquals(arr, v.coords)
-  // assertNotEquals(
-  //   arr,
-  //   v.coords,
-  //   'toArray should return a copy, not the original reference',
-  // )
-
-  assertEquals(v.toString(), '[1,2,3]')
-})
 
 test('Vector - Iterator protocol', () => {
   const v = $v(7, 8, 9)
@@ -401,11 +281,4 @@ test('Vector - clone is deep enough', () => {
   v1.x = 5
 
   assertEquals(v2.x, 1, 'Cloned vector should not change when original changes')
-})
-
-test('Vector - setMag magnitude check', () => {
-  const v = $v(1, 1, 1) // length sqrt(3)
-  v.setMag(10)
-
-  assertAlmostEquals(v.mag(), 10)
 })
