@@ -12,38 +12,39 @@ export class Vector {
     this.coords = [x, y, z]
   }
 
+  // Getters and setter for `x`.
   get x() {
     return this.coords[0]
   }
-  get y() {
-    return this.coords[1]
-  }
-  get z() {
-    return this.coords[2]
-  }
-
   set x(newX) {
     this.coords[0] = newX
   }
-  set y(newY) {
-    this.coords[1] = newY
-  }
-  set z(newZ) {
-    this.coords[2] = newZ
-  }
-
   setX(newX: number): Vector {
     this.coords[0] = newX
 
     return this
   }
 
+  // Getters and setter for `y`.
+  get y() {
+    return this.coords[1]
+  }
+  set y(newY) {
+    this.coords[1] = newY
+  }
   setY(newY: number): Vector {
     this.coords[1] = newY
 
     return this
   }
 
+  // Getters and setter for `z`.
+  get z() {
+    return this.coords[2]
+  }
+  set z(newZ) {
+    this.coords[2] = newZ
+  }
   setZ(newZ: number): Vector {
     this.coords[2] = newZ
 
