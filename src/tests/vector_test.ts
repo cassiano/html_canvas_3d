@@ -22,7 +22,9 @@ import {
   transformationMatrix4x1Type,
 } from '../vector.ts'
 
-Deno.test('Vector - Constructor and Getters/Setters', () => {
+const test = Deno.test
+
+test('Vector - Constructor and Getters/Setters', () => {
   const v = new Vector(1, 2, 3)
   assertEquals(v.x, 1)
   assertEquals(v.y, 2)
@@ -34,20 +36,20 @@ Deno.test('Vector - Constructor and Getters/Setters', () => {
   assertEquals(v.coords, [10, 20, 30])
 })
 
-Deno.test('Vector - Clone', () => {
+test('Vector - Clone', () => {
   const v1 = $v(1, 2, 3)
   const v2 = v1.clone()
   assertEquals(v1.coords, v2.coords)
   assertNotEquals(v1, v2) // Ensure it's a different reference
 })
 
-Deno.test('Vector - Magnitude calculations', () => {
+test('Vector - Magnitude calculations', () => {
   const v = $v(3, 4, 0)
   assertEquals(v.magSq(), 25)
   assertEquals(v.mag(), 5)
 })
 
-Deno.test('Vector - Normalize and setMag', () => {
+test('Vector - Normalize and setMag', () => {
   const v = $v(10, 0, 0)
   v.normalize()
   assertEquals(v.x, 1)
@@ -58,7 +60,7 @@ Deno.test('Vector - Normalize and setMag', () => {
   assertEquals(v.mag(), 5)
 })
 
-Deno.test('Vector - Add (overloads)', () => {
+test('Vector - Add (overloads)', () => {
   // Vector overload
   const v1 = $v(1, 1, 1)
   v1.add($v(1, 2, 3))
@@ -69,7 +71,7 @@ Deno.test('Vector - Add (overloads)', () => {
   assertEquals(v1.coords, [3, 4, 5])
 })
 
-Deno.test('Vector - Sub (overloads)', () => {
+test('Vector - Sub (overloads)', () => {
   const v1 = $v(10, 10, 10)
   v1.sub($v(1, 2, 3))
   assertEquals(v1.coords, [9, 8, 7])
@@ -78,7 +80,7 @@ Deno.test('Vector - Sub (overloads)', () => {
   assertEquals(v1.coords, [8, 7, 6])
 })
 
-Deno.test('Vector - Mult and Div', () => {
+test('Vector - Mult and Div', () => {
   const v = $v(1, 2, 3)
   v.mult(2)
   assertEquals(v.coords, [2, 4, 6])
@@ -89,7 +91,7 @@ Deno.test('Vector - Mult and Div', () => {
   assertThrows(() => v.div(0), Error, 'division by 0 is not supported')
 })
 
-Deno.test('Vector - Dot Product', () => {
+test('Vector - Dot Product', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
   // (1*4) + (2*5) + (3*6) = 4 + 10 + 18 = 32
@@ -97,7 +99,7 @@ Deno.test('Vector - Dot Product', () => {
   assertEquals(v1.dot(4, 5, 6), 32)
 })
 
-Deno.test('Vector - Cross Product', () => {
+test('Vector - Cross Product', () => {
   const v1 = AXES.x // (1, 0, 0)
   const v2 = AXES.y // (0, 1, 0)
   const result = v1.cross(v2)
@@ -105,14 +107,14 @@ Deno.test('Vector - Cross Product', () => {
   assertEquals(result.coords, [0, 0, 1]) // X cross Y = Z
 })
 
-Deno.test('Vector - Distance', () => {
+test('Vector - Distance', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(3, 4, 0)
   assertEquals(v1.dist(v2), 5)
   assertEquals(v1.distSq(v2), 25)
 })
 
-Deno.test('Vector - Equality and Helpers', () => {
+test('Vector - Equality and Helpers', () => {
   const v = $v(1, 1, 1)
   assertEquals(v.equals(1, 1, 1), true)
   assertEquals(v.isAllOnes(), true)
@@ -122,7 +124,7 @@ Deno.test('Vector - Equality and Helpers', () => {
   assertEquals(zero.isAllZeros(), true)
 })
 
-Deno.test('Vector - 4D Matrix conversion', () => {
+test('Vector - 4D Matrix conversion', () => {
   const v = $v(5, 10, 15)
   const matrix = v.to4dMatrix() as transformationMatrix4x1Type
   assertEquals(matrix, [[5], [10], [15], [1]])
@@ -131,7 +133,7 @@ Deno.test('Vector - 4D Matrix conversion', () => {
   assertEquals(fromMat.coords, [5, 10, 15])
 })
 
-Deno.test('Vector - AngleBetween', () => {
+test('Vector - AngleBetween', () => {
   const v1 = $v(1, 0, 0)
   const v2 = $v(0, 1, 0)
   const angle = v1.angleBetween(v2)
@@ -140,7 +142,7 @@ Deno.test('Vector - AngleBetween', () => {
   assertAlmostEquals(angle, Math.PI / 2)
 })
 
-Deno.test('Vector - InBetween (LERP)', () => {
+test('Vector - InBetween (LERP)', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(10, 10, 10)
 
@@ -157,7 +159,7 @@ Deno.test('Vector - InBetween (LERP)', () => {
   assertEquals(high.coords, [8, 8, 8])
 })
 
-Deno.test('Vector - Iterator and Serialization', () => {
+test('Vector - Iterator and Serialization', () => {
   const v = $v(1, 2, 3)
 
   // Iterator
@@ -171,7 +173,7 @@ Deno.test('Vector - Iterator and Serialization', () => {
   assertEquals(v.toString(), '[1,2,3]')
 })
 
-Deno.test('Vector - Static AXES constants', () => {
+test('Vector - Static AXES constants', () => {
   assertEquals(AXES.x.coords, [1, 0, 0])
   assertEquals(AXES.y.coords, [0, 1, 0])
   assertEquals(AXES.z.coords, [0, 0, 1])
@@ -180,11 +182,11 @@ Deno.test('Vector - Static AXES constants', () => {
 
 // --- Constants Coverage ---
 
-Deno.test('Constants - FOURTH_DIMENSION_COORD', () => {
+test('Constants - FOURTH_DIMENSION_COORD', () => {
   assertEquals(FOURTH_DIMENSION_COORD, 1)
 })
 
-Deno.test('Constants - AXES values', () => {
+test('Constants - AXES values', () => {
   assert(AXES.x.equals(1, 0, 0))
   assert(AXES.y.equals(0, 1, 0))
   assert(AXES.z.equals(0, 0, 1))
@@ -195,12 +197,12 @@ Deno.test('Constants - AXES values', () => {
 
 // --- Constructor & Factory Coverage ---
 
-Deno.test('Vector - Constructor defaults', () => {
+test('Vector - Constructor defaults', () => {
   const v = new Vector(5, 10)
   assertEquals(v.z, 0, 'z should default to 0')
 })
 
-Deno.test('Vector - Factory Aliases', () => {
+test('Vector - Factory Aliases', () => {
   const v1 = $v(1, 2, 3)
   const v2 = createVector(1, 2, 3)
   assert(v1.equals(v2))
@@ -208,7 +210,7 @@ Deno.test('Vector - Factory Aliases', () => {
 
 // --- Property Accessors Coverage ---
 
-Deno.test('Vector - Getters and Setters', () => {
+test('Vector - Getters and Setters', () => {
   const v = $v(0, 0, 0)
   v.x = 1
   v.y = 2
@@ -221,7 +223,7 @@ Deno.test('Vector - Getters and Setters', () => {
 
 // --- Arithmetic & Chainability ---
 
-Deno.test('Vector - Method Chaining (Fluent API)', () => {
+test('Vector - Method Chaining (Fluent API)', () => {
   const v = $v(1, 1, 1)
   // add, sub, mult, div, setMag, normalize all return 'this'
   const result = v
@@ -234,7 +236,7 @@ Deno.test('Vector - Method Chaining (Fluent API)', () => {
   assertEquals(v.coords, [1, 1, 1])
 })
 
-Deno.test('Vector - add/sub overloads', () => {
+test('Vector - add/sub overloads', () => {
   const v = $v(1, 2, 3)
   v.add(1, 1, 1) // numbers
   assertEquals(v.coords, [2, 3, 4])
@@ -249,26 +251,26 @@ Deno.test('Vector - add/sub overloads', () => {
 
 // --- Math & Geometry Coverage ---
 
-Deno.test('Vector - mag and magSq', () => {
+test('Vector - mag and magSq', () => {
   const v = $v(0, 3, 4)
   assertEquals(v.magSq(), 25)
   assertEquals(v.mag(), 5)
 })
 
-Deno.test('Vector - normalize handles zero vector', () => {
+test('Vector - normalize handles zero vector', () => {
   const v = $v(0, 0, 0)
   // normalize calls div(mag), which is div(0)
   assertThrows(() => v.normalize(), Error, 'division by 0')
 })
 
-Deno.test('Vector - dot product overloads', () => {
+test('Vector - dot product overloads', () => {
   const v = $v(1, 2, 3)
   // (1*2)+(2*0)+(3*1) = 5
   assertEquals(v.dot(2, 0, 1), 5)
   assertEquals(v.dot($v(2, 0, 1)), 5)
 })
 
-Deno.test('Vector - cross product overloads', () => {
+test('Vector - cross product overloads', () => {
   const v1 = $v(1, 0, 0)
   const res1 = v1.cross(0, 1, 0)
   assert(res1.equals(0, 0, 1))
@@ -277,7 +279,7 @@ Deno.test('Vector - cross product overloads', () => {
   assert(res2.equals(0, 0, 1))
 })
 
-Deno.test('Vector - dist and distSq overloads', () => {
+test('Vector - dist and distSq overloads', () => {
   const v1 = $v(1, 0, 0)
   // const v2 = $v(4, 0, 0)
 
@@ -288,7 +290,7 @@ Deno.test('Vector - dist and distSq overloads', () => {
   assertEquals(v1.distSq($v(4, 0, 0)), 9)
 })
 
-Deno.test('Vector - angleBetween overloads', () => {
+test('Vector - angleBetween overloads', () => {
   const v1 = $v(1, 0, 0)
   // const v2 = $v(0, 1, 0)
 
@@ -301,7 +303,7 @@ Deno.test('Vector - angleBetween overloads', () => {
   assertAlmostEquals(v1.angleBetween(-1, 0, 0), Math.PI)
 })
 
-Deno.test('Vector - inBetween (LERP) overloads', () => {
+test('Vector - inBetween (LERP) overloads', () => {
   const start = $v(0, 0, 0)
   const end = $v(10, 20, 30)
 
@@ -316,7 +318,7 @@ Deno.test('Vector - inBetween (LERP) overloads', () => {
 
 // --- Logical Checks ---
 
-Deno.test('Vector - isAllZeros and isAllOnes', () => {
+test('Vector - isAllZeros and isAllOnes', () => {
   assert($v(0, 0, 0).isAllZeros())
   assert(!$v(0.0001, 0, 0).isAllZeros())
 
@@ -324,7 +326,7 @@ Deno.test('Vector - isAllZeros and isAllOnes', () => {
   assert(!$v(1, 1, 0.99).isAllOnes())
 })
 
-Deno.test('Vector - equals overload', () => {
+test('Vector - equals overload', () => {
   const v = $v(1, 2, 3)
   assert(v.equals(1, 2, 3))
   assert(v.equals($v(1, 2, 3)))
@@ -333,7 +335,7 @@ Deno.test('Vector - equals overload', () => {
 
 // --- Matrix & Conversion Coverage ---
 
-Deno.test('Vector - 4dMatrix Roundtrip', () => {
+test('Vector - 4dMatrix Roundtrip', () => {
   const original = $v(Math.random(), Math.random(), Math.random())
   const matrix = original.to4dMatrix() as transformationMatrix4x1Type
 
@@ -346,7 +348,7 @@ Deno.test('Vector - 4dMatrix Roundtrip', () => {
 
 // --- Utilities & Symbols Coverage ---
 
-Deno.test('Vector - toArray and toString', () => {
+test('Vector - toArray and toString', () => {
   const v = $v(1, 2, 3)
   const arr = v.toArray()
 
@@ -361,7 +363,7 @@ Deno.test('Vector - toArray and toString', () => {
   assertEquals(v.toString(), '[1,2,3]')
 })
 
-Deno.test('Vector - Iterator protocol', () => {
+test('Vector - Iterator protocol', () => {
   const v = $v(7, 8, 9)
   const results: number[] = []
   for (const coord of v) {
@@ -375,7 +377,7 @@ Deno.test('Vector - Iterator protocol', () => {
   assertEquals(z, 9)
 })
 
-Deno.test('Vector - clone is deep enough', () => {
+test('Vector - clone is deep enough', () => {
   const v1 = $v(1, 1, 1)
   const v2 = v1.clone()
   v1.x = 5
@@ -383,7 +385,7 @@ Deno.test('Vector - clone is deep enough', () => {
   assertEquals(v2.x, 1, 'Cloned vector should not change when original changes')
 })
 
-Deno.test('Vector - setMag magnitude check', () => {
+test('Vector - setMag magnitude check', () => {
   const v = $v(1, 1, 1) // length sqrt(3)
   v.setMag(10)
   assertAlmostEquals(v.mag(), 10)
