@@ -5,8 +5,9 @@ import {
   rotateY,
   rotateZ,
   translate,
-} from '../primitives'
+} from '../primitives.ts'
 import { Mover3D } from './mover_3d.ts'
+import { millis } from '../utils.ts'
 
 export class CubeMover extends Mover3D {
   constructor(
@@ -23,17 +24,13 @@ export class CubeMover extends Mover3D {
     return this.size / 2
   }
 
-  render({
-    xAngle,
-    yAngle,
-    zAngle,
-  }: { xAngle?: number; yAngle?: number; zAngle?: number } = {}) {
+  render() {
     isolateTransformations(() => {
       translate(this.position)
 
-      if (xAngle !== undefined) rotateX(xAngle)
-      if (yAngle !== undefined) rotateY(yAngle)
-      if (zAngle !== undefined) rotateZ(zAngle)
+      rotateX(millis() / 1000)
+      rotateY(millis() / 2000)
+      rotateZ(millis() / 3000)
 
       cube(this.size, { color: 'orange' })
     })

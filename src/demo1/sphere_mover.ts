@@ -1,4 +1,5 @@
 import { Mover3D } from './mover_3d.ts'
+import { millis } from '../utils.ts'
 import {
   isolateTransformations,
   rotateX,
@@ -6,7 +7,7 @@ import {
   rotateZ,
   sphere,
   translate,
-} from '../primitives'
+} from '../primitives.ts'
 
 export class SphereMover extends Mover3D {
   constructor(
@@ -23,19 +24,15 @@ export class SphereMover extends Mover3D {
     return this.radius
   }
 
-  render({
-    xAngle,
-    yAngle,
-    zAngle,
-  }: { xAngle?: number; yAngle?: number; zAngle?: number } = {}) {
+  render() {
     isolateTransformations(() => {
       translate(this.position)
 
-      if (xAngle !== undefined) rotateX(xAngle)
-      if (yAngle !== undefined) rotateY(yAngle)
-      if (zAngle !== undefined) rotateZ(zAngle)
+      rotateX(millis() / 1000)
+      rotateY(millis() / 2000)
+      rotateZ(millis() / 3000)
 
-      sphere(this.radius, { color: 'rgb(161, 12, 12)', lineWidth: 1 })
+      sphere(this.radius, { color: 'yellow' })
     })
   }
 }

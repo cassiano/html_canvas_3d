@@ -33,8 +33,8 @@ export class CubeSphereMover extends Mover3D {
       rotateY(millis() / 2000)
       rotateZ(millis() / 3000)
 
-      sphere(this.radius, { color: 'black', lineWidth: 1 })
-      cube(this.radius * 2 * 0.7, {
+      sphere(this.radius, { color: 'yellow', lineWidth: 1 })
+      cube(this.radius * 2 * 1.1, {
         color: 'black',
         lineWidth: 2,
         opacity: 0.15,

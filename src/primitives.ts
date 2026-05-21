@@ -599,30 +599,77 @@ export const circle2d = (radius: number, options: ShapeOptions = {}) => {
   }
 }
 
+// export const sphere = (radius: number, options: ShapeOptions = {}) => {
+//   isolateTransformations(() => {
+//     // Draw a series of concentric 2D circles as longitude lines, all with the same radius.
+//     timesForEach(SPHERE_LONGITUDE_LINES, () => {
+//       rotateY(PI / SPHERE_LONGITUDE_LINES)
+
+//       circle2d(radius, options)
+//     })
+//   })
+
+//   // Draw a series of 2D circles as latitude lines, with radius increasing when going from the poles
+//   // to the equator (center) and decreasing otherwise.
+//   for (let theta = 0; theta <= PI; theta += PI / (SPHERE_LATITUDE_LINES + 1)) {
+//     isolateTransformations(() => {
+//       translate(0, radius * cos(theta), 0)
+//       rotateX(PI / 2)
+
+//       circle2d(radius * sin(theta), options)
+//     })
+//   }
+// }
+
+// AI-generated code.
 export const sphere = (radius: number, options: ShapeOptions = {}) => {
-  isolateTransformations(() => {
-    // Draw a series of concentric 2D circles as longitude lines, all with the same radius.
-    timesForEach(SPHERE_LONGITUDE_LINES, () => {
-      rotateY(PI / SPHERE_LONGITUDE_LINES)
+  const lonSegments = SPHERE_LONGITUDE_LINES
+  const latSegments = SPHERE_LATITUDE_LINES + 1
 
-      circle2d(radius, options)
-    })
+  // Helper to calculate a 3D point on the sphere surface
+  const getPoint = (latIdx: number, lonIdx: number): Vector => {
+    const phi = (latIdx / latSegments) * PI
+    const theta = (lonIdx / lonSegments) * 2 * PI
 
-    // Draw a series of 2D circles as latitude lines, with radius increasing when going from the poles
-    // to the equator (center) and decreasing otherwise.
-    for (
-      let theta = 0;
-      theta <= PI;
-      theta += PI / (SPHERE_LATITUDE_LINES + 1)
-    ) {
-      isolateTransformations(() => {
-        translate(0, radius * cos(theta), 0)
-        rotateX(PI / 2)
+    return $v(
+      radius * sin(phi) * cos(theta),
+      radius * cos(phi), // Y is the vertical axis in this engine
+      radius * sin(phi) * sin(theta),
+    )
+  }
 
-        circle2d(radius * sin(theta), options)
-      })
+  for (let lat = 0; lat < latSegments; lat++) {
+    for (let lon = 0; lon < lonSegments; lon++) {
+      // Define the 4 corners of a "quad" patch on the sphere
+      const p1 = getPoint(lat, lon)
+      const p2 = getPoint(lat, lon + 1)
+      const p3 = getPoint(lat + 1, lon + 1)
+      const p4 = getPoint(lat + 1, lon)
+
+      // We set `alwaysVisible: true` because triangle2d's internal back-face
+      // culling logic assumes shapes are defined on the XY plane.
+      // The Painter's Algorithm (sorting by Z) in render3dScene()
+      // will correctly handle the solid appearance.
+      quadrilateral2d(p1, p2, p3, p4, { ...options, alwaysVisible: true })
     }
-  })
+  }
+}
+
+// AI-generated code.
+export const circleFilled2d = (radius: number, options: ShapeOptions = {}) => {
+  const center = $v(0, 0, 0)
+  const step = (2 * PI) / CIRCLE_SEGMENTS
+
+  for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
+    const theta1 = i * step
+    const theta2 = (i + 1) * step
+
+    const p1 = $v(radius * sin(theta1), radius * cos(theta1), 0)
+    const p2 = $v(radius * sin(theta2), radius * cos(theta2), 0)
+
+    // Connects the center to two points on the perimeter to form a slice
+    triangle2d(center, p1, p2, options)
+  }
 }
 
 export const text2d = (message: string, point: Vector) => {
