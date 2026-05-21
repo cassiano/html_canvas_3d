@@ -30,7 +30,7 @@ export interface ShapeOptions {
   strokeColor?: string
   noStroke?: boolean
   size?: number
-  avoidSplit?: boolean
+  noSplit?: boolean
   alwaysVisible?: boolean
 }
 
@@ -41,7 +41,7 @@ const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
   strokeColor: 'black',
   noStroke: false,
   size: 1,
-  avoidSplit: false,
+  noSplit: false,
   alwaysVisible: false,
 }
 
@@ -352,7 +352,7 @@ export const line = (
   options: ShapeOptions = {},
 ) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
-  const { color, avoidSplit, lineWidth } = finalOptions
+  const { color, noSplit, lineWidth } = finalOptions
 
   const screenA = toScreen(point3dA)
   const screenB = toScreen(point3dB)
@@ -360,7 +360,7 @@ export const line = (
   // Skip rendering if either point is behind camera.
   if (!screenA || !screenB) return
 
-  if (avoidSplit) {
+  if (noSplit) {
     const center = point3dA.lerp(point3dB)
 
     const renderFn = () => {
@@ -514,10 +514,11 @@ export const quadrilateral2d = (
 ) => {
   triangle2d(point2dA, point2dB, point2dC, options)
   triangle2d(point2dA, point2dC, point2dD, options)
-  // line(point2dA, point2dB, { avoidSplit: true })
-  // line(point2dB, point2dC, { avoidSplit: true })
-  // line(point2dC, point2dD, { avoidSplit: true })
-  // line(point2dD, point2dA, { avoidSplit: true })
+
+  line(point2dA, point2dB, { noSplit: true, color: 'black' })
+  line(point2dB, point2dC, { noSplit: true, color: 'black' })
+  line(point2dC, point2dD, { noSplit: true, color: 'black' })
+  line(point2dD, point2dA, { noSplit: true, color: 'black' })
 }
 
 export const rect2d = (
@@ -602,7 +603,7 @@ export const circle2d = (radius: number, options: ShapeOptions = {}) => {
     const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
 
     if (previousPoint !== undefined)
-      line(previousPoint, currentPoint, { ...options, avoidSplit: true })
+      line(previousPoint, currentPoint, { ...options, noSplit: true })
 
     previousPoint = currentPoint
   }
