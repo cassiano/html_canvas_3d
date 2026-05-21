@@ -1,5 +1,9 @@
-import { FPS } from '../constants'
-import { createFrameLoop, fps, millis, togglePause } from '../utils'
+////////////////////////////
+// Cube+Sphere Mover Demo //
+////////////////////////////
+
+import { FPS } from '../constants.ts'
+import { createFrameLoop, fps, millis, togglePause } from '../utils.ts'
 import {
   animation,
   background,
@@ -12,9 +16,9 @@ import {
   text2d,
   translate,
   rect2d,
-} from '../primitives'
-import { $v } from '../vector'
-import { PI } from '../math_utils'
+} from '../primitives.ts'
+import { $v } from '../vector.ts'
+import { PI } from '../math_utils.ts'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
 
 const DEPTH = 2000

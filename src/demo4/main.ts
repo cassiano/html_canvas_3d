@@ -1,3 +1,7 @@
+/////////////////////////
+// Jerusalem Cube Demo //
+/////////////////////////
+
 import {
   createFrameLoop,
   fps,
@@ -19,9 +23,9 @@ import {
 import { $v } from './../vector.ts'
 import { PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
-import { memoize } from '@cdandrea/memoize-ts'
 import { LSystem } from './l_system.ts'
 import { Turtle } from './turtle.ts'
+import { memoize } from '@cdandrea/memoize-ts'
 
 const SQUARE_SIDES = 4
 

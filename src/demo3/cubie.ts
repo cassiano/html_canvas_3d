@@ -42,15 +42,15 @@ export class Cubie {
 
       // rotateX(
       //   ((this.position.x + this.position.y + this.position.z) * millis()) /
-      //     3000,
+      //     10000,
       // )
       // rotateY(
       //   ((this.position.x - this.position.y + this.position.z) * millis()) /
-      //     3000,
+      //     10000,
       // )
       // rotateZ(
       //   ((this.position.x + this.position.y - this.position.z) * millis()) /
-      //     3000,
+      //     10000,
       // )
 
       this.faces.forEach(face => face.render())

@@ -8,6 +8,7 @@ import {
 } from './constants.ts'
 import {
   $v,
+  AXES,
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
   Vector,
@@ -16,21 +17,35 @@ import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { abs, cos, min, PI, sin } from './math_utils.ts'
 
-type Options3dType = {
-  color: string
-  lineWidth: number
-  opacity: number
-  strokeColor: string
-}
-
 export const animation = document.getElementById(
   'animation',
 ) as HTMLCanvasElement
 
 export const ctx = animation.getContext('2d')!
 
+export interface ShapeOptions {
+  color?: string
+  lineWidth?: number
+  opacity?: number
+  strokeColor?: string
+  noStroke?: boolean
+  size?: number
+  avoidSplit?: boolean
+  alwaysVisible?: boolean
+}
+
+const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
+  color: 'gray',
+  lineWidth: 1,
+  opacity: 1,
+  strokeColor: 'black',
+  noStroke: false,
+  size: 1,
+  avoidSplit: false,
+  alwaysVisible: false,
+}
+
 const deferredRenderList: {
-  // source: string
   id: number
   z: number
   renderFn: () => void
@@ -310,7 +325,10 @@ export const transform = (point: Vector, { isNormal = false } = {}) => {
 
 const toScreen = (point: Vector) => centralize(project3dTo2d(transform(point)))!
 
-export const point = (point3d: Vector, { color = 'black', size = 1 } = {}) => {
+export const point = (point3d: Vector, options: ShapeOptions = {}) => {
+  const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
+  const { color, size } = finalOptions
+
   const screen = toScreen(point3d)
 
   // Skip rendering if point is behind camera.
@@ -322,7 +340,6 @@ export const point = (point3d: Vector, { color = 'black', size = 1 } = {}) => {
   }
 
   deferredRenderList.push({
-    // source: `point ${point3d.toString()}`,
     id: deferredRenderList.length,
     z: calculateZ(point3d),
     renderFn,
@@ -332,8 +349,11 @@ export const point = (point3d: Vector, { color = 'black', size = 1 } = {}) => {
 export const line = (
   point3dA: Vector,
   point3dB: Vector,
-  { color = 'black', lineWidth = 1, avoidSplit = false } = {},
+  options: ShapeOptions = {},
 ) => {
+  const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
+  const { color, avoidSplit, lineWidth } = finalOptions
+
   const screenA = toScreen(point3dA)
   const screenB = toScreen(point3dB)
 
@@ -353,7 +373,6 @@ export const line = (
     }
 
     deferredRenderList.push({
-      // source: `line from A=${point3dA.toString()} to B=${point3dB.toString()}`,
       id: deferredRenderList.length,
       z: calculateZ(center),
       renderFn,
@@ -368,7 +387,6 @@ export const line = (
       const { x: x1, y: y1 } = toScreen(latestPoint)
       const { x: x2, y: y2 } = toScreen(nextPoint)
 
-      // const previousLatestAsString = latestPoint.toString()
       latestPoint = nextPoint
 
       const renderFn = () => {
@@ -381,7 +399,6 @@ export const line = (
       }
 
       deferredRenderList.push({
-        // source: `line segment with center ${center.toString()} from ${previousLatestAsString} to ${nextPoint.toString()}`,
         id: deferredRenderList.length,
         z: calculateZ(center),
         renderFn,
@@ -394,20 +411,34 @@ export const triangle2d = (
   point2dA: Vector,
   point2dB: Vector,
   point2dC: Vector,
-  {
-    color = 'gray',
-    lineWidth = 1,
-    opacity = 1,
-    strokeColor = 'black',
-    noStroke = false,
-  } = {},
+  options: ShapeOptions = {},
 ) => {
+  const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
+  const { opacity, color, noStroke, strokeColor, lineWidth, alwaysVisible } =
+    finalOptions
+
   const screenA = toScreen(point2dA)
   const screenB = toScreen(point2dB)
   const screenC = toScreen(point2dC)
 
   // Skip rendering if any point is behind camera.
   if (!screenA || !screenB || !screenC) return
+
+  // if (point2dB.dist(point2dC) > 30) {
+  //   const options = {
+  //     color,
+  //     lineWidth,
+  //     opacity,
+  //     strokeColor,
+  //     noStroke,
+  //   }
+  //   const middlePointBC = point2dB.inBetween(point2dC)
+
+  //   triangle2d(middlePointBC, point2dA, point2dB, options)
+  //   triangle2d(middlePointBC, point2dC, point2dA, options)
+
+  //   return
+  // }
 
   const renderFn = () => {
     ctx.beginPath() // Start the shape
@@ -435,14 +466,43 @@ export const triangle2d = (
     (point2dA.y + point2dB.y + point2dC.y) / 3,
   )
 
-  // const normal = centroid2d.clone().setZ(1)
+  let shapeIsVisible = alwaysVisible || opacity < 1
 
-  deferredRenderList.push({
-    // source: `triangle with A=${point2dA.toString()}, B=${point2dB.toString()} and C=${point2dC.toString()}`,
-    id: deferredRenderList.length,
-    z: calculateZ(centroid2d),
-    renderFn,
-  })
+  if (!shapeIsVisible) {
+    const vectorAB = point2dB.clone().sub(point2dA)
+    const vectorAC = point2dC.clone().sub(point2dA)
+
+    const determinant = vectorAB.x * vectorAC.y - vectorAB.y * vectorAC.x
+
+    if (determinant === 0)
+      throw new Error('Triangle has 2 linearly dependent vertices')
+
+    const normal =
+      determinant > 0
+        ? AXES.z // Segment AB is on the right of AC. Normal should point "up" (+z).
+        : AXES['-z'] // Segment AB is on the left of AC. Normal should point "down" (-z).
+
+    shapeIsVisible = isShapeFacingCamera(centroid2d, normal)
+  }
+
+  if (shapeIsVisible)
+    deferredRenderList.push({
+      id: deferredRenderList.length,
+      z: calculateZ(centroid2d),
+      renderFn,
+    })
+}
+
+const isShapeFacingCamera = (center: Vector, normal: Vector): boolean => {
+  const transformed = {
+    center: transform(center),
+    normal: transform(normal, { isNormal: true }),
+  }
+  const camera = $v(0, 0, -FOCAL_LENGTH)
+  const cameraToCenter = transformed.center.sub(camera)
+  const pointInSameDirection = cameraToCenter.dot(transformed.normal) >= 0
+
+  return !pointInSameDirection
 }
 
 export const quadrilateral2d = (
@@ -450,16 +510,8 @@ export const quadrilateral2d = (
   point2dB: Vector,
   point2dC: Vector,
   point2dD: Vector,
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+  options: ShapeOptions = {},
 ) => {
-  const options = {
-    color,
-    lineWidth,
-    opacity,
-    strokeColor,
-    // noStroke: true,
-  }
-
   triangle2d(point2dA, point2dB, point2dC, options)
   triangle2d(point2dA, point2dC, point2dD, options)
   // line(point2dA, point2dB, { avoidSplit: true })
@@ -471,15 +523,8 @@ export const quadrilateral2d = (
 export const rect2d = (
   width: number, // x-axis
   height: number, // y-axis
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+  options: ShapeOptions = {},
 ) => {
-  const options = {
-    color,
-    lineWidth,
-    opacity,
-    strokeColor,
-  }
-
   const point2dA = $v(-width / 2, -height / 2)
   const point2dB = $v(width / 2, -height / 2)
   const point2dC = $v(width / 2, height / 2)
@@ -488,17 +533,7 @@ export const rect2d = (
   quadrilateral2d(point2dA, point2dB, point2dC, point2dD, options)
 }
 
-export const square2d = (
-  side: number,
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
-) => {
-  const options = {
-    color,
-    lineWidth,
-    opacity,
-    strokeColor,
-  }
-
+export const square2d = (side: number, options: ShapeOptions = {}) => {
   rect2d(side, side, options)
 }
 
@@ -506,15 +541,8 @@ export const box = (
   width: number, // x-axis
   height: number, // y-axis
   depth: number, // z-axis
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
+  options: ShapeOptions = {},
 ) => {
-  const options = {
-    color,
-    lineWidth,
-    opacity,
-    strokeColor,
-  }
-
   // Back face (-z).
   isolateTransformations(() => {
     translate(0, 0, -depth / 2)
@@ -563,38 +591,33 @@ export const box = (
   })
 }
 
-export const cube = (
-  size: number,
-  { color = 'gray', lineWidth = 1, opacity = 1, strokeColor = 'black' } = {},
-) => box(size, size, size, { color, lineWidth, opacity, strokeColor })
+export const cube = (size: number, options: ShapeOptions = {}) => {
+  box(size, size, size, options)
+}
 
-export const circle2d = (
-  radius: number,
-  { color = 'gray', lineWidth = 1 } = {},
-) => {
+export const circle2d = (radius: number, options: ShapeOptions = {}) => {
   let previousPoint: Vector | undefined
 
   for (let theta = 0; theta <= 2 * PI; theta += (2 * PI) / CIRCLE_SEGMENTS) {
     const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
 
     if (previousPoint !== undefined)
-      line(previousPoint, currentPoint, { color, lineWidth, avoidSplit: true })
+      line(previousPoint, currentPoint, { ...options, avoidSplit: true })
 
     previousPoint = currentPoint
   }
 }
 
-export const sphere = (
-  radius: number,
-  // deno-lint-ignore no-unused-vars
-  { color = 'gray', lineWidth = 1, opacity = 1 } = {},
-) => {
+export const sphere = (radius: number, options: ShapeOptions = {}) => {
+  const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
+  const { color, lineWidth } = finalOptions
+
   isolateTransformations(() => {
     // Draw a series of concentric 2D circles as longitude lines, all with the same radius.
     timesForEach(SPHERE_LONGITUDE_LINES, () => {
       rotateY(PI / SPHERE_LONGITUDE_LINES)
 
-      circle2d(radius, { color, lineWidth })
+      circle2d(radius, options)
     })
 
     // Draw a series of 2D circles as latitude lines, with radius increasing when going from the poles
@@ -608,7 +631,7 @@ export const sphere = (
         translate(0, radius * cos(theta), 0)
         rotateX(PI / 2)
 
-        circle2d(radius * sin(theta), { color, lineWidth })
+        circle2d(radius * sin(theta), options)
       })
     }
   })

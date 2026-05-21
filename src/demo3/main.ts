@@ -1,3 +1,7 @@
+/////////////////////
+// Rubik Cube Demo //
+/////////////////////
+
 import { FPS } from './../constants.ts'
 import { createFrameLoop, fps, millis, togglePause } from './../utils.ts'
 import {

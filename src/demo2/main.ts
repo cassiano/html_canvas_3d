@@ -1,4 +1,8 @@
-import { createFrameLoop, fps, millis, togglePause } from './../utils'
+////////////////////////
+// Colored Boxes Demo //
+////////////////////////
+
+import { createFrameLoop, fps, millis, togglePause } from './../utils.ts'
 import {
   animation,
   background,
@@ -13,10 +17,10 @@ import {
   scale,
   text2d,
   translate,
-} from './../primitives'
-import { $v } from './../vector'
-import { PI } from './../math_utils'
-import { FPS } from './../constants'
+} from './../primitives.ts'
+import { $v } from './../vector.ts'
+import { PI } from './../math_utils.ts'
+import { FPS } from './../constants.ts'
 
 animation.onclick = () => togglePause()
 
