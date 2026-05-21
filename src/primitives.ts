@@ -475,12 +475,12 @@ export const triangle2d = (
     const determinant = vectorAB.x * vectorAC.y - vectorAB.y * vectorAC.x
 
     if (determinant === 0)
-      throw new Error('Triangle has 2 linearly dependent vertices')
+      throw new Error('Triangle has 2 linearly dependent edges')
 
     const normal =
       determinant > 0
-        ? AXES.z // Segment AB is on the right of AC. Normal should point "up" (+z).
-        : AXES['-z'] // Segment AB is on the left of AC. Normal should point "down" (-z).
+        ? AXES.z // Edge AB is on the right of AC. Normal should point "up" (+z).
+        : AXES['-z'] // Edge AB is on the left of AC. Normal should point "down" (-z).
 
     shapeIsVisible = isShapeFacingCamera(centroid2d, normal)
   }
@@ -609,9 +609,6 @@ export const circle2d = (radius: number, options: ShapeOptions = {}) => {
 }
 
 export const sphere = (radius: number, options: ShapeOptions = {}) => {
-  const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
-  const { color, lineWidth } = finalOptions
-
   isolateTransformations(() => {
     // Draw a series of concentric 2D circles as longitude lines, all with the same radius.
     timesForEach(SPHERE_LONGITUDE_LINES, () => {
