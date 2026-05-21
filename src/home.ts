@@ -9,7 +9,7 @@ const canvasContainer = document.getElementById(
 ) as HTMLDivElement
 
 const DEMO_COUNT = 4
-const DEFAULT_DEMO = 4 // Starting with 1.
+const DEFAULT_DEMO = 1 // Starting with 1.
 
 const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.js`)
 

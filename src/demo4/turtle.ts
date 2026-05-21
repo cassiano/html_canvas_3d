@@ -26,7 +26,7 @@ export class Turtle {
     for (const character of sentence) {
       switch (character) {
         case '◼':
-          cube(this.length, { color: '#AAA', alwaysVisible: true })
+          cube(this.length, { color: '#AAA' })
           translate(this.length, 0, 0)
           break
         case '◻':

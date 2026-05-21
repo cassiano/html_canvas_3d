@@ -561,7 +561,7 @@ export const box = (
   // Left face (-x).
   isolateTransformations(() => {
     translate(-width / 2, 0, 0)
-    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
+    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise.
 
     rect2d(depth, height, options)
   })
@@ -569,7 +569,7 @@ export const box = (
   // Right face (+x).
   isolateTransformations(() => {
     translate(width / 2, 0, 0)
-    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise.
+    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
 
     rect2d(depth, height, options)
   })
