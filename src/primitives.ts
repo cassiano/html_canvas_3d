@@ -516,11 +516,6 @@ export const quadrilateral2d = (
 ) => {
   triangle2d(point2dA, point2dB, point2dC, options)
   triangle2d(point2dA, point2dC, point2dD, options)
-
-  line(point2dA, point2dB, { noSplit: true, color: 'black' })
-  line(point2dB, point2dC, { noSplit: true, color: 'black' })
-  line(point2dC, point2dD, { noSplit: true, color: 'black' })
-  line(point2dD, point2dA, { noSplit: true, color: 'black' })
 }
 
 export const rect2d = (
@@ -564,7 +559,7 @@ export const box = (
   // Left face (-x).
   isolateTransformations(() => {
     translate(-width / 2, 0, 0)
-    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise.
+    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise. TODO: verificar a razão desta rotação não ser no sentido oposto.
 
     rect2d(depth, height, options)
   })
@@ -572,7 +567,7 @@ export const box = (
   // Right face (+x).
   isolateTransformations(() => {
     translate(width / 2, 0, 0)
-    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
+    rotateY(-PI / 2) // Turn 90ᵒ clockwise. TODO: verificar a razão desta rotação não ser no sentido oposto.
 
     rect2d(depth, height, options)
   })
