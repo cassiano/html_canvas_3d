@@ -12,7 +12,7 @@ export class Vector {
     this.coords = [x, y, z]
   }
 
-  // Getters and setter for `x`.
+  // Getters and setters for `x`.
   get x() {
     return this.coords[0]
   }
@@ -25,7 +25,7 @@ export class Vector {
     return this
   }
 
-  // Getters and setter for `y`.
+  // Getters and setters for `y`.
   get y() {
     return this.coords[1]
   }
@@ -38,7 +38,7 @@ export class Vector {
     return this
   }
 
-  // Getters and setter for `z`.
+  // Getters and setters for `z`.
   get z() {
     return this.coords[2]
   }
