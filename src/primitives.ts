@@ -51,6 +51,7 @@ const deferredRenderList: {
   renderFn: () => void
 }[] = []
 
+// https://en.wikipedia.org/wiki/Painter%27s_algorithm
 export const render3dScene = () => {
   const orderedList = deferredRenderList.toSorted((left, right) =>
     abs(right.z - left.z) < Z_EPSILON ? left.id - right.id : right.z - left.z,
@@ -468,6 +469,7 @@ export const triangle2d = (
 
   let shapeIsVisible = alwaysVisible || opacity < 1
 
+  // https://pt.wikipedia.org/wiki/Back-face_culling
   if (!shapeIsVisible) {
     const vectorAB = point2dB.clone().sub(point2dA)
     const vectorAC = point2dC.clone().sub(point2dA)
