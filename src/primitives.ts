@@ -426,16 +426,9 @@ export const triangle2d = (
   if (!screenA || !screenB || !screenC) return
 
   // if (point2dB.dist(point2dC) > 30) {
-  //   const options = {
-  //     color,
-  //     lineWidth,
-  //     opacity,
-  //     strokeColor,
-  //     noStroke,
-  //   }
-  //   const middlePointBC = point2dB.inBetween(point2dC)
+  //   const middlePointBC = point2dB.lerp(point2dC)
 
-  //   triangle2d(middlePointBC, point2dA, point2dB, options)
+  //   triangle2d(point2dB, middlePointBC, point2dA, options)
   //   triangle2d(middlePointBC, point2dC, point2dA, options)
 
   //   return
@@ -559,7 +552,7 @@ export const box = (
   // Left face (-x).
   isolateTransformations(() => {
     translate(-width / 2, 0, 0)
-    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise. TODO: verificar a razão desta rotação não ser no sentido oposto.
+    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise.
 
     rect2d(depth, height, options)
   })
@@ -567,7 +560,7 @@ export const box = (
   // Right face (+x).
   isolateTransformations(() => {
     translate(width / 2, 0, 0)
-    rotateY(-PI / 2) // Turn 90ᵒ clockwise. TODO: verificar a razão desta rotação não ser no sentido oposto.
+    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
 
     rect2d(depth, height, options)
   })
