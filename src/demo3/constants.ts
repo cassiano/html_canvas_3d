@@ -8,7 +8,7 @@ export const FACES_PER_CUBIE = 6
 export const RENDER_NORMALS = false
 export const MIN_NORMAL_LENGTH = 10
 export const CUBIE_SIZE = 25
-export const CUBIE_SPACING = 20
+export const CUBIE_SPACING = 25
 export const CUBIES_PER_AXIS = 7
 
 export const FACES: Record<string, number> = {
