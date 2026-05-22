@@ -6,9 +6,9 @@ import {
   rotateZ,
   sphere,
   translate,
-} from '../primitives'
-import { millis } from '../utils'
-import { Mover3D } from './mover_3d'
+} from '../primitives.ts'
+import { millis } from '../utils.ts'
+import { Mover3D } from './mover_3d.ts'
 
 export class CubeSphereMover extends Mover3D {
   constructor(

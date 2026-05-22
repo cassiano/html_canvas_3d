@@ -1,4 +1,4 @@
-import { $v, Vector } from '../vector'
+import { $v, Vector } from '../vector.ts'
 
 export class Mover3D {
   position: Vector
