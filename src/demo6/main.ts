@@ -45,6 +45,8 @@ const draw = () => {
   //   })
   // }
 
+  rotate(PI / 4, $v(1, 1, 1))
+
   circleFilled2d(200, {
     color: 'green',
     alwaysVisible: true,
