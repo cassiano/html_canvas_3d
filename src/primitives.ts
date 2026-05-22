@@ -16,6 +16,7 @@ import {
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { abs, cos, min, PI, sin } from './math_utils.ts'
+import { ORIGIN } from './constants.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -664,7 +665,6 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
 
 // AI-generated code.
 export const circleFilled2d = (radius: number, options: ShapeOptions = {}) => {
-  const center = $v(0, 0, 0)
   const step = (2 * PI) / CIRCLE_SEGMENTS
 
   for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
@@ -675,7 +675,7 @@ export const circleFilled2d = (radius: number, options: ShapeOptions = {}) => {
     const p2 = $v(radius * sin(theta2), radius * cos(theta2), 0)
 
     // Connects the center to two points on the perimeter to form a slice
-    triangle2d(center, p1, p2, options)
+    triangle2d(ORIGIN, p1, p2, options)
   }
 }
 
