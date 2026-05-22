@@ -15,7 +15,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector.ts'
 import { PI } from '../math_utils.ts'
-import { sphere, rotateX } from '../primitives.ts'
+import { sphere, rotateX, rotateZ } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -29,10 +29,11 @@ const draw = () => {
 
   rotateX(PI / 4)
   rotateY(-(millis() / 2000))
+  rotateZ(millis() / 3000)
 
   render3dAxes()
 
-  sphere(200, { color: 'orange', opacity: 0.5 })
+  sphere(250, { color: 'orange', opacity: 0.5 })
 }
 
 const onPaused = () => {
