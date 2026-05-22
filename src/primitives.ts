@@ -11,8 +11,8 @@ import {
   AXES,
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
-  Vector,
-} from './vector.ts'
+  Vector3d,
+} from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { abs, cos, min, PI, sin } from './math_utils.ts'
@@ -127,11 +127,11 @@ export const degrees = (radians: number) => (radians / (2 * PI)) * 360
 interface ScaleOverloadedSignatures {
   (x: number, y: number, z: number): void
   (xyz: number): void
-  (vector: Vector): void
+  (vector: Vector3d): void
 }
 
 export const scale: ScaleOverloadedSignatures = (
-  xOrXyzOrVector: number | Vector,
+  xOrXyzOrVector: number | Vector3d,
   y?: number,
   z?: number,
 ): void => {
@@ -164,12 +164,12 @@ export const scale: ScaleOverloadedSignatures = (
 
 interface TranslateOverloadedSignatures {
   (x: number, y: number, z: number): void
-  (vector: Vector): void
+  (vector: Vector3d): void
 }
 
 // Translate using an "Affine Transformation".
 export const translate: TranslateOverloadedSignatures = (
-  xOrVector: number | Vector,
+  xOrVector: number | Vector3d,
   y?: number,
   z?: number,
 ) => {
@@ -200,7 +200,7 @@ export const translate: TranslateOverloadedSignatures = (
 // Counter-clockwise rotation around an arbitrary axis.
 export const rotate = (
   angle: number,
-  axis: Vector,
+  axis: Vector3d,
   { isCanonical = false } = {},
 ) => {
   if (angle === 0) return
@@ -300,7 +300,7 @@ export const background = (color: string) => {
   ctx.fillRect(0, 0, animation.width, animation.height)
 }
 
-export const project3dTo2d = ({ x, y, z }: Vector) => {
+export const project3dTo2d = ({ x, y, z }: Vector3d) => {
   // If z = FOCAL_LENGTH, the point is on the lens.
   // If z > FOCAL_LENGTH, the point is behind the camera.
   const divisor = FOCAL_LENGTH - z // Object should be at z=0 or lower.
@@ -314,9 +314,10 @@ export const project3dTo2d = ({ x, y, z }: Vector) => {
 }
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-export const centralize = (point?: Vector) => point?.clone().add(SCREEN_CENTER)
+export const centralize = (point?: Vector3d) =>
+  point?.clone().add(SCREEN_CENTER)
 
-export const transform = (point: Vector, { isNormal = false } = {}) => {
+export const transform = (point: Vector3d, { isNormal = false } = {}) => {
   const pointAs4dMatrix = point.to4dMatrix()
 
   if (isNormal) pointAs4dMatrix[3][0] = 0 // Ignore the 4th dimension (used for translations) when transforming normals.
@@ -328,14 +329,15 @@ export const transform = (point: Vector, { isNormal = false } = {}) => {
     pointAs4dMatrix,
   ) as transformationMatrix4x4Type
 
-  return Vector.from4dMatrix(
+  return Vector3d.from4dMatrix(
     transformedPoint as unknown as transformationMatrix4x1Type,
   )
 }
 
-const toScreen = (point: Vector) => centralize(project3dTo2d(transform(point)))!
+const toScreen = (point: Vector3d) =>
+  centralize(project3dTo2d(transform(point)))!
 
-export const point = (point3d: Vector, options: ShapeOptions = {}) => {
+export const point = (point3d: Vector3d, options: ShapeOptions = {}) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
   const { color, size } = finalOptions
 
@@ -357,8 +359,8 @@ export const point = (point3d: Vector, options: ShapeOptions = {}) => {
 }
 
 export const line = (
-  point3dA: Vector,
-  point3dB: Vector,
+  point3dA: Vector3d,
+  point3dB: Vector3d,
   options: ShapeOptions = {},
 ) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
@@ -418,9 +420,9 @@ export const line = (
 }
 
 export const triangle2d = (
-  point2dA: Vector,
-  point2dB: Vector,
-  point2dC: Vector,
+  point2dA: Vector3d,
+  point2dB: Vector3d,
+  point2dC: Vector3d,
   options: ShapeOptions = {},
 ) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
@@ -497,7 +499,7 @@ export const triangle2d = (
     })
 }
 
-const isShapeFacingCamera = (center: Vector, normal: Vector): boolean => {
+const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
   const transformed = {
     center: transform(center),
     normal: transform(normal, { isNormal: true }),
@@ -513,10 +515,10 @@ const isShapeFacingCamera = (center: Vector, normal: Vector): boolean => {
 }
 
 export const quadrilateral2d = (
-  point2dA: Vector,
-  point2dB: Vector,
-  point2dC: Vector,
-  point2dD: Vector,
+  point2dA: Vector3d,
+  point2dB: Vector3d,
+  point2dC: Vector3d,
+  point2dD: Vector3d,
   options: ShapeOptions = {},
 ) => {
   triangle2d(point2dA, point2dB, point2dC, options)
@@ -599,7 +601,7 @@ export const cube = (size: number, options: ShapeOptions = {}) => {
 }
 
 export const circle2d = (radius: number, options: ShapeOptions = {}) => {
-  let previousPoint: Vector | undefined
+  let previousPoint: Vector3d | undefined
 
   for (let theta = 0; theta <= 2 * PI; theta += (2 * PI) / CIRCLE_SEGMENTS) {
     const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
@@ -638,7 +640,7 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
   const lonSegments = SPHERE_LONGITUDE_LINES
   const latSegments = SPHERE_LATITUDE_LINES + 1
 
-  const getPoint = (latIdx: number, lonIdx: number): Vector => {
+  const getPoint = (latIdx: number, lonIdx: number): Vector3d => {
     const phi = (latIdx / latSegments) * PI // Latitude (0 to PI)
     const theta = (lonIdx / lonSegments) * 2 * PI // Longitude (0 to 2PI)
 
@@ -679,7 +681,7 @@ export const circleFilled2d = (radius: number, options: ShapeOptions = {}) => {
   }
 }
 
-export const text2d = (message: string, point: Vector) => {
+export const text2d = (message: string, point: Vector3d) => {
   ctx.font = 'bold 60px sans-serif'
   ctx.fillStyle = 'rgba(0, 0, 0, 0.3)' // Semi-transparent black
   ctx.textAlign = 'center'
@@ -749,7 +751,7 @@ export const inverseMultiplyMatrices = (
   rightMatrix: number[][],
 ): number[][] => multiplyMatrices(rightMatrix, leftMatrix)
 
-const calculateZ = (point3d: Vector): number => {
+const calculateZ = (point3d: Vector3d): number => {
   const thirdRow = transformationMatrix[2]
 
   return (

@@ -9,7 +9,7 @@ import {
   scale,
   translate,
 } from '../primitives.ts'
-import { $v } from '../vector.ts'
+import { $v } from '../vector_3d.ts'
 
 const TINY_AXIS_LENGTH = 50
 

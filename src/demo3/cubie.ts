@@ -1,6 +1,6 @@
 import { timesMap } from './../utils.ts'
 import { isolateTransformations, translate } from './../primitives.ts'
-import { $v, Vector } from './../vector.ts'
+import { $v, Vector3d } from '../vector_3d.ts'
 import { CubieFace } from './cubie_face.ts'
 import {
   CUBIE_SPACING,
@@ -11,7 +11,7 @@ import {
 import { RubikCube } from './rubik_cube.ts'
 
 export class Cubie {
-  position: Vector
+  position: Vector3d
   faces: CubieFace[]
 
   constructor(

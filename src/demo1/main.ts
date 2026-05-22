@@ -16,7 +16,7 @@ import {
   translate,
   rect2d,
 } from '../primitives.ts'
-import { $v } from '../vector.ts'
+import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
 import { rotateY } from '../primitives.ts'

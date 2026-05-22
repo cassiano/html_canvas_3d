@@ -14,7 +14,7 @@ import {
   rotateY,
   text2d,
 } from './../primitives.ts'
-import { $v } from './../vector.ts'
+import { $v } from '../vector_3d.ts'
 import { sin } from './../math_utils.ts'
 import { RubikCube } from './rubik_cube.ts'
 import { CUBIE_SIZE, CUBIES_PER_AXIS } from './constants.ts'

@@ -5,7 +5,7 @@ import {
   square2d,
   translate,
 } from './../primitives.ts'
-import { Vector } from '../vector.ts'
+import { Vector3d } from '../vector_3d.ts'
 import { abs, max, PI, sign } from '../math_utils.ts'
 import { Cubie } from './cubie.ts'
 import { MIN_NORMAL_LENGTH, RENDER_NORMALS } from './constants.ts'
@@ -16,7 +16,7 @@ export class CubieFace {
   constructor(
     public cubie: Cubie,
     public color: string,
-    public normal: Vector,
+    public normal: Vector3d,
   ) {}
 
   get size() {

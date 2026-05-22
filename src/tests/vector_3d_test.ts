@@ -14,19 +14,19 @@ import {
 } from '@std/assert'
 
 import {
-  Vector,
+  Vector3d,
   $v,
   createVector,
   AXES,
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
-} from '../vector.ts'
+} from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 
 const test = Deno.test
 
 test('Vector - Constructor and Getters/Setters', () => {
-  const v = new Vector(1, 2, 3)
+  const v = new Vector3d(1, 2, 3)
   assertEquals(v.x, 1)
   assertEquals(v.y, 2)
   assertEquals(v.z, 3)
@@ -147,7 +147,7 @@ test('Vector - 4D Matrix conversion', () => {
   const matrix = v.to4dMatrix() as transformationMatrix4x1Type
   assertEquals(matrix, [[5], [10], [15], [1]])
 
-  const fromMat = Vector.from4dMatrix(matrix)
+  const fromMat = Vector3d.from4dMatrix(matrix)
   assertEquals(fromMat.coords, [5, 10, 15])
 })
 
@@ -218,7 +218,7 @@ test('Constants - AXES values', () => {
 // --- Constructor & Factory Coverage ---
 
 test('Vector - Constructor defaults', () => {
-  const v = new Vector(5, 10)
+  const v = new Vector3d(5, 10)
 
   assertEquals(v.z, 0, 'z should default to 0')
 })

@@ -5,7 +5,7 @@ export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>
 
 export const FOURTH_DIMENSION_COORD = 1
 
-export class Vector {
+export class Vector3d {
   coords: [x: number, y: number, z: number]
 
   constructor(x: number, y: number, z = 0) {
@@ -19,7 +19,7 @@ export class Vector {
   set x(newX) {
     this.coords[0] = newX
   }
-  setX(newX: number): Vector {
+  setX(newX: number): Vector3d {
     this.coords[0] = newX
 
     return this
@@ -32,7 +32,7 @@ export class Vector {
   set y(newY) {
     this.coords[1] = newY
   }
-  setY(newY: number): Vector {
+  setY(newY: number): Vector3d {
     this.coords[1] = newY
 
     return this
@@ -45,14 +45,14 @@ export class Vector {
   set z(newZ) {
     this.coords[2] = newZ
   }
-  setZ(newZ: number): Vector {
+  setZ(newZ: number): Vector3d {
     this.coords[2] = newZ
 
     return this
   }
 
-  clone(): Vector {
-    return Vector.create(...this.coords)
+  clone(): Vector3d {
+    return Vector3d.create(...this.coords)
   }
 
   magSq() {
@@ -63,7 +63,7 @@ export class Vector {
     return sqrt(this.magSq())
   }
 
-  normalize(): Vector {
+  normalize(): Vector3d {
     return this.div(this.mag())
   }
 
@@ -71,9 +71,9 @@ export class Vector {
     return this.normalize().mult(magnitude)
   }
 
-  add(x: number, y: number, z: number): Vector
-  add(anotherVector: Vector): Vector
-  add(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
+  add(x: number, y: number, z: number): Vector3d
+  add(anotherVector: Vector3d): Vector3d
+  add(xOrAnotherVector: number | Vector3d, y?: number, z?: number): Vector3d {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
@@ -87,9 +87,9 @@ export class Vector {
     return this
   }
 
-  sub(x: number, y: number, z: number): Vector
-  sub(anotherVector: Vector): Vector
-  sub(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
+  sub(x: number, y: number, z: number): Vector3d
+  sub(anotherVector: Vector3d): Vector3d
+  sub(xOrAnotherVector: number | Vector3d, y?: number, z?: number): Vector3d {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
@@ -109,7 +109,7 @@ export class Vector {
     return this
   }
 
-  div(scalarValue: number): Vector {
+  div(scalarValue: number): Vector3d {
     if (scalarValue === 0)
       throw new Error('Sorry, but division by 0 is not supported')
 
@@ -119,8 +119,8 @@ export class Vector {
   }
 
   dot(x: number, y: number, z: number): number
-  dot(anotherVector: Vector): number
-  dot(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
+  dot(anotherVector: Vector3d): number
+  dot(xOrAnotherVector: number | Vector3d, y?: number, z?: number): number {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
@@ -134,16 +134,16 @@ export class Vector {
     )
   }
 
-  cross(x: number, y: number, z: number): Vector
-  cross(anotherVector: Vector): Vector
-  cross(xOrAnotherVector: number | Vector, y?: number, z?: number): Vector {
+  cross(x: number, y: number, z: number): Vector3d
+  cross(anotherVector: Vector3d): Vector3d
+  cross(xOrAnotherVector: number | Vector3d, y?: number, z?: number): Vector3d {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
       z,
     )
 
-    return Vector.create(
+    return Vector3d.create(
       this.y * anotherVector.z - this.z * anotherVector.y,
       -(this.x * anotherVector.z - this.z * anotherVector.x),
       this.x * anotherVector.y - this.y * anotherVector.x,
@@ -151,8 +151,8 @@ export class Vector {
   }
 
   dist(x: number, y: number, z: number): number
-  dist(anotherVector: Vector): number
-  dist(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
+  dist(anotherVector: Vector3d): number
+  dist(xOrAnotherVector: number | Vector3d, y?: number, z?: number): number {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
@@ -163,8 +163,8 @@ export class Vector {
   }
 
   distSq(x: number, y: number, z: number): number
-  distSq(anotherVector: Vector): number
-  distSq(xOrAnotherVector: number | Vector, y?: number, z?: number): number {
+  distSq(anotherVector: Vector3d): number
+  distSq(xOrAnotherVector: number | Vector3d, y?: number, z?: number): number {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
@@ -181,8 +181,8 @@ export class Vector {
   }
 
   equals(x: number, y: number, z: number): boolean
-  equals(anotherVector: Vector): boolean
-  equals(xOrAnotherVector: number | Vector, y?: number, z?: number): boolean {
+  equals(anotherVector: Vector3d): boolean
+  equals(xOrAnotherVector: number | Vector3d, y?: number, z?: number): boolean {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       y,
@@ -197,19 +197,19 @@ export class Vector {
   }
 
   isAllZeros() {
-    return this.equals(Vector.create(0, 0, 0))
+    return this.equals(Vector3d.create(0, 0, 0))
   }
 
   isAllOnes() {
-    return this.equals(Vector.create(1, 1, 1))
+    return this.equals(Vector3d.create(1, 1, 1))
   }
 
   // Use the "Law of Cosines" to calculate the angle between the 2 vectors.
   // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221gYM9JH1RKYt1t5jEUHob3QixN68SKmZd%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
   angleBetween(x: number, y: number, z: number): number
-  angleBetween(anotherVector: Vector): number
+  angleBetween(anotherVector: Vector3d): number
   angleBetween(
-    xOrAnotherVector: number | Vector,
+    xOrAnotherVector: number | Vector3d,
     y?: number,
     z?: number,
   ): number {
@@ -231,14 +231,14 @@ export class Vector {
   }
 
   // https://p5js.org/reference/p5.Vector/lerp/
-  lerp(x: number, y: number, z: number, interpolationAmount?: number): Vector
-  lerp(anotherVector: Vector, interpolationAmount?: number): Vector
+  lerp(x: number, y: number, z: number, interpolationAmount?: number): Vector3d
+  lerp(anotherVector: Vector3d, interpolationAmount?: number): Vector3d
   lerp(
-    xOrAnotherVector: number | Vector,
+    xOrAnotherVector: number | Vector3d,
     yOrInterpolationAmount?: number,
     z?: number,
     interpolationAmount?: number,
-  ): Vector {
+  ): Vector3d {
     const anotherVector = this.inferAnotherVectorFromParams(
       xOrAnotherVector,
       yOrInterpolationAmount,
@@ -270,11 +270,11 @@ export class Vector {
   }
 
   static create(x: number, y: number, z?: number) {
-    return new Vector(x, y, z)
+    return new Vector3d(x, y, z)
   }
 
   static from4dMatrix(matrix: transformationMatrix4x1Type) {
-    return Vector.create(matrix[0][0], matrix[1][0], matrix[2][0])
+    return Vector3d.create(matrix[0][0], matrix[1][0], matrix[2][0])
   }
 
   *[Symbol.iterator](): Generator<number, void, unknown> {
@@ -284,7 +284,7 @@ export class Vector {
   }
 
   private inferAnotherVectorFromParams = (
-    xOrAnotherVector: number | Vector,
+    xOrAnotherVector: number | Vector3d,
     y?: number,
     z?: number,
   ) => {
@@ -294,7 +294,7 @@ export class Vector {
   }
 }
 
-export const $v = Vector.create
+export const $v = Vector3d.create
 export const createVector = $v // Synonym for `$v`, as used by p5.js.
 
 export const AXES = {

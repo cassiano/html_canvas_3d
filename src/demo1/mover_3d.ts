@@ -1,9 +1,9 @@
-import { $v, Vector } from '../vector.ts'
+import { $v, Vector3d } from '../vector_3d.ts'
 
 export class Mover3D {
-  position: Vector
-  velocity: Vector
-  acceleration: Vector
+  position: Vector3d
+  velocity: Vector3d
+  acceleration: Vector3d
 
   constructor(
     public mass: number,
@@ -25,11 +25,11 @@ export class Mover3D {
   }
 
   // F = m x a  => a = F / m
-  applyForce(force: Vector) {
+  applyForce(force: Vector3d) {
     this.addAcceleration(force.clone().div(this.mass))
   }
 
-  addAcceleration(acceleration: Vector) {
+  addAcceleration(acceleration: Vector3d) {
     this.acceleration.add(acceleration)
   }
 

@@ -1,4 +1,4 @@
-import { $v } from './vector.ts'
+import { $v } from './vector_3d.ts'
 
 export const FPS = 120
 export const FOCAL_LENGTH = 400

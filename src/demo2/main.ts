@@ -18,7 +18,7 @@ import {
   text2d,
   translate,
 } from './../primitives.ts'
-import { $v } from './../vector.ts'
+import { $v } from '../vector_3d.ts'
 import { PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
 
