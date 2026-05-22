@@ -21,6 +21,7 @@ import {
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
 } from '../vector.ts'
+import { PI } from '../math_utils.ts'
 
 const test = Deno.test
 
@@ -156,16 +157,16 @@ test('Vector - AngleBetween', () => {
   const angle = v1.angleBetween(v2)
 
   // Angle between X and Y axis is PI/2 (90ᴼ)
-  assertAlmostEquals(angle, Math.PI / 2)
+  assertAlmostEquals(angle, PI / 2)
 
-  assertAlmostEquals(v1.angleBetween(0, 1, 0), Math.PI / 2)
-  assertAlmostEquals(v1.angleBetween($v(0, 1, 0)), Math.PI / 2)
+  assertAlmostEquals(v1.angleBetween(0, 1, 0), PI / 2)
+  assertAlmostEquals(v1.angleBetween($v(0, 1, 0)), PI / 2)
 
   // Angle between same vector should be 0
   assertAlmostEquals(v1.angleBetween(1, 0, 0), 0)
 
   // Angle between opposite vectors should be PI
-  assertAlmostEquals(v1.angleBetween(v1.clone().mult(-1)), Math.PI)
+  assertAlmostEquals(v1.angleBetween(v1.clone().mult(-1)), PI)
 })
 
 test('Vector - lerp (Linear intERPolation)', () => {
