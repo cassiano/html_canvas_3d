@@ -5,6 +5,7 @@ export type Coord3D = Tuple<number, 3>
 
 export const FACES_PER_CUBIE = 6
 
+export const RENDER_NORMALS = false
 export const MIN_NORMAL_LENGTH = 10
 export const CUBIE_SIZE = 25
 export const CUBIE_SPACING = 20

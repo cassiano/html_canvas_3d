@@ -6,8 +6,11 @@ import {
   translate,
 } from './../primitives.ts'
 import { Vector } from '../vector.ts'
-import { abs, PI, sign } from '../math_utils.ts'
+import { abs, max, PI, sign } from '../math_utils.ts'
 import { Cubie } from './cubie.ts'
+import { MIN_NORMAL_LENGTH, RENDER_NORMALS } from './constants.ts'
+import { ORIGIN } from '../constants.ts'
+import { line, point } from '../primitives.ts'
 
 export class CubieFace {
   constructor(
@@ -48,10 +51,13 @@ export class CubieFace {
       })
 
       // Render the normal.
-      // const normalLength = max(MIN_NORMAL_LENGTH, this.size / 5)
-      // const scaledNormal = this.normal.clone().mult(normalLength)
-      // line(ORIGIN, scaledNormal, { color: 'black' })
-      // point(scaledNormal, { color: 'black', size: normalLength / 10 })
+      if (RENDER_NORMALS) {
+        const normalLength = max(MIN_NORMAL_LENGTH, this.size / 5)
+        const scaledNormal = this.normal.clone().mult(normalLength)
+
+        line(ORIGIN, scaledNormal, { color: 'black' })
+        point(scaledNormal, { color: 'black', size: normalLength / 10 })
+      }
     })
   }
 }
