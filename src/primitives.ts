@@ -673,11 +673,33 @@ export const circle2d = (radius: number, options: ShapeOptions = {}) => {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = $v(radius * sin(theta1), radius * cos(theta1), 0)
-    const p2 = $v(radius * sin(theta2), radius * cos(theta2), 0)
+    const p1 = $v(radius * sin(theta1), radius * cos(theta1))
+    const p2 = $v(radius * sin(theta2), radius * cos(theta2))
 
     // Connects the center to two points on the perimeter to form a slice
     triangle2d(ORIGIN, p1, p2, options)
+  }
+}
+
+export const cone = (
+  radius: number,
+  height: number,
+  options: ShapeOptions = {},
+) => {
+  const step = (2 * PI) / CIRCLE_SEGMENTS
+  const tip = $v(0, 0, height)
+
+  circle2d(radius, options)
+
+  for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
+    const theta1 = i * step
+    const theta2 = (i + 1) * step
+
+    const p1 = $v(radius * sin(theta1), radius * cos(theta1), 0)
+    const p2 = $v(radius * sin(theta2), radius * cos(theta2), 0)
+
+    // Connects the cone tip to two points on the perimeter to form a slice.
+    triangle2d(tip, p1, p2, options)
   }
 }
 
