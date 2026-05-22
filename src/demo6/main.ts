@@ -15,7 +15,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateX, circleFilled2d, rotate } from '../primitives.ts'
+import { rotateX, circle2d, rotate } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ const draw = () => {
 
   rotate(PI / 4, $v(1, 1, 1))
 
-  circleFilled2d(200, {
+  circle2d(200, {
     color: 'green',
     alwaysVisible: true,
     opacity: 1,

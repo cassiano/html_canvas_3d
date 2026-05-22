@@ -600,18 +600,18 @@ export const cube = (size: number, options: ShapeOptions = {}) => {
   box(size, size, size, options)
 }
 
-export const circle2d = (radius: number, options: ShapeOptions = {}) => {
-  let previousPoint: Vector3d | undefined
+// export const circle2d = (radius: number, options: ShapeOptions = {}) => {
+//   let previousPoint: Vector3d | undefined
 
-  for (let theta = 0; theta <= 2 * PI; theta += (2 * PI) / CIRCLE_SEGMENTS) {
-    const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
+//   for (let theta = 0; theta <= 2 * PI; theta += (2 * PI) / CIRCLE_SEGMENTS) {
+//     const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
 
-    if (previousPoint !== undefined)
-      line(previousPoint, currentPoint, { ...options, noSplit: true })
+//     if (previousPoint !== undefined)
+//       line(previousPoint, currentPoint, { ...options, noSplit: true })
 
-    previousPoint = currentPoint
-  }
-}
+//     previousPoint = currentPoint
+//   }
+// }
 
 // export const sphere = (radius: number, options: ShapeOptions = {}) => {
 //   isolateTransformations(() => {
@@ -666,7 +666,7 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
 }
 
 // AI-generated code.
-export const circleFilled2d = (radius: number, options: ShapeOptions = {}) => {
+export const circle2d = (radius: number, options: ShapeOptions = {}) => {
   const step = (2 * PI) / CIRCLE_SEGMENTS
 
   for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
