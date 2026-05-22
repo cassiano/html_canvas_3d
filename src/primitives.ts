@@ -656,6 +656,7 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
       const p3 = getPoint(lat + 1, lon + 1)
       const p4 = getPoint(lat + 1, lon)
 
+      // TODO: analisar como remover a opção `alwaysVisible`.
       quadrilateral2d(p1, p2, p3, p4, { ...options, alwaysVisible: true })
     }
   }
