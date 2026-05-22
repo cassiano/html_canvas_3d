@@ -8,7 +8,7 @@ const canvasContainer = document.getElementById(
   'canvas-container',
 ) as HTMLDivElement
 
-const DEMO_COUNT = 5
+const DEMO_COUNT = 6
 const DEFAULT_DEMO = 1 // Starting with 1.
 
 const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.js`)
@@ -48,11 +48,11 @@ function navigateDemo(delta: number) {
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'ArrowUp') {
+  if (['ArrowUp', 'ArrowLeft'].includes(event.key)) {
     event.preventDefault()
 
     navigateDemo(-1)
-  } else if (event.key === 'ArrowDown') {
+  } else if (['ArrowDown', 'ArrowRight'].includes(event.key)) {
     event.preventDefault()
 
     navigateDemo(1)
