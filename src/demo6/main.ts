@@ -32,18 +32,6 @@ const draw = () => {
 
   render3dAxes()
 
-  // for (let angle = 0; angle <= 2 * PI; angle += (2 * PI) / 2) {
-  //   isolateTransformations(() => {
-  //     rotateX(angle)
-
-  //     circleFilled2d(200, {
-  //       color: 'green',
-  //       alwaysVisible: true,
-  //       opacity: 1,
-  //     })
-  //   })
-  // }
-
   rotate(PI / 4, $v(1, 1, 1))
 
   circleFilled2d(200, {
