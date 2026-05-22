@@ -27,8 +27,8 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(-PI / 12)
-  rotateY(PI / 3 + millis() / 3000)
+  rotateX(PI / 4)
+  rotateY(-(millis() / 2000))
 
   render3dAxes()
 

@@ -15,7 +15,7 @@ import {
   text2d,
 } from './../primitives.ts'
 import { $v } from './../vector.ts'
-import { PI, sin } from './../math_utils.ts'
+import { sin } from './../math_utils.ts'
 import { RubikCube } from './rubik_cube.ts'
 import { CUBIE_SIZE, CUBIES_PER_AXIS } from './constants.ts'
 
@@ -31,8 +31,8 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(-PI / 5 + sin(millis() / 5000) * 1.5)
-  rotateY(millis() / 3000)
+  rotateX(sin(millis() / 5000) * 1.5)
+  rotateY(-millis() / 2000)
 
   render3dAxes()
 

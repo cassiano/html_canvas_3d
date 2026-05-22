@@ -3,7 +3,7 @@
 ////////////////////////////
 
 import { FPS } from '../constants.ts'
-import { createFrameLoop, fps, millis, togglePause } from '../utils.ts'
+import { createFrameLoop, fps, togglePause, millis } from '../utils.ts'
 import {
   animation,
   background,
@@ -12,7 +12,6 @@ import {
   render3dAxes,
   resetTransformationMatrix,
   rotateX,
-  rotateY,
   text2d,
   translate,
   rect2d,
@@ -20,6 +19,7 @@ import {
 import { $v } from '../vector.ts'
 import { PI } from '../math_utils.ts'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
+import { rotateY } from '../primitives.ts'
 
 const DEPTH = 2000
 const GRAVITY = 0.1
@@ -39,8 +39,8 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(-PI / 3)
-  rotateY(PI / 12 + millis() / 2000)
+  rotateX(PI / 4)
+  rotateY(-(millis() / 2000))
 
   render3dAxes()
 
