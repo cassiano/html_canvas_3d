@@ -100,9 +100,11 @@ export class Vector {
   }
 
   mult(scalarValue: number) {
-    this.x *= scalarValue
-    this.y *= scalarValue
-    this.z *= scalarValue
+    if (scalarValue !== 1) {
+      this.x *= scalarValue
+      this.y *= scalarValue
+      this.z *= scalarValue
+    }
 
     return this
   }
@@ -110,6 +112,8 @@ export class Vector {
   div(scalarValue: number): Vector {
     if (scalarValue === 0)
       throw new Error('Sorry, but division by 0 is not supported')
+
+    if (scalarValue === 1) return this
 
     return this.mult(1 / scalarValue)
   }
