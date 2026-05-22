@@ -54,7 +54,7 @@ const deferredRenderList: {
 // https://en.wikipedia.org/wiki/Painter%27s_algorithm
 export const render3dScene = () => {
   const orderedList = deferredRenderList.toSorted((left, right) =>
-    abs(right.z - left.z) < Z_EPSILON ? left.id - right.id : right.z - left.z,
+    abs(left.z - right.z) < Z_EPSILON ? left.id - right.id : left.z - right.z,
   )
 
   orderedList.forEach(element => element.renderFn())
@@ -64,7 +64,7 @@ export const render3dScene = () => {
 
 export const SCREEN_CENTER = $v(animation.width / 2, animation.height / 2, 0)
 
-const AXIS_LENGTH = min(animation.width, animation.height) * 0.7
+const AXIS_LENGTH = min(animation.width, animation.height) * 0.65
 
 export type transformationMatrix4x4Type = Tuple<Tuple<number, 4>, 4>
 
@@ -197,14 +197,18 @@ export const translate: TranslateOverloadedSignatures = (
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221OL6ezsueUbeXeq3_HvOMHkaVCwXvLuDK%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 // Counter-clockwise rotation around an arbitrary axis.
-export const rotate = (angle: number, axis: Vector) => {
+export const rotate = (
+  angle: number,
+  axis: Vector,
+  { isCanonical = false } = {},
+) => {
   if (angle === 0) return
 
-  const normalizedAxis = axis.clone().normalize()
+  const normalizedAxis = isCanonical ? axis : axis.clone().normalize()
   const { x, y, z } = normalizedAxis
 
-  const c = Math.cos(angle)
-  const s = Math.sin(angle)
+  const c = cos(angle)
+  const s = sin(angle)
   const t = 1 - c // Used frequently in the formula.
   const tx = t * x
   const ty = t * y
@@ -226,65 +230,68 @@ export const rotate = (angle: number, axis: Vector) => {
 
 // Counter-clockwise rotation around the X axis.
 export const rotateX = (angle: number) => {
-  if (angle === 0) return
+  // const c = cos(angle)
+  // const s = sin(angle)
 
-  const c = Math.cos(angle)
-  const s = Math.sin(angle)
+  // transformationMatrix = multiplyMatrices(
+  //   transformationMatrix,
+  //   // prettier-ignore
+  //   [
+  //   //  ȋ   ĵ   k̂  4d
+  //   // --  --  --  --
+  //     [ 1,  0,  0,  0 ],
+  //     [ 0,  c, -s,  0 ],
+  //     [ 0,  s,  c,  0 ],
+  //     [ 0,  0,  0,  1 ],
+  //   ] as const,
+  // ) as transformationMatrix4x4Type
 
-  transformationMatrix = multiplyMatrices(
-    transformationMatrix,
-    // prettier-ignore
-    [
-    //  ȋ   ĵ   k̂  4d
-    // --  --  --  --
-      [ 1,  0,  0,  0 ],
-      [ 0,  c, -s,  0 ],
-      [ 0,  s,  c,  0 ],
-      [ 0,  0,  0,  1 ],
-    ] as const,
-  ) as transformationMatrix4x4Type
+  rotate(angle, AXES.x, { isCanonical: true })
 }
 
 // Counter-clockwise rotation around the Y axis.
 export const rotateY = (angle: number) => {
-  if (angle === 0) return
+  // const c = cos(angle)
+  // const s = sin(angle)
 
-  const c = Math.cos(angle)
-  const s = Math.sin(angle)
+  // // Notice that in a Right-Handed System, Z precedes X, which flips the position of the sine components
+  // // in the matrix relative to the x, z array indices.
+  // // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221MYF8XOCxzwwbRhGazZAHx-3ZUvSLI82I%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
+  // transformationMatrix = multiplyMatrices(
+  //   transformationMatrix,
+  //   // prettier-ignore
+  //   [
+  //   //   ȋ   ĵ   k̂  4d
+  //   //  --  --  --  --
+  //     [  c,  0,  s,  0 ],
+  //     [  0,  1,  0,  0 ],
+  //     [ -s,  0,  c,  0 ],
+  //     [  0,  0,  0,  1 ],
+  //   ] as const,
+  // ) as transformationMatrix4x4Type
 
-  transformationMatrix = multiplyMatrices(
-    transformationMatrix,
-    // prettier-ignore
-    [
-    //  ȋ   ĵ   k̂  4d
-    // --  --  --  --
-      [ c,  0, -s,  0 ],
-      [ 0,  1,  0,  0 ],
-      [ s,  0,  c,  0 ],
-      [ 0,  0,  0,  1 ],
-    ] as const,
-  ) as transformationMatrix4x4Type
+  rotate(angle, AXES.y, { isCanonical: true })
 }
 
 // Counter-clockwise rotation around the Z axis.
 export const rotateZ = (angle: number) => {
-  if (angle === 0) return
+  // const c = cos(angle)
+  // const s = sin(angle)
 
-  const c = Math.cos(angle)
-  const s = Math.sin(angle)
+  // transformationMatrix = multiplyMatrices(
+  //   transformationMatrix,
+  //   // prettier-ignore
+  //   [
+  //   //  ȋ   ĵ   k̂  4d
+  //   // --  --  --  --
+  //     [ c, -s,  0,  0 ],
+  //     [ s,  c,  0,  0 ],
+  //     [ 0,  0,  1,  0 ],
+  //     [ 0,  0,  0,  1 ],
+  //   ] as const,
+  // ) as transformationMatrix4x4Type
 
-  transformationMatrix = multiplyMatrices(
-    transformationMatrix,
-    // prettier-ignore
-    [
-    //  ȋ   ĵ   k̂  4d
-    // --  --  --  --
-      [ c, -s,  0,  0 ],
-      [ s,  c,  0,  0 ],
-      [ 0,  0,  1,  0 ],
-      [ 0,  0,  0,  1 ],
-    ] as const,
-  ) as transformationMatrix4x4Type
+  rotate(angle, AXES.z, { isCanonical: true })
 }
 
 export const background = (color: string) => {
@@ -293,15 +300,16 @@ export const background = (color: string) => {
 }
 
 export const project3dTo2d = ({ x, y, z }: Vector) => {
-  const focalLength = FOCAL_LENGTH
-  const divisor = z + focalLength // Object should be at z=0 or higher.
+  // If z = FOCAL_LENGTH, the point is on the lens.
+  // If z > FOCAL_LENGTH, the point is behind the camera.
+  const divisor = FOCAL_LENGTH - z // Object should be at z=0 or lower.
 
   // If the point is behind the camera or exactly on the lens, we return `undefined` so the
   // renderer knows to skip it.
   if (divisor <= 0) return
 
-  // Standard perspective: (coord * focalLength) / (z + focalLength).
-  return $v((x * focalLength) / divisor, (y * focalLength) / divisor, 0)
+  // Standard perspective: (coord * FOCAL_LENGTH) / (z + FOCAL_LENGTH).
+  return $v((x * FOCAL_LENGTH) / divisor, (y * FOCAL_LENGTH) / divisor, 0)
 }
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
@@ -493,8 +501,11 @@ const isShapeFacingCamera = (center: Vector, normal: Vector): boolean => {
     center: transform(center),
     normal: transform(normal, { isNormal: true }),
   }
-  const camera = $v(0, 0, -FOCAL_LENGTH)
+  const camera = $v(0, 0, FOCAL_LENGTH)
   const cameraToCenter = transformed.center.sub(camera)
+
+  // If the vector from camera to (center of) object and the surface normal point
+  // in opposite directions (dot < 0), the face is visible.
   const pointInSameDirection = cameraToCenter.dot(transformed.normal) >= 0
 
   return !pointInSameDirection
@@ -552,7 +563,7 @@ export const box = (
   // Left face (-x).
   isolateTransformations(() => {
     translate(-width / 2, 0, 0)
-    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise.
+    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
 
     rect2d(depth, height, options)
   })
@@ -560,7 +571,7 @@ export const box = (
   // Right face (+x).
   isolateTransformations(() => {
     translate(width / 2, 0, 0)
-    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
+    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise.
 
     rect2d(depth, height, options)
   })
@@ -626,30 +637,25 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
   const lonSegments = SPHERE_LONGITUDE_LINES
   const latSegments = SPHERE_LATITUDE_LINES + 1
 
-  // Helper to calculate a 3D point on the sphere surface
   const getPoint = (latIdx: number, lonIdx: number): Vector => {
-    const phi = (latIdx / latSegments) * PI
-    const theta = (lonIdx / lonSegments) * 2 * PI
+    const phi = (latIdx / latSegments) * PI // Latitude (0 to PI)
+    const theta = (lonIdx / lonSegments) * 2 * PI // Longitude (0 to 2PI)
 
+    // RHR Mapping:
     return $v(
-      radius * sin(phi) * cos(theta),
-      radius * cos(phi), // Y is the vertical axis in this engine
-      radius * sin(phi) * sin(theta),
+      radius * sin(phi) * cos(theta), // X
+      radius * cos(phi), // Y (Up)
+      radius * sin(phi) * sin(theta), // Z (Out)
     )
   }
 
   for (let lat = 0; lat < latSegments; lat++) {
     for (let lon = 0; lon < lonSegments; lon++) {
-      // Define the 4 corners of a "quad" patch on the sphere
       const p1 = getPoint(lat, lon)
       const p2 = getPoint(lat, lon + 1)
       const p3 = getPoint(lat + 1, lon + 1)
       const p4 = getPoint(lat + 1, lon)
 
-      // We set `alwaysVisible: true` because triangle2d's internal back-face
-      // culling logic assumes shapes are defined on the XY plane.
-      // The Painter's Algorithm (sorting by Z) in render3dScene()
-      // will correctly handle the solid appearance.
       quadrilateral2d(p1, p2, p3, p4, { ...options, alwaysVisible: true })
     }
   }

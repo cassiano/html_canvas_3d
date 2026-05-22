@@ -40,11 +40,11 @@ export class CubieFace {
 
       isolateTransformations(() => {
         if (abs(this.normal.x) === 1) {
-          rotateY((-sign(this.normal.x) * PI) / 2)
+          rotateY((sign(this.normal.x) * PI) / 2)
         } else if (abs(this.normal.y) === 1) {
           rotateX((-sign(this.normal.y) * PI) / 2)
         } else if (this.normal.z === -1) {
-          rotateX(-PI)
+          rotateX(PI)
         }
 
         square2d(this.size, { color: this.color })
