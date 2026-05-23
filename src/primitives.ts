@@ -656,31 +656,28 @@ export const cube = (size: number, options: ShapeOptions = {}) => {
 
 // AI-generated code.
 export const sphere = (radius: number, options: ShapeOptions = {}) => {
-  const lonSegments = SPHERE_LONGITUDE_LINES
+  const longSegments = SPHERE_LONGITUDE_LINES
   const latSegments = SPHERE_LATITUDE_LINES + 1
 
-  const getPoint = (latIdx: number, lonIdx: number): Vector3d => {
-    const phi = (latIdx / latSegments) * PI // Latitude (0 to PI)
-    const theta = (lonIdx / lonSegments) * 2 * PI // Longitude (0 to 2PI)
+  const getPoint = (latIndex: number, longIndex: number): Vector3d => {
+    const phi = (latIndex / latSegments) * PI // Latitude (0 to PI)
+    const theta = (longIndex / longSegments) * 2 * PI // Longitude (0 to 2.PI)
 
     // RHR Mapping:
-    return $v(
-      radius * sin(phi) * cos(theta), // X
-      radius * cos(phi), // Y (Up)
-      radius * sin(phi) * sin(theta), // Z (Out)
+    return $v(sin(phi) * cos(theta), cos(phi), sin(phi) * sin(theta)).mult(
+      radius,
     )
   }
 
-  for (let lat = 0; lat < latSegments; lat++) {
-    for (let lon = 0; lon < lonSegments; lon++) {
-      const p1 = getPoint(lat, lon)
-      const p2 = getPoint(lat, lon + 1)
-      const p3 = getPoint(lat + 1, lon + 1)
-      const p4 = getPoint(lat + 1, lon)
+  for (let lat = 0; lat < latSegments; lat++)
+    for (let long = 0; long < longSegments; long++) {
+      const p1 = getPoint(lat, long)
+      const p2 = getPoint(lat, long + 1)
+      const p3 = getPoint(lat + 1, long + 1)
+      const p4 = getPoint(lat + 1, long)
 
       quadrilateral2d(p1, p2, p3, p4, options)
     }
-  }
 }
 
 type CircularShapeOptions = ShapeOptions & { circleSegments?: number }
