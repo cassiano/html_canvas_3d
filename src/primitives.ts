@@ -15,8 +15,14 @@ import {
 } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
-import { abs, cos, max, min, PI, sin } from './math_utils.ts'
-import { ORIGIN, RENDER_NORMALS, NORMAL_LENGTH } from './constants.ts'
+import { abs, cos, min, PI, sin } from './math_utils.ts'
+import {
+  ORIGIN,
+  RENDER_NORMALS,
+  NORMAL_LENGTH,
+  NORMAL_ARROW_RADIUS,
+  NORMAL_ARROW_HEIGHT,
+} from './constants.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -494,8 +500,9 @@ export const triangle2d = (
     // Render the normal? Used for debugging only.
     if (RENDER_NORMALS)
       if (shapeIsVisible && !neverRenderNormals) {
-        const normalLength = max(NORMAL_LENGTH)
-        const scaledNormal = normal.clone().mult(normalLength)
+        const scaledNormal = normal
+          .clone()
+          .mult(NORMAL_LENGTH - NORMAL_ARROW_HEIGHT)
         const scaledNormalTip = centroid.clone().add(scaledNormal)
 
         line(centroid, scaledNormalTip, {
@@ -506,7 +513,7 @@ export const triangle2d = (
         isolateTransformations(() => {
           translate(scaledNormalTip)
 
-          cone(2, 6, {
+          cone(NORMAL_ARROW_RADIUS, NORMAL_ARROW_HEIGHT, {
             color: 'black',
             neverRenderNormals: true,
             circleSegments: 3,
