@@ -14,9 +14,9 @@ import {
   Vector3d,
 } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
-import { timesForEach, logJson } from './utils.ts'
-import { abs, cos, min, PI, sin } from './math_utils.ts'
-import { ORIGIN } from './constants.ts'
+import { timesForEach } from './utils.ts'
+import { abs, cos, max, min, PI, sin } from './math_utils.ts'
+import { ORIGIN, RENDER_NORMALS, NORMAL_LENGTH } from './constants.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -33,6 +33,7 @@ export interface ShapeOptions {
   size?: number
   noSplit?: boolean
   alwaysVisible?: boolean
+  neverRenderNormals?: boolean
 }
 
 const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
@@ -44,6 +45,7 @@ const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
   size: 1,
   noSplit: false,
   alwaysVisible: false,
+  neverRenderNormals: false,
 }
 
 const deferredRenderList: {
@@ -426,8 +428,15 @@ export const triangle2d = (
   options: ShapeOptions = {},
 ) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
-  const { opacity, color, noStroke, strokeColor, lineWidth, alwaysVisible } =
-    finalOptions
+  const {
+    opacity,
+    color,
+    noStroke,
+    strokeColor,
+    lineWidth,
+    alwaysVisible,
+    neverRenderNormals,
+  } = finalOptions
 
   const screenA = toScreen(point2dA)
   const screenB = toScreen(point2dB)
@@ -466,35 +475,50 @@ export const triangle2d = (
     ctx.restore()
   }
 
-  const centroid2d = $v(
+  const centroid = $v(
     (point2dA.x + point2dB.x + point2dC.x) / 3,
     (point2dA.y + point2dB.y + point2dC.y) / 3,
+    (point2dA.z + point2dB.z + point2dC.z) / 3,
   )
 
-  let shapeIsVisible = alwaysVisible || opacity < 1
+  let shapeIsVisible = true
 
   // https://pt.wikipedia.org/wiki/Back-face_culling
-  if (!shapeIsVisible) {
+  if (!alwaysVisible && opacity === 1) {
     const vectorAB = point2dB.clone().sub(point2dA)
     const vectorAC = point2dC.clone().sub(point2dA)
+    const normal = vectorAB.cross(vectorAC).normalize()
 
-    const determinant = vectorAB.x * vectorAC.y - vectorAB.y * vectorAC.x
+    shapeIsVisible = isShapeFacingCamera(centroid, normal)
 
-    if (determinant === 0)
-      throw new Error('Triangle has 2 linearly dependent edges')
+    // Render the normal? Used for debugging only.
+    if (RENDER_NORMALS)
+      if (shapeIsVisible && !neverRenderNormals) {
+        const normalLength = max(NORMAL_LENGTH)
+        const scaledNormal = normal.clone().mult(normalLength)
+        const scaledNormalTip = centroid.clone().add(scaledNormal)
 
-    const normal =
-      determinant > 0
-        ? AXES.z // Edge AB is on the right of AC. Normal should point "up" (+z).
-        : AXES['-z'] // Edge AB is on the left of AC. Normal should point "down" (-z).
+        line(centroid, scaledNormalTip, {
+          color: 'black',
+          noSplit: true,
+        })
 
-    shapeIsVisible = isShapeFacingCamera(centroid2d, normal)
+        isolateTransformations(() => {
+          translate(scaledNormalTip)
+
+          cone(2, 6, {
+            color: 'black',
+            neverRenderNormals: true,
+            circleSegments: 3,
+          })
+        })
+      }
   }
 
   if (shapeIsVisible)
     deferredRenderList.push({
       id: deferredRenderList.length,
-      z: calculateZ(centroid2d),
+      z: calculateZ(centroid),
       renderFn,
     })
 }
@@ -668,15 +692,24 @@ export const circle2d = (radius: number, options: ShapeOptions = {}) => {
   }
 }
 
+type ConeShapeOptions = ShapeOptions & { circleSegments?: number }
+
 export const cone = (
   radius: number,
   height: number,
-  options: ShapeOptions = {},
+  options: ConeShapeOptions = {},
 ) => {
-  const step = (2 * PI) / CIRCLE_SEGMENTS
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: CIRCLE_SEGMENTS,
+    ...options,
+  }
+  const { circleSegments } = finalOptions
+
+  const step = (2 * PI) / circleSegments
   const tip = $v(0, 0, height)
 
-  for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
+  for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
@@ -685,8 +718,8 @@ export const cone = (
 
     // Form 2 slices, one connecting the above two points on the perimeter to the cone tip
     // and another to the cone center (origin).
-    triangle2d(tip, p1, p2, options)
-    triangle2d(ORIGIN, p1, p2, options)
+    triangle2d(p1, tip, p2, options)
+    triangle2d(p2, ORIGIN, p1, options)
   }
 }
 
@@ -719,7 +752,7 @@ export const render3dAxes = () => {
     cone(5, 10, {
       color: 'darkRed',
       noStroke: true,
-      alwaysVisible: true,
+      neverRenderNormals: true,
     })
   })
 
@@ -733,7 +766,7 @@ export const render3dAxes = () => {
     cone(5, 10, {
       color: 'darkGreen',
       noStroke: true,
-      alwaysVisible: true,
+      neverRenderNormals: true,
     })
   })
 
@@ -746,7 +779,7 @@ export const render3dAxes = () => {
     cone(5, 10, {
       color: 'blue',
       noStroke: true,
-      alwaysVisible: true,
+      neverRenderNormals: true,
     })
   })
 }
