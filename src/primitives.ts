@@ -33,7 +33,7 @@ export interface ShapeOptions {
   noStroke?: boolean
   size?: number
   noSplit?: boolean
-  alwaysVisible?: boolean
+  isDoubleSided?: boolean
   neverRenderNormals?: boolean
 }
 
@@ -45,7 +45,7 @@ const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
   noStroke: false,
   size: 1,
   noSplit: false,
-  alwaysVisible: false,
+  isDoubleSided: false,
   neverRenderNormals: false,
 }
 
@@ -469,7 +469,7 @@ export const triangle2d = (
     noStroke,
     strokeColor,
     lineWidth,
-    alwaysVisible,
+    isDoubleSided,
     neverRenderNormals,
   } = finalOptions
 
@@ -519,12 +519,12 @@ export const triangle2d = (
   let shapeIsVisible = true
 
   // https://pt.wikipedia.org/wiki/Back-face_culling
-  if (!alwaysVisible && opacity === 1) {
+  if (!isDoubleSided && opacity === 1) {
     const vectorAB = point2dB.clone().sub(point2dA)
     const vectorAC = point2dC.clone().sub(point2dA)
     const crossProduct = vectorAB.cross(vectorAC)
 
-    // Triangle is always visible when line segments AB and AC are aligned.
+    // Bypass face culling when line segments AB and AC are perfectly aligned.
     if (crossProduct.equals(ORIGIN)) return
 
     const normal = crossProduct.normalize()

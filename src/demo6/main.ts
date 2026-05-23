@@ -36,8 +36,8 @@ const draw = () => {
 
   circle2d(200, {
     color: 'gray',
-    alwaysVisible: true,
-    opacity: 0.5,
+    isDoubleSided: true,
+    opacity: 1,
   })
 }
 
