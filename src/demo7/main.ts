@@ -32,7 +32,7 @@ const draw = () => {
   render3dAxes()
 
   cone(150, 250, {
-    color: 'red',
+    color: 'gray',
     opacity: 0.5,
   })
 }

@@ -33,7 +33,7 @@ const draw = () => {
 
   render3dAxes()
 
-  sphere(250, { color: 'orange', opacity: 0.5 })
+  sphere(250, { color: 'gray', opacity: 0.5 })
 }
 
 const onPaused = () => {

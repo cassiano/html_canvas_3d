@@ -35,7 +35,7 @@ const draw = () => {
   rotate(PI / 4, $v(1, 1, 1))
 
   circle2d(200, {
-    color: 'green',
+    color: 'gray',
     alwaysVisible: true,
     opacity: 1,
   })
