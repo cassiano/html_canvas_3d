@@ -522,7 +522,11 @@ export const triangle2d = (
   if (!alwaysVisible && opacity === 1) {
     const vectorAB = point2dB.clone().sub(point2dA)
     const vectorAC = point2dC.clone().sub(point2dA)
-    const normal = vectorAB.cross(vectorAC).normalize()
+    const crossProduct = vectorAB.cross(vectorAC)
+
+    if (crossProduct.equals(ORIGIN)) return
+
+    const normal = crossProduct.normalize()
 
     shapeIsVisible = isShapeFacingCamera(centroid, normal)
 
@@ -674,8 +678,7 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
       const p3 = getPoint(lat + 1, lon + 1)
       const p4 = getPoint(lat + 1, lon)
 
-      // TODO: analisar como remover a opção `alwaysVisible`.
-      quadrilateral2d(p1, p2, p3, p4, { ...options, alwaysVisible: true })
+      quadrilateral2d(p1, p2, p3, p4, options)
     }
   }
 }
