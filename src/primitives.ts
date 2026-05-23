@@ -524,13 +524,13 @@ export const triangle2d = (
     const vectorAC = point2dC.clone().sub(point2dA)
     const crossProduct = vectorAB.cross(vectorAC)
 
+    // Triangle is always visible when line segments AB and AC are aligned.
     if (crossProduct.equals(ORIGIN)) return
 
     const normal = crossProduct.normalize()
 
     shapeIsVisible = isShapeFacingCamera(centroid, normal)
 
-    // Render the normal? Used for debugging only.
     if (RENDER_NORMALS)
       if (shapeIsVisible && !neverRenderNormals) {
         arrow(
