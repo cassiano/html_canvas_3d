@@ -14,7 +14,7 @@ import {
   Vector3d,
 } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
-import { timesForEach } from './utils.ts'
+import { timesForEach, logJson } from './utils.ts'
 import { abs, cos, min, PI, sin } from './math_utils.ts'
 import { ORIGIN } from './constants.ts'
 
@@ -231,68 +231,68 @@ export const rotate = (
 
 // Counter-clockwise rotation around the X axis.
 export const rotateX = (angle: number) => {
-  // const c = cos(angle)
-  // const s = sin(angle)
+  const c = cos(angle)
+  const s = sin(angle)
 
-  // transformationMatrix = multiplyMatrices(
-  //   transformationMatrix,
-  //   // prettier-ignore
-  //   [
-  //   //  ȋ   ĵ   k̂  4d
-  //   // --  --  --  --
-  //     [ 1,  0,  0,  0 ],
-  //     [ 0,  c, -s,  0 ],
-  //     [ 0,  s,  c,  0 ],
-  //     [ 0,  0,  0,  1 ],
-  //   ] as const,
-  // ) as transformationMatrix4x4Type
+  transformationMatrix = multiplyMatrices(
+    transformationMatrix,
+    // prettier-ignore
+    [
+    //  ȋ   ĵ   k̂  4d
+    // --  --  --  --
+      [ 1,  0,  0,  0 ],
+      [ 0,  c, -s,  0 ],
+      [ 0,  s,  c,  0 ],
+      [ 0,  0,  0,  1 ],
+    ] as const,
+  ) as transformationMatrix4x4Type
 
-  rotate(angle, AXES.x, { isCanonical: true })
+  // Equivalent to: `rotate(angle, AXES.x, { isCanonical: true })`
 }
 
 // Counter-clockwise rotation around the Y axis.
 export const rotateY = (angle: number) => {
-  // const c = cos(angle)
-  // const s = sin(angle)
+  const c = cos(angle)
+  const s = sin(angle)
 
-  // // Notice that in a Right-Handed System, Z precedes X, which flips the position of the sine components
-  // // in the matrix relative to the x, z array indices.
-  // // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221MYF8XOCxzwwbRhGazZAHx-3ZUvSLI82I%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-  // transformationMatrix = multiplyMatrices(
-  //   transformationMatrix,
-  //   // prettier-ignore
-  //   [
-  //   //   ȋ   ĵ   k̂  4d
-  //   //  --  --  --  --
-  //     [  c,  0,  s,  0 ],
-  //     [  0,  1,  0,  0 ],
-  //     [ -s,  0,  c,  0 ],
-  //     [  0,  0,  0,  1 ],
-  //   ] as const,
-  // ) as transformationMatrix4x4Type
+  // Notice that in a Right-Handed System, Z precedes X, which flips the position of the sine components
+  // in the matrix relative to the x, z array indices.
+  // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221MYF8XOCxzwwbRhGazZAHx-3ZUvSLI82I%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
+  transformationMatrix = multiplyMatrices(
+    transformationMatrix,
+    // prettier-ignore
+    [
+    //   ȋ   ĵ   k̂  4d
+    //  --  --  --  --
+      [  c,  0,  s,  0 ],
+      [  0,  1,  0,  0 ],
+      [ -s,  0,  c,  0 ],
+      [  0,  0,  0,  1 ],
+    ] as const,
+  ) as transformationMatrix4x4Type
 
-  rotate(angle, AXES.y, { isCanonical: true })
+  // Equivalent to: `rotate(angle, AXES.y, { isCanonical: true })`
 }
 
 // Counter-clockwise rotation around the Z axis.
 export const rotateZ = (angle: number) => {
-  // const c = cos(angle)
-  // const s = sin(angle)
+  const c = cos(angle)
+  const s = sin(angle)
 
-  // transformationMatrix = multiplyMatrices(
-  //   transformationMatrix,
-  //   // prettier-ignore
-  //   [
-  //   //  ȋ   ĵ   k̂  4d
-  //   // --  --  --  --
-  //     [ c, -s,  0,  0 ],
-  //     [ s,  c,  0,  0 ],
-  //     [ 0,  0,  1,  0 ],
-  //     [ 0,  0,  0,  1 ],
-  //   ] as const,
-  // ) as transformationMatrix4x4Type
+  transformationMatrix = multiplyMatrices(
+    transformationMatrix,
+    // prettier-ignore
+    [
+    //  ȋ   ĵ   k̂  4d
+    // --  --  --  --
+      [ c, -s,  0,  0 ],
+      [ s,  c,  0,  0 ],
+      [ 0,  0,  1,  0 ],
+      [ 0,  0,  0,  1 ],
+    ] as const,
+  ) as transformationMatrix4x4Type
 
-  rotate(angle, AXES.z, { isCanonical: true })
+  // Equivalent to: `rotate(angle, AXES.z, { isCanonical: true })`
 }
 
 export const background = (color: string) => {
@@ -600,19 +600,6 @@ export const cube = (size: number, options: ShapeOptions = {}) => {
   box(size, size, size, options)
 }
 
-// export const circle2d = (radius: number, options: ShapeOptions = {}) => {
-//   let previousPoint: Vector3d | undefined
-
-//   for (let theta = 0; theta <= 2 * PI; theta += (2 * PI) / CIRCLE_SEGMENTS) {
-//     const currentPoint = $v(radius * sin(theta), radius * cos(theta), 0)
-
-//     if (previousPoint !== undefined)
-//       line(previousPoint, currentPoint, { ...options, noSplit: true })
-
-//     previousPoint = currentPoint
-//   }
-// }
-
 // export const sphere = (radius: number, options: ShapeOptions = {}) => {
 //   isolateTransformations(() => {
 //     // Draw a series of concentric 2D circles as longitude lines, all with the same radius.
@@ -715,14 +702,14 @@ export const text2d = (message: string, point: Vector3d) => {
 }
 
 export const render3dAxes = () => {
-  const xNeg = $v(-AXIS_LENGTH / 2, 0, 0)
-  const xPos = $v(AXIS_LENGTH / 2, 0, 0)
+  const xPos = AXES.x.clone().mult(AXIS_LENGTH / 2)
+  const xNeg = xPos.clone().mult(-1)
 
-  const yNeg = $v(0, -AXIS_LENGTH / 2, 0)
-  const yPos = $v(0, AXIS_LENGTH / 2, 0)
+  const yPos = AXES.y.clone().mult(AXIS_LENGTH / 2)
+  const yNeg = yPos.clone().mult(-1)
 
-  const zNeg = $v(0, 0, -AXIS_LENGTH / 2)
-  const zPos = $v(0, 0, AXIS_LENGTH / 2)
+  const zPos = AXES.z.clone().mult(AXIS_LENGTH / 2)
+  const zNeg = zPos.clone().mult(-1)
 
   // X-axis
   isolateTransformations(() => {
@@ -739,8 +726,10 @@ export const render3dAxes = () => {
   // Y-axis
   isolateTransformations(() => {
     line(yNeg, yPos, { color: 'darkGreen' })
+
     translate(0, AXIS_LENGTH / 2, 0)
     rotateX(-PI / 2)
+
     cone(5, 10, {
       color: 'darkGreen',
       noStroke: true,
@@ -751,7 +740,9 @@ export const render3dAxes = () => {
   // Z-axis
   isolateTransformations(() => {
     line(zNeg, zPos, { color: 'darkBlue' })
+
     translate(0, 0, AXIS_LENGTH / 2)
+
     cone(5, 10, {
       color: 'blue',
       noStroke: true,
