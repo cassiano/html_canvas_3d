@@ -725,16 +725,39 @@ export const render3dAxes = () => {
   const zPos = $v(0, 0, AXIS_LENGTH / 2)
 
   // X-axis
-  line(xNeg, xPos, { color: 'darkRed' })
-  point(xPos, { color: 'red', size: 12 })
+  isolateTransformations(() => {
+    line(xNeg, xPos, { color: 'darkRed' })
+    translate(AXIS_LENGTH / 2, 0, 0)
+    rotateY(PI / 2)
+    cone(5, 10, {
+      color: 'darkRed',
+      noStroke: true,
+      alwaysVisible: true,
+    })
+  })
 
   // Y-axis
-  line(yNeg, yPos, { color: 'darkGreen' })
-  point(yPos, { color: 'green', size: 12 })
+  isolateTransformations(() => {
+    line(yNeg, yPos, { color: 'darkGreen' })
+    translate(0, AXIS_LENGTH / 2, 0)
+    rotateX(-PI / 2)
+    cone(5, 10, {
+      color: 'darkGreen',
+      noStroke: true,
+      alwaysVisible: true,
+    })
+  })
 
   // Z-axis
-  line(zNeg, zPos, { color: 'darkBlue' })
-  point(zPos, { color: 'blue', size: 12 })
+  isolateTransformations(() => {
+    line(zNeg, zPos, { color: 'darkBlue' })
+    translate(0, 0, AXIS_LENGTH / 2)
+    cone(5, 10, {
+      color: 'blue',
+      noStroke: true,
+      alwaysVisible: true,
+    })
+  })
 }
 
 export const multiplyMatrices = (
