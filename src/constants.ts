@@ -10,6 +10,8 @@ export const SPHERE_LATITUDE_LINES = 36
 export const ORIGIN = $v(0, 0, 0)
 export const Z_EPSILON = 1e-10
 export const RENDER_NORMALS = false
-export const NORMAL_LENGTH = 20
-export const NORMAL_ARROW_RADIUS = 2
-export const NORMAL_ARROW_HEIGHT = 5
+export const NORMAL = {
+  length: 20,
+  color: 'black',
+  tip: { radius: 2, height: 5 },
+}

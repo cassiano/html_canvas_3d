@@ -16,13 +16,8 @@ import {
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { abs, cos, min, PI, sin } from './math_utils.ts'
-import {
-  ORIGIN,
-  RENDER_NORMALS,
-  NORMAL_LENGTH,
-  NORMAL_ARROW_RADIUS,
-  NORMAL_ARROW_HEIGHT,
-} from './constants.ts'
+import { NORMAL } from './constants.ts'
+import { ORIGIN, RENDER_NORMALS } from './constants.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -366,6 +361,40 @@ export const point = (point3d: Vector3d, options: ShapeOptions = {}) => {
   })
 }
 
+type ArrowShapeOptions = ShapeOptions & { tipRadius: number; tipHeight: number }
+
+export const arrow = (
+  point3dA: Vector3d,
+  point3dB: Vector3d,
+  options: ArrowShapeOptions,
+) => {
+  const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
+  const { tipRadius, tipHeight } = finalOptions
+
+  isolateTransformations(() => {
+    translate(point3dA)
+
+    const lineAB = point3dB.clone().sub(point3dA)
+    const orthogonalAxis = AXES.z.cross(lineAB)
+    const zAngle = AXES.z.angleBetween(lineAB)
+
+    // If AB line is already over the Z-axis, no need to rotate.
+    if (!orthogonalAxis.equals(ORIGIN)) rotate(zAngle, orthogonalAxis)
+    else if (lineAB.z < 0) rotateX(PI) // Or `rotateY(PI)`.
+
+    line(ORIGIN, $v(0, 0, lineAB.mag()), options)
+
+    translate(0, 0, lineAB.mag())
+
+    cone(tipRadius, tipHeight, {
+      ...options,
+      neverRenderNormals: true,
+      circleSegments: 10,
+      noStroke: true,
+    })
+  })
+}
+
 export const line = (
   point3dA: Vector3d,
   point3dB: Vector3d,
@@ -500,25 +529,15 @@ export const triangle2d = (
     // Render the normal? Used for debugging only.
     if (RENDER_NORMALS)
       if (shapeIsVisible && !neverRenderNormals) {
-        const scaledNormal = normal
-          .clone()
-          .mult(NORMAL_LENGTH - NORMAL_ARROW_HEIGHT)
-        const scaledNormalTip = centroid.clone().add(scaledNormal)
-
-        line(centroid, scaledNormalTip, {
-          color: 'black',
-          noSplit: true,
-        })
-
-        isolateTransformations(() => {
-          translate(scaledNormalTip)
-
-          cone(NORMAL_ARROW_RADIUS, NORMAL_ARROW_HEIGHT, {
-            color: 'black',
-            neverRenderNormals: true,
-            circleSegments: 3,
-          })
-        })
+        arrow(
+          centroid,
+          centroid.clone().add(normal.clone().mult(NORMAL.length)),
+          {
+            color: NORMAL.color,
+            tipHeight: NORMAL.tip.height,
+            tipRadius: NORMAL.tip.radius,
+          },
+        )
       }
   }
 
@@ -631,28 +650,6 @@ export const cube = (size: number, options: ShapeOptions = {}) => {
   box(size, size, size, options)
 }
 
-// export const sphere = (radius: number, options: ShapeOptions = {}) => {
-//   isolateTransformations(() => {
-//     // Draw a series of concentric 2D circles as longitude lines, all with the same radius.
-//     timesForEach(SPHERE_LONGITUDE_LINES, () => {
-//       rotateY(PI / SPHERE_LONGITUDE_LINES)
-
-//       circle2d(radius, options)
-//     })
-//   })
-
-//   // Draw a series of 2D circles as latitude lines, with radius increasing when going from the poles
-//   // to the equator (center) and decreasing otherwise.
-//   for (let theta = 0; theta <= PI; theta += PI / (SPHERE_LATITUDE_LINES + 1)) {
-//     isolateTransformations(() => {
-//       translate(0, radius * cos(theta), 0)
-//       rotateX(PI / 2)
-
-//       circle2d(radius * sin(theta), options)
-//     })
-//   }
-// }
-
 // AI-generated code.
 export const sphere = (radius: number, options: ShapeOptions = {}) => {
   const lonSegments = SPHERE_LONGITUDE_LINES
@@ -683,28 +680,37 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
   }
 }
 
-// AI-generated code.
-export const circle2d = (radius: number, options: ShapeOptions = {}) => {
-  const step = (2 * PI) / CIRCLE_SEGMENTS
+type CircularShapeOptions = ShapeOptions & { circleSegments?: number }
 
-  for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
+export const circle2d = (
+  radius: number,
+  options: CircularShapeOptions = {},
+) => {
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: CIRCLE_SEGMENTS,
+    ...options,
+  }
+  const { circleSegments } = finalOptions
+
+  const step = (2 * PI) / circleSegments
+
+  for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = $v(radius * sin(theta1), radius * cos(theta1))
-    const p2 = $v(radius * sin(theta2), radius * cos(theta2))
+    const p1 = $v(radius * cos(theta1), radius * sin(theta1))
+    const p2 = $v(radius * cos(theta2), radius * sin(theta2))
 
     // Form a slice by connecting the two points on the perimeter to the circle center (origin).
     triangle2d(ORIGIN, p1, p2, options)
   }
 }
 
-type ConeShapeOptions = ShapeOptions & { circleSegments?: number }
-
 export const cone = (
   radius: number,
   height: number,
-  options: ConeShapeOptions = {},
+  options: CircularShapeOptions = {},
 ) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
@@ -720,25 +726,32 @@ export const cone = (
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = $v(radius * sin(theta1), radius * cos(theta1), 0)
-    const p2 = $v(radius * sin(theta2), radius * cos(theta2), 0)
+    const p1 = $v(radius * cos(theta1), radius * sin(theta1), 0)
+    const p2 = $v(radius * cos(theta2), radius * sin(theta2), 0)
 
     // Form 2 slices, one connecting the above two points on the perimeter to the cone tip
     // and another to the cone center (origin).
-    triangle2d(p1, tip, p2, options)
-    triangle2d(p2, ORIGIN, p1, options)
+    triangle2d(p1, p2, tip, options)
+    triangle2d(p2, p1, ORIGIN, options)
   }
 }
 
 export const cylinder = (
   radius: number,
   height: number,
-  options: ShapeOptions = {},
+  options: CircularShapeOptions = {},
 ) => {
-  const step = (2 * PI) / CIRCLE_SEGMENTS
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: CIRCLE_SEGMENTS,
+    ...options,
+  }
+  const { circleSegments } = finalOptions
+
+  const step = (2 * PI) / circleSegments
   const upperCenter = $v(0, 0, height)
 
-  for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
+  for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
@@ -766,52 +779,22 @@ export const text2d = (message: string, point: Vector3d) => {
 }
 
 export const render3dAxes = () => {
-  const xPos = AXES.x.clone().mult(AXIS_LENGTH / 2)
-  const xNeg = xPos.clone().mult(-1)
-
-  const yPos = AXES.y.clone().mult(AXIS_LENGTH / 2)
-  const yNeg = yPos.clone().mult(-1)
-
-  const zPos = AXES.z.clone().mult(AXIS_LENGTH / 2)
-  const zNeg = zPos.clone().mult(-1)
-
-  // X-axis
-  isolateTransformations(() => {
-    line(xNeg, xPos, { color: 'darkRed' })
-    translate(AXIS_LENGTH / 2, 0, 0)
-    rotateY(PI / 2)
-    cone(5, 10, {
-      color: 'darkRed',
-      noStroke: true,
-      neverRenderNormals: true,
-    })
+  arrow($v(-AXIS_LENGTH / 2, 0, 0), $v(AXIS_LENGTH / 2, 0, 0), {
+    color: 'darkRed',
+    tipRadius: 5,
+    tipHeight: 10,
   })
 
-  // Y-axis
-  isolateTransformations(() => {
-    line(yNeg, yPos, { color: 'darkGreen' })
-
-    translate(0, AXIS_LENGTH / 2, 0)
-    rotateX(-PI / 2)
-
-    cone(5, 10, {
-      color: 'darkGreen',
-      noStroke: true,
-      neverRenderNormals: true,
-    })
+  arrow($v(0, -AXIS_LENGTH / 2, 0), $v(0, AXIS_LENGTH / 2, 0), {
+    color: 'darkGreen',
+    tipRadius: 5,
+    tipHeight: 10,
   })
 
-  // Z-axis
-  isolateTransformations(() => {
-    line(zNeg, zPos, { color: 'darkBlue' })
-
-    translate(0, 0, AXIS_LENGTH / 2)
-
-    cone(5, 10, {
-      color: 'blue',
-      noStroke: true,
-      neverRenderNormals: true,
-    })
+  arrow($v(0, 0, -AXIS_LENGTH / 2), $v(0, 0, AXIS_LENGTH / 2), {
+    color: 'darkBlue',
+    tipRadius: 5,
+    tipHeight: 10,
   })
 }
 
