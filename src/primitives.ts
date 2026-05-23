@@ -782,19 +782,21 @@ export const text2d = (message: string, point: Vector3d) => {
 }
 
 export const render3dAxes = () => {
-  arrow($v(-AXIS_LENGTH / 2, 0, 0), $v(AXIS_LENGTH / 2, 0, 0), {
+  const halfLength = AXIS_LENGTH / 2
+
+  arrow(AXES['-x'].clone().mult(halfLength), AXES.x.clone().mult(halfLength), {
     color: 'darkRed',
     tipRadius: 5,
     tipHeight: 10,
   })
 
-  arrow($v(0, -AXIS_LENGTH / 2, 0), $v(0, AXIS_LENGTH / 2, 0), {
+  arrow(AXES['-y'].clone().mult(halfLength), AXES.y.clone().mult(halfLength), {
     color: 'darkGreen',
     tipRadius: 5,
     tipHeight: 10,
   })
 
-  arrow($v(0, 0, -AXIS_LENGTH / 2), $v(0, 0, AXIS_LENGTH / 2), {
+  arrow(AXES['-z'].clone().mult(halfLength), AXES.z.clone().mult(halfLength), {
     color: 'darkBlue',
     tipRadius: 5,
     tipHeight: 10,
