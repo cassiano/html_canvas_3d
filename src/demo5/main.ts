@@ -33,6 +33,8 @@ const draw = () => {
 
   render3dAxes()
 
+  rotateY(-millis() / 4000)
+
   sphere(250, { color: 'gray', opacity: 0.5 })
 }
 
