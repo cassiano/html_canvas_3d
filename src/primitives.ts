@@ -723,6 +723,30 @@ export const cone = (
   }
 }
 
+export const cylinder = (
+  radius: number,
+  height: number,
+  options: ShapeOptions = {},
+) => {
+  const step = (2 * PI) / CIRCLE_SEGMENTS
+  const upperCenter = $v(0, 0, height)
+
+  for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
+    const theta1 = i * step
+    const theta2 = (i + 1) * step
+
+    const p1 = $v(radius * sin(theta1), radius * cos(theta1), 0)
+    const p2 = $v(radius * sin(theta2), radius * cos(theta2), 0)
+    const upperP1 = p1.clone().add(0, 0, height)
+    const upperP2 = p2.clone().add(0, 0, height)
+
+    quadrilateral2d(p1, p2, upperP2, upperP1, options)
+
+    triangle2d(p2, ORIGIN, p1, options)
+    triangle2d(upperP2, upperCenter, upperP1, options)
+  }
+}
+
 export const text2d = (message: string, point: Vector3d) => {
   ctx.font = 'bold 60px sans-serif'
   ctx.fillStyle = 'rgba(0, 0, 0, 0.3)' // Semi-transparent black
