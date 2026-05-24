@@ -24,6 +24,10 @@ import {
 
 // -------------------------------------------------------------------------------------------------
 
+const RADIUS = 100
+const HEIGHT = 250
+const OPACITY = 1
+
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
   console.log({ fps: fps() })
@@ -34,10 +38,6 @@ const draw = () => {
   rotateY(-millis() / 2000)
 
   render3dAxes()
-
-  const RADIUS = 100
-  const HEIGHT = 250
-  const OPACITY = 1
 
   isolateTransformations(() => {
     translate(0, HEIGHT / 2, 0)
