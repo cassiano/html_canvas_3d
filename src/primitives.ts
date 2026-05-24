@@ -170,13 +170,13 @@ export const scale: ScaleOverloadedSignatures = (
       transformationMatrix,
       // prettier-ignore
       [
-    //  ȋ  ĵ  k̂ 4d
-    // -- -- -- --
-      [ x, 0, 0, 0 ],
-      [ 0, y, 0, 0 ],
-      [ 0, 0, z, 0 ],
-      [ 0, 0, 0, 1 ],
-    ] as const,
+      //  ȋ  ĵ  k̂ 4d
+      // -- -- -- --
+        [ x, 0, 0, 0 ],
+        [ 0, y, 0, 0 ],
+        [ 0, 0, z, 0 ],
+        [ 0, 0, 0, 1 ],
+      ] as const,
     ) as transformationMatrix4x4Type
   }
 }
@@ -204,13 +204,13 @@ export const translate: TranslateOverloadedSignatures = (
       transformationMatrix,
       // prettier-ignore
       [
-    //  ȋ  ĵ  k̂ 4d
-    // -- -- -- --
-      [ 1, 0, 0, x ],
-      [ 0, 1, 0, y ],
-      [ 0, 0, 1, z ],
-      [ 0, 0, 0, 1 ],
-    ] as const,
+      //  ȋ  ĵ  k̂ 4d
+      // -- -- -- --
+        [ 1, 0, 0, x ],
+        [ 0, 1, 0, y ],
+        [ 0, 0, 1, z ],
+        [ 0, 0, 0, 1 ],
+      ] as const,
     ) as transformationMatrix4x4Type
   }
 }
