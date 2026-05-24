@@ -13,9 +13,21 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateX, cylinder, rotateY } from '../primitives.ts'
+import {
+  rotateX,
+  cylinder,
+  rotateY,
+  isolateTransformations,
+  translate,
+  rotateZ,
+} from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
+
+const RADIUS = 100
+const HEIGHT = 125
+const OPACITY = 1
+const OFFSET = 125
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
@@ -28,9 +40,63 @@ const draw = () => {
 
   render3dAxes()
 
-  cylinder(150, 450, {
-    color: 'gray',
-    opacity: 0.5,
+  isolateTransformations(() => {
+    translate(0, HEIGHT / 2 + OFFSET, 0)
+
+    cylinder(RADIUS, HEIGHT, {
+      color: 'orange',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(0, -(HEIGHT / 2 + OFFSET), 0)
+    rotateX(PI)
+
+    cylinder(RADIUS, HEIGHT, {
+      color: 'brown',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(HEIGHT / 2 + OFFSET, 0, 0)
+    rotateZ(-PI / 2)
+
+    cylinder(RADIUS, HEIGHT, {
+      color: 'yellow',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(-(HEIGHT / 2 + OFFSET), 0, 0)
+    rotateZ(PI / 2)
+
+    cylinder(RADIUS, HEIGHT, {
+      color: 'pink',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(0, 0, HEIGHT / 2 + OFFSET)
+    rotateX(PI / 2)
+
+    cylinder(RADIUS, HEIGHT, {
+      color: 'lime',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(0, 0, -(HEIGHT / 2 + OFFSET))
+    rotateX(-PI / 2)
+
+    cylinder(RADIUS, HEIGHT, {
+      color: 'magenta',
+      opacity: OPACITY,
+    })
   })
 }
 

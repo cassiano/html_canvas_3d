@@ -817,7 +817,7 @@ export const cylinder = (
 
     quadrilateral2d(p1, p2, upperP2, upperP1, options)
 
-    triangle2d(p2, lowerCenter, p1, options)
+    triangle2d(p1, lowerCenter, p2, options)
     triangle2d(upperP2, upperCenter, upperP1, options)
   }
 }
