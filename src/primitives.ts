@@ -705,7 +705,6 @@ export const cube = (size: number, options: ShapeOptions = {}) => {
   box(size, size, size, options)
 }
 
-// AI-generated code.
 export const sphere = (radius: number, options: ShapeOptions = {}) => {
   const longSegments = SPHERE_LONGITUDE_LINES
   const latSegments = SPHERE_LATITUDE_LINES + 1
