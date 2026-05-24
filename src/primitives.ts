@@ -375,16 +375,18 @@ export const arrow = (
     translate(point3dA)
 
     const lineAB = point3dB.clone().sub(point3dA)
-    const orthogonalAxis = AXES.z.cross(lineAB)
-    const zAngle = AXES.z.angleBetween(lineAB)
+    const orthogonalAxis = AXES.y.cross(lineAB)
+    const yAngle = AXES.y.angleBetween(lineAB)
 
-    // If AB line is already over the Z-axis, no need to rotate.
-    if (!orthogonalAxis.equals(ORIGIN)) rotate(zAngle, orthogonalAxis)
-    else if (lineAB.z < 0) rotateX(PI) // Or `rotateY(PI)`.
+    // If AB line is already over the Y-axis, no need to rotate.
+    if (!orthogonalAxis.equals(ORIGIN)) rotate(yAngle, orthogonalAxis)
+    else if (lineAB.y < 0) rotateX(PI) // Or `rotateZ(PI)`.
 
-    line(ORIGIN, $v(0, 0, lineAB.mag()), options)
+    line(ORIGIN, $v(0, lineAB.mag(), 0), options)
 
-    translate(0, 0, lineAB.mag())
+    translate(0, lineAB.mag(), 0)
+
+    rotateX(PI)
 
     cone(tipRadius, tipHeight, {
       ...options,
@@ -580,8 +582,8 @@ export const quadrilateral2d = (
 }
 
 export const rect2d = (
-  width: number, // x-axis
-  height: number, // y-axis
+  width: number, // X-axis
+  height: number, // Y-axis
   options: ShapeOptions = {},
 ) => {
   const point2dA = $v(-width / 2, -height / 2)
@@ -597,9 +599,9 @@ export const square2d = (side: number, options: ShapeOptions = {}) => {
 }
 
 export const box = (
-  width: number, // x-axis
-  height: number, // y-axis
-  depth: number, // z-axis
+  width: number, // X-axis
+  height: number, // Y-axis
+  depth: number, // Z-axis
   options: ShapeOptions = {},
 ) => {
   // Back face (-z).
@@ -711,8 +713,8 @@ export const circle2d = (
 }
 
 export const cone = (
-  radius: number,
-  height: number,
+  radius: number, // XZ-plane
+  height: number, // Y-axis.
   options: CircularShapeOptions = {},
 ) => {
   const finalOptions = {
@@ -723,25 +725,26 @@ export const cone = (
   const { circleSegments } = finalOptions
 
   const step = (2 * PI) / circleSegments
-  const tip = $v(0, 0, height)
+  const tip = $v(0, -height / 2, 0)
+  const upperCenter = $v(0, height / 2, 0)
 
   for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = $v(radius * cos(theta1), radius * sin(theta1), 0)
-    const p2 = $v(radius * cos(theta2), radius * sin(theta2), 0)
+    const p1 = $v(radius * cos(theta1), height / 2, radius * sin(theta1))
+    const p2 = $v(radius * cos(theta2), height / 2, radius * sin(theta2))
 
-    // Form 2 slices, one connecting the above two points on the perimeter to the cone tip
-    // and another to the cone center (origin).
+    // Form 2 slices, one connecting the above two points on the perimeter to the tip and
+    // another to the top center.
     triangle2d(p1, p2, tip, options)
-    triangle2d(p2, p1, ORIGIN, options)
+    triangle2d(p2, p1, upperCenter, options)
   }
 }
 
 export const cylinder = (
-  radius: number,
-  height: number,
+  radius: number, // XZ-plane
+  height: number, // Y-axis.
   options: CircularShapeOptions = {},
 ) => {
   const finalOptions = {
@@ -752,20 +755,21 @@ export const cylinder = (
   const { circleSegments } = finalOptions
 
   const step = (2 * PI) / circleSegments
-  const upperCenter = $v(0, 0, height)
+  const lowerCenter = $v(0, -height / 2, 0)
+  const upperCenter = $v(0, height / 2, 0)
 
   for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = $v(radius * sin(theta1), radius * cos(theta1), 0)
-    const p2 = $v(radius * sin(theta2), radius * cos(theta2), 0)
-    const upperP1 = p1.clone().add(0, 0, height)
-    const upperP2 = p2.clone().add(0, 0, height)
+    const p1 = $v(radius * sin(theta1), -height / 2, radius * cos(theta1))
+    const p2 = $v(radius * sin(theta2), -height / 2, radius * cos(theta2))
+    const upperP1 = p1.clone().add(0, height, 0)
+    const upperP2 = p2.clone().add(0, height, 0)
 
     quadrilateral2d(p1, p2, upperP2, upperP1, options)
 
-    triangle2d(p2, ORIGIN, p1, options)
+    triangle2d(p2, lowerCenter, p1, options)
     triangle2d(upperP2, upperCenter, upperP1, options)
   }
 }
@@ -785,19 +789,19 @@ export const render3dAxes = () => {
   const halfLength = AXIS_LENGTH / 2
 
   arrow(AXES['-x'].clone().mult(halfLength), AXES.x.clone().mult(halfLength), {
-    color: 'darkRed',
+    color: 'red',
     tipRadius: 5,
     tipHeight: 10,
   })
 
   arrow(AXES['-y'].clone().mult(halfLength), AXES.y.clone().mult(halfLength), {
-    color: 'darkGreen',
+    color: 'green',
     tipRadius: 5,
     tipHeight: 10,
   })
 
   arrow(AXES['-z'].clone().mult(halfLength), AXES.z.clone().mult(halfLength), {
-    color: 'darkBlue',
+    color: 'blue',
     tipRadius: 5,
     tipHeight: 10,
   })
