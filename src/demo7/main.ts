@@ -13,7 +13,14 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateX, cone, rotateY } from '../primitives.ts'
+import { rotateZ } from '../primitives.ts'
+import {
+  rotateX,
+  cone,
+  rotateY,
+  translate,
+  isolateTransformations,
+} from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -28,9 +35,67 @@ const draw = () => {
 
   render3dAxes()
 
-  cone(150, 450, {
-    color: 'gray',
-    opacity: 0.5,
+  const RADIUS = 100
+  const HEIGHT = 250
+  const OPACITY = 1
+
+  isolateTransformations(() => {
+    translate(0, HEIGHT / 2, 0)
+
+    cone(RADIUS, HEIGHT, {
+      color: 'orange',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(0, -HEIGHT / 2, 0)
+    rotateX(PI)
+
+    cone(RADIUS, HEIGHT, {
+      color: 'brown',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(HEIGHT / 2, 0, 0)
+    rotateZ(-PI / 2)
+
+    cone(RADIUS, HEIGHT, {
+      color: 'yellow',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(-HEIGHT / 2, 0, 0)
+    rotateZ(PI / 2)
+
+    cone(RADIUS, HEIGHT, {
+      color: 'pink',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(0, 0, HEIGHT / 2)
+    rotateX(PI / 2)
+
+    cone(RADIUS, HEIGHT, {
+      color: 'lime',
+      opacity: OPACITY,
+    })
+  })
+
+  isolateTransformations(() => {
+    translate(0, 0, -HEIGHT / 2)
+    rotateX(-PI / 2)
+
+    cone(RADIUS, HEIGHT, {
+      color: 'magenta',
+      opacity: OPACITY,
+    })
   })
 }
 
