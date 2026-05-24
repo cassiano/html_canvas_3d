@@ -1,5 +1,5 @@
 import { timesForEach, timesMap, timesReduce, togglePause } from './utils.ts'
-import { resetZoom } from './primitives.ts'
+import { resetZoom, setRenderNormals } from './primitives.ts'
 import {
   animation,
   addDragRotation,
@@ -106,6 +106,13 @@ async function loadDemo(demoPath: string) {
 
 timesForEach(DEMO_COUNT, i => {
   demoButtons[i].addEventListener('click', () => switchDemo(demoPaths[i]))
+})
+
+const renderNormalsCheckbox = document.getElementById(
+  'render-normals-checkbox',
+) as HTMLInputElement
+renderNormalsCheckbox.addEventListener('change', () => {
+  setRenderNormals(renderNormalsCheckbox.checked)
 })
 
 // Enable drag rotation on the canvas.

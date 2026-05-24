@@ -17,7 +17,7 @@ import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { abs, cos, min, PI, sin } from './math_utils.ts'
 import { NORMAL } from './constants.ts'
-import { ORIGIN, RENDER_NORMALS } from './constants.ts'
+import { ORIGIN } from './constants.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -69,6 +69,12 @@ export const render3dScene = () => {
 export const SCREEN_CENTER = $v(animation.width / 2, animation.height / 2, 0)
 
 const AXIS_LENGTH = min(animation.width, animation.height) * 0.65
+
+export let renderNormals = false
+
+export const setRenderNormals = (value: boolean) => {
+  renderNormals = value
+}
 
 export type transformationMatrix4x4Type = Tuple<Tuple<number, 4>, 4>
 
@@ -567,7 +573,7 @@ export const triangle2d = (
 
     shapeIsVisible = isShapeFacingCamera(centroid, normal)
 
-    if (RENDER_NORMALS)
+    if (renderNormals)
       if (shapeIsVisible && !neverRenderNormals) {
         arrow(
           centroid,
