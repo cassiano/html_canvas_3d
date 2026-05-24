@@ -1,5 +1,11 @@
 import { timesForEach, timesMap, timesReduce, togglePause } from './utils.ts'
-import { animation, addDragRotation, resetDragRotation } from './primitives.ts'
+import { resetZoom } from './primitives.ts'
+import {
+  animation,
+  addDragRotation,
+  resetDragRotation,
+  addZoom,
+} from './primitives.ts'
 
 ///////////////////////
 // AI-generated code //
@@ -151,7 +157,21 @@ animation.addEventListener('pointercancel', endPointerDrag)
 
 animation.addEventListener('dblclick', event => {
   event.preventDefault()
+
   resetDragRotation()
+  resetZoom()
+})
+
+// Enable pinch zoom via trackpad (Ctrl/Cmd + wheel).
+const ZOOM_SENSITIVITY = 0.0025
+
+animation.addEventListener('wheel', event => {
+  if (!(event.ctrlKey || event.metaKey)) return
+
+  event.preventDefault()
+
+  const zoomDelta = -event.deltaY * ZOOM_SENSITIVITY
+  addZoom(zoomDelta)
 })
 
 // Load demo1 by default

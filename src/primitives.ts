@@ -96,6 +96,7 @@ const cloneTransformationMatrix = (
   data.map(row => [...row]) as transformationMatrix4x4Type
 
 const dragRotation = $v(0, 0)
+let zoomLevel = 1
 
 export const setDragRotation = (x: number, y: number) => {
   dragRotation.x = x
@@ -108,11 +109,22 @@ export const addDragRotation = (x: number, y: number) => {
 
 export const resetDragRotation = () => setDragRotation(0, 0)
 
+export const setZoom = (z: number) => {
+  zoomLevel = z
+}
+
+export const addZoom = (delta: number) => {
+  zoomLevel += delta
+}
+
+export const resetZoom = () => setZoom(1)
+
 export const resetTransformationMatrix = () => {
   transformationMatrix = cloneTransformationMatrix(
     DEFAULT_TRANSFORMATION_MATRIX,
   )
 
+  scale(zoomLevel)
   rotateY(dragRotation.y)
   rotateX(dragRotation.x)
 }
