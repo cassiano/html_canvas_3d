@@ -16,7 +16,7 @@ import {
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { abs, cos, min, PI, sin } from './math_utils.ts'
-import { NORMAL } from './constants.ts'
+import { NORMAL, ARROW_DEFAULT_CIRCLE_SEGMENTS } from './constants.ts'
 import { ORIGIN } from './constants.ts'
 
 export const animation = document.getElementById(
@@ -401,15 +401,23 @@ export const point = (point3d: Vector3d, options: ShapeOptions = {}) => {
   })
 }
 
-type ArrowShapeOptions = ShapeOptions & { tipRadius: number; tipHeight: number }
+type ArrowShapeOptions = ShapeOptions & {
+  tipRadius: number
+  tipHeight: number
+  circleSegments?: number
+}
 
 export const arrow = (
   point3dA: Vector3d,
   point3dB: Vector3d,
   options: ArrowShapeOptions,
 ) => {
-  const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
-  const { tipRadius, tipHeight } = finalOptions
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: ARROW_DEFAULT_CIRCLE_SEGMENTS,
+    ...options,
+  }
+  const { tipRadius, tipHeight, circleSegments } = finalOptions
 
   isolateTransformations(() => {
     translate(point3dA)
@@ -431,7 +439,7 @@ export const arrow = (
     cone(tipRadius, tipHeight, {
       ...options,
       neverRenderNormals: true,
-      circleSegments: 10,
+      circleSegments,
       noStroke: true,
     })
   })
@@ -582,6 +590,7 @@ export const triangle2d = (
             color: NORMAL.color,
             tipHeight: NORMAL.tip.height,
             tipRadius: NORMAL.tip.radius,
+            circleSegments: NORMAL.tip.circleSegments,
           },
         )
       }
@@ -832,18 +841,21 @@ export const render3dAxes = () => {
     color: 'red',
     tipRadius: 5,
     tipHeight: 10,
+    circleSegments: 15,
   })
 
   arrow(AXES['-y'].clone().mult(halfLength), AXES.y.clone().mult(halfLength), {
     color: 'green',
     tipRadius: 5,
     tipHeight: 10,
+    circleSegments: 15,
   })
 
   arrow(AXES['-z'].clone().mult(halfLength), AXES.z.clone().mult(halfLength), {
     color: 'blue',
     tipRadius: 5,
     tipHeight: 10,
+    circleSegments: 15,
   })
 }
 
