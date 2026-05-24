@@ -95,7 +95,7 @@ const cloneTransformationMatrix = (
 ): transformationMatrix4x4Type =>
   data.map(row => [...row]) as transformationMatrix4x4Type
 
-const dragRotation = $v(0, 0, 0)
+const dragRotation = $v(0, 0)
 
 export const setDragRotation = (x: number, y: number) => {
   dragRotation.x = x
@@ -103,8 +103,7 @@ export const setDragRotation = (x: number, y: number) => {
 }
 
 export const addDragRotation = (x: number, y: number) => {
-  dragRotation.x += x
-  dragRotation.y += y
+  dragRotation.add(x, y)
 }
 
 export const resetDragRotation = () => setDragRotation(0, 0)
@@ -114,10 +113,8 @@ export const resetTransformationMatrix = () => {
     DEFAULT_TRANSFORMATION_MATRIX,
   )
 
-  if (!dragRotation.isAllZeros()) {
-    rotateY(dragRotation.y)
-    rotateX(dragRotation.x)
-  }
+  rotateY(dragRotation.y)
+  rotateX(dragRotation.x)
 }
 
 export const push = () => {
@@ -253,6 +250,8 @@ export const rotate = (
 
 // Counter-clockwise rotation around the X axis.
 export const rotateX = (angle: number) => {
+  if (angle === 0) return
+
   const c = cos(angle)
   const s = sin(angle)
 
@@ -274,6 +273,8 @@ export const rotateX = (angle: number) => {
 
 // Counter-clockwise rotation around the Y axis.
 export const rotateY = (angle: number) => {
+  if (angle === 0) return
+
   const c = cos(angle)
   const s = sin(angle)
 
@@ -298,6 +299,8 @@ export const rotateY = (angle: number) => {
 
 // Counter-clockwise rotation around the Z axis.
 export const rotateZ = (angle: number) => {
+  if (angle === 0) return
+
   const c = cos(angle)
   const s = sin(angle)
 

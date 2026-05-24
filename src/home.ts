@@ -128,11 +128,12 @@ animation.addEventListener('pointermove', event => {
 
   event.preventDefault()
 
-  const deltaX = event.clientX - lastPointerX
-  const deltaY = event.clientY - lastPointerY
+  const { clientX, clientY } = event
+  const deltaX = clientX - lastPointerX
+  const deltaY = clientY - lastPointerY
 
-  lastPointerX = event.clientX
-  lastPointerY = event.clientY
+  lastPointerX = clientX
+  lastPointerY = clientY
 
   addDragRotation(deltaY * ROTATION_SENSITIVITY, deltaX * ROTATION_SENSITIVITY)
 })
@@ -147,6 +148,7 @@ const endPointerDrag = (event: PointerEvent) => {
 
 animation.addEventListener('pointerup', endPointerDrag)
 animation.addEventListener('pointercancel', endPointerDrag)
+
 animation.addEventListener('dblclick', event => {
   event.preventDefault()
   resetDragRotation()
