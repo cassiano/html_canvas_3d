@@ -95,10 +95,29 @@ const cloneTransformationMatrix = (
 ): transformationMatrix4x4Type =>
   data.map(row => [...row]) as transformationMatrix4x4Type
 
+const dragRotation = $v(0, 0, 0)
+
+export const setDragRotation = (x: number, y: number) => {
+  dragRotation.x = x
+  dragRotation.y = y
+}
+
+export const addDragRotation = (x: number, y: number) => {
+  dragRotation.x += x
+  dragRotation.y += y
+}
+
+export const resetDragRotation = () => setDragRotation(0, 0)
+
 export const resetTransformationMatrix = () => {
   transformationMatrix = cloneTransformationMatrix(
     DEFAULT_TRANSFORMATION_MATRIX,
   )
+
+  if (!dragRotation.isAllZeros()) {
+    rotateY(dragRotation.y)
+    rotateX(dragRotation.x)
+  }
 }
 
 export const push = () => {

@@ -2,9 +2,8 @@
 // Colored Boxes Demo //
 ////////////////////////
 
-import { createFrameLoop, fps, millis, togglePause } from './../utils.ts'
+import { createFrameLoop, fps, millis } from './../utils.ts'
 import {
-  animation,
   background,
   box,
   isolateTransformations,
@@ -21,8 +20,6 @@ import {
 import { $v } from '../vector_3d.ts'
 import { PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
-
-animation.onclick = () => togglePause()
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })

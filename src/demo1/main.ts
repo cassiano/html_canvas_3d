@@ -3,9 +3,8 @@
 ////////////////////////////
 
 import { FPS } from '../constants.ts'
-import { createFrameLoop, fps, togglePause, millis } from '../utils.ts'
+import { createFrameLoop, fps, millis } from '../utils.ts'
 import {
-  animation,
   background,
   isolateTransformations,
   render3dScene,
@@ -30,8 +29,6 @@ const mover = new CubeSphereMover(10, 0, 300, 0, 100)
 const weight = gravity.clone().mult(mover.mass)
 
 // -------------------------------------------------------------------------------------------------
-
-animation.onclick = () => togglePause()
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })

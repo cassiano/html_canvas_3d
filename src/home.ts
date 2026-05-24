@@ -1,4 +1,5 @@
-import { timesForEach, timesMap, timesReduce } from './utils.ts'
+import { timesForEach, timesMap, timesReduce, togglePause } from './utils.ts'
+import { animation, addDragRotation, resetDragRotation } from './primitives.ts'
 
 ///////////////////////
 // AI-generated code //
@@ -60,6 +61,10 @@ function handleKeydown(event: KeyboardEvent) {
     event.preventDefault()
 
     switchDemo(demoPaths[+event.key - 1])
+  } else if (event.key.toLowerCase() === 'p') {
+    event.preventDefault()
+
+    togglePause()
   }
 }
 
@@ -95,6 +100,56 @@ async function loadDemo(demoPath: string) {
 
 timesForEach(DEMO_COUNT, i => {
   demoButtons[i].addEventListener('click', () => switchDemo(demoPaths[i]))
+})
+
+// Enable drag rotation on the canvas.
+const ROTATION_SENSITIVITY = 0.005
+let isDragging = false
+let activePointerId: number | null = null
+let lastPointerX = 0
+let lastPointerY = 0
+
+animation.style.touchAction = 'none'
+
+animation.addEventListener('pointerdown', event => {
+  if (event.button !== 0) return
+
+  event.preventDefault()
+  animation.setPointerCapture(event.pointerId)
+
+  isDragging = true
+  activePointerId = event.pointerId
+  lastPointerX = event.clientX
+  lastPointerY = event.clientY
+})
+
+animation.addEventListener('pointermove', event => {
+  if (!isDragging || event.pointerId !== activePointerId) return
+
+  event.preventDefault()
+
+  const deltaX = event.clientX - lastPointerX
+  const deltaY = event.clientY - lastPointerY
+
+  lastPointerX = event.clientX
+  lastPointerY = event.clientY
+
+  addDragRotation(deltaY * ROTATION_SENSITIVITY, deltaX * ROTATION_SENSITIVITY)
+})
+
+const endPointerDrag = (event: PointerEvent) => {
+  if (!isDragging || event.pointerId !== activePointerId) return
+
+  isDragging = false
+  activePointerId = null
+  animation.releasePointerCapture(event.pointerId)
+}
+
+animation.addEventListener('pointerup', endPointerDrag)
+animation.addEventListener('pointercancel', endPointerDrag)
+animation.addEventListener('dblclick', event => {
+  event.preventDefault()
+  resetDragRotation()
 })
 
 // Load demo1 by default

@@ -2,15 +2,8 @@
 // Jerusalem Cube Demo //
 /////////////////////////
 
+import { createFrameLoop, fps, millis, timesReduce } from './../utils.ts'
 import {
-  createFrameLoop,
-  fps,
-  millis,
-  timesReduce,
-  togglePause,
-} from './../utils.ts'
-import {
-  animation,
   background,
   render3dScene,
   radians,
@@ -93,8 +86,6 @@ const generateSentenceFn = memoize((generations: number) => {
 })
 
 // -------------------------------------------------------------------------------------------------
-
-animation.onclick = () => togglePause()
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })

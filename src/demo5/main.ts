@@ -3,9 +3,8 @@
 //////////////////////////
 
 import { FPS } from '../constants.ts'
-import { createFrameLoop, fps, millis, togglePause } from '../utils.ts'
+import { createFrameLoop, fps, millis } from '../utils.ts'
 import {
-  animation,
   background,
   render3dScene,
   render3dAxes,
@@ -18,8 +17,6 @@ import { PI } from '../math_utils.ts'
 import { sphere, rotateX, rotateZ } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
-
-animation.onclick = () => togglePause()
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
