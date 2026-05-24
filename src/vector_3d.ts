@@ -71,7 +71,7 @@ export class Vector3d {
     return this.normalize().mult(magnitude)
   }
 
-  add(x: number, y: number, z: number): Vector3d
+  add(x: number, y: number, z?: number): Vector3d
   add(anotherVector: Vector3d): Vector3d
   add(xOrAnotherVector: number | Vector3d, y?: number, z?: number): Vector3d {
     const anotherVector = this.inferAnotherVectorFromParams(
@@ -87,7 +87,7 @@ export class Vector3d {
     return this
   }
 
-  sub(x: number, y: number, z: number): Vector3d
+  sub(x: number, y: number, z?: number): Vector3d
   sub(anotherVector: Vector3d): Vector3d
   sub(xOrAnotherVector: number | Vector3d, y?: number, z?: number): Vector3d {
     const anotherVector = this.inferAnotherVectorFromParams(
@@ -118,7 +118,7 @@ export class Vector3d {
     return this.mult(1 / scalarValue)
   }
 
-  dot(x: number, y: number, z: number): number
+  dot(x: number, y: number, z?: number): number
   dot(anotherVector: Vector3d): number
   dot(xOrAnotherVector: number | Vector3d, y?: number, z?: number): number {
     const anotherVector = this.inferAnotherVectorFromParams(
@@ -134,7 +134,7 @@ export class Vector3d {
     )
   }
 
-  cross(x: number, y: number, z: number): Vector3d
+  cross(x: number, y: number, z?: number): Vector3d
   cross(anotherVector: Vector3d): Vector3d
   cross(xOrAnotherVector: number | Vector3d, y?: number, z?: number): Vector3d {
     const anotherVector = this.inferAnotherVectorFromParams(
@@ -150,7 +150,7 @@ export class Vector3d {
     )
   }
 
-  dist(x: number, y: number, z: number): number
+  dist(x: number, y: number, z?: number): number
   dist(anotherVector: Vector3d): number
   dist(xOrAnotherVector: number | Vector3d, y?: number, z?: number): number {
     const anotherVector = this.inferAnotherVectorFromParams(
@@ -162,7 +162,7 @@ export class Vector3d {
     return sqrt(this.distSq(anotherVector))
   }
 
-  distSq(x: number, y: number, z: number): number
+  distSq(x: number, y: number, z?: number): number
   distSq(anotherVector: Vector3d): number
   distSq(xOrAnotherVector: number | Vector3d, y?: number, z?: number): number {
     const anotherVector = this.inferAnotherVectorFromParams(
@@ -180,7 +180,7 @@ export class Vector3d {
     return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z
   }
 
-  equals(x: number, y: number, z: number): boolean
+  equals(x: number, y: number, z?: number): boolean
   equals(anotherVector: Vector3d): boolean
   equals(xOrAnotherVector: number | Vector3d, y?: number, z?: number): boolean {
     const anotherVector = this.inferAnotherVectorFromParams(
@@ -206,7 +206,7 @@ export class Vector3d {
 
   // Use the "Law of Cosines" to calculate the angle between the 2 vectors.
   // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221gYM9JH1RKYt1t5jEUHob3QixN68SKmZd%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-  angleBetween(x: number, y: number, z: number): number
+  angleBetween(x: number, y: number, z?: number): number
   angleBetween(anotherVector: Vector3d): number
   angleBetween(
     xOrAnotherVector: number | Vector3d,
@@ -231,7 +231,7 @@ export class Vector3d {
   }
 
   // https://p5js.org/reference/p5.Vector/lerp/
-  lerp(x: number, y: number, z: number, interpolationAmount?: number): Vector3d
+  lerp(x: number, y: number, z?: number, interpolationAmount?: number): Vector3d
   lerp(anotherVector: Vector3d, interpolationAmount?: number): Vector3d
   lerp(
     xOrAnotherVector: number | Vector3d,
@@ -289,7 +289,7 @@ export class Vector3d {
     z?: number,
   ) => {
     return typeof xOrAnotherVector === 'number'
-      ? $v(xOrAnotherVector, y!, z!) // 1st signature: (x, y, z)
+      ? $v(xOrAnotherVector, y!, z ?? 0) // 1st signature: (x, y, z?)
       : xOrAnotherVector // 2nd signature: (anotherVector)
   }
 }
