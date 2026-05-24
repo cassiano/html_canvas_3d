@@ -290,8 +290,8 @@ export const rotateY = (angle: number) => {
   const c = cos(angle)
   const s = sin(angle)
 
-  // Notice that in a Right-Handed System, Z precedes X, which flips the position of the sine components
-  // in the matrix relative to the x, z array indices.
+  // Notice that in a Right-Handed Rule (RHR) System, Z precedes X, which flips the position of the
+  // sine components in the matrix relative to the X and Z array indices.
   // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221MYF8XOCxzwwbRhGazZAHx-3ZUvSLI82I%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
   transformationMatrix = multiplyMatrices(
     transformationMatrix,
