@@ -14,7 +14,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateX, rotateZ, arrow } from '../primitives.ts'
+import { rotateX, arrow, rotateY } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -26,8 +26,8 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(-PI / 3)
-  rotateZ(-millis() / 2000)
+  rotateX(PI / 4)
+  rotateY(-millis() / 2000)
 
   render3dAxes()
 

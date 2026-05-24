@@ -14,7 +14,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateX, rotateZ, cylinder } from '../primitives.ts'
+import { rotateX, cylinder, rotateY } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -26,12 +26,12 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(-PI / 3)
-  rotateZ(-millis() / 2000)
+  rotateX(PI / 4)
+  rotateY(-millis() / 2000)
 
   render3dAxes()
 
-  cylinder(150, 230, {
+  cylinder(150, 450, {
     color: 'gray',
     opacity: 0.5,
   })
