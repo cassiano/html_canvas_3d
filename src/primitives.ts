@@ -780,13 +780,15 @@ export const cone = (
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = $v(radius * cos(theta1), height / 2, radius * sin(theta1))
-    const p2 = $v(radius * cos(theta2), height / 2, radius * sin(theta2))
+    // Notice that in a Right-Handed Rule (RHR) System, Z precedes X. This explains X using sine
+    // and Z using cosine.
+    const p1 = $v(radius * sin(theta1), height / 2, radius * cos(theta1))
+    const p2 = $v(radius * sin(theta2), height / 2, radius * cos(theta2))
 
     // Form 2 slices, one connecting the above two points on the perimeter to the tip and
-    // another to the top center.
-    triangle2d(p1, p2, tip, options)
-    triangle2d(p2, p1, upperCenter, options)
+    // another to the upper center.
+    triangle2d(p1, p2, upperCenter, options)
+    triangle2d(p2, p1, tip, options)
   }
 }
 
@@ -810,6 +812,8 @@ export const cylinder = (
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
+    // Notice that in a Right-Handed Rule (RHR) System, Z precedes X. This explains X using sine
+    // and Z using cosine.
     const p1 = $v(radius * sin(theta1), -height / 2, radius * cos(theta1))
     const p2 = $v(radius * sin(theta2), -height / 2, radius * cos(theta2))
     const upperP1 = p1.clone().add(0, height, 0)
