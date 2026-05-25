@@ -37,7 +37,7 @@ const draw = () => {
     scale(0.5)
     scale(0.5)
 
-    box(100, 40, 250, { color: 'green' })
+    box(100, 40, 250, { color: 'darkGreen' })
   })
 
   // Blue box.
@@ -45,7 +45,7 @@ const draw = () => {
     translate(100, -100, 0)
     translate(100, -100, 0)
 
-    box(100, 40, 250, { color: 'blue' })
+    box(100, 40, 250, { color: 'darkBlue' })
   })
 
   // Red box.
@@ -53,7 +53,7 @@ const draw = () => {
     rotateZ(millis() / 2000)
     translate(0, 150, 0)
 
-    box(100, 40, 250, { color: 'red' })
+    box(100, 40, 250, { color: 'darkRed' })
   })
 
   // Orange box.
