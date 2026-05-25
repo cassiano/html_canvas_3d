@@ -25,9 +25,9 @@ import {
 // -------------------------------------------------------------------------------------------------
 
 const RADIUS = 100
-const HEIGHT = 125
+const HEIGHT = 150
 const OPACITY = 1
-const OFFSET = 125
+const OFFSET = 100
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
