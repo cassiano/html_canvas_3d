@@ -6,6 +6,7 @@ import {
   resetDragRotation,
   addZoom,
 } from './primitives.ts'
+import { min } from './math_utils.ts'
 
 ///////////////////////
 // AI-generated code //
@@ -15,7 +16,7 @@ const canvasContainer = document.getElementById(
   'canvas-container',
 ) as HTMLDivElement
 
-const DEMO_COUNT = 9
+const DEMO_COUNT = 10
 const DEFAULT_DEMO = 1 // Starting with 1.
 
 const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.js`)
@@ -63,7 +64,7 @@ function handleKeydown(event: KeyboardEvent) {
     event.preventDefault()
 
     navigateDemo(1)
-  } else if (+event.key >= 1 && +event.key <= DEMO_COUNT) {
+  } else if (+event.key >= 1 && +event.key <= min(DEMO_COUNT, 9)) {
     event.preventDefault()
 
     switchDemo(demoPaths[+event.key - 1])
