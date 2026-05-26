@@ -33,10 +33,9 @@ const noise = new PerlinNoise({
 const randomCoords = timesMapN(NOISE_DIMENSIONS, (i, j) => {
   const x = i / NOISE_DIMENSIONS[0] // 0 < x < 1
   const y = j / NOISE_DIMENSIONS[1] // 0 < y < 1
+  const z = noise.noise([x, y]) // -1 < x < 1
 
-  const k = noise.noise([x, y]) // -1 < x < 1
-
-  return { x, y, z: k }
+  return { x, y, z }
 })
 
 const draw = () => {
