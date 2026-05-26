@@ -908,3 +908,25 @@ const calculateZ = (point3d: Vector3d): number => {
     thirdRow[3] * FOURTH_DIMENSION_COORD
   )
 }
+
+export const project = (
+  value: number,
+  start1: number,
+  stop1: number,
+  start2: number,
+  stop2: number,
+  withinBounds = false,
+) => {
+  if (withinBounds) {
+    if (start1 <= stop1) {
+      if (value <= start1) return start2
+      else if (value >= stop1) return stop2
+    } else if (value >= start1) {
+      return start2
+    } else if (value <= stop1) {
+      return stop2
+    }
+  }
+
+  return ((value - start1) / (stop1 - start1)) * (stop2 - start2) + start2
+}

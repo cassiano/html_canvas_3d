@@ -10,6 +10,7 @@ import {
   render3dAxes,
   resetTransformationMatrix,
   text2d,
+  project,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
@@ -31,11 +32,11 @@ const noise = new PerlinNoise({
   gridSize: NOISE_DIMENSIONS, // 2d grid
 })
 
-const noiseValues = timesMapN(NOISE_DIMENSIONS, (i, j) => {
+const randomCoords = timesMapN(NOISE_DIMENSIONS, (i, j) => {
   const x = i / NOISE_DIMENSIONS[0] // 0 ≤ x ≤ 1
   const y = j / NOISE_DIMENSIONS[1] // 0 ≤ y ≤ 1
 
-  const k = noise.noise([x, y])
+  const k = noise.noise([x, y]) // -1 ≤ x ≤ 1
 
   return { x, y, z: k }
 })
@@ -53,29 +54,29 @@ const draw = () => {
 
   for (let i = 0; i < NOISE_DIMENSIONS[0] - 1; i++) {
     for (let j = 0; j < NOISE_DIMENSIONS[1] - 1; j++) {
-      const { x: xA, y: yA, z: zA } = noiseValues[i][j]
-      const { x: xB, y: yB, z: zB } = noiseValues[i + 1][j]
-      const { x: xC, y: yC, z: zC } = noiseValues[i + 1][j + 1]
-      const { x: xD, y: yD, z: zD } = noiseValues[i][j + 1]
+      const { x: xA, y: yA, z: zA } = randomCoords[i][j]
+      const { x: xB, y: yB, z: zB } = randomCoords[i + 1][j]
+      const { x: xC, y: yC, z: zC } = randomCoords[i + 1][j + 1]
+      const { x: xD, y: yD, z: zD } = randomCoords[i][j + 1]
 
       const pointA = $v(
-        (xA * 2 - 1) * GRID_WIDTH,
-        (yA * 2 - 1) * GRID_HEIGHT,
+        project(xA, 0, 1, -GRID_WIDTH, GRID_WIDTH),
+        project(yA, 0, 1, -GRID_HEIGHT, GRID_HEIGHT),
         zA * GRID_DEPTH,
       )
       const pointB = $v(
-        (xB * 2 - 1) * GRID_WIDTH,
-        (yB * 2 - 1) * GRID_HEIGHT,
+        project(xB, 0, 1, -GRID_WIDTH, GRID_WIDTH),
+        project(yB, 0, 1, -GRID_HEIGHT, GRID_HEIGHT),
         zB * GRID_DEPTH,
       )
       const pointC = $v(
-        (xC * 2 - 1) * GRID_WIDTH,
-        (yC * 2 - 1) * GRID_HEIGHT,
+        project(xC, 0, 1, -GRID_WIDTH, GRID_WIDTH),
+        project(yC, 0, 1, -GRID_HEIGHT, GRID_HEIGHT),
         zC * GRID_DEPTH,
       )
       const pointD = $v(
-        (xD * 2 - 1) * GRID_WIDTH,
-        (yD * 2 - 1) * GRID_HEIGHT,
+        project(xD, 0, 1, -GRID_WIDTH, GRID_WIDTH),
+        project(yD, 0, 1, -GRID_HEIGHT, GRID_HEIGHT),
         zD * GRID_DEPTH,
       )
 
