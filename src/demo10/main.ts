@@ -3,7 +3,13 @@
 //////////////////////////
 
 import { FPS } from '../constants.ts'
-import { createFrameLoop, fps, timesMapN, millis } from '../utils.ts'
+import {
+  createFrameLoop,
+  fps,
+  timesMapN,
+  millis,
+  frameCount,
+} from '../utils.ts'
 import {
   background,
   render3dScene,
@@ -18,25 +24,20 @@ import { rotateX } from '../primitives.ts'
 
 import { PerlinNoise } from '@arvarus/perlin-noise'
 import { rotateZ, quadrilateral2d } from '../primitives.ts'
+import { Tuple } from '../utility_types.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const NOISE_DIMENSIONS = [64, 64] as [number, number]
+const NOISE_DIMENSIONS = [50, 50, 1000] as Tuple<number, 3>
 
-const GRID = { width: 500, height: 500, depth: 500 }
+const GRID = { width: 500, height: 500, depth: 400 }
 
 const noise = new PerlinNoise({
   // seed: 123,
   gridSize: NOISE_DIMENSIONS, // 2d grid
 })
 
-const randomCoords = timesMapN(NOISE_DIMENSIONS, (i, j) => {
-  const x = i / NOISE_DIMENSIONS[0] // 0 < x < 1
-  const y = j / NOISE_DIMENSIONS[1] // 0 < y < 1
-  const z = noise.noise([x, y]) // -1 < x < 1
-
-  return { x, y, z }
-})
+let step = 0
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
@@ -45,9 +46,26 @@ const draw = () => {
   background('lightGray')
 
   rotateX(-PI / 2 + PI / 9)
-  rotateZ(millis() / 2000)
+  rotateZ(millis() / 5000)
 
   render3dAxes()
+
+  const zOffset = frameCount() % NOISE_DIMENSIONS[2]
+
+  if (zOffset < NOISE_DIMENSIONS[2] / 2) step = 0
+  else if (zOffset === NOISE_DIMENSIONS[2] / 2) step = -1
+  else step -= 2
+
+  const randomCoords = timesMapN(
+    NOISE_DIMENSIONS.slice(0, 2) as [number, number],
+    (i, j) => {
+      const x = i / NOISE_DIMENSIONS[0] // 0 < x < 1
+      const y = j / NOISE_DIMENSIONS[1] // 0 < y < 1
+      const z = noise.noise([x, y, (zOffset + step) / 500]) // -1 < z < 1
+
+      return { x, y, z }
+    },
+  )
 
   for (let i = 0; i < NOISE_DIMENSIONS[0] - 1; i++) {
     for (let j = 0; j < NOISE_DIMENSIONS[1] - 1; j++) {
@@ -79,7 +97,7 @@ const draw = () => {
 
       quadrilateral2d(pointA, pointB, pointC, pointD, {
         isDoubleSided: true,
-        color: 'white',
+        color: j % 2 === 0 ? 'white' : 'red',
       })
     }
   }
