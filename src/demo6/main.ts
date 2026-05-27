@@ -33,7 +33,7 @@ const draw = () => {
   rotate(PI / 4, $v(1, 1, 1))
 
   circle2d(200, {
-    color: 'gray',
+    color: 'teal',
     isDoubleSided: true,
     opacity: 1,
   })
