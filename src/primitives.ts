@@ -26,10 +26,10 @@ export const animation = document.getElementById(
 export const ctx = animation.getContext('2d')!
 
 export interface ShapeOptions {
-  color?: string
+  color?: string | CanvasGradient | CanvasPattern
   lineWidth?: number
   opacity?: number
-  strokeColor?: string
+  strokeColor?: string | CanvasGradient | CanvasPattern
   noStroke?: boolean
   size?: number
   noSplit?: boolean
@@ -548,7 +548,7 @@ export const triangle2d = (
 
     ctx.save()
     ctx.globalAlpha = opacity //  Set transparency
-    ctx.fillStyle = color
+    ctx.fillStyle = color // https://developer.mozilla.org/pt-BR/docs/Web/CSS/Reference/Values/color_value
 
     if (!noStroke) {
       ctx.strokeStyle = strokeColor
