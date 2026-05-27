@@ -1,5 +1,5 @@
 import { timesMapN } from '../utils.ts'
-import { map, quadrilateral2d } from '../primitives.ts'
+import { map, quadrilateral } from '../primitives.ts'
 import { perlin } from '../perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
 import { floor } from '../math_utils.ts'
@@ -50,7 +50,7 @@ export class Terrain {
         )
         const pointD = $v(x, y + this.cellSize, this.z[col][row + 1])
 
-        quadrilateral2d(pointA, pointB, pointC, pointD, {
+        quadrilateral(pointA, pointB, pointC, pointD, {
           isDoubleSided: true,
           color: col % 2 === 0 ? 'white' : 'red',
         })

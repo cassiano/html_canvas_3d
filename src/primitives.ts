@@ -619,7 +619,7 @@ const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
   return !pointInSameDirection
 }
 
-export const quadrilateral2d = (
+export const quadrilateral = (
   point2dA: Vector3d,
   point2dB: Vector3d,
   point2dC: Vector3d,
@@ -640,7 +640,7 @@ export const rect2d = (
   const point2dC = $v(width / 2, height / 2)
   const point2dD = $v(-width / 2, height / 2)
 
-  quadrilateral2d(point2dA, point2dB, point2dC, point2dD, options)
+  quadrilateral(point2dA, point2dB, point2dC, point2dD, options)
 }
 
 export const square2d = (side: number, options: ShapeOptions = {}) => {
@@ -728,7 +728,7 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
       const p3 = getPoint(latIndex + 1, longIndex + 1)
       const p4 = getPoint(latIndex + 1, longIndex)
 
-      quadrilateral2d(p1, p2, p3, p4, options)
+      quadrilateral(p1, p2, p3, p4, options)
     })
   })
 }
@@ -819,7 +819,7 @@ export const cylinder = (
     const upperP1 = p1.clone().add(0, height, 0)
     const upperP2 = p2.clone().add(0, height, 0)
 
-    quadrilateral2d(p1, p2, upperP2, upperP1, options)
+    quadrilateral(p1, p2, upperP2, upperP1, options)
 
     triangle2d(p2, p1, lowerCenter, options)
     triangle2d(upperP1, upperP2, upperCenter, options)
