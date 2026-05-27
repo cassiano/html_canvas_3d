@@ -7,7 +7,7 @@ import { floor } from '../math_utils.ts'
 export class Terrain {
   rows: number
   cols: number
-  z: number[][]
+  z: number[][] = []
 
   constructor(
     public tileSize: number,
@@ -18,8 +18,6 @@ export class Terrain {
   ) {
     this.rows = floor(terrainHeight / tileSize)
     this.cols = floor(terrainWidth / tileSize)
-
-    this.z = []
   }
 
   calculate(zOffset: number) {
