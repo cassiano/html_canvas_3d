@@ -14,7 +14,7 @@ export class Terrain {
     public terrainWidth: number,
     public terrainHeight: number,
     public maxDepth: number,
-    public step: number,
+    public smoothiness: number,
   ) {
     this.rows = floor(terrainHeight / cellSize)
     this.cols = floor(terrainWidth / cellSize)
@@ -25,7 +25,7 @@ export class Terrain {
   calculate(zOffset: number) {
     this.z = timesMapN([this.cols, this.rows], (col, row) =>
       map(
-        perlin.noise(col / this.step, row / this.step, zOffset),
+        perlin.noise(col / this.smoothiness, row / this.smoothiness, zOffset),
         0,
         1,
         -this.maxDepth,
