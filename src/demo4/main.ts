@@ -20,7 +20,7 @@ import { LSystem } from './l_system.ts'
 import { Turtle } from './turtle.ts'
 import { memoize } from '@cdandrea/memoize-ts'
 import { frameCount } from '../utils.ts'
-import { FRAMES_BEFORE_LOGGING_FPS } from '../constants.ts'
+import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 
 const SQUARE_SIDES = 4
 
@@ -91,7 +91,7 @@ const generateSentenceFn = memoize((generations: number) => {
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
-  if (frameCount() % FRAMES_BEFORE_LOGGING_FPS === 0)
+  if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
     console.log({ fps: fps() })
 
   background('lightGray')

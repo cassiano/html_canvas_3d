@@ -1,7 +1,7 @@
 import { $v } from './vector_3d.ts'
 
 export const FPS = 120
-export const FRAMES_BEFORE_LOGGING_FPS = 30
+export const FPS_LOGGING_FRAME_FREQUENCY = 30
 export const FOCAL_LENGTH = 400
 export const FPS_WINDOW = 100
 export const LINE_SEGMENTS = 20
