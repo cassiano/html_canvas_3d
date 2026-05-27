@@ -1,9 +1,9 @@
-//////////////////////////
-// Rotating Sphere Demo //
-//////////////////////////
+////////////////
+// Cones Demo //
+////////////////
 
-import { FPS } from '../constants.ts'
-import { createFrameLoop, fps, millis } from '../utils.ts'
+import { FPS, FRAMES_BEFORE_LOGGING_FPS } from '../constants.ts'
+import { createFrameLoop, fps, millis, frameCount } from '../utils.ts'
 import {
   background,
   render3dScene,
@@ -30,7 +30,8 @@ const OPACITY = 1
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
-  console.log({ fps: fps() })
+  if (frameCount() % FRAMES_BEFORE_LOGGING_FPS === 0)
+    console.log({ fps: fps() })
 
   background('lightGray')
 

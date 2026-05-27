@@ -20,10 +20,13 @@ import {
 import { $v } from '../vector_3d.ts'
 import { PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
+import { frameCount } from '../utils.ts'
+import { FRAMES_BEFORE_LOGGING_FPS } from '../constants.ts'
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
-  console.log({ fps: fps() })
+  if (frameCount() % FRAMES_BEFORE_LOGGING_FPS === 0)
+    console.log({ fps: fps() })
 
   background('lightGray')
 

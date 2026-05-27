@@ -17,6 +17,8 @@ import { $v } from '../vector_3d.ts'
 import { sin } from './../math_utils.ts'
 import { RubikCube } from './rubik_cube.ts'
 import { CUBIE_SIZE, CUBIES_PER_AXIS } from './constants.ts'
+import { frameCount } from '../utils.ts'
+import { FRAMES_BEFORE_LOGGING_FPS } from '../constants.ts'
 
 const cube = new RubikCube(CUBIE_SIZE, CUBIES_PER_AXIS)
 
@@ -24,7 +26,8 @@ const cube = new RubikCube(CUBIE_SIZE, CUBIES_PER_AXIS)
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
-  console.log({ fps: fps() })
+  if (frameCount() % FRAMES_BEFORE_LOGGING_FPS === 0)
+    console.log({ fps: fps() })
 
   background('lightGray')
 
