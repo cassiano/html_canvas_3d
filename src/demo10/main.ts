@@ -30,7 +30,7 @@ const draw = () => {
 
   render3dAxes()
 
-  terrain.calculate(frameCount() / 200)
+  terrain.calculate(frameCount() / 300)
   terrain.render()
 }
 
