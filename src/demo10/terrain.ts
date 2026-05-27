@@ -3,6 +3,7 @@ import { map, quadrilateral2d } from '../primitives.ts'
 import { perlin } from '../perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
 import { floor } from '../math_utils.ts'
+
 export class Terrain {
   rows: number
   cols: number
