@@ -10,14 +10,14 @@ export class Terrain {
   z: number[][]
 
   constructor(
-    public cellSize: number,
+    public tileSize: number,
     public terrainWidth: number,
     public terrainHeight: number,
     public maxDepth: number,
     public smoothiness: number,
   ) {
-    this.rows = floor(terrainHeight / cellSize)
-    this.cols = floor(terrainWidth / cellSize)
+    this.rows = floor(terrainHeight / tileSize)
+    this.cols = floor(terrainWidth / tileSize)
 
     this.z = []
   }
@@ -37,18 +37,18 @@ export class Terrain {
   render() {
     for (let row = 0; row < this.rows - 1; row++) {
       for (let col = 0; col < this.cols - 1; col++) {
-        const x = col * this.cellSize - this.terrainWidth / 2
-        const y = row * this.cellSize - this.terrainHeight / 2
+        const x = col * this.tileSize - this.terrainWidth / 2
+        const y = row * this.tileSize - this.terrainHeight / 2
         const z = this.z[col][row]
 
         const pointA = $v(x, y, z)
-        const pointB = $v(x + this.cellSize, y, this.z[col + 1][row])
+        const pointB = $v(x + this.tileSize, y, this.z[col + 1][row])
         const pointC = $v(
-          x + this.cellSize,
-          y + this.cellSize,
+          x + this.tileSize,
+          y + this.tileSize,
           this.z[col + 1][row + 1],
         )
-        const pointD = $v(x, y + this.cellSize, this.z[col][row + 1])
+        const pointD = $v(x, y + this.tileSize, this.z[col][row + 1])
 
         quadrilateral(pointA, pointB, pointC, pointD, {
           isDoubleSided: true,
