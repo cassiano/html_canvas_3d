@@ -1,4 +1,4 @@
-import { timesMapN } from '../utils.ts'
+import { timesMapN, millis } from '../utils.ts'
 import { map, quadrilateral } from '../primitives.ts'
 import { perlin } from '../perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
@@ -50,10 +50,16 @@ export class Terrain {
         )
         const pointD = $v(x, y + this.tileSize, this.z[col][row + 1])
 
+        const hue = millis() / 100 // [0, 360]
+        const saturation = 80 // [0, 100]
+        const lightness =
+          row % 2 === 0 ? 100 : map(z, -this.maxDepth, this.maxDepth, 0, 100) // [0, 100]
+
+        const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`
+
         quadrilateral(pointA, pointB, pointC, pointD, {
           isDoubleSided: true,
-          color:
-            (row - col) % 3 === 0 && (row + col) % 2 === 0 ? 'red' : 'white',
+          color,
         })
       }
     }
