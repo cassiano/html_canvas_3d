@@ -52,7 +52,8 @@ export class Terrain {
 
         quadrilateral(pointA, pointB, pointC, pointD, {
           isDoubleSided: true,
-          color: col % 2 === 0 ? 'white' : 'red',
+          color:
+            (row - col) % 3 === 0 && (row + col) % 2 === 0 ? 'red' : 'white',
         })
       }
     }
