@@ -909,7 +909,7 @@ const calculateZ = (point3d: Vector3d): number => {
   )
 }
 
-export const project = (
+export const map = (
   value: number,
   start1: number,
   stop1: number,

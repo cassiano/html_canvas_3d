@@ -11,4 +11,5 @@ export const {
   asin,
   atan,
   sign,
+  floor,
 } = Math
