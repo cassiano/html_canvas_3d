@@ -4,7 +4,7 @@
 // AI-generated code //
 ///////////////////////
 
-class Perlin {
+class PerlinNoise {
   private p: Uint8Array
 
   constructor() {
@@ -117,4 +117,4 @@ class Perlin {
 }
 
 // Export a singleton instance similar to how p5 provides it globally
-export const perlin = new Perlin()
+export const perlin = new PerlinNoise()
