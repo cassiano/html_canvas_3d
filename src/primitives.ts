@@ -507,9 +507,9 @@ export const line = (
 }
 
 export const triangle2d = (
-  point2dA: Vector3d,
-  point2dB: Vector3d,
-  point2dC: Vector3d,
+  pointA: Vector3d,
+  pointB: Vector3d,
+  pointC: Vector3d,
   options: ShapeOptions = {},
 ) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
@@ -523,9 +523,9 @@ export const triangle2d = (
     neverRenderNormals,
   } = finalOptions
 
-  const screenA = toScreen(point2dA)
-  const screenB = toScreen(point2dB)
-  const screenC = toScreen(point2dC)
+  const screenA = toScreen(pointA)
+  const screenB = toScreen(pointB)
+  const screenC = toScreen(pointC)
 
   // Skip rendering if any point is behind camera.
   if (!screenA || !screenB || !screenC) return
@@ -561,17 +561,17 @@ export const triangle2d = (
   }
 
   const centroid = $v(
-    (point2dA.x + point2dB.x + point2dC.x) / 3,
-    (point2dA.y + point2dB.y + point2dC.y) / 3,
-    (point2dA.z + point2dB.z + point2dC.z) / 3,
+    (pointA.x + pointB.x + pointC.x) / 3,
+    (pointA.y + pointB.y + pointC.y) / 3,
+    (pointA.z + pointB.z + pointC.z) / 3,
   )
 
   let shapeIsVisible = true
 
   // https://pt.wikipedia.org/wiki/Back-face_culling
   if (!isDoubleSided && opacity === 1) {
-    const vectorAB = point2dB.clone().sub(point2dA)
-    const vectorAC = point2dC.clone().sub(point2dA)
+    const vectorAB = pointB.clone().sub(pointA)
+    const vectorAC = pointC.clone().sub(pointA)
     const crossProduct = vectorAB.cross(vectorAC)
 
     // Bypass face culling when line segments AB and AC are perfectly aligned.
@@ -620,14 +620,14 @@ const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
 }
 
 export const quadrilateral = (
-  point2dA: Vector3d,
-  point2dB: Vector3d,
-  point2dC: Vector3d,
-  point2dD: Vector3d,
+  pointA: Vector3d,
+  pointB: Vector3d,
+  pointC: Vector3d,
+  pointD: Vector3d,
   options: ShapeOptions = {},
 ) => {
-  triangle2d(point2dA, point2dB, point2dC, options)
-  triangle2d(point2dA, point2dC, point2dD, options)
+  triangle2d(pointA, pointB, pointC, options)
+  triangle2d(pointA, pointC, pointD, options)
 }
 
 export const rect2d = (
@@ -710,8 +710,8 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
   const latSegments = SPHERE_LATITUDE_LINES + 1
 
   const getPoint = (latIndex: number, longIndex: number): Vector3d => {
-    const latAngle = (latIndex / latSegments) * PI // 0 ≤ latitude ≤ PI
-    const longAngle = (longIndex / longSegments) * 2 * PI // 0 ≤ longitude ≤ 2.PI
+    const latAngle = (latIndex / latSegments) * PI // [0, PI]
+    const longAngle = (longIndex / longSegments) * 2 * PI // [0, 2.PI]
 
     // RHR Mapping:
     return $v(
