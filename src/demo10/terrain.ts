@@ -39,14 +39,18 @@ export class Terrain {
         const y = row * this.tileSize - this.height / 2
         const z = this.z[col][row]
 
-        const pointA = $v(x, y, z)
-        const pointB = $v(x + this.tileSize, y, this.z[col + 1][row])
-        const pointC = $v(
-          x + this.tileSize,
-          y + this.tileSize,
-          this.z[col + 1][row + 1],
-        )
-        const pointD = $v(x, y + this.tileSize, this.z[col][row + 1])
+        const nextX = x + this.tileSize
+        const nextY = y + this.tileSize
+
+        const z00 = z
+        const z10 = this.z[col + 1][row]
+        const z11 = this.z[col + 1][row + 1]
+        const z01 = this.z[col][row + 1]
+
+        const pointA = $v(x, y, z00)
+        const pointB = $v(nextX, y, z10)
+        const pointC = $v(nextX, nextY, z11)
+        const pointD = $v(x, nextY, z01)
 
         const hue = millis() / 100 // [0, 360]
         const saturation = 100 // [0, 100]
