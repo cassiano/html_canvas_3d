@@ -859,11 +859,6 @@ export const render3dAxes = () => {
   })
 }
 
-export const inverseMultiplyMatrices = (
-  leftMatrix: number[][],
-  rightMatrix: number[][],
-): number[][] => multiplyMatrices(rightMatrix, leftMatrix)
-
 const calculateZ = (point3d: Vector3d): number => {
   const thirdRow = transformationMatrix[2]
 

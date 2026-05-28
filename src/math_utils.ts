@@ -69,3 +69,8 @@ export const multiplyMatrices = (
 
   return result
 }
+
+export const inverseMultiplyMatrices = (
+  leftMatrix: number[][],
+  rightMatrix: number[][],
+): number[][] => multiplyMatrices(rightMatrix, leftMatrix)
