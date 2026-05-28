@@ -30,8 +30,6 @@ export class CubieFace {
   }
 
   render() {
-    // if (!this.cubie.position.equals(3, 3, 3)) return
-
     isolateTransformations(() => {
       translate(this.center)
 

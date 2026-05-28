@@ -9,6 +9,9 @@ import {
   FACES_PER_CUBIE,
 } from './constants.ts'
 import { RubikCube } from './rubik_cube.ts'
+import { rotateX, rotateY, rotateZ } from '../primitives.ts'
+import { millis } from '../utils.ts'
+import { ROTATE_CUBIE_FACES } from './constants.ts'
 
 export class Cubie {
   position: Vector3d
@@ -40,18 +43,20 @@ export class Cubie {
     isolateTransformations(() => {
       translate(this.center)
 
-      // rotateX(
-      //   ((this.position.x + this.position.y + this.position.z) * millis()) /
-      //     10000,
-      // )
-      // rotateY(
-      //   ((this.position.x - this.position.y + this.position.z) * millis()) /
-      //     10000,
-      // )
-      // rotateZ(
-      //   ((this.position.x + this.position.y - this.position.z) * millis()) /
-      //     10000,
-      // )
+      if (ROTATE_CUBIE_FACES) {
+        rotateX(
+          ((this.position.x + this.position.y + this.position.z) * millis()) /
+            5000,
+        )
+        rotateY(
+          ((this.position.x - this.position.y + this.position.z) * millis()) /
+            5000,
+        )
+        rotateZ(
+          ((this.position.x + this.position.y - this.position.z) * millis()) /
+            5000,
+        )
+      }
 
       this.faces.forEach(face => face.render())
     })

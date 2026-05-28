@@ -22,7 +22,5 @@ export class RubikCube {
 
   render() {
     this.cubies.forEach(cubie => cubie.render())
-
-    // cube(this.cubieSize * this.cubiesPerAxis)
   }
 }

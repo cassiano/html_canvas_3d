@@ -8,6 +8,7 @@ export const FACES_PER_CUBIE = 6
 export const CUBIE_SIZE = 25
 export const CUBIE_SPACING = 25
 export const CUBIES_PER_AXIS = 7
+export const ROTATE_CUBIE_FACES = false
 
 export const FACES: Record<string, number> = {
   front: 0,
