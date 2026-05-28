@@ -2,7 +2,7 @@ import { timesMapN, millis } from '../utils.ts'
 import { map, quadrilateral } from '../primitives.ts'
 import { perlin } from '../perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
-import { cos, floor, sin } from '../math_utils.ts'
+import { floor } from '../math_utils.ts'
 
 export class Terrain {
   rows: number
@@ -49,11 +49,8 @@ export class Terrain {
         const pointD = $v(x, y + this.tileSize, this.z[col][row + 1])
 
         const hue = millis() / 100 // [0, 360]
-        const saturation = 80 // [0, 100]
-        const lightness =
-          sin(row) + cos(col) < 0
-            ? map(z, -this.maxDepth, this.maxDepth, 90, 100)
-            : map(z, -this.maxDepth, this.maxDepth, 0, 90) // [0, 100]
+        const saturation = 100 // [0, 100]
+        const lightness = map(z, -this.maxDepth, this.maxDepth, 0, 110) // [0, 100]
 
         const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`
 
