@@ -15,7 +15,7 @@ import {
 } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
-import { abs, cos, min, PI, sin } from './math_utils.ts'
+import { abs, cos, min, PI, sin, multiplyMatrices } from './math_utils.ts'
 import { NORMAL, ARROW_DEFAULT_CIRCLE_SEGMENTS } from './constants.ts'
 import { ORIGIN } from './constants.ts'
 
@@ -157,9 +157,6 @@ export const isolateTransformations = (fn: () => void) => {
 }
 
 export const restoreCoordinateSystem = isolateTransformations // Synonym for `isolateTransformations()`.
-
-export const radians = (degrees: number) => (degrees / 360) * (2 * PI)
-export const degrees = (radians: number) => (radians / (2 * PI)) * 360
 
 interface ScaleOverloadedSignatures {
   (x: number, y: number, z: number): void
@@ -862,37 +859,6 @@ export const render3dAxes = () => {
   })
 }
 
-export const multiplyMatrices = (
-  leftMatrix: number[][],
-  rightMatrix: number[][],
-): number[][] => {
-  const colsLeft = leftMatrix[0].length
-  const colsRight = rightMatrix[0].length
-  const rowsLeft = leftMatrix.length
-  const rowsRight = rightMatrix.length
-
-  if (colsLeft !== rowsRight)
-    throw new Error(
-      `Number of columns from left matrix (${colsLeft}) must match number of rows from right one (${rowsRight})`,
-    )
-
-  const result: number[][] = []
-
-  for (let row = 0; row < rowsLeft; row++) {
-    result[row] = []
-
-    for (let col = 0; col < colsRight; col++) {
-      result[row][col] = 0
-
-      // colsLeft = rowsRight
-      for (let i = 0; i < colsLeft; i++)
-        result[row][col] += leftMatrix[row][i] * rightMatrix[i][col]
-    }
-  }
-
-  return result
-}
-
 export const inverseMultiplyMatrices = (
   leftMatrix: number[][],
   rightMatrix: number[][],
@@ -907,26 +873,4 @@ const calculateZ = (point3d: Vector3d): number => {
     thirdRow[2] * point3d.z +
     thirdRow[3] * FOURTH_DIMENSION_COORD
   )
-}
-
-export const map = (
-  value: number,
-  start1: number,
-  stop1: number,
-  start2: number,
-  stop2: number,
-  withinBounds = false,
-) => {
-  if (withinBounds) {
-    if (start1 <= stop1) {
-      if (value <= start1) return start2
-      else if (value >= stop1) return stop2
-    } else if (value >= start1) {
-      return start2
-    } else if (value <= stop1) {
-      return stop2
-    }
-  }
-
-  return ((value - start1) / (stop1 - start1)) * (stop2 - start2) + start2
 }

@@ -1,8 +1,8 @@
 import { timesMapN, millis } from '../utils.ts'
-import { map, quadrilateral } from '../primitives.ts'
+import { quadrilateral } from '../primitives.ts'
 import { perlin } from '../perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
-import { floor } from '../math_utils.ts'
+import { floor, map } from '../math_utils.ts'
 
 export class Terrain {
   rows: number

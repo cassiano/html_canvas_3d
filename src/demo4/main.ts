@@ -6,7 +6,6 @@ import { createFrameLoop, fps, millis, timesReduce } from './../utils.ts'
 import {
   background,
   render3dScene,
-  radians,
   render3dAxes,
   resetTransformationMatrix,
   rotateX,
@@ -21,6 +20,7 @@ import { Turtle } from './turtle.ts'
 import { memoize } from '@cdandrea/memoize-ts'
 import { frameCount } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
+import { radians } from '../math_utils.ts'
 
 const SQUARE_SIDES = 4
 
