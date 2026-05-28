@@ -55,7 +55,13 @@ export class Terrain {
 
         const hue = millis() / 100 // [0, 360]
         const saturation = 100 // [0, 100]
-        const lightness = map(z, -this.depth, this.depth, 0, 110) // [0, 100]
+        const lightness = map(
+          (z00 + z01 + z10 + z11) / 4,
+          -this.depth,
+          this.depth,
+          0,
+          110,
+        ) // [0, 100]
 
         const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`
 
