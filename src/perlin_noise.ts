@@ -44,9 +44,9 @@ class Perlin {
    */
   noise(x: number, y: number = 0, z: number = 0): number {
     // Determine unit cube that contains point
-    let X = Math.floor(x) & 255
-    let Y = Math.floor(y) & 255
-    let Z = Math.floor(z) & 255
+    const X = Math.floor(x) & 255
+    const Y = Math.floor(y) & 255
+    const Z = Math.floor(z) & 255
 
     // Relative x, y, z of point in cube
     x -= Math.floor(x)
