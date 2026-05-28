@@ -11,13 +11,13 @@ export class Terrain {
 
   constructor(
     public tileSize: number,
-    public terrainWidth: number,
-    public terrainHeight: number,
-    public maxDepth: number,
+    public width: number,
+    public height: number,
+    public depth: number,
     public smoothiness: number,
   ) {
-    this.rows = floor(terrainHeight / tileSize)
-    this.cols = floor(terrainWidth / tileSize)
+    this.rows = floor(height / tileSize)
+    this.cols = floor(width / tileSize)
   }
 
   calculate(zOffset: number) {
@@ -26,8 +26,8 @@ export class Terrain {
         perlin.noise(col / this.smoothiness, row / this.smoothiness, zOffset),
         0,
         1,
-        -this.maxDepth,
-        this.maxDepth,
+        -this.depth / 2,
+        this.depth / 2,
       ),
     )
   }
@@ -35,8 +35,8 @@ export class Terrain {
   render() {
     for (let row = 0; row < this.rows - 1; row++) {
       for (let col = 0; col < this.cols - 1; col++) {
-        const x = col * this.tileSize - this.terrainWidth / 2
-        const y = row * this.tileSize - this.terrainHeight / 2
+        const x = col * this.tileSize - this.width / 2
+        const y = row * this.tileSize - this.height / 2
         const z = this.z[col][row]
 
         const pointA = $v(x, y, z)
@@ -50,7 +50,7 @@ export class Terrain {
 
         const hue = millis() / 100 // [0, 360]
         const saturation = 100 // [0, 100]
-        const lightness = map(z, -this.maxDepth, this.maxDepth, 0, 110) // [0, 100]
+        const lightness = map(z, -this.depth, this.depth, 0, 110) // [0, 100]
 
         const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`
 
