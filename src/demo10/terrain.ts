@@ -33,6 +33,7 @@ export class Terrain {
   }
 
   render() {
+    // Notice how we purposely skip the last row and column.
     for (let row = 0; row < this.rows - 1; row++) {
       for (let col = 0; col < this.cols - 1; col++) {
         const x = col * this.tileSize - this.width / 2
