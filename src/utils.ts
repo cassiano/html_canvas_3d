@@ -129,7 +129,10 @@ export const togglePause = () => {
  * Recursive type to create nested arrays based on the length of the dimensions tuple.
  * [number, number] -> T[][]
  */
-type NestedArray<T, D extends unknown[]> = D extends [unknown, ...infer Rest]
+type NestedArray<T, D extends number[]> = D extends [
+  number,
+  ...infer Rest extends number[],
+]
   ? NestedArray<T, Rest>[]
   : T
 
@@ -143,15 +146,13 @@ export const timesMapN = <T, D extends number[]>(
   callback: (...indexes: { [K in keyof D]: number }) => T,
 ): NestedArray<T, D> => {
   // Internal helper to track accumulated indices through recursion
-  // deno-lint-ignore no-explicit-any
-  const recurse = (currentDims: number[], args: number[]): any => {
-    const [first, ...rest] = currentDims
+  const recurse = (currentDimensions: number[], args: number[]): any => {
+    const [firstDimension, ...remainingDimensions] = currentDimensions
 
-    return timesMap(first, i =>
-      rest.length === 0
-        ? // deno-lint-ignore no-explicit-any
-          callback(...([i, ...args] as any))
-        : recurse(rest, [i, ...args]),
+    return timesMap(firstDimension, i =>
+      remainingDimensions.length === 0
+        ? callback(...([...args, i] as any))
+        : recurse(remainingDimensions, [...args, i]),
     )
   }
 
@@ -166,14 +167,14 @@ export const timesForEachN = <T, D extends number[]>(
   callback: (...indexes: { [K in keyof D]: number }) => T,
 ): void => {
   // Internal helper to track accumulated indices through recursion
-  const recurse = (currentDims: number[], args: number[]): void => {
-    const [first, ...rest] = currentDims
+  const recurse = (currentDimensions: number[], args: number[]): void => {
+    const [firstDimension, ...remainingDimensions] = currentDimensions
 
-    timesForEach(first, i => {
-      rest.length === 0
+    timesForEach(firstDimension, i => {
+      remainingDimensions.length === 0
         ? // deno-lint-ignore no-explicit-any
           callback(...([...args, i] as any))
-        : recurse(rest, [...args, i])
+        : recurse(remainingDimensions, [...args, i])
     })
   }
 
