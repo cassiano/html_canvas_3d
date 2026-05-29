@@ -159,7 +159,7 @@ export const timesMapN = <T, D extends number[]>(
   return recurse(dimensions, [])
 }
 
-export const timesEachN = <T, D extends number[]>(
+export const timesForEachN = <T, D extends number[]>(
   dimensions: [...D],
   callback: (...indexes: { [K in keyof D]: number }) => T,
 ): void => {

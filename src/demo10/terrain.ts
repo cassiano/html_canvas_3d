@@ -1,4 +1,4 @@
-import { timesMapN, millis, timesEachN } from '../utils.ts'
+import { timesMapN, millis, timesForEachN } from '../utils.ts'
 import { quadrilateral } from '../primitives.ts'
 import { perlin } from '../perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
@@ -34,7 +34,7 @@ export class Terrain {
 
   render() {
     // Notice how we purposely skip the last row and column.
-    timesEachN([this.cols - 1, this.rows - 1], (col, row) => {
+    timesForEachN([this.cols - 1, this.rows - 1], (col, row) => {
       const x = col * this.tileSize - this.width / 2
       const y = row * this.tileSize - this.height / 2
       const z = this.z[col][row]
