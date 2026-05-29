@@ -1,4 +1,4 @@
-import { timesMapN, millis } from '../utils.ts'
+import { timesMapN, millis, timesEachN } from '../utils.ts'
 import { quadrilateral } from '../primitives.ts'
 import { perlin } from '../perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
@@ -34,42 +34,40 @@ export class Terrain {
 
   render() {
     // Notice how we purposely skip the last row and column.
-    for (let row = 0; row < this.rows - 1; row++) {
-      for (let col = 0; col < this.cols - 1; col++) {
-        const x = col * this.tileSize - this.width / 2
-        const y = row * this.tileSize - this.height / 2
-        const z = this.z[col][row]
+    timesEachN([this.cols - 1, this.rows - 1], (col, row) => {
+      const x = col * this.tileSize - this.width / 2
+      const y = row * this.tileSize - this.height / 2
+      const z = this.z[col][row]
 
-        const nextX = x + this.tileSize
-        const nextY = y + this.tileSize
+      const nextX = x + this.tileSize
+      const nextY = y + this.tileSize
 
-        const z00 = z
-        const z10 = this.z[col + 1][row]
-        const z11 = this.z[col + 1][row + 1]
-        const z01 = this.z[col][row + 1]
+      const z00 = z
+      const z10 = this.z[col + 1][row]
+      const z11 = this.z[col + 1][row + 1]
+      const z01 = this.z[col][row + 1]
 
-        const pointA = $v(x, y, z00)
-        const pointB = $v(nextX, y, z10)
-        const pointC = $v(nextX, nextY, z11)
-        const pointD = $v(x, nextY, z01)
+      const pointA = $v(x, y, z00)
+      const pointB = $v(nextX, y, z10)
+      const pointC = $v(nextX, nextY, z11)
+      const pointD = $v(x, nextY, z01)
 
-        const hue = millis() / 100 // [0, 360]
-        const saturation = 100 // [0, 100]
-        const lightness = map(
-          (z00 + z01 + z10 + z11) / 4,
-          -this.depth,
-          this.depth,
-          0,
-          110,
-        ) // [0, 100]
+      const hue = millis() / 100 // [0, 360]
+      const saturation = 100 // [0, 100]
+      const lightness = map(
+        (z00 + z01 + z10 + z11) / 4,
+        -this.depth,
+        this.depth,
+        0,
+        110,
+      ) // [0, 100]
 
-        const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`
+      const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`
 
-        quadrilateral(pointA, pointB, pointC, pointD, {
-          isDoubleSided: true,
-          color,
-        })
-      }
-    }
+      quadrilateral(pointA, pointB, pointC, pointD, {
+        isDoubleSided: true,
+        color,
+      })
+    })
   }
 }

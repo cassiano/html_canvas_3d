@@ -168,3 +168,30 @@ export const timesMapN = <C extends number[], T>(
   // calculated NestedArray type to satisfy the public signature.
   return recurse(0, []) as NestedArray<T, C>
 }
+
+export const timesEachN = <C extends number[], T>(
+  counts: [...C],
+  fn: (...indices: C) => T,
+): void => {
+  const dimensions = counts.length
+
+  const recurse = (dimIndex: number, currentIndices: number[]): unknown => {
+    // Base Case: All dimensions traversed, call the user-provided function
+    if (dimIndex === dimensions) {
+      // We cast currentIndices to C because the logic guarantees
+      // the length and types match at this depth.
+      return fn(...(currentIndices as C))
+    }
+
+    const count = counts[dimIndex]
+
+    for (let i = 0; i < count; i++) {
+      // Recurse into the next dimension
+      recurse(dimIndex + 1, [...currentIndices, i])
+    }
+  }
+
+  // The entry call begins the recursion. We cast the final result to the
+  // calculated NestedArray type to satisfy the public signature.
+  recurse(0, []) as NestedArray<T, C>
+}
