@@ -11,7 +11,7 @@ import {
 import { RubikCube } from './rubik_cube.ts'
 import { rotateX, rotateY, rotateZ } from '../primitives.ts'
 import { millis } from '../utils.ts'
-import { ROTATE_CUBIE_FACES } from './constants.ts'
+import { ROTATE_CUBIES } from './constants.ts'
 
 export class Cubie {
   position: Vector3d
@@ -43,7 +43,7 @@ export class Cubie {
     isolateTransformations(() => {
       translate(this.center)
 
-      if (ROTATE_CUBIE_FACES) {
+      if (ROTATE_CUBIES) {
         rotateX(
           ((this.position.x + this.position.y + this.position.z) * millis()) /
             5000,
