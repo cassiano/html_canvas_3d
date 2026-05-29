@@ -2,8 +2,6 @@ import {
   CIRCLE_SEGMENTS,
   LINE_SEGMENTS,
   FOCAL_LENGTH,
-  SPHERE_LATITUDE_LINES,
-  SPHERE_LONGITUDE_LINES,
   Z_EPSILON,
 } from './constants.ts'
 import {
@@ -16,7 +14,11 @@ import {
 import { Tuple } from './utility_types.ts'
 import { timesForEach } from './utils.ts'
 import { abs, cos, min, PI, sin, multiplyMatrices } from './math_utils.ts'
-import { NORMAL, ARROW_DEFAULT_CIRCLE_SEGMENTS } from './constants.ts'
+import {
+  NORMAL_CONFIG,
+  ARROW_DEFAULT_CIRCLE_SEGMENTS,
+  SPHERE_LINES,
+} from './constants.ts'
 import { ORIGIN } from './constants.ts'
 
 export const animation = document.getElementById(
@@ -582,12 +584,13 @@ export const triangle2d = (
       if (shapeIsVisible && !neverRenderNormals) {
         arrow(
           centroid,
-          centroid.clone().add(normal.clone().mult(NORMAL.length)),
+          centroid.clone().add(normal.clone().mult(NORMAL_CONFIG.length)),
           {
-            color: NORMAL.color,
-            tipHeight: NORMAL.tip.height,
-            tipRadius: NORMAL.tip.radius,
-            circleSegments: NORMAL.tip.circleSegments,
+            color: NORMAL_CONFIG.color,
+            tipHeight: NORMAL_CONFIG.tip.height,
+            tipRadius: NORMAL_CONFIG.tip.radius,
+            circleSegments: NORMAL_CONFIG.tip.circleSegments,
+            noSplit: true,
           },
         )
       }
@@ -703,8 +706,8 @@ export const cube = (size: number, options: ShapeOptions = {}) => {
 }
 
 export const sphere = (radius: number, options: ShapeOptions = {}) => {
-  const longSegments = SPHERE_LONGITUDE_LINES
-  const latSegments = SPHERE_LATITUDE_LINES + 1
+  const longSegments = SPHERE_LINES.longitude
+  const latSegments = SPHERE_LINES.latitude + 1
 
   const getPoint = (latIndex: number, longIndex: number): Vector3d => {
     const latAngle = (latIndex / latSegments) * PI // [0, PI]

@@ -7,12 +7,11 @@ export const FPS_WINDOW = 100
 export const LINE_SEGMENTS = 20
 export const CIRCLE_SEGMENTS = 72
 export const ARROW_DEFAULT_CIRCLE_SEGMENTS = 10
-export const SPHERE_LONGITUDE_LINES = 36
-export const SPHERE_LATITUDE_LINES = 36
+export const SPHERE_LINES = { longitude: 36, latitude: 36 }
 export const ORIGIN = $v(0, 0, 0)
 export const Z_EPSILON = 1e-10
 
-export const NORMAL = {
+export const NORMAL_CONFIG = {
   length: 20,
   color: 'black',
   tip: { radius: 2, height: 5, circleSegments: 3 },
