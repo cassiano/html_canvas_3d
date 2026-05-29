@@ -143,13 +143,15 @@ export const timesMapN = <T, D extends number[]>(
   callback: (...indexes: { [K in keyof D]: number }) => T,
 ): NestedArray<T, D> => {
   // Internal helper to track accumulated indices through recursion
+  // deno-lint-ignore no-explicit-any
   const recurse = (currentDims: number[], args: number[]): any => {
     const [first, ...rest] = currentDims
 
     return timesMap(first, i =>
       rest.length === 0
-        ? callback(...([...args, i] as any))
-        : recurse(rest, [...args, i]),
+        ? // deno-lint-ignore no-explicit-any
+          callback(...([i, ...args] as any))
+        : recurse(rest, [i, ...args]),
     )
   }
 
@@ -169,7 +171,8 @@ export const timesForEachN = <T, D extends number[]>(
 
     timesForEach(first, i => {
       rest.length === 0
-        ? callback(...([...args, i] as any))
+        ? // deno-lint-ignore no-explicit-any
+          callback(...([...args, i] as any))
         : recurse(rest, [...args, i])
     })
   }
