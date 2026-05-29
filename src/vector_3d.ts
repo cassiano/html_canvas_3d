@@ -297,6 +297,7 @@ export class Vector3d {
 export const $v = Vector3d.create
 export const createVector = $v // Synonym for `$v`, as used by p5.js.
 
+// Canonical unit vectors (+ and -).
 export const AXES = {
   x: $v(1, 0, 0),
   y: $v(0, 1, 0),
