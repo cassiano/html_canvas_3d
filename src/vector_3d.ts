@@ -67,8 +67,8 @@ export class Vector3d {
     return this.div(this.mag())
   }
 
-  setMag(magnitude: number) {
-    return this.normalize().mult(magnitude)
+  setMag(newMagnitude: number) {
+    return this.normalize().mult(newMagnitude)
   }
 
   add(x: number, y: number, z?: number): Vector3d
