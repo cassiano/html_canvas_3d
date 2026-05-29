@@ -126,72 +126,56 @@ export const togglePause = () => {
 ///////////////////////
 
 /**
- * Recursive type that transforms a tuple of counts into a nested array structure.
- * e.g., NestedArray<string, [number, number]> becomes string[][]
+ * Recursive type to create nested arrays based on the length of the dimensions tuple.
+ * [number, number] -> T[][]
  */
-type NestedArray<T, C extends readonly number[]> = C extends readonly [
-  number,
-  ...infer Rest extends number[],
-]
+type NestedArray<T, D extends unknown[]> = D extends [unknown, ...infer Rest]
   ? NestedArray<T, Rest>[]
   : T
 
 /**
- * Generates an N-dimensional matrix aligned with the provided input counts.
+ * Generates an N-dimensional array.
+ * @param dimensions A tuple or array defining the size of each dimension.
+ * @param callback A function receiving all current indices and returning the value.
  */
-export const timesMapN = <C extends number[], T>(
-  counts: [...C],
-  fn: (...indices: C) => T,
-): NestedArray<T, C> => {
-  const dimensions = counts.length
+export const timesMapN = <T, D extends number[]>(
+  dimensions: [...D],
+  callback: (...indexes: { [K in keyof D]: number }) => T,
+): NestedArray<T, D> => {
+  // Internal helper to track accumulated indices through recursion
+  const recurse = (currentDims: number[], args: number[]): any => {
+    const [first, ...rest] = currentDims
 
-  const recurse = (dimIndex: number, currentIndices: number[]): unknown => {
-    // Base Case: All dimensions traversed, call the user-provided function
-    if (dimIndex === dimensions) {
-      // We cast currentIndices to C because the logic guarantees
-      // the length and types match at this depth.
-      return fn(...(currentIndices as C))
-    }
-
-    const count = counts[dimIndex]
-    const result: unknown[] = new Array(count)
-
-    for (let i = 0; i < count; i++) {
-      // Recurse into the next dimension
-      result[i] = recurse(dimIndex + 1, [...currentIndices, i])
-    }
-
-    return result
+    return timesMap(first, i =>
+      rest.length === 0
+        ? callback(...([...args, i] as any))
+        : recurse(rest, [...args, i]),
+    )
   }
 
-  // The entry call begins the recursion. We cast the final result to the
-  // calculated NestedArray type to satisfy the public signature.
-  return recurse(0, []) as NestedArray<T, C>
+  // Handle empty dimensions case
+  if (dimensions.length === 0) return [] as NestedArray<T, D>
+
+  return recurse(dimensions, [])
 }
 
-export const timesEachN = <C extends number[], T>(
-  counts: [...C],
-  fn: (...indices: C) => T,
+export const timesEachN = <T, D extends number[]>(
+  dimensions: [...D],
+  callback: (...indexes: { [K in keyof D]: number }) => T,
 ): void => {
-  const dimensions = counts.length
+  // Internal helper to track accumulated indices through recursion
+  const recurse = (currentDims: number[], args: number[]): void => {
+    const [first, ...rest] = currentDims
 
-  const recurse = (dimIndex: number, currentIndices: number[]): unknown => {
-    // Base Case: All dimensions traversed, call the user-provided function
-    if (dimIndex === dimensions) {
-      // We cast currentIndices to C because the logic guarantees
-      // the length and types match at this depth.
-      return fn(...(currentIndices as C))
-    }
-
-    const count = counts[dimIndex]
-
-    for (let i = 0; i < count; i++) {
-      // Recurse into the next dimension
-      recurse(dimIndex + 1, [...currentIndices, i])
-    }
+    timesForEach(first, i => {
+      rest.length === 0
+        ? callback(...([...args, i] as any))
+        : recurse(rest, [...args, i])
+    })
   }
 
-  // The entry call begins the recursion. We cast the final result to the
-  // calculated NestedArray type to satisfy the public signature.
-  recurse(0, []) as NestedArray<T, C>
+  // Handle empty dimensions case
+  if (dimensions.length === 0) return
+
+  recurse(dimensions, [])
 }
