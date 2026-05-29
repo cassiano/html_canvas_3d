@@ -136,6 +136,8 @@ type NestedArray<T, D extends number[]> = D extends [
   ? NestedArray<T, Rest>[]
   : T
 
+type ArrayAsObject<D extends T[], T> = { [K in keyof D]: T }
+
 /**
  * Generates an N-dimensional array.
  * @param dimensions A tuple or array defining the size of each dimension.
@@ -143,15 +145,16 @@ type NestedArray<T, D extends number[]> = D extends [
  */
 export const timesMapN = <T, D extends number[]>(
   dimensions: [...D],
-  callback: (...indexes: { [K in keyof D]: number }) => T,
+  callback: (...indexes: ArrayAsObject<D, number>) => T,
 ): NestedArray<T, D> => {
   // Internal helper to track accumulated indices through recursion
+  // deno-lint-ignore no-explicit-any
   const recurse = (currentDimensions: number[], args: number[]): any => {
     const [firstDimension, ...remainingDimensions] = currentDimensions
 
     return timesMap(firstDimension, i =>
       remainingDimensions.length === 0
-        ? callback(...([...args, i] as any))
+        ? callback(...([...args, i] as ArrayAsObject<D, number>))
         : recurse(remainingDimensions, [...args, i]),
     )
   }
@@ -164,7 +167,7 @@ export const timesMapN = <T, D extends number[]>(
 
 export const timesForEachN = <T, D extends number[]>(
   dimensions: [...D],
-  callback: (...indexes: { [K in keyof D]: number }) => T,
+  callback: (...indexes: ArrayAsObject<D, number>) => T,
 ): void => {
   // Internal helper to track accumulated indices through recursion
   const recurse = (currentDimensions: number[], args: number[]): void => {
@@ -172,8 +175,7 @@ export const timesForEachN = <T, D extends number[]>(
 
     timesForEach(firstDimension, i => {
       remainingDimensions.length === 0
-        ? // deno-lint-ignore no-explicit-any
-          callback(...([...args, i] as any))
+        ? callback(...([...args, i] as ArrayAsObject<D, number>))
         : recurse(remainingDimensions, [...args, i])
     })
   }
