@@ -20,6 +20,13 @@ const canvasContainer = document.getElementById(
 const DEMO_COUNT = 10
 const DEFAULT_DEMO = 1 // Starting with 1.
 
+// Enable drag rotation and pan on the canvas.
+const ROTATION_SENSITIVITY = 0.005
+const PAN_SENSITIVITY = 0.5
+
+// Enable pinch zoom via trackpad (Ctrl/Cmd + wheel).
+const ZOOM_SENSITIVITY = 0.005
+
 const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.js`)
 
 const demoButtons: HTMLButtonElement[] = timesMap(
@@ -117,10 +124,6 @@ renderNormalsCheckbox.addEventListener('change', () => {
   setRenderNormals(renderNormalsCheckbox.checked)
 })
 
-// Enable drag rotation and pan on the canvas.
-const ROTATION_SENSITIVITY = 0.005
-const PAN_SENSITIVITY = 0.1
-
 let isDragging = false
 let dragMode: 'rotate' | 'pan' | null = null
 let activePointerId: number | null = null
@@ -187,9 +190,6 @@ animation.addEventListener('dblclick', event => {
   resetZoom()
   resetPanOffset()
 })
-
-// Enable pinch zoom via trackpad (Ctrl/Cmd + wheel).
-const ZOOM_SENSITIVITY = 0.0025
 
 animation.addEventListener('wheel', event => {
   if (event.ctrlKey || event.metaKey) {
