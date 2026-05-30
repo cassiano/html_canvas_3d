@@ -1,9 +1,10 @@
 import { timesForEach, timesMap, timesReduce, togglePause } from './utils.ts'
-import { resetZoom, setRenderNormals } from './primitives.ts'
+import { resetZoom, resetPanOffset, setRenderNormals } from './primitives.ts'
 import {
   animation,
   addDragRotation,
   resetDragRotation,
+  addPanOffset,
   addZoom,
 } from './primitives.ts'
 import { min } from './math_utils.ts'
@@ -116,22 +117,30 @@ renderNormalsCheckbox.addEventListener('change', () => {
   setRenderNormals(renderNormalsCheckbox.checked)
 })
 
-// Enable drag rotation on the canvas.
+// Enable drag rotation and pan on the canvas.
 const ROTATION_SENSITIVITY = 0.005
+const PAN_SENSITIVITY = 0.1
+
 let isDragging = false
+let dragMode: 'rotate' | 'pan' | null = null
 let activePointerId: number | null = null
 let lastPointerX = 0
 let lastPointerY = 0
 
 animation.style.touchAction = 'none'
+animation.addEventListener('contextmenu', event => event.preventDefault())
 
 animation.addEventListener('pointerdown', event => {
-  if (event.button !== 0) return
+  const isLeftButton = event.button === 0
+  const isSecondaryButton = event.button === 1 || event.button === 2
+
+  if (!isLeftButton && !isSecondaryButton) return
 
   event.preventDefault()
   animation.setPointerCapture(event.pointerId)
 
   isDragging = true
+  dragMode = isLeftButton && !event.shiftKey ? 'rotate' : 'pan'
   activePointerId = event.pointerId
   lastPointerX = event.clientX
   lastPointerY = event.clientY
@@ -149,13 +158,21 @@ animation.addEventListener('pointermove', event => {
   lastPointerX = clientX
   lastPointerY = clientY
 
-  addDragRotation(deltaY * ROTATION_SENSITIVITY, deltaX * ROTATION_SENSITIVITY)
+  if (dragMode === 'pan') {
+    addPanOffset(deltaX, deltaY)
+  } else {
+    addDragRotation(
+      deltaY * ROTATION_SENSITIVITY,
+      deltaX * ROTATION_SENSITIVITY,
+    )
+  }
 })
 
 const endPointerDrag = (event: PointerEvent) => {
   if (!isDragging || event.pointerId !== activePointerId) return
 
   isDragging = false
+  dragMode = null
   activePointerId = null
   animation.releasePointerCapture(event.pointerId)
 }
@@ -168,18 +185,25 @@ animation.addEventListener('dblclick', event => {
 
   resetDragRotation()
   resetZoom()
+  resetPanOffset()
 })
 
 // Enable pinch zoom via trackpad (Ctrl/Cmd + wheel).
 const ZOOM_SENSITIVITY = 0.0025
 
 animation.addEventListener('wheel', event => {
-  if (!(event.ctrlKey || event.metaKey)) return
+  if (event.ctrlKey || event.metaKey) {
+    event.preventDefault()
+
+    const zoomDelta = -event.deltaY * ZOOM_SENSITIVITY
+    addZoom(zoomDelta)
+    return
+  }
+
+  if (event.deltaX === 0 && event.deltaY === 0) return
 
   event.preventDefault()
-
-  const zoomDelta = -event.deltaY * ZOOM_SENSITIVITY
-  addZoom(zoomDelta)
+  addPanOffset(event.deltaX * PAN_SENSITIVITY, event.deltaY * PAN_SENSITIVITY)
 })
 
 // Load demo1 by default

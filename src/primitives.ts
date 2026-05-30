@@ -103,8 +103,9 @@ const cloneTransformationMatrix = (
 ): transformationMatrix4x4Type =>
   data.map(row => [...row]) as transformationMatrix4x4Type
 
-const dragRotation = $v(0, 0)
 let zoomLevel = 1
+const dragRotation = $v(0, 0)
+const panOffset = $v(0, 0)
 
 export const setDragRotation = (x: number, y: number) => {
   dragRotation.x = x
@@ -126,6 +127,17 @@ export const addZoom = (delta: number) => {
 }
 
 export const resetZoom = () => setZoom(1)
+
+export const setPanOffset = (x: number, y: number) => {
+  panOffset.x = x
+  panOffset.y = y
+}
+
+export const addPanOffset = (x: number, y: number) => {
+  panOffset.add(x, y)
+}
+
+export const resetPanOffset = () => setPanOffset(0, 0)
 
 export const resetTransformationMatrix = () => {
   transformationMatrix = cloneTransformationMatrix(
@@ -357,7 +369,7 @@ export const project3dTo2d = ({ x, y, z }: Vector3d) => {
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 export const centralize = (point?: Vector3d) =>
-  point?.clone().add(SCREEN_CENTER)
+  point?.clone().add(SCREEN_CENTER).add(panOffset)
 
 export const transform = (point: Vector3d, { isNormal = false } = {}) => {
   const pointAs4dMatrix = point.to4dMatrix()
