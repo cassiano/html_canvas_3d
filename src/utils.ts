@@ -148,22 +148,26 @@ export const timesMapN = <T, D extends number[]>(
   callback: (...indexes: ArrayAsObject<D>) => T,
 ): NestedArray<T, D> => {
   // Internal helper to track accumulated indices through recursion
-  // deno-lint-ignore no-explicit-any
-  const recurse = (currentDimensions: number[], args: number[]): any => {
+  const accumulateIndices = (
+    currentDimensions: number[],
+    currentIndexes: number[],
+    // deno-lint-ignore no-explicit-any
+  ): any => {
     const [firstDimension, ...remainingDimensions] = currentDimensions
-    const augmentedArgs = (i: number) => [...args, i] as ArrayAsObject<D>
+    const augmentedIndexes = (i: number) =>
+      [...currentIndexes, i] as ArrayAsObject<D>
 
     return timesMap(firstDimension, i =>
       remainingDimensions.length === 0
-        ? callback(...augmentedArgs(i))
-        : recurse(remainingDimensions, [...args, i]),
+        ? callback(...augmentedIndexes(i))
+        : accumulateIndices(remainingDimensions, [...currentIndexes, i]),
     )
   }
 
   // Handle empty dimensions case
   if (dimensions.length === 0) return [] as NestedArray<T, D>
 
-  return recurse(dimensions, [])
+  return accumulateIndices(dimensions, [])
 }
 
 export const timesForEachN = <T, D extends number[]>(
@@ -171,19 +175,23 @@ export const timesForEachN = <T, D extends number[]>(
   callback: (...indexes: ArrayAsObject<D>) => T,
 ): void => {
   // Internal helper to track accumulated indices through recursion
-  const recurse = (currentDimensions: number[], args: number[]): void => {
+  const accumulateIndices = (
+    currentDimensions: number[],
+    currentIndexes: number[],
+  ): void => {
     const [firstDimension, ...remainingDimensions] = currentDimensions
-    const augmentedArgs = (i: number) => [...args, i] as ArrayAsObject<D>
+    const augmentedIndexes = (i: number) =>
+      [...currentIndexes, i] as ArrayAsObject<D>
 
     timesForEach(firstDimension, i => {
       remainingDimensions.length === 0
-        ? callback(...augmentedArgs(i))
-        : recurse(remainingDimensions, [...args, i])
+        ? callback(...augmentedIndexes(i))
+        : accumulateIndices(remainingDimensions, [...currentIndexes, i])
     })
   }
 
   // Handle empty dimensions case
   if (dimensions.length === 0) return
 
-  recurse(dimensions, [])
+  accumulateIndices(dimensions, [])
 }
