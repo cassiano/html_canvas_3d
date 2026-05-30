@@ -120,6 +120,7 @@ timesForEach(DEMO_COUNT, i => {
 const renderNormalsCheckbox = document.getElementById(
   'render-normals-checkbox',
 ) as HTMLInputElement
+
 renderNormalsCheckbox.addEventListener('change', () => {
   setRenderNormals(renderNormalsCheckbox.checked)
 })
