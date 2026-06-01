@@ -12,7 +12,7 @@ import {
   Vector3d,
 } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
-import { timesForEach } from './utils.ts'
+import { timesForEach, timesForEachN } from './utils.ts'
 import { abs, cos, min, PI, sin, multiplyMatrices } from './math_utils.ts'
 import {
   NORMAL_CONFIG,
@@ -34,9 +34,10 @@ export interface ShapeOptions {
   strokeColor?: string | CanvasGradient | CanvasPattern
   noStroke?: boolean
   size?: number
-  noSplit?: boolean
+  noSplit?: boolean // Used for lines.
   isDoubleSided?: boolean
   neverRenderNormals?: boolean
+  sphereAmount?: number // Used for spheres.
 }
 
 const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
@@ -49,6 +50,7 @@ const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
   noSplit: false,
   isDoubleSided: false,
   neverRenderNormals: false,
+  sphereAmount: 1.0,
 }
 
 const deferredRenderList: {
@@ -733,15 +735,15 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
     ).mult(radius)
   }
 
-  timesForEach(latSegments, latIndex => {
-    timesForEach(longSegments, longIndex => {
-      const p1 = getPoint(latIndex, longIndex)
-      const p2 = getPoint(latIndex, longIndex + 1)
-      const p3 = getPoint(latIndex + 1, longIndex + 1)
-      const p4 = getPoint(latIndex + 1, longIndex)
+  timesForEachN([latSegments, longSegments], (latIndex, longIndex) => {
+    if (longIndex / longSegments >= options.sphereAmount!) return
 
-      quadrilateral(p1, p2, p3, p4, options)
-    })
+    const p1 = getPoint(latIndex, longIndex)
+    const p2 = getPoint(latIndex, longIndex + 1)
+    const p3 = getPoint(latIndex + 1, longIndex + 1)
+    const p4 = getPoint(latIndex + 1, longIndex)
+
+    quadrilateral(p1, p2, p3, p4, options)
   })
 }
 
