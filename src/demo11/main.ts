@@ -37,17 +37,20 @@ const draw = () => {
 
   render3dAxes()
 
-  cylinder(PIPE.radius, PIPE.height, { color: PIPE.color })
+  cylinder(PIPE.radius, PIPE.height, { color: PIPE.color, circleSegments: 36 })
 
   isolateTransformations(() => {
     translate(0, PIPE.height / 2, 0)
-    elbow(PIPE.radius * 2, { color: PIPE.color })
+    elbow(PIPE.radius * 2, { color: PIPE.color, circleSegments: 36 })
   })
 
   isolateTransformations(() => {
     translate(PIPE.radius + PIPE.height / 2, PIPE.radius + PIPE.height / 2, 0)
     rotateZ(PI / 2)
-    cylinder(PIPE.radius, PIPE.height, { color: PIPE.color })
+    cylinder(PIPE.radius, PIPE.height, {
+      color: PIPE.color,
+      circleSegments: 36,
+    })
   })
 
   isolateTransformations(() => {
@@ -59,7 +62,7 @@ const draw = () => {
 
     rotateY(PI)
     rotateX(PI / 2)
-    elbow(PIPE.radius * 2, { color: PIPE.color })
+    elbow(PIPE.radius * 2, { color: PIPE.color, circleSegments: 36 })
   })
 
   isolateTransformations(() => {
@@ -69,7 +72,10 @@ const draw = () => {
       PIPE.radius + PIPE.height / 2,
     )
     rotateX(PI / 2)
-    cylinder(PIPE.radius, PIPE.height, { color: PIPE.color })
+    cylinder(PIPE.radius, PIPE.height, {
+      color: PIPE.color,
+      circleSegments: 36,
+    })
   })
 }
 
