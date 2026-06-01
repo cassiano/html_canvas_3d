@@ -1,5 +1,5 @@
 import { timesMapN, millis, timesForEachN } from '../utils.ts'
-import { quadrilateral } from '../primitives.ts'
+import { quad } from '../primitives.ts'
 import { perlin } from '../perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
 import { floor, map } from '../math_utils.ts'
@@ -64,7 +64,7 @@ export class Terrain {
 
       const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`
 
-      quadrilateral(pointA, pointB, pointC, pointD, {
+      quad(pointA, pointB, pointC, pointD, {
         isDoubleSided: true,
         color,
       })

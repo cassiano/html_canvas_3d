@@ -22,7 +22,7 @@ import {
 import { rotateX, cylinder, translate } from '../primitives.ts'
 
 const CYLINDER = { radius: 100, height: 100 }
-const ELBOW_CIRCLE_SLICES = 20
+const ELBOW_CIRCLE_SLICES = 16
 
 // -------------------------------------------------------------------------------------------------
 
@@ -42,18 +42,17 @@ const draw = () => {
 
   for (let theta = 0; theta < PI / 2; theta += PI / 2 / ELBOW_CIRCLE_SLICES) {
     isolateTransformations(() => {
+      const elbowRadius = 2 * CYLINDER.radius
+      const ringHeight = (2 * PI * elbowRadius) / 4 / ELBOW_CIRCLE_SLICES // (2.π.R)/4 = 1/4 of circle perimeter.
+
       translate(CYLINDER.radius, CYLINDER.height / 2, 0)
       rotateZ(-theta)
-      translate(-CYLINDER.radius, 0, 0)
+      translate(-CYLINDER.radius, ringHeight / 2, 0)
       rotateX(-PI / 2)
 
-      ring(
-        CYLINDER.radius,
-        (2 * PI * CYLINDER.radius) / 2 / ELBOW_CIRCLE_SLICES,
-        {
-          color: 'indianred',
-        },
-      )
+      ring(CYLINDER.radius, ringHeight, {
+        color: 'indianred',
+      })
     })
   }
 
