@@ -34,10 +34,10 @@ export interface ShapeOptions {
   strokeColor?: string | CanvasGradient | CanvasPattern
   noStroke?: boolean
   size?: number
-  noSplit?: boolean // Used for lines.
+  noSplit?: boolean // Used for lines and arrows.
   isDoubleSided?: boolean
   neverRenderNormals?: boolean
-  sphereAmount?: number // Used for spheres.
+  percentage?: number
 }
 
 const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
@@ -50,7 +50,7 @@ const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
   noSplit: false,
   isDoubleSided: false,
   neverRenderNormals: false,
-  sphereAmount: 1.0,
+  percentage: 1.0,
 }
 
 const deferredRenderList: {
@@ -737,7 +737,7 @@ export const sphere = (radius: number, options: ShapeOptions = {}) => {
   }
 
   timesForEachN([latSegments, longSegments], (latIndex, longIndex) => {
-    if (longIndex / longSegments >= options.sphereAmount!) return
+    if (longIndex / longSegments >= options.percentage!) return
 
     const p1 = getPoint(latIndex, longIndex)
     const p2 = getPoint(latIndex, longIndex + 1)
