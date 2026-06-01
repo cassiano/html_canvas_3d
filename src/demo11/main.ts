@@ -12,7 +12,7 @@ import {
   text2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI } from '../math_utils.ts'
+import { cos, PI, sin } from '../math_utils.ts'
 import {
   rotateZ,
   elbow,
@@ -37,42 +37,40 @@ const draw = () => {
 
   render3dAxes()
 
-  cylinder(PIPE.radius, PIPE.height, { color: 'pink', circleSegments: 36 })
+  const radius = PIPE.radius + cos(millis() / 1500) * 15
+  const height = PIPE.height + sin(millis() / 2500) * 150
 
-  isolateTransformations(() => {
-    translate(0, PIPE.height / 2, 0)
-    elbow(PIPE.radius * 2, { color: PIPE.color, circleSegments: 36 })
+  cylinder(radius, height, {
+    color: 'pink',
+    circleSegments: 36,
   })
 
   isolateTransformations(() => {
-    translate(PIPE.radius + PIPE.height / 2, PIPE.radius + PIPE.height / 2, 0)
+    translate(0, height / 2, 0)
+    elbow(radius * 2, { color: PIPE.color, circleSegments: 36 })
+  })
+
+  isolateTransformations(() => {
+    translate(radius + height / 2, radius + height / 2, 0)
     rotateZ(PI / 2)
-    cylinder(PIPE.radius, PIPE.height, {
+    cylinder(radius, height, {
       color: 'yellow',
       circleSegments: 36,
     })
   })
 
   isolateTransformations(() => {
-    translate(
-      2 * PIPE.radius + PIPE.height,
-      PIPE.radius + PIPE.height / 2,
-      PIPE.radius,
-    )
+    translate(2 * radius + height, radius + height / 2, radius)
 
     rotateY(PI)
     rotateX(PI / 2)
-    elbow(PIPE.radius * 2, { color: PIPE.color, circleSegments: 36 })
+    elbow(radius * 2, { color: PIPE.color, circleSegments: 36 })
   })
 
   isolateTransformations(() => {
-    translate(
-      2 * PIPE.radius + PIPE.height,
-      PIPE.radius + PIPE.height / 2,
-      PIPE.radius + PIPE.height / 2,
-    )
+    translate(2 * radius + height, radius + height / 2, radius + height / 2)
     rotateX(PI / 2)
-    cylinder(PIPE.radius, PIPE.height, {
+    cylinder(radius, height, {
       color: 'orange',
       circleSegments: 36,
     })
