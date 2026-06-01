@@ -772,6 +772,34 @@ export const circle2d = (
   }
 }
 
+export const ring = (
+  radius: number,
+  height: number,
+  options: CircularShapeOptions = {},
+) => {
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: CIRCLE_SEGMENTS,
+    ...options,
+  }
+  const { circleSegments } = finalOptions
+
+  const step = (2 * PI) / circleSegments
+
+  for (let i = 0; i < circleSegments; i++) {
+    const theta1 = i * step
+    const theta2 = (i + 1) * step
+
+    const p1 = $v(radius * cos(theta1), radius * sin(theta1), 0)
+    const p2 = $v(radius * cos(theta2), radius * sin(theta2), 0)
+    const p3 = $v(radius * cos(theta2), radius * sin(theta2), height)
+    const p4 = $v(radius * cos(theta1), radius * sin(theta1), height)
+
+    // Form a slice by connecting the two points on the perimeter to the circle center (origin).
+    quadrilateral(p1, p2, p3, p4, options)
+  }
+}
+
 export const cone = (
   radius: number, // XZ-plane
   height: number, // Y-axis.
