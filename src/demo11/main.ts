@@ -21,7 +21,7 @@ import {
 } from '../primitives.ts'
 import { rotateX, cylinder, translate } from '../primitives.ts'
 
-const PIPE = { radius: 25, height: 150, color: 'mediumorchid' }
+const PIPE = { radius: 25, height: 150, color: 'darkGray' }
 
 // -------------------------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ const draw = () => {
 
   render3dAxes()
 
-  cylinder(PIPE.radius, PIPE.height, { color: PIPE.color, circleSegments: 36 })
+  cylinder(PIPE.radius, PIPE.height, { color: 'pink', circleSegments: 36 })
 
   isolateTransformations(() => {
     translate(0, PIPE.height / 2, 0)
@@ -48,7 +48,7 @@ const draw = () => {
     translate(PIPE.radius + PIPE.height / 2, PIPE.radius + PIPE.height / 2, 0)
     rotateZ(PI / 2)
     cylinder(PIPE.radius, PIPE.height, {
-      color: PIPE.color,
+      color: 'yellow',
       circleSegments: 36,
     })
   })
@@ -73,7 +73,7 @@ const draw = () => {
     )
     rotateX(PI / 2)
     cylinder(PIPE.radius, PIPE.height, {
-      color: PIPE.color,
+      color: 'orange',
       circleSegments: 36,
     })
   })
