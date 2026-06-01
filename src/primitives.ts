@@ -19,7 +19,7 @@ import {
   ARROW_DEFAULT_CIRCLE_SEGMENTS,
   SPHERE_LINES,
 } from './constants.ts'
-import { ORIGIN } from './constants.ts'
+import { ORIGIN, ELBOW_CIRCLE_SLICES } from './constants.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -867,6 +867,21 @@ export const cylinder = (
 
     triangle2d(p2, p1, lowerCenter, options)
     triangle2d(upperP1, upperP2, upperCenter, options)
+  }
+}
+
+export const elbow = (radius: number, options: CircularShapeOptions = {}) => {
+  const ringHeight = (2 * PI * radius) / 4 / ELBOW_CIRCLE_SLICES // (2.π.R)/4 = 1/4 of circle perimeter.
+
+  for (let theta = 0; theta < PI / 2; theta += PI / 2 / ELBOW_CIRCLE_SLICES) {
+    isolateTransformations(() => {
+      translate(radius / 2, 0, 0)
+      rotateZ(-theta)
+      translate(-radius / 2, ringHeight / 2, 0)
+      rotateX(-PI / 2)
+
+      ring(radius / 2, ringHeight, options)
+    })
   }
 }
 

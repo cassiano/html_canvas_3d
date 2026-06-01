@@ -15,14 +15,13 @@ import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import {
   rotateZ,
+  elbow,
   isolateTransformations,
-  ring,
   rotateY,
 } from '../primitives.ts'
 import { rotateX, cylinder, translate } from '../primitives.ts'
 
-const CYLINDER = { radius: 100, height: 100 }
-const ELBOW_CIRCLE_SLICES = 16
+const PIPE = { radius: 25, height: 150, color: 'mediumorchid' }
 
 // -------------------------------------------------------------------------------------------------
 
@@ -38,31 +37,40 @@ const draw = () => {
 
   render3dAxes()
 
-  cylinder(CYLINDER.radius, CYLINDER.height, { color: 'indianred' })
+  cylinder(PIPE.radius, PIPE.height, { color: PIPE.color })
 
-  for (let theta = 0; theta < PI / 2; theta += PI / 2 / ELBOW_CIRCLE_SLICES) {
-    isolateTransformations(() => {
-      const elbowRadius = 2 * CYLINDER.radius
-      const ringHeight = (2 * PI * elbowRadius) / 4 / ELBOW_CIRCLE_SLICES // (2.π.R)/4 = 1/4 of circle perimeter.
+  isolateTransformations(() => {
+    translate(0, PIPE.height / 2, 0)
+    elbow(PIPE.radius * 2, { color: PIPE.color })
+  })
 
-      translate(CYLINDER.radius, CYLINDER.height / 2, 0)
-      rotateZ(-theta)
-      translate(-CYLINDER.radius, ringHeight / 2, 0)
-      rotateX(-PI / 2)
+  isolateTransformations(() => {
+    translate(PIPE.radius + PIPE.height / 2, PIPE.radius + PIPE.height / 2, 0)
+    rotateZ(PI / 2)
+    cylinder(PIPE.radius, PIPE.height, { color: PIPE.color })
+  })
 
-      ring(CYLINDER.radius, ringHeight, {
-        color: 'indianred',
-      })
-    })
-  }
+  isolateTransformations(() => {
+    translate(
+      2 * PIPE.radius + PIPE.height,
+      PIPE.radius + PIPE.height / 2,
+      PIPE.radius,
+    )
 
-  translate(
-    CYLINDER.radius + CYLINDER.height / 2,
-    CYLINDER.radius + CYLINDER.height / 2,
-    0,
-  )
-  rotateZ(PI / 2)
-  cylinder(CYLINDER.radius, CYLINDER.height, { color: 'indianred' })
+    rotateY(PI)
+    rotateX(PI / 2)
+    elbow(PIPE.radius * 2, { color: PIPE.color })
+  })
+
+  isolateTransformations(() => {
+    translate(
+      2 * PIPE.radius + PIPE.height,
+      PIPE.radius + PIPE.height / 2,
+      PIPE.radius + PIPE.height / 2,
+    )
+    rotateX(PI / 2)
+    cylinder(PIPE.radius, PIPE.height, { color: PIPE.color })
+  })
 }
 
 const onPaused = () => {

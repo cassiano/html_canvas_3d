@@ -8,6 +8,7 @@ export const LINE_SEGMENTS = 20
 export const CIRCLE_SEGMENTS = 72
 export const ARROW_DEFAULT_CIRCLE_SEGMENTS = 10
 export const SPHERE_LINES = { longitude: 36, latitude: 36 }
+export const ELBOW_CIRCLE_SLICES = 16
 export const ORIGIN = $v(0, 0, 0)
 export const Z_EPSILON = 1e-10
 
