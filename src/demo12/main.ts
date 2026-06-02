@@ -16,11 +16,6 @@ import { PI, sin } from '../math_utils.ts'
 import { rotateY, isolateTransformations } from '../primitives.ts'
 import { rotateX, ring } from '../primitives.ts'
 
-const PIPE = { radius: 25, height: 150 }
-const ELBOW_COLOR = 'darkGray'
-
-// -------------------------------------------------------------------------------------------------
-
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
   if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
