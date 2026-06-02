@@ -19,7 +19,7 @@ import {
   isolateTransformations,
   rotateY,
 } from '../primitives.ts'
-import { rotateX, cylinder, translate } from '../primitives.ts'
+import { rotateX, translate, ring } from '../primitives.ts'
 
 const PIPE = { radius: 25, height: 150 }
 const ELBOW_COLOR = 'darkGray'
@@ -41,39 +41,49 @@ const draw = () => {
   const radius = PIPE.radius + cos(millis() / 1500) * 15
   const height = PIPE.height + sin(millis() / 2500) * 150
 
-  cylinder(radius, height, {
-    color: 'pink',
-    circleSegments: 36,
+  isolateTransformations(() => {
+    rotateX(PI / 2)
+
+    ring(radius, height, {
+      color: 'pink',
+      circleSegments: 16,
+      isDoubleSided: true,
+    })
   })
 
   isolateTransformations(() => {
     translate(0, height / 2, 0)
-    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 36 })
+
+    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 16 })
   })
 
   isolateTransformations(() => {
     translate(radius + height / 2, radius + height / 2, 0)
     rotateZ(PI / 2)
-    cylinder(radius, height, {
+    rotateX(PI / 2)
+
+    ring(radius, height, {
       color: 'yellow',
-      circleSegments: 36,
+      circleSegments: 16,
+      isDoubleSided: true,
     })
   })
 
   isolateTransformations(() => {
     translate(2 * radius + height, radius + height / 2, radius)
-
     rotateY(PI)
     rotateX(PI / 2)
-    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 36 })
+
+    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 16 })
   })
 
   isolateTransformations(() => {
     translate(2 * radius + height, radius + height / 2, radius + height / 2)
-    rotateX(PI / 2)
-    cylinder(radius, height, {
+
+    ring(radius, height, {
       color: 'orange',
-      circleSegments: 36,
+      circleSegments: 16,
+      isDoubleSided: true,
     })
   })
 }
