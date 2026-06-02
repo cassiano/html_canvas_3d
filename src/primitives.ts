@@ -789,19 +789,21 @@ export const ring = (
 
   const step = (2 * PI) / circleSegments
 
-  translate(0, 0, -height / 2)
+  isolateTransformations(() => {
+    translate(0, 0, -height / 2)
 
-  for (let i = 0; i < circleSegments; i++) {
-    const theta1 = i * step
-    const theta2 = (i + 1) * step
+    for (let i = 0; i < circleSegments; i++) {
+      const theta1 = i * step
+      const theta2 = (i + 1) * step
 
-    const p1 = $v(radius * cos(theta1), radius * sin(theta1), 0)
-    const p2 = $v(radius * cos(theta2), radius * sin(theta2), 0)
-    const p3 = $v(radius * cos(theta2), radius * sin(theta2), height)
-    const p4 = $v(radius * cos(theta1), radius * sin(theta1), height)
+      const p1 = $v(radius * cos(theta1), radius * sin(theta1), 0)
+      const p2 = $v(radius * cos(theta2), radius * sin(theta2), 0)
+      const p3 = $v(radius * cos(theta2), radius * sin(theta2), height)
+      const p4 = $v(radius * cos(theta1), radius * sin(theta1), height)
 
-    quad(p1, p2, p3, p4, options)
-  }
+      quad(p1, p2, p3, p4, options)
+    }
+  })
 }
 
 export const cone = (
