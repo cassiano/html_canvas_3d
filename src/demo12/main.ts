@@ -13,7 +13,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI, sin } from '../math_utils.ts'
-import { rotateY } from '../primitives.ts'
+import { rotateY, isolateTransformations } from '../primitives.ts'
 import { rotateX, ring } from '../primitives.ts'
 
 const PIPE = { radius: 25, height: 150 }
@@ -33,12 +33,15 @@ const draw = () => {
 
   render3dAxes()
 
-  rotateX(-PI / 2)
-
   for (let radius = 250; radius > 0; radius -= 10)
-    ring(radius, 280 - radius, {
-      isDoubleSided: true,
-      color: `hsl(${millis() / 100}, 100%, 50%)`,
+    isolateTransformations(() => {
+      rotateY(millis() / 50)
+      rotateX(-PI / 2)
+
+      ring(radius, 140 - radius / 2, {
+        isDoubleSided: true,
+        color: `hsl(${millis() / 100}, 100%, 50%)`,
+      })
     })
 }
 
