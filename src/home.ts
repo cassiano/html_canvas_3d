@@ -17,7 +17,7 @@ const canvasContainer = document.getElementById(
   'canvas-container',
 ) as HTMLDivElement
 
-const DEMO_COUNT = 11
+const DEMO_COUNT = 12
 const DEFAULT_DEMO = 1 // Starting with 1.
 
 // Enable drag rotation and pan on the canvas.
