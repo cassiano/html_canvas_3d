@@ -48,13 +48,14 @@ const draw = () => {
       color: 'pink',
       circleSegments: 16,
       isDoubleSided: true,
+      opacity: 0.5,
     })
   })
 
   isolateTransformations(() => {
     translate(0, height / 2, 0)
 
-    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 16 })
+    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 16, opacity: 0.5 })
   })
 
   isolateTransformations(() => {
@@ -66,6 +67,7 @@ const draw = () => {
       color: 'yellow',
       circleSegments: 16,
       isDoubleSided: true,
+      opacity: 0.5,
     })
   })
 
@@ -74,7 +76,7 @@ const draw = () => {
     rotateY(PI)
     rotateX(PI / 2)
 
-    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 16 })
+    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 16, opacity: 0.5 })
   })
 
   isolateTransformations(() => {
@@ -84,6 +86,7 @@ const draw = () => {
       color: 'orange',
       circleSegments: 16,
       isDoubleSided: true,
+      opacity: 0.5,
     })
   })
 }
