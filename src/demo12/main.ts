@@ -12,7 +12,7 @@ import {
   text2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI, sin } from '../math_utils.ts'
+import { cos, PI, sin } from '../math_utils.ts'
 import { rotateY, isolateTransformations } from '../primitives.ts'
 import { rotateX, ring } from '../primitives.ts'
 
@@ -35,7 +35,7 @@ const draw = () => {
 
       ring(radius, 140 - radius / 2, {
         isDoubleSided: true,
-        color: `hsl(${millis() / 100}, 100%, 50%)`,
+        color: `hsl(${millis() / 100}, 100%, ${((cos(millis() / 5000) + 1) / 2) * 40 + 40}%)`,
       })
     })
 }
