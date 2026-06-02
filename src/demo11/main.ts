@@ -21,7 +21,8 @@ import {
 } from '../primitives.ts'
 import { rotateX, cylinder, translate } from '../primitives.ts'
 
-const PIPE = { radius: 25, height: 150, color: 'darkGray' }
+const PIPE = { radius: 25, height: 150 }
+const ELBOW_COLOR = 'darkGray'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -47,7 +48,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, height / 2, 0)
-    elbow(radius * 2, { color: PIPE.color, circleSegments: 36 })
+    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 36 })
   })
 
   isolateTransformations(() => {
@@ -64,7 +65,7 @@ const draw = () => {
 
     rotateY(PI)
     rotateX(PI / 2)
-    elbow(radius * 2, { color: PIPE.color, circleSegments: 36 })
+    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 36 })
   })
 
   isolateTransformations(() => {
