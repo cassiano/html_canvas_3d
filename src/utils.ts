@@ -222,8 +222,8 @@ export const createSlider = (config: SliderConfig) => {
     step = 1,
     value = (min + max) / 2,
     length = 200,
-    color = '#4CAF50',
-    textColor = '#000',
+    color = 'green',
+    textColor = 'black',
     onChange,
     container = document.body,
     vertical = false,
@@ -313,7 +313,7 @@ export const createDemoControlPanel = (canvasContainer: HTMLElement) => {
   demoControlPanel.style.position = 'absolute'
   demoControlPanel.style.top = '10px'
   demoControlPanel.style.left = '10px'
-  demoControlPanel.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'
+  demoControlPanel.style.backgroundColor = 'white'
   demoControlPanel.style.padding = '10px'
   demoControlPanel.style.borderRadius = '5px'
   demoControlPanel.style.zIndex = '100'
