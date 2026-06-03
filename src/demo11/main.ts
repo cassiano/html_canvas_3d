@@ -42,6 +42,13 @@ const draw = () => {
   const height = PIPE.height + sin(millis() / 2500) * 150
 
   isolateTransformations(() => {
+    translate(0, -height / 2, 0)
+    rotateZ(PI)
+
+    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 16, opacity: 0.5 })
+  })
+
+  isolateTransformations(() => {
     rotateX(PI / 2)
 
     ring(radius, height, {
@@ -88,6 +95,14 @@ const draw = () => {
       isDoubleSided: true,
       opacity: 0.5,
     })
+  })
+
+  isolateTransformations(() => {
+    translate(2 * radius + height, radius + height / 2, radius + height)
+    rotateX(PI / 2)
+    rotateY(PI / 2)
+
+    elbow(radius * 2, { color: ELBOW_COLOR, circleSegments: 16, opacity: 0.5 })
   })
 }
 
