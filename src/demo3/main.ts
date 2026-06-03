@@ -67,9 +67,9 @@ const createDemoControls = () => {
 
   const createRubikCube = () => {
     cube = new RubikCube(
-      cubieSizeSlider!.getValue(),
-      cubiesPerAxisSlider!.getValue(),
-      cubieSpacingSlider!.getValue(),
+      cubieSizeSlider.getValue(),
+      cubiesPerAxisSlider.getValue(),
+      cubieSpacingSlider.getValue(),
     )
   }
 
