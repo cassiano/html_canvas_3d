@@ -5,9 +5,9 @@ export type Coord3D = Tuple<number, 3>
 
 export const FACES_PER_CUBIE = 6
 
-export const CUBIE_SIZE = 25
-export const CUBIE_SPACING = 25
-export const CUBIES_PER_AXIS = 7
+export const INITIAL_CUBIE_SIZE = 25
+export const INITIAL_CUBIE_SPACING = 25
+export const INITIAL_CUBIES_PER_AXIS = 7
 export const ROTATE_CUBIES = false
 
 export const FACES: Record<string, number> = {

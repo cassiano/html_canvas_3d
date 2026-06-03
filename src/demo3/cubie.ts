@@ -2,12 +2,7 @@ import { timesMap } from './../utils.ts'
 import { isolateTransformations, translate } from './../primitives.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { CubieFace } from './cubie_face.ts'
-import {
-  CUBIE_SPACING,
-  FACE_COLORS,
-  FACE_NORMALS,
-  FACES_PER_CUBIE,
-} from './constants.ts'
+import { FACE_COLORS, FACE_NORMALS, FACES_PER_CUBIE } from './constants.ts'
 import { RubikCube } from './rubik_cube.ts'
 import { rotateX, rotateY, rotateZ } from '../primitives.ts'
 import { millis } from '../utils.ts'
@@ -19,6 +14,7 @@ export class Cubie {
 
   constructor(
     public cube: RubikCube,
+    public cubieSpacing: number,
     x: number,
     y: number,
     z: number,
@@ -36,7 +32,7 @@ export class Cubie {
   }
 
   get center() {
-    return this.position.clone().mult(this.size + CUBIE_SPACING)
+    return this.position.clone().mult(this.size + this.cubieSpacing)
   }
 
   render() {

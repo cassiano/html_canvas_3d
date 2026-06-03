@@ -195,3 +195,114 @@ export const timesForEachN = <T, D extends number[]>(
 
   accumulateIndices(dimensions, [])
 }
+
+// Slider configuration
+export interface SliderConfig {
+  label?: string
+  min?: number
+  max?: number
+  step?: number
+  value?: number
+  length?: number
+  color?: string
+  backgroundColor?: string
+  textColor?: string
+  onChange?: (value: number) => void
+  container?: HTMLElement
+  vertical?: boolean
+  showValue?: boolean
+  valueFormatter?: (value: number) => string
+}
+
+export const createSlider = (config: SliderConfig) => {
+  const {
+    label = 'Value',
+    min = 0,
+    max = 100,
+    step = 1,
+    value = (min + max) / 2,
+    length = 200,
+    color = '#4CAF50',
+    textColor = '#000',
+    onChange,
+    container = document.body,
+    vertical = false,
+    showValue = true,
+    valueFormatter = v => v.toFixed(1),
+  } = config
+
+  // Create wrapper
+  const wrapper = document.createElement('div')
+  wrapper.style.display = 'grid'
+  wrapper.style.gridTemplateColumns = '150px auto'
+  wrapper.style.alignItems = 'center'
+  wrapper.style.columnGap = '10px'
+  wrapper.style.margin = '8px 0'
+  wrapper.style.fontFamily = 'Arial, sans-serif'
+
+  // Create label
+  const labelEl = document.createElement('label')
+  labelEl.textContent = label
+  labelEl.style.color = textColor
+  labelEl.style.fontWeight = 'bold'
+  labelEl.style.fontSize = '14px'
+  labelEl.style.justifySelf = 'start'
+
+  // Create slider container
+  const sliderContainer = document.createElement('div')
+  sliderContainer.style.display = 'flex'
+  sliderContainer.style.alignItems = 'center'
+  sliderContainer.style.gap = '8px'
+
+  // Create input range
+  const input = document.createElement('input')
+  input.type = 'range'
+  input.min = String(min)
+  input.max = String(max)
+  input.step = String(step)
+  input.value = String(value)
+  input.style.width = vertical ? '40px' : `${length}px`
+  input.style.height = vertical ? `${length}px` : '6px'
+  if (vertical) input.style.writingMode = 'bt-lr'
+  input.style.cursor = 'pointer'
+  input.style.accentColor = color
+
+  // Create value display
+  const valueDisplay = document.createElement('span')
+  valueDisplay.textContent = valueFormatter(value)
+  valueDisplay.style.color = textColor
+  valueDisplay.style.minWidth = '50px'
+  valueDisplay.style.fontSize = '14px'
+  valueDisplay.style.fontWeight = 'bold'
+
+  // Update value display on input
+  input.addEventListener('input', e => {
+    const newValue = Number((e.target as HTMLInputElement).value)
+    valueDisplay.textContent = valueFormatter(newValue)
+    onChange?.(newValue)
+  })
+
+  // Assemble components
+  sliderContainer.appendChild(input)
+  if (showValue) sliderContainer.appendChild(valueDisplay)
+
+  wrapper.appendChild(labelEl)
+  wrapper.appendChild(sliderContainer)
+  container.appendChild(wrapper)
+
+  // Return controller object
+  return {
+    getValue: () => Number(input.value),
+    setValue: (newValue: number) => {
+      input.value = String(Math.max(min, Math.min(max, newValue)))
+      valueDisplay.textContent = valueFormatter(Number(input.value))
+      onChange?.(Number(input.value))
+    },
+    getElement: () => wrapper,
+    getInput: () => input,
+    destroy: () => wrapper.remove(),
+    setColor: (newColor: string) => {
+      input.style.accentColor = newColor
+    },
+  }
+}
