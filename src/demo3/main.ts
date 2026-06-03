@@ -40,42 +40,42 @@ let demoControlPanel: HTMLDivElement | null
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  const cubiesPerAxisSlider = createSlider({
-    label: 'Cubies per axis',
-    min: 1,
-    max: 20,
-    value: INITIAL_CUBIES_PER_AXIS,
-    container: demoControlPanel,
-  })
-
-  const cubieSizeSlider = createSlider({
-    label: 'Cubie size',
-    min: 5,
-    max: 200,
-    step: 5,
-    value: INITIAL_CUBIE_SIZE,
-    container: demoControlPanel,
-  })
-
-  const cubieSpacingSlider = createSlider({
-    label: 'Cubie spacing',
-    min: 0,
-    max: 100,
-    value: INITIAL_CUBIE_SPACING,
-    container: demoControlPanel,
-  })
+  const sliders = {
+    cubiesPerAxis: createSlider({
+      label: 'Cubies per axis',
+      min: 1,
+      max: 20,
+      value: INITIAL_CUBIES_PER_AXIS,
+      container: demoControlPanel,
+    }),
+    cubieSize: createSlider({
+      label: 'Cubie size',
+      min: 5,
+      max: 200,
+      step: 5,
+      value: INITIAL_CUBIE_SIZE,
+      container: demoControlPanel,
+    }),
+    cubieSpacing: createSlider({
+      label: 'Cubie spacing',
+      min: 0,
+      max: 100,
+      value: INITIAL_CUBIE_SPACING,
+      container: demoControlPanel,
+    }),
+  }
 
   const createRubikCube = () => {
     cube = new RubikCube(
-      cubieSizeSlider.getValue(),
-      cubiesPerAxisSlider.getValue(),
-      cubieSpacingSlider.getValue(),
+      sliders.cubieSize.getValue(),
+      sliders.cubiesPerAxis.getValue(),
+      sliders.cubieSpacing.getValue(),
     )
   }
 
-  cubiesPerAxisSlider.getInput().addEventListener('input', createRubikCube)
-  cubieSizeSlider.getInput().addEventListener('input', createRubikCube)
-  cubieSpacingSlider.getInput().addEventListener('input', createRubikCube)
+  Object.values(sliders).forEach(slider =>
+    slider.getInput().addEventListener('input', createRubikCube),
+  )
 
   createRubikCube()
 }
