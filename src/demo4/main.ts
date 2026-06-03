@@ -17,7 +17,6 @@ import { PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
 import { LSystem } from './l_system.ts'
 import { Turtle } from './turtle.ts'
-import { memoize } from '@cdandrea/memoize-ts'
 import { frameCount, createDemoControlPanel, createSlider } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 import { radians } from '../math_utils.ts'
@@ -67,16 +66,10 @@ const LSYSTEM_DATA = {
   length: 330,
 }
 
-let turtle: Turtle | null = null
+let turtle: Turtle
+let sentence: string
 
 const lsystem = new LSystem(LSYSTEM_DATA.axiom, LSYSTEM_DATA.rules)
-const generations = 2
-
-const generateSentenceFn = memoize((generations: number) => {
-  lsystem.reset()
-
-  return timesReduce(generations, () => lsystem.generate(), lsystem.axiom)
-})
 
 // -------------------------------------------------------------------------------------------------
 
@@ -97,6 +90,15 @@ const createDemoControls = () => {
       value: 50,
       container: demoControlPanel,
     }),
+    generations: createSlider({
+      label: 'Generations',
+      min: 0,
+      max: 3,
+      value: 2,
+      length: 80,
+      color: 'blue',
+      container: demoControlPanel,
+    }),
   }
 
   const createTurtle = () => {
@@ -105,17 +107,32 @@ const createDemoControls = () => {
     if (smallerCubeScale === 0) smallerCubeScale = Number.EPSILON
 
     turtle = new Turtle(
-      LSYSTEM_DATA.length / (2 + smallerCubeScale) ** generations,
+      LSYSTEM_DATA.length /
+        (2 + smallerCubeScale) ** sliders.generations.getValue(),
       radians(LSYSTEM_DATA.angleInDegrees),
       smallerCubeScale,
     )
   }
 
-  Object.values(sliders).forEach(slider =>
-    slider.getInput().addEventListener('input', createTurtle),
-  )
+  const generateSentence = () => {
+    lsystem.reset()
+
+    sentence = timesReduce(
+      sliders.generations.getValue(),
+      () => lsystem.generate(),
+      lsystem.axiom,
+    )
+  }
+
+  sliders.smallerCubeScale.getInput().addEventListener('input', createTurtle)
+
+  sliders.generations.getInput().addEventListener('input', () => {
+    createTurtle()
+    generateSentence()
+  })
 
   createTurtle()
+  generateSentence()
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -131,8 +148,6 @@ const draw = () => {
   rotateY(-millis() / 2000)
 
   render3dAxes()
-
-  const sentence = generateSentenceFn(generations)
 
   turtle?.render(sentence)
 }
