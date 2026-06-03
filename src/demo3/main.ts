@@ -54,6 +54,7 @@ const createDemoControls = () => {
       max: 200,
       step: 5,
       value: INITIAL_CUBIE_SIZE,
+      color: 'blue',
       container: demoControlPanel,
     }),
     cubieSpacing: createSlider({
@@ -61,6 +62,7 @@ const createDemoControls = () => {
       min: 0,
       max: 100,
       value: INITIAL_CUBIE_SPACING,
+      color: 'red',
       container: demoControlPanel,
     }),
   }
