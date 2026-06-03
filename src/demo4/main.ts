@@ -13,7 +13,7 @@ import {
   text2d,
 } from './../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI } from './../math_utils.ts'
+import { max, PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
 import { LSystem } from './l_system.ts'
 import { Turtle } from './turtle.ts'
@@ -103,33 +103,32 @@ const createDemoControls = () => {
   }
 
   const createTurtle = () => {
-    let smallerCubeScale = sliders.smallerCubeScale.getValue() / 100
-
-    if (smallerCubeScale === 0) smallerCubeScale = Number.EPSILON
+    const generations = sliders.generations.getValue()
+    const smallerCubeScale = max(
+      sliders.smallerCubeScale.getValue() / 100,
+      Number.EPSILON, // `smallerCubeScale` cannot be zero.
+    )
 
     turtle = new Turtle(
-      LSYSTEM_DATA.length /
-        (2 + smallerCubeScale) ** sliders.generations.getValue(),
+      LSYSTEM_DATA.length / (2 + smallerCubeScale) ** generations,
       radians(LSYSTEM_DATA.angleInDegrees),
       smallerCubeScale,
     )
   }
 
   const generateSentence = () => {
+    const generations = sliders.generations.getValue()
+
     lsystem.reset()
 
-    sentence = timesReduce(
-      sliders.generations.getValue(),
-      () => lsystem.generate(),
-      lsystem.axiom,
-    )
+    sentence = timesReduce(generations, () => lsystem.generate(), lsystem.axiom)
   }
 
   sliders.smallerCubeScale.getInput().addEventListener('input', createTurtle)
 
   sliders.generations.getInput().addEventListener('input', () => {
-    createTurtle()
     generateSentence()
+    createTurtle()
   })
 
   createTurtle()
