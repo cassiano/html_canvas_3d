@@ -3,7 +3,12 @@
 /////////////////////
 
 import { FPS } from './../constants.ts'
-import { createFrameLoop, fps, millis } from './../utils.ts'
+import {
+  createDemoControlPanel,
+  createFrameLoop,
+  fps,
+  millis,
+} from './../utils.ts'
 import {
   background,
   render3dScene,
@@ -24,28 +29,18 @@ import {
 import { frameCount, createSlider } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 
-// Get the canvas container
-const canvasContainer = document.getElementById('canvas-container')
-
-let demoControlPanel: HTMLDivElement | null = null
-let cubiesPerAxisSlider: ReturnType<typeof createSlider> | null = null
-let cubieSizeSlider: ReturnType<typeof createSlider> | null = null
-let cubieSpacingSlider: ReturnType<typeof createSlider> | null = null
 let cube: RubikCube | null = null
 
+// Get the canvas container
+const canvasContainer = document.getElementById('canvas-container')
+if (!canvasContainer) throw new Error('canvasContainer not found')
+
+let demoControlPanel: HTMLDivElement | null
+
 const createDemoControls = () => {
-  demoControlPanel = document.createElement('div')
-  demoControlPanel.style.position = 'absolute'
-  demoControlPanel.style.top = '10px'
-  demoControlPanel.style.left = '10px'
-  demoControlPanel.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'
-  demoControlPanel.style.padding = '10px'
-  demoControlPanel.style.borderRadius = '5px'
-  demoControlPanel.style.zIndex = '100'
+  demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  canvasContainer?.appendChild(demoControlPanel)
-
-  cubiesPerAxisSlider = createSlider({
+  const cubiesPerAxisSlider = createSlider({
     label: 'Cubies per axis',
     min: 1,
     max: 20,
@@ -53,15 +48,16 @@ const createDemoControls = () => {
     container: demoControlPanel,
   })
 
-  cubieSizeSlider = createSlider({
+  const cubieSizeSlider = createSlider({
     label: 'Cubie size',
-    min: 1,
-    max: 300,
+    min: 5,
+    max: 200,
+    step: 5,
     value: INITIAL_CUBIE_SIZE,
     container: demoControlPanel,
   })
 
-  cubieSpacingSlider = createSlider({
+  const cubieSpacingSlider = createSlider({
     label: 'Cubie spacing',
     min: 0,
     max: 100,
@@ -69,41 +65,19 @@ const createDemoControls = () => {
     container: demoControlPanel,
   })
 
-  cubiesPerAxisSlider.getInput().addEventListener('input', (e: Event) => {
-    const newValue = Number((e.target as HTMLInputElement).value)
-
-    cube = new RubikCube(
-      cubieSizeSlider!.getValue(),
-      newValue,
-      cubieSpacingSlider!.getValue(),
-    )
-  })
-
-  cubieSizeSlider.getInput().addEventListener('input', (e: Event) => {
-    const newValue = Number((e.target as HTMLInputElement).value)
-
-    cube = new RubikCube(
-      newValue,
-      cubiesPerAxisSlider!.getValue(),
-      cubieSpacingSlider!.getValue(),
-    )
-  })
-
-  cubieSpacingSlider.getInput().addEventListener('input', (e: Event) => {
-    const newValue = Number((e.target as HTMLInputElement).value)
-
+  const createRubikCube = () => {
     cube = new RubikCube(
       cubieSizeSlider!.getValue(),
       cubiesPerAxisSlider!.getValue(),
-      newValue,
+      cubieSpacingSlider!.getValue(),
     )
-  })
+  }
 
-  cube = new RubikCube(
-    cubieSizeSlider.getValue(),
-    cubiesPerAxisSlider.getValue(),
-    cubieSpacingSlider.getValue(),
-  )
+  cubiesPerAxisSlider.getInput().addEventListener('input', createRubikCube)
+  cubieSizeSlider.getInput().addEventListener('input', createRubikCube)
+  cubieSpacingSlider.getInput().addEventListener('input', createRubikCube)
+
+  createRubikCube()
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -144,10 +118,8 @@ const start = () => {
 
 const stop = () => {
   demoControlPanel?.remove()
+
   demoControlPanel = null
-  cubiesPerAxisSlider = null
-  cubieSizeSlider = null
-  cubieSpacingSlider = null
   cube = null
 
   stopFrameLoop()

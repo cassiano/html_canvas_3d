@@ -236,8 +236,8 @@ export const createSlider = (config: SliderConfig) => {
   wrapper.style.display = 'grid'
   wrapper.style.gridTemplateColumns = '150px auto'
   wrapper.style.alignItems = 'center'
-  wrapper.style.columnGap = '10px'
-  wrapper.style.margin = '8px 0'
+  wrapper.style.columnGap = '0px'
+  wrapper.style.margin = '0px 0'
   wrapper.style.fontFamily = 'Arial, sans-serif'
 
   // Create label
@@ -305,4 +305,20 @@ export const createSlider = (config: SliderConfig) => {
       input.style.accentColor = newColor
     },
   }
+}
+
+export const createDemoControlPanel = (canvasContainer: HTMLElement) => {
+  const demoControlPanel = document.createElement('div')
+
+  demoControlPanel.style.position = 'absolute'
+  demoControlPanel.style.top = '10px'
+  demoControlPanel.style.left = '10px'
+  demoControlPanel.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'
+  demoControlPanel.style.padding = '10px'
+  demoControlPanel.style.borderRadius = '5px'
+  demoControlPanel.style.zIndex = '100'
+
+  canvasContainer?.appendChild(demoControlPanel)
+
+  return demoControlPanel
 }
