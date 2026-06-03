@@ -88,6 +88,7 @@ const createDemoControls = () => {
       min: 0,
       max: 100,
       value: 50,
+      valueFormatter: v => `${v.toFixed(1)}%`,
       container: demoControlPanel,
     }),
     generations: createSlider({
