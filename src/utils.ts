@@ -234,7 +234,7 @@ export const createSlider = (config: SliderConfig) => {
   // Create wrapper
   const wrapper = document.createElement('div')
   wrapper.style.display = 'grid'
-  wrapper.style.gridTemplateColumns = '150px auto'
+  wrapper.style.gridTemplateColumns = '115px auto'
   wrapper.style.alignItems = 'center'
   wrapper.style.columnGap = '0px'
   wrapper.style.margin = '0px 0'
