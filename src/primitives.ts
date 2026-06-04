@@ -881,16 +881,16 @@ export const cylinder = (
 }
 
 export const elbow = (radius: number, options: CircularShapeOptions = {}) => {
-  const ringHeight = (2 * PI * radius) / 4 / ELBOW_CIRCLE_SLICES // (2.π.R)/4 = 1/4 of circle perimeter.
+  const ringDepth = (2 * PI * radius) / 4 / ELBOW_CIRCLE_SLICES // (2.π.R)/4 = 1/4 of circle perimeter.
 
   for (let theta = 0; theta < PI / 2; theta += PI / 2 / ELBOW_CIRCLE_SLICES) {
     isolateTransformations(() => {
       translate(radius / 2, 0, 0)
       rotateZ(-theta)
-      translate(-radius / 2, ringHeight / 2, 0)
+      translate(-radius / 2, ringDepth / 2, 0)
       rotateX(-PI / 2)
 
-      ring(radius / 2, ringHeight, options)
+      ring(radius / 2, ringDepth, options)
     })
   }
 }
