@@ -27,6 +27,7 @@ const PAN_SENSITIVITY = 0.5
 // Enable pinch zoom via trackpad (Ctrl/Cmd + wheel).
 const ZOOM_SENSITIVITY = 0.005
 
+// https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2216ycxo8haHnk1SCg2AMhUQFdqJVPgdLF7%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 const demoModules = import.meta.glob('./demo*/main.ts') // Using Vite's glob.
 const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.ts`)
 
