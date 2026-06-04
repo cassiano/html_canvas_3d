@@ -51,6 +51,7 @@ const createDemoControls = () => {
       min: 1,
       max: 50,
       value: 10,
+      color: 'blue',
       container: demoControlPanel,
     }),
     depth: createSlider({
@@ -58,6 +59,7 @@ const createDemoControls = () => {
       min: 0,
       max: 500,
       value: 160,
+      color: 'red',
       container: demoControlPanel,
     }),
   }

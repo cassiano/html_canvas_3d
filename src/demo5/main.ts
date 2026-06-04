@@ -51,6 +51,7 @@ const createDemoControls = () => {
       min: 2,
       max: 360,
       value: SPHERE_LINES.longitude,
+      color: 'blue',
       container: demoControlPanel,
     }),
   }
