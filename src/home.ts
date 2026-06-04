@@ -27,7 +27,8 @@ const PAN_SENSITIVITY = 0.5
 // Enable pinch zoom via trackpad (Ctrl/Cmd + wheel).
 const ZOOM_SENSITIVITY = 0.005
 
-const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.js`)
+const demoModules = import.meta.glob('./demo*/main.ts') // Using Vite's glob.
+const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.ts`)
 
 const demoButtons: HTMLButtonElement[] = timesMap(
   DEMO_COUNT,
@@ -100,34 +101,19 @@ function switchDemo(demoPath: string) {
   setActiveButton(demoPath)
 }
 
-// async function loadDemo(demoPath: string) {
-//   try {
-//     const module = await import(demoPath)
-
-//     currentDemo = { start: module.start, stop: module.stop }
-//     currentDemo.start()
-
-//     showDemo()
-//   } catch (error) {
-//     console.error('Failed to load demo:', error)
-//   }
-// }
-
 async function loadDemo(demoPath: string) {
   try {
-    // O Vite analisa strings que começam com ./ ou ../ e terminam com extensão
-    // Ele não aceita uma variável pura como import(demoPath)
+    if (!demoModules[demoPath]) throw new Error(`Demo not found: ${demoPath}`)
 
-    // Extraia o número ou o nome da pasta do demoPath original
-    // Exemplo: se demoPath for "./demo1/main.js", pegue o "1"
-    const demoMatch = demoPath.match(/demo(\d+)/)
-    const demoNumber = demoMatch ? demoMatch[1] : '1'
-
-    // Ao escrever assim, o Vite entende que deve incluir todos os main.ts das pastas demo
-    const module = await import(`./demo${demoNumber}/main.ts`)
+    // Notice the glob returns a function which in turn returns a Promise.
+    const module = (await demoModules[demoPath]()) as {
+      start: () => void
+      stop: () => void
+    }
 
     currentDemo = { start: module.start, stop: module.stop }
     currentDemo.start()
+
     showDemo()
   } catch (error) {
     console.error('Failed to load demo:', error)
