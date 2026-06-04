@@ -3,7 +3,14 @@
 /////////////////
 
 import { FPS, FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
-import { createFrameLoop, fps, frameCount, millis } from '../utils.ts'
+import {
+  createFrameLoop,
+  fps,
+  frameCount,
+  millis,
+  createDemoControlPanel,
+  createSlider,
+} from '../utils.ts'
 import {
   background,
   render3dScene,
@@ -16,13 +23,44 @@ import { cos, PI, sin } from '../math_utils.ts'
 import { rotateY, isolateTransformations } from '../primitives.ts'
 import { rotateX, ring } from '../primitives.ts'
 
-const TOTAL_RINGS = 25
+// -------------------------------------------------------------------------------------------------
+
+const DEFAULT_TOTAL_RINGS = 25
 const LARGEST_RING_RADIUS = 250
+
+// -------------------------------------------------------------------------------------------------
+
+// Get the canvas container
+const canvasContainer = document.getElementById('canvas-container')
+if (!canvasContainer) throw new Error('canvasContainer not found')
+
+let demoControlPanel: HTMLDivElement | null
+let sliders: {
+  totalRings: ReturnType<typeof createSlider>
+}
+
+const createDemoControls = () => {
+  demoControlPanel = createDemoControlPanel(canvasContainer)
+
+  sliders = {
+    totalRings: createSlider({
+      label: 'Total rings',
+      min: 1,
+      max: 100,
+      value: DEFAULT_TOTAL_RINGS,
+      container: demoControlPanel,
+    }),
+  }
+}
+
+// -------------------------------------------------------------------------------------------------
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
   if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
     console.log({ fps: fps() })
+
+  const totalRings = sliders.totalRings.getValue()
 
   background('lightGray')
 
@@ -31,13 +69,13 @@ const draw = () => {
 
   render3dAxes()
 
-  const highlightedRing = Math.floor(millis() / 100) % TOTAL_RINGS
+  const highlightedRing = Math.floor(millis() / 100) % totalRings
   let ringIndex = 0
 
   for (
     let radius = LARGEST_RING_RADIUS;
     radius > 0;
-    radius -= 250 / TOTAL_RINGS
+    radius -= 250 / totalRings
   ) {
     isolateTransformations(() => {
       rotateY(millis() / 50)
@@ -47,7 +85,7 @@ const draw = () => {
       const saturation = 100
       const lightness =
         ringIndex === highlightedRing ||
-        TOTAL_RINGS - ringIndex === highlightedRing
+        totalRings - ringIndex === highlightedRing
           ? 100
           : ((cos(millis() / 5000) + 1) / 2) * 40 + 30
 
@@ -65,7 +103,7 @@ const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
-const { start, stop } = createFrameLoop(
+const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
@@ -74,5 +112,17 @@ const { start, stop } = createFrameLoop(
   onPaused,
   FPS,
 )
+
+const start = () => {
+  createDemoControls()
+  startFrameLoop()
+}
+
+const stop = () => {
+  demoControlPanel?.remove()
+  demoControlPanel = null
+
+  stopFrameLoop()
+}
 
 export { start, stop }
