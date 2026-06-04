@@ -20,6 +20,8 @@ import { PI } from '../math_utils.ts'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
 import { rotateY } from '../primitives.ts'
 
+// -------------------------------------------------------------------------------------------------
+
 const DEPTH = 2000
 const GRAVITY = 0.1
 const gravity = $v(0, -GRAVITY, 0)

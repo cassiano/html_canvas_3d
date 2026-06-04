@@ -29,6 +29,8 @@ import {
 import { frameCount, createSlider } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 
+// -------------------------------------------------------------------------------------------------
+
 let cube: RubikCube | null = null
 
 // Get the canvas container

@@ -16,6 +16,8 @@ import { PI } from '../math_utils.ts'
 import { rotateX, rotateZ } from '../primitives.ts'
 import { Terrain } from './terrain.ts'
 
+// -------------------------------------------------------------------------------------------------
+
 const terrain = new Terrain(10, 500, 500, 160, 10)
 
 const draw = () => {

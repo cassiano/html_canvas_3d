@@ -21,6 +21,8 @@ import { frameCount, createDemoControlPanel, createSlider } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 import { radians } from '../math_utils.ts'
 
+// -------------------------------------------------------------------------------------------------
+
 const SQUARE_SIDES = 4
 
 const moveAddedHalves = '½▽◻△◻②'

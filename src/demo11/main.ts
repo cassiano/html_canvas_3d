@@ -21,6 +21,8 @@ import {
 } from '../primitives.ts'
 import { rotateX, translate, ring } from '../primitives.ts'
 
+// -------------------------------------------------------------------------------------------------
+
 const PIPE = { radius: 25, height: 150 }
 const ELBOW_COLOR = 'darkGray'
 
