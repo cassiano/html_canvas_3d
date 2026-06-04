@@ -1,5 +1,16 @@
 import { $v } from './vector_3d.ts'
 
+// Canonical unit vectors (+ and -).
+export const AXES = {
+  x: $v(1, 0, 0),
+  y: $v(0, 1, 0),
+  z: $v(0, 0, 1),
+
+  ['-x']: $v(-1, 0, 0),
+  ['-y']: $v(0, -1, 0),
+  ['-z']: $v(0, 0, -1),
+}
+
 export const FPS = 120
 export const FPS_LOGGING_FRAME_FREQUENCY = 30
 export const FOCAL_LENGTH = 400

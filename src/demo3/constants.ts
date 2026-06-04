@@ -1,5 +1,6 @@
 import { Tuple } from '../utility_types.ts'
-import { AXES, Vector3d } from '../vector_3d.ts'
+import { Vector3d } from '../vector_3d.ts'
+import { AXES } from '../constants.ts'
 
 export type Coord3D = Tuple<number, 3>
 

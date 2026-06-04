@@ -17,11 +17,11 @@ import {
   Vector3d,
   $v,
   createVector,
-  AXES,
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
 } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
+import { AXES } from '../constants.ts'
 
 const test = Deno.test
 

@@ -3,10 +3,10 @@ import {
   LINE_SEGMENTS,
   FOCAL_LENGTH,
   Z_EPSILON,
+  AXES,
 } from './constants.ts'
 import {
   $v,
-  AXES,
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
   Vector3d,
