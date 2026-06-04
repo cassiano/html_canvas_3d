@@ -3,7 +3,14 @@
 ///////////////////////
 
 import { FPS, FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
-import { createFrameLoop, fps, millis, frameCount } from '../utils.ts'
+import {
+  createFrameLoop,
+  fps,
+  millis,
+  frameCount,
+  createDemoControlPanel,
+  createSlider,
+} from '../utils.ts'
 import {
   background,
   render3dScene,
@@ -18,7 +25,59 @@ import { Terrain } from './terrain.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const terrain = new Terrain(10, 500, 500, 160, 10)
+let terrain: Terrain | null = null
+
+// -------------------------------------------------------------------------------------------------
+
+// Get the canvas container
+const canvasContainer = document.getElementById('canvas-container')
+if (!canvasContainer) throw new Error('canvasContainer not found')
+
+let demoControlPanel: HTMLDivElement | null
+
+const createDemoControls = () => {
+  demoControlPanel = createDemoControlPanel(canvasContainer)
+
+  const sliders = {
+    tileSize: createSlider({
+      label: 'Tile size',
+      min: 3,
+      max: 80,
+      value: 10,
+      container: demoControlPanel,
+    }),
+    smoothiness: createSlider({
+      label: 'Smoothiness',
+      min: 1,
+      max: 50,
+      value: 10,
+      container: demoControlPanel,
+    }),
+    depth: createSlider({
+      label: 'Depth (Z-axis)',
+      min: 0,
+      max: 500,
+      value: 160,
+      container: demoControlPanel,
+    }),
+  }
+
+  const createTerrain = () => {
+    const tileSize = sliders.tileSize.getValue()
+    const smoothiness = sliders.smoothiness.getValue()
+    const depth = sliders.depth.getValue()
+
+    terrain = new Terrain(tileSize, 500, 500, depth, smoothiness)
+  }
+
+  Object.values(sliders).forEach(slider =>
+    slider.getInput().addEventListener('input', createTerrain),
+  )
+
+  createTerrain()
+}
+
+// -------------------------------------------------------------------------------------------------
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
@@ -40,7 +99,7 @@ const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
-const { start, stop } = createFrameLoop(
+const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
@@ -49,5 +108,17 @@ const { start, stop } = createFrameLoop(
   onPaused,
   FPS,
 )
+
+const start = () => {
+  createDemoControls()
+  startFrameLoop()
+}
+
+const stop = () => {
+  demoControlPanel?.remove()
+  demoControlPanel = null
+
+  stopFrameLoop()
+}
 
 export { start, stop }
