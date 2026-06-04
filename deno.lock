@@ -382,6 +382,7 @@
     "packageJson": {
       "dependencies": [
         "npm:deno@^2.7.14",
+        "npm:gh-pages@^6.3.0",
         "npm:vite@^8.0.13"
       ]
     }
