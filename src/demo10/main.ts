@@ -91,8 +91,8 @@ const draw = () => {
 
   render3dAxes()
 
-  terrain.calculate(frameCount() / 300)
-  terrain.render()
+  terrain?.calculate(frameCount() / 300)
+  terrain?.render()
 }
 
 const onPaused = () => {
