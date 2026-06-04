@@ -720,9 +720,21 @@ export const cube = (size: number, options: ShapeOptions = {}) => {
   box(size, size, size, options)
 }
 
-export const sphere = (radius: number, options: ShapeOptions = {}) => {
-  const longSegments = SPHERE_LINES.longitude
-  const latSegments = SPHERE_LINES.latitude + 1
+type SphericalShapeOptions = ShapeOptions & {
+  latitudeLines?: number
+  longitudeLines?: number
+}
+
+export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    latitudeLines: SPHERE_LINES.latitude,
+    longitudeLines: SPHERE_LINES.longitude,
+    ...options,
+  }
+
+  const longSegments = finalOptions.longitudeLines
+  const latSegments = finalOptions.latitudeLines + 1
 
   const getPoint = (latIndex: number, longIndex: number): Vector3d => {
     const latAngle = (latIndex / latSegments) * PI // [0, PI]
