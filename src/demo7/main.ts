@@ -13,7 +13,6 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateZ } from '../primitives.ts'
 import {
   rotateX,
   cone,
@@ -42,6 +41,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, HEIGHT / 2, 0)
+    rotateX(-PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'orange',
@@ -51,7 +51,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, -HEIGHT / 2, 0)
-    rotateX(PI)
+    rotateX(PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'brown',
@@ -61,7 +61,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(HEIGHT / 2, 0, 0)
-    rotateZ(-PI / 2)
+    rotateY(PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'yellow',
@@ -71,7 +71,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(-HEIGHT / 2, 0, 0)
-    rotateZ(PI / 2)
+    rotateY(-PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'pink',
@@ -81,7 +81,6 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, 0, HEIGHT / 2)
-    rotateX(PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'lime',
@@ -91,7 +90,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, 0, -HEIGHT / 2)
-    rotateX(-PI / 2)
+    rotateY(PI)
 
     cone(RADIUS, HEIGHT, {
       color: 'magenta',

@@ -447,7 +447,7 @@ export const arrow = (
 
     translate(0, lineAB.mag(), 0)
 
-    rotateX(PI)
+    rotateX(PI / 2)
 
     cone(tipRadius, tipHeight, {
       ...options,
@@ -763,7 +763,7 @@ export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
 type CircularShapeOptions = ShapeOptions & { circleSegments?: number }
 
 export const circle2d = (
-  radius: number,
+  radius: number, // XY-plane
   options: CircularShapeOptions = {},
 ) => {
   const finalOptions = {
@@ -788,8 +788,8 @@ export const circle2d = (
 }
 
 export const ring = (
-  radius: number,
-  height: number,
+  radius: number, // XY-plane
+  depth: number, // Z-axis
   options: CircularShapeOptions = {},
 ) => {
   const finalOptions = {
@@ -802,7 +802,7 @@ export const ring = (
   const step = (2 * PI) / circleSegments
 
   isolateTransformations(() => {
-    translate(0, 0, -height / 2)
+    translate(0, 0, -depth / 2)
 
     for (let i = 0; i < circleSegments; i++) {
       const theta1 = i * step
@@ -810,8 +810,8 @@ export const ring = (
 
       const p1 = $v(radius * cos(theta1), radius * sin(theta1), 0)
       const p2 = $v(radius * cos(theta2), radius * sin(theta2), 0)
-      const p3 = $v(radius * cos(theta2), radius * sin(theta2), height)
-      const p4 = $v(radius * cos(theta1), radius * sin(theta1), height)
+      const p3 = $v(radius * cos(theta2), radius * sin(theta2), depth)
+      const p4 = $v(radius * cos(theta1), radius * sin(theta1), depth)
 
       quad(p1, p2, p3, p4, options)
     }
@@ -819,8 +819,8 @@ export const ring = (
 }
 
 export const cone = (
-  radius: number, // XZ-plane
-  height: number, // Y-axis.
+  radius: number, // XY-plane
+  depth: number, // Z-axis.
   options: CircularShapeOptions = {},
 ) => {
   const finalOptions = {
@@ -831,28 +831,26 @@ export const cone = (
   const { circleSegments } = finalOptions
 
   const step = (2 * PI) / circleSegments
-  const tip = $v(0, -height / 2, 0)
-  const upperCenter = $v(0, height / 2, 0)
+  const tip = $v(0, 0, -depth / 2)
+  const frontCenter = $v(0, 0, depth / 2)
 
   for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    // Notice that in a Right-Handed Rule (RHR) System, Z precedes X. This explains X using sine
-    // and Z using cosine.
-    const p1 = $v(radius * sin(theta1), height / 2, radius * cos(theta1))
-    const p2 = $v(radius * sin(theta2), height / 2, radius * cos(theta2))
+    const p1 = $v(radius * cos(theta1), radius * sin(theta1), depth / 2)
+    const p2 = $v(radius * cos(theta2), radius * sin(theta2), depth / 2)
 
     // Form 2 slices, one connecting the above two points on the perimeter to the tip and
     // another to the upper center.
-    triangle2d(p1, p2, upperCenter, options)
+    triangle2d(p1, p2, frontCenter, options)
     triangle2d(p2, p1, tip, options)
   }
 }
 
 export const cylinder = (
-  radius: number, // XZ-plane
-  height: number, // Y-axis.
+  radius: number, // XY-plane
+  depth: number, // Z-axis.
   options: CircularShapeOptions = {},
 ) => {
   const finalOptions = {
@@ -863,24 +861,22 @@ export const cylinder = (
   const { circleSegments } = finalOptions
 
   const step = (2 * PI) / circleSegments
-  const lowerCenter = $v(0, -height / 2, 0)
-  const upperCenter = $v(0, height / 2, 0)
+  const backCenter = $v(0, 0, -depth / 2)
+  const frontCenter = $v(0, 0, depth / 2)
 
   for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    // Notice that in a Right-Handed Rule (RHR) System, Z precedes X. This explains X using sine
-    // and Z using cosine.
-    const p1 = $v(radius * sin(theta1), -height / 2, radius * cos(theta1))
-    const p2 = $v(radius * sin(theta2), -height / 2, radius * cos(theta2))
-    const upperP1 = p1.clone().add(0, height, 0)
-    const upperP2 = p2.clone().add(0, height, 0)
+    const p1 = $v(radius * cos(theta1), radius * sin(theta1), -depth / 2)
+    const p2 = $v(radius * cos(theta2), radius * sin(theta2), -depth / 2)
+    const upperP1 = p1.clone().add(0, 0, depth)
+    const upperP2 = p2.clone().add(0, 0, depth)
 
     quad(p1, p2, upperP2, upperP1, options)
 
-    triangle2d(p2, p1, lowerCenter, options)
-    triangle2d(upperP1, upperP2, upperCenter, options)
+    triangle2d(p2, p1, backCenter, options)
+    triangle2d(upperP1, upperP2, frontCenter, options)
   }
 }
 
