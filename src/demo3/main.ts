@@ -70,11 +70,11 @@ const createDemoControls = () => {
   }
 
   const createRubikCube = () => {
-    cube = new RubikCube(
-      sliders.cubieSize.getValue(),
-      sliders.cubiesPerAxis.getValue(),
-      sliders.cubieSpacing.getValue(),
-    )
+    const cubieSize = sliders.cubieSize.getValue()
+    const cubiesPerAxis = sliders.cubiesPerAxis.getValue()
+    const cubieSpacing = sliders.cubieSpacing.getValue()
+
+    cube = new RubikCube(cubieSize, cubiesPerAxis, cubieSpacing)
   }
 
   Object.values(sliders).forEach(slider =>
