@@ -5,4 +5,5 @@ export default defineConfig({
     // Use the boolean true to allow all hosts
     allowedHosts: true,
   },
+  base: '/html_canvas_3d/',
 })
