@@ -133,8 +133,8 @@ const createDemoControls = () => {
     createTurtle()
   })
 
-  createTurtle()
   generateSentence()
+  createTurtle()
 }
 
 // -------------------------------------------------------------------------------------------------
