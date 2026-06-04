@@ -100,13 +100,34 @@ function switchDemo(demoPath: string) {
   setActiveButton(demoPath)
 }
 
+// async function loadDemo(demoPath: string) {
+//   try {
+//     const module = await import(demoPath)
+
+//     currentDemo = { start: module.start, stop: module.stop }
+//     currentDemo.start()
+
+//     showDemo()
+//   } catch (error) {
+//     console.error('Failed to load demo:', error)
+//   }
+// }
+
 async function loadDemo(demoPath: string) {
   try {
-    const module = await import(/* @vite-ignore */ demoPath)
+    // O Vite analisa strings que começam com ./ ou ../ e terminam com extensão
+    // Ele não aceita uma variável pura como import(demoPath)
+
+    // Extraia o número ou o nome da pasta do demoPath original
+    // Exemplo: se demoPath for "./demo1/main.js", pegue o "1"
+    const demoMatch = demoPath.match(/demo(\d+)/)
+    const demoNumber = demoMatch ? demoMatch[1] : '1'
+
+    // Ao escrever assim, o Vite entende que deve incluir todos os main.ts das pastas demo
+    const module = await import(`./demo${demoNumber}/main.ts`)
 
     currentDemo = { start: module.start, stop: module.stop }
     currentDemo.start()
-
     showDemo()
   } catch (error) {
     console.error('Failed to load demo:', error)
