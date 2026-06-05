@@ -1,13 +1,44 @@
 import { PI } from './math_utils.ts'
-import { ElbowShapeOptions } from './primitives.ts'
+import { DEFAULT_SHAPE_OPTIONS, ring } from './primitives.ts'
+import {
+  DEFAULT_CIRCLE_SEGMENTS,
+  DEFAULT_ELBOW_CIRCLE_SLICES,
+} from './constants.ts'
 import {
   isolateTransformations,
-  elbow,
   rotateX,
   rotateY,
   translate,
   rotateZ,
+  CircularShapeOptions,
 } from './primitives.ts'
+
+export type ElbowShapeOptions = CircularShapeOptions & {
+  elbowCircleSlices?: number
+}
+
+export const elbow = (radius: number, options: ElbowShapeOptions = {}) => {
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
+    elbowCircleSlices: DEFAULT_ELBOW_CIRCLE_SLICES,
+    ...options,
+  }
+  const { elbowCircleSlices } = finalOptions
+
+  const ringDepth = (2 * PI * radius) / 4 / elbowCircleSlices // (2.π.R)/4 = 1/4 of circle perimeter.
+
+  for (let theta = 0; theta < PI / 2; theta += PI / 2 / elbowCircleSlices) {
+    isolateTransformations(() => {
+      translate(radius / 2, 0, 0)
+      rotateZ(-theta)
+      translate(-radius / 2, ringDepth / 2, 0)
+      rotateX(-PI / 2)
+
+      ring(radius / 2, ringDepth, options)
+    })
+  }
+}
 
 export const elbowRightPosY = (
   radius: number,

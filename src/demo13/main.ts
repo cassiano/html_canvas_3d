@@ -10,17 +10,19 @@ import {
   render3dAxes,
   resetTransformationMatrix,
   text2d,
+  rotateY,
+  rotateX,
+  translate,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateY, ElbowShapeOptions } from '../primitives.ts'
-import { rotateX, translate } from '../primitives.ts'
 import {
+  ElbowShapeOptions,
   elbowUpPosX,
   elbowLeftPosY,
   elbowDownNegX,
   elbowRightNegY,
-} from '../elbows.ts'
+} from '../elbow_primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 

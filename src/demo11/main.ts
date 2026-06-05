@@ -10,19 +10,21 @@ import {
   render3dAxes,
   resetTransformationMatrix,
   text2d,
-} from '../primitives.ts'
-import { $v } from '../vector_3d.ts'
-import { cos, PI, sin } from '../math_utils.ts'
-import {
   rotateY,
   isolateTransformations,
   translate,
   ring,
   rotateZ,
+  rotateX,
 } from '../primitives.ts'
-import { rotateX } from '../primitives.ts'
-import { elbowUpPosZ } from '../elbows.ts'
-import { elbowRightNegY, elbowRightPosY, elbowFrontPosX } from '../elbows.ts'
+import { $v } from '../vector_3d.ts'
+import { cos, PI, sin } from '../math_utils.ts'
+import {
+  elbowUpPosZ,
+  elbowRightNegY,
+  elbowRightPosY,
+  elbowFrontPosX,
+} from '../elbow_primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 

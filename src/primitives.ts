@@ -19,7 +19,7 @@ import {
   DEFAULT_ARROW_CIRCLE_SEGMENTS,
   DEFAULT_SPHERE_LINES,
 } from './constants.ts'
-import { ORIGIN, DEFAULT_ELBOW_CIRCLE_SLICES } from './constants.ts'
+import { ORIGIN } from './constants.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -40,7 +40,7 @@ export interface ShapeOptions {
   percentage?: number
 }
 
-const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
+export const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
   color: 'gray',
   lineWidth: 1,
   opacity: 1,
@@ -880,33 +880,6 @@ export const cylinder = (
 
     triangle2d(p2, p1, backCenter, options)
     triangle2d(upperP1, upperP2, frontCenter, options)
-  }
-}
-
-export type ElbowShapeOptions = CircularShapeOptions & {
-  elbowCircleSlices?: number
-}
-
-export const elbow = (radius: number, options: ElbowShapeOptions = {}) => {
-  const finalOptions = {
-    ...DEFAULT_SHAPE_OPTIONS,
-    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
-    elbowCircleSlices: DEFAULT_ELBOW_CIRCLE_SLICES,
-    ...options,
-  }
-  const { elbowCircleSlices } = finalOptions
-
-  const ringDepth = (2 * PI * radius) / 4 / elbowCircleSlices // (2.π.R)/4 = 1/4 of circle perimeter.
-
-  for (let theta = 0; theta < PI / 2; theta += PI / 2 / elbowCircleSlices) {
-    isolateTransformations(() => {
-      translate(radius / 2, 0, 0)
-      rotateZ(-theta)
-      translate(-radius / 2, ringDepth / 2, 0)
-      rotateX(-PI / 2)
-
-      ring(radius / 2, ringDepth, options)
-    })
   }
 }
 

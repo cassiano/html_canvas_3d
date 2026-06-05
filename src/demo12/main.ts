@@ -17,11 +17,13 @@ import {
   render3dAxes,
   resetTransformationMatrix,
   text2d,
+  rotateY,
+  isolateTransformations,
+  rotateX,
+  ring,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { cos, PI, sin } from '../math_utils.ts'
-import { rotateY, isolateTransformations } from '../primitives.ts'
-import { rotateX, ring } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
