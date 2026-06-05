@@ -17,9 +17,9 @@ import { rotateY, ElbowShapeOptions } from '../primitives.ts'
 import { rotateX, translate } from '../primitives.ts'
 import {
   elbowUpPosX,
-  elbowUpNegX,
-  elbowDownPosX,
+  elbowLeftPosY,
   elbowDownNegX,
+  elbowRightNegY,
 } from '../elbows.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -53,13 +53,10 @@ const draw = () => {
 
   translate(0, -RADIUS / 2, 0)
 
-  elbowUpPosX(RADIUS, options)
-  elbowUpNegX(RADIUS, options)
-
-  translate(0, RADIUS, 0)
-
-  elbowDownPosX(RADIUS, options)
-  elbowDownNegX(RADIUS, options)
+  elbowUpPosX(RADIUS, options, true)
+  elbowLeftPosY(RADIUS, options, true)
+  elbowDownNegX(RADIUS, options, true)
+  elbowRightNegY(RADIUS, options, true)
 }
 
 const onPaused = () => {
