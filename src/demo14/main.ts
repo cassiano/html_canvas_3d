@@ -18,21 +18,17 @@ import { rotateX } from '../primitives.ts'
 import { elbowRightPosY, elbowDownPosX } from '../elbows.ts'
 import {
   elbowLeftNegZ,
-  elbowFrontNegX,
-  elbowDownPosZ,
-  elbowFrontNegY,
-} from '../elbows.ts'
-import {
-  elbowBackPosY,
-  elbowDownNegX,
-  elbowBackNegY,
-  elbowRightPosZ,
-} from '../elbows.ts'
-import {
-  elbowRightNegY,
-  elbowUpPosX,
   elbowLeftPosY,
+  elbowRightPosZ,
+  elbowRightNegY,
+  elbowFrontNegX,
+  elbowFrontNegY,
+  elbowBackPosY,
+  elbowBackNegY,
+  elbowUpPosX,
   elbowUpNegX,
+  elbowDownNegX,
+  elbowDownPosZ,
 } from '../elbows.ts'
 
 // -------------------------------------------------------------------------------------------------
