@@ -40,6 +40,20 @@ let currentDemo: { start: () => void; stop: () => void } | null = null
 let currentButton: HTMLButtonElement | null = null
 let currentDemoPath = demoPaths[DEFAULT_DEMO - 1]
 
+function getDemoIdFromUrl(): number | null {
+  // deno-lint-ignore no-window
+  const params = new URLSearchParams(window.location.search)
+  const demoId = Number(params.get('demo_id'))
+
+  if (!Number.isInteger(demoId)) return null
+  if (demoId < 1 || demoId > DEMO_COUNT) return null
+
+  return demoId
+}
+
+const initialDemoId = getDemoIdFromUrl() ?? DEFAULT_DEMO
+currentDemoPath = demoPaths[initialDemoId - 1]
+
 const demoButtonMap = timesReduce(
   DEMO_COUNT,
   (acc: Record<string, HTMLButtonElement>, i) => {
@@ -215,6 +229,6 @@ animation.addEventListener('wheel', event => {
   addPanOffset(event.deltaX * PAN_SENSITIVITY, event.deltaY * PAN_SENSITIVITY)
 })
 
-// Load demo1 by default
-loadDemo(demoPaths[DEFAULT_DEMO - 1])
-setActiveButton(demoPaths[DEFAULT_DEMO - 1])
+// Load the selected demo from the URL (or fallback to the default)
+loadDemo(currentDemoPath)
+setActiveButton(currentDemoPath)
