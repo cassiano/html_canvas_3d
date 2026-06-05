@@ -13,7 +13,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateY, ElbowShapeOptions } from '../primitives.ts'
+import { rotateY, ElbowShapeOptions, translate } from '../primitives.ts'
 import { rotateX } from '../primitives.ts'
 import {
   elbowDownPosX,
@@ -58,6 +58,8 @@ const draw = () => {
   rotateY(-millis() / 2000)
 
   render3dAxes()
+
+  translate(200, 0, 150)
 
   elbowLeftNegZ(RADIUS, options, true)
   elbowUpNegX(RADIUS, options, true)
