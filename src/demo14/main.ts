@@ -11,25 +11,31 @@ import {
   resetTransformationMatrix,
   text2d,
   rotateY,
-  translate,
   rotateX,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
+import { elbowDownPosZ } from '../elbow_primitives.ts'
+import { translate } from '../primitives.ts'
+import {
+  elbowUpPosX,
+  elbowRightPosY,
+  elbowFrontPosY,
+} from '../elbow_primitives.ts'
+import {
+  elbowBackNegY,
+  elbowDownNegZ,
+  elbowRightNegY,
+} from '../elbow_primitives.ts'
+import {
+  elbowFrontNegX,
+  elbowUpPosZ,
+  elbowBackPosY,
+} from '../elbow_primitives.ts'
 import {
   ElbowShapeOptions,
-  elbowDownPosX,
-  elbowRightNegY,
   elbowLeftNegZ,
-  elbowLeftPosY,
-  elbowRightPosZ,
-  elbowFrontNegX,
-  elbowFrontNegY,
-  elbowBackPosY,
-  elbowBackNegY,
-  elbowUpNegX,
   elbowDownNegX,
-  elbowDownPosZ,
 } from '../elbow_primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -61,25 +67,23 @@ const draw = () => {
 
   render3dAxes()
 
-  translate(200, 0, 150)
+  translate(100, 100, 50)
 
+  elbowDownPosZ(RADIUS, options, true)
+  elbowBackNegY(RADIUS, options, true)
   elbowLeftNegZ(RADIUS, options, true)
-  elbowUpNegX(RADIUS, options, true)
-  elbowLeftPosY(RADIUS, options, true)
-  elbowUpNegX(RADIUS, options, true)
+  elbowFrontNegX(RADIUS, options, true)
+  elbowUpPosZ(RADIUS, options, true)
   elbowBackPosY(RADIUS, options, true)
   elbowLeftNegZ(RADIUS, options, true)
   elbowDownNegX(RADIUS, options, true)
   elbowBackNegY(RADIUS, options, true)
-  elbowLeftNegZ(RADIUS, options, true)
-  elbowFrontNegX(RADIUS, options, true)
-  elbowDownPosZ(RADIUS, options, true)
-  elbowFrontNegY(RADIUS, options, true)
-  elbowRightPosZ(RADIUS, options, true)
-  elbowDownPosX(RADIUS, options, true)
+  elbowDownNegZ(RADIUS, options, true)
   elbowRightNegY(RADIUS, options, true)
-  elbowDownPosX(RADIUS, options, true)
-  elbowRightNegY(RADIUS, options, true)
+  elbowUpPosX(RADIUS, options, true)
+  elbowRightPosY(RADIUS, options, true)
+  elbowUpPosX(RADIUS, options, true)
+  elbowFrontPosY(RADIUS, options, true)
 }
 
 const onPaused = () => {
