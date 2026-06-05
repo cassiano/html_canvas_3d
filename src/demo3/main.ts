@@ -26,8 +26,9 @@ import {
   INITIAL_CUBIES_PER_AXIS,
   INITIAL_CUBIE_SPACING,
 } from './constants.ts'
-import { frameCount, createSlider } from '../utils.ts'
+import { frameCount, createSlider, createToggle } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
+import { ROTATE_CUBIES } from './constants.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -38,6 +39,7 @@ const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
+let rotateCubiesToggle: ReturnType<typeof createToggle>
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
@@ -69,6 +71,13 @@ const createDemoControls = () => {
     }),
   }
 
+  rotateCubiesToggle = createToggle({
+    label: 'Rotate cubies?',
+    value: ROTATE_CUBIES,
+    showValue: false,
+    container: demoControlPanel,
+  })
+
   const createRubikCube = () => {
     const cubieSize = sliders.cubieSize.getValue()
     const cubiesPerAxis = sliders.cubiesPerAxis.getValue()
@@ -98,7 +107,7 @@ const draw = () => {
 
   render3dAxes()
 
-  cube?.render()
+  cube?.render(rotateCubiesToggle.getValue())
 }
 
 const onPaused = () => {

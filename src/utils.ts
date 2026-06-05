@@ -214,6 +214,95 @@ export interface SliderConfig {
   valueFormatter?: (value: number) => string
 }
 
+export interface ToggleConfig {
+  label?: string
+  value?: boolean
+  onLabel?: string
+  offLabel?: string
+  color?: string
+  textColor?: string
+  onChange?: (value: boolean) => void
+  container?: HTMLElement
+  showValue?: boolean
+}
+
+export const createToggle = (config: ToggleConfig) => {
+  const {
+    label = 'Value',
+    value = false,
+    onLabel = 'On',
+    offLabel = 'Off',
+    color = 'green',
+    textColor = 'black',
+    onChange,
+    container = document.body,
+    showValue = true,
+  } = config
+
+  const wrapper = document.createElement('div')
+  wrapper.style.display = 'grid'
+  wrapper.style.gridTemplateColumns = '115px auto'
+  wrapper.style.alignItems = 'center'
+  wrapper.style.columnGap = '0px'
+  wrapper.style.margin = '0px 0'
+  wrapper.style.fontFamily = 'Arial, sans-serif'
+
+  const labelEl = document.createElement('label')
+  labelEl.textContent = label
+  labelEl.style.color = textColor
+  labelEl.style.fontWeight = 'bold'
+  labelEl.style.fontSize = '14px'
+  labelEl.style.justifySelf = 'start'
+
+  const toggleContainer = document.createElement('div')
+  toggleContainer.style.display = 'flex'
+  toggleContainer.style.alignItems = 'center'
+  toggleContainer.style.gap = '8px'
+
+  const input = document.createElement('input')
+  input.type = 'checkbox'
+  input.checked = value
+  input.style.cursor = 'pointer'
+  input.style.width = '20px'
+  input.style.height = '20px'
+  input.style.accentColor = color
+
+  const valueDisplay = document.createElement('span')
+  valueDisplay.textContent = value ? onLabel : offLabel
+  valueDisplay.style.color = textColor
+  valueDisplay.style.minWidth = '50px'
+  valueDisplay.style.fontSize = '14px'
+  valueDisplay.style.fontWeight = 'bold'
+
+  input.addEventListener('change', e => {
+    const newValue = (e.target as HTMLInputElement).checked
+    valueDisplay.textContent = newValue ? onLabel : offLabel
+    onChange?.(newValue)
+  })
+
+  toggleContainer.appendChild(input)
+  if (showValue) toggleContainer.appendChild(valueDisplay)
+
+  wrapper.appendChild(labelEl)
+  wrapper.appendChild(toggleContainer)
+  container.appendChild(wrapper)
+
+  return {
+    getValue: () => input.checked,
+    setValue: (newValue: boolean) => {
+      input.checked = newValue
+      valueDisplay.textContent = newValue ? onLabel : offLabel
+      onChange?.(newValue)
+    },
+    getElement: () => wrapper,
+    getInput: () => input,
+    destroy: () => wrapper.remove(),
+    setColor: (newColor: string) => {
+      input.style.accentColor = newColor
+    },
+  }
+}
+
 export const createSlider = (config: SliderConfig) => {
   const {
     label = 'Value',
