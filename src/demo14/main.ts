@@ -1,6 +1,6 @@
-/////////////////
-// Sphere Demo //
-/////////////////
+////////////////////
+// Toboggans Demo //
+////////////////////
 
 import { FPS, FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 import { createFrameLoop, fps, frameCount, millis } from '../utils.ts'
