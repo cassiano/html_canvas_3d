@@ -1,1 +1,0 @@
-import{D as e,M as t,N as n,O as r,R as i,U as a,W as o,a as s,h as c,j as l,k as u,n as d,o as f,p,s as m}from"./index-DxBvkJYr.js";var h=()=>{f()%30==0&&console.log({fps:s()}),p(`lightGray`),t(o/4),n(-m()/2e3),e(),l(o/4,a(1,1,1)),c(200,{color:`teal`,isDoubleSided:!0,opacity:1})},{start:g,stop:_}=d(()=>{u(),h(),r()},()=>{i(`PAUSED`,a(0,300))},120);export{g as start,_ as stop};
