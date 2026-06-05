@@ -52,9 +52,12 @@ const draw = () => {
   render3dAxes()
 
   translate(0, -RADIUS / 2, 0)
+
   elbowUpPosX(RADIUS, options)
   elbowUpNegX(RADIUS, options)
+
   translate(0, RADIUS, 0)
+
   elbowDownPosX(RADIUS, options)
   elbowDownNegX(RADIUS, options)
 }
