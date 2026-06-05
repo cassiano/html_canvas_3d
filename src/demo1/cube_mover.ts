@@ -20,11 +20,11 @@ export class CubeMover extends Mover3D {
     super(mass, x, y, z)
   }
 
-  distanceFromCenterToBorder() {
+  override distanceFromCenterToBorder() {
     return this.size / 2
   }
 
-  render() {
+  override render() {
     isolateTransformations(() => {
       translate(this.position)
 

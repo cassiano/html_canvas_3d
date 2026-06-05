@@ -20,11 +20,11 @@ export class SphereMover extends Mover3D {
     super(mass, x, y, z)
   }
 
-  distanceFromCenterToBorder() {
+  override distanceFromCenterToBorder() {
     return this.radius
   }
 
-  render() {
+  override render() {
     isolateTransformations(() => {
       translate(this.position)
 

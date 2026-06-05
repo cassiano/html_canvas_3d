@@ -1,6 +1,6 @@
 import { $v, Vector3d } from '../vector_3d.ts'
 
-export class Mover3D {
+export abstract class Mover3D {
   position: Vector3d
   velocity: Vector3d
   acceleration: Vector3d
@@ -33,17 +33,9 @@ export class Mover3D {
     this.acceleration.add(acceleration)
   }
 
-  render({
-    xAngle,
-    yAngle,
-    zAngle,
-  }: { xAngle?: number; yAngle?: number; zAngle?: number } = {}) {
-    throw new Error('Not implemented')
-  }
+  abstract render(): void
 
-  distanceFromCenterToBorder(): number {
-    throw new Error('Not implemented')
-  }
+  abstract distanceFromCenterToBorder(): number
 
   touchedBottom(depth: number) {
     return -this.position.y + this.distanceFromCenterToBorder() > depth
