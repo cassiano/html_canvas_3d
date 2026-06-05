@@ -15,28 +15,19 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { elbowDownPosZ } from '../elbow_primitives.ts'
-import { translate } from '../primitives.ts'
 import {
   elbowUpPosX,
   elbowRightPosY,
-  elbowFrontPosY,
-} from '../elbow_primitives.ts'
-import {
-  elbowBackNegY,
-  elbowDownNegZ,
-  elbowRightNegY,
-} from '../elbow_primitives.ts'
-import {
-  elbowFrontNegX,
   elbowUpPosZ,
-  elbowBackPosY,
 } from '../elbow_primitives.ts'
 import {
   ElbowShapeOptions,
-  elbowLeftNegZ,
-  elbowDownNegX,
+  elbowFrontPosY,
+  elbowUpNegX,
+  elbowLeftPosY,
 } from '../elbow_primitives.ts'
+import { translate, isolateTransformations, square2d } from '../primitives.ts'
+import { elbowUpNegZ, elbowBackPosY } from '../elbow_primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -67,23 +58,50 @@ const draw = () => {
 
   render3dAxes()
 
-  translate(100, 100, 50)
+  isolateTransformations(() => {
+    translate(100, 0, 0)
 
-  elbowDownPosZ(RADIUS, options, true)
-  elbowBackNegY(RADIUS, options, true)
-  elbowLeftNegZ(RADIUS, options, true)
-  elbowFrontNegX(RADIUS, options, true)
-  elbowUpPosZ(RADIUS, options, true)
-  elbowBackPosY(RADIUS, options, true)
-  elbowLeftNegZ(RADIUS, options, true)
-  elbowDownNegX(RADIUS, options, true)
-  elbowBackNegY(RADIUS, options, true)
-  elbowDownNegZ(RADIUS, options, true)
-  elbowRightNegY(RADIUS, options, true)
-  elbowUpPosX(RADIUS, options, true)
-  elbowRightPosY(RADIUS, options, true)
-  elbowUpPosX(RADIUS, options, true)
-  elbowFrontPosY(RADIUS, options, true)
+    elbowUpPosX(RADIUS, options, true)
+    elbowRightPosY(RADIUS, options, true)
+    elbowUpPosX(RADIUS, options, true)
+    elbowRightPosY(RADIUS, options, true)
+    elbowUpPosX(RADIUS, options, true)
+  })
+
+  isolateTransformations(() => {
+    translate(-100, 0, 0)
+
+    elbowUpNegX(RADIUS, options, true)
+    elbowLeftPosY(RADIUS, options, true)
+    elbowUpNegX(RADIUS, options, true)
+    elbowLeftPosY(RADIUS, options, true)
+    elbowUpNegX(RADIUS, options, true)
+  })
+
+  isolateTransformations(() => {
+    translate(0, 0, 100)
+
+    elbowUpPosZ(RADIUS, options, true)
+    elbowFrontPosY(RADIUS, options, true)
+    elbowUpPosZ(RADIUS, options, true)
+    elbowFrontPosY(RADIUS, options, true)
+    elbowUpPosZ(RADIUS, options, true)
+  })
+
+  isolateTransformations(() => {
+    translate(0, 0, -100)
+
+    elbowUpNegZ(RADIUS, options, true)
+    elbowBackPosY(RADIUS, options, true)
+    elbowUpNegZ(RADIUS, options, true)
+    elbowBackPosY(RADIUS, options, true)
+    elbowUpNegZ(RADIUS, options, true)
+  })
+
+  translate(0, -50, 0)
+  rotateX(PI / 2)
+
+  square2d(200, { color: 'steelblue', isDoubleSided: true })
 }
 
 const onPaused = () => {
