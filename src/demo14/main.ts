@@ -15,17 +15,16 @@ import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import { rotateY, ElbowShapeOptions } from '../primitives.ts'
 import { rotateX } from '../primitives.ts'
-import { elbowRightPosY, elbowDownPosX } from '../elbows.ts'
 import {
+  elbowDownPosX,
+  elbowRightNegY,
   elbowLeftNegZ,
   elbowLeftPosY,
   elbowRightPosZ,
-  elbowRightNegY,
   elbowFrontNegX,
   elbowFrontNegY,
   elbowBackPosY,
   elbowBackNegY,
-  elbowUpPosX,
   elbowUpNegX,
   elbowDownNegX,
   elbowDownPosZ,
@@ -60,8 +59,8 @@ const draw = () => {
 
   render3dAxes()
 
-  elbowRightNegY(RADIUS, options, true)
-  elbowUpPosX(RADIUS, options, true)
+  elbowLeftNegZ(RADIUS, options, true)
+  elbowUpNegX(RADIUS, options, true)
   elbowLeftPosY(RADIUS, options, true)
   elbowUpNegX(RADIUS, options, true)
   elbowBackPosY(RADIUS, options, true)
@@ -73,9 +72,10 @@ const draw = () => {
   elbowDownPosZ(RADIUS, options, true)
   elbowFrontNegY(RADIUS, options, true)
   elbowRightPosZ(RADIUS, options, true)
-  elbowUpPosX(RADIUS, options, true)
-  elbowRightPosY(RADIUS, options, true)
   elbowDownPosX(RADIUS, options, true)
+  elbowRightNegY(RADIUS, options, true)
+  elbowDownPosX(RADIUS, options, true)
+  elbowRightNegY(RADIUS, options, true)
 }
 
 const onPaused = () => {
