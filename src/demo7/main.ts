@@ -41,7 +41,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, HEIGHT / 2, 0)
-    rotateX(-PI / 2)
+    rotateX(PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'orange',
@@ -51,7 +51,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, -HEIGHT / 2, 0)
-    rotateX(PI / 2)
+    rotateX(-PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'brown',
@@ -61,7 +61,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(HEIGHT / 2, 0, 0)
-    rotateY(PI / 2)
+    rotateY(-PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'yellow',
@@ -71,7 +71,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(-HEIGHT / 2, 0, 0)
-    rotateY(-PI / 2)
+    rotateY(PI / 2)
 
     cone(RADIUS, HEIGHT, {
       color: 'pink',
@@ -81,6 +81,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, 0, HEIGHT / 2)
+    rotateX(PI)
 
     cone(RADIUS, HEIGHT, {
       color: 'lime',
@@ -90,7 +91,6 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, 0, -HEIGHT / 2)
-    rotateY(PI)
 
     cone(RADIUS, HEIGHT, {
       color: 'magenta',

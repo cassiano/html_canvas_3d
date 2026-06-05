@@ -447,7 +447,7 @@ export const arrow = (
 
     translate(0, lineAB.mag(), 0)
 
-    rotateX(PI / 2)
+    rotateX(-PI / 2)
 
     cone(tipRadius, tipHeight, {
       ...options,
@@ -831,20 +831,20 @@ export const cone = (
   const { circleSegments } = finalOptions
 
   const step = (2 * PI) / circleSegments
-  const tip = $v(0, 0, -depth / 2)
-  const frontCenter = $v(0, 0, depth / 2)
+  const tip = $v(0, 0, depth / 2)
+  const backCenter = $v(0, 0, -depth / 2)
 
   for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = $v(radius * cos(theta1), radius * sin(theta1), depth / 2)
-    const p2 = $v(radius * cos(theta2), radius * sin(theta2), depth / 2)
+    const p1 = $v(radius * cos(theta1), radius * sin(theta1), -depth / 2)
+    const p2 = $v(radius * cos(theta2), radius * sin(theta2), -depth / 2)
 
     // Form 2 slices, one connecting the above two points on the perimeter to the tip and
     // another to the upper center.
-    triangle2d(p1, p2, frontCenter, options)
-    triangle2d(p2, p1, tip, options)
+    triangle2d(p2, p1, backCenter, options)
+    triangle2d(p1, p2, tip, options)
   }
 }
 
