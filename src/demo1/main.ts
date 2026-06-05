@@ -13,12 +13,11 @@ import {
   rotateX,
   text2d,
   translate,
-  rect2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
-import { rotateY } from '../primitives.ts'
+import { rotateY, square2d } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -48,7 +47,7 @@ const draw = () => {
     translate(0, -DEPTH, 0)
     rotateX(-PI / 2)
 
-    rect2d(500, 500, { color: 'cyan' })
+    square2d(500, { color: 'steelblue', isDoubleSided: true })
   })
 
   mover.render()
