@@ -1,6 +1,6 @@
 import {
-  CIRCLE_SEGMENTS,
-  LINE_SEGMENTS,
+  DEFAULT_CIRCLE_SEGMENTS,
+  DEFAULT_LINE_SEGMENTS,
   FOCAL_LENGTH,
   Z_EPSILON,
   AXES,
@@ -16,10 +16,10 @@ import { timesForEach, timesForEachN } from './utils.ts'
 import { abs, cos, min, PI, sin, multiplyMatrices } from './math_utils.ts'
 import {
   NORMAL_CONFIG,
-  ARROW_DEFAULT_CIRCLE_SEGMENTS,
-  SPHERE_LINES,
+  DEFAULT_ARROW_CIRCLE_SEGMENTS,
+  DEFAULT_SPHERE_LINES,
 } from './constants.ts'
-import { ORIGIN, ELBOW_CIRCLE_SLICES } from './constants.ts'
+import { ORIGIN, DEFAULT_ELBOW_CIRCLE_SLICES } from './constants.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -427,7 +427,7 @@ export const arrow = (
 ) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
-    circleSegments: ARROW_DEFAULT_CIRCLE_SEGMENTS,
+    circleSegments: DEFAULT_ARROW_CIRCLE_SEGMENTS,
     ...options,
   }
   const { tipRadius, tipHeight, circleSegments } = finalOptions
@@ -492,8 +492,11 @@ export const line = (
   } else {
     let latestPoint = point3dA
 
-    timesForEach(LINE_SEGMENTS, i => {
-      const nextPoint = point3dA.lerp(point3dB, (1 / LINE_SEGMENTS) * (i + 1))
+    timesForEach(DEFAULT_LINE_SEGMENTS, i => {
+      const nextPoint = point3dA.lerp(
+        point3dB,
+        (1 / DEFAULT_LINE_SEGMENTS) * (i + 1),
+      )
       const center = latestPoint.lerp(nextPoint)
 
       const { x: x1, y: y1 } = toScreen(latestPoint)
@@ -728,8 +731,8 @@ type SphericalShapeOptions = ShapeOptions & {
 export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
-    latitudeLines: SPHERE_LINES.latitude,
-    longitudeLines: SPHERE_LINES.longitude,
+    latitudeLines: DEFAULT_SPHERE_LINES.latitude,
+    longitudeLines: DEFAULT_SPHERE_LINES.longitude,
     ...options,
   }
 
@@ -760,7 +763,7 @@ export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
   })
 }
 
-type CircularShapeOptions = ShapeOptions & { circleSegments?: number }
+export type CircularShapeOptions = ShapeOptions & { circleSegments?: number }
 
 export const circle2d = (
   radius: number, // XY-plane
@@ -768,7 +771,7 @@ export const circle2d = (
 ) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
-    circleSegments: CIRCLE_SEGMENTS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
     ...options,
   }
   const { circleSegments } = finalOptions
@@ -794,7 +797,7 @@ export const ring = (
 ) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
-    circleSegments: CIRCLE_SEGMENTS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
     ...options,
   }
   const { circleSegments } = finalOptions
@@ -825,7 +828,7 @@ export const cone = (
 ) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
-    circleSegments: CIRCLE_SEGMENTS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
     ...options,
   }
   const { circleSegments } = finalOptions
@@ -855,7 +858,7 @@ export const cylinder = (
 ) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
-    circleSegments: CIRCLE_SEGMENTS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
     ...options,
   }
   const { circleSegments } = finalOptions
@@ -880,10 +883,22 @@ export const cylinder = (
   }
 }
 
-export const elbow = (radius: number, options: CircularShapeOptions = {}) => {
-  const ringDepth = (2 * PI * radius) / 4 / ELBOW_CIRCLE_SLICES // (2.π.R)/4 = 1/4 of circle perimeter.
+export type ElbowShapeOptions = CircularShapeOptions & {
+  elbowCircleSlices?: number
+}
 
-  for (let theta = 0; theta < PI / 2; theta += PI / 2 / ELBOW_CIRCLE_SLICES) {
+export const elbow = (radius: number, options: ElbowShapeOptions = {}) => {
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
+    elbowCircleSlices: DEFAULT_ELBOW_CIRCLE_SLICES,
+    ...options,
+  }
+  const { elbowCircleSlices } = finalOptions
+
+  const ringDepth = (2 * PI * radius) / 4 / elbowCircleSlices // (2.π.R)/4 = 1/4 of circle perimeter.
+
+  for (let theta = 0; theta < PI / 2; theta += PI / 2 / elbowCircleSlices) {
     isolateTransformations(() => {
       translate(radius / 2, 0, 0)
       rotateZ(-theta)

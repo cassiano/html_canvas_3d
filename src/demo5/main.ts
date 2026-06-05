@@ -2,7 +2,11 @@
 // Sphere Demo //
 /////////////////
 
-import { FPS, FPS_LOGGING_FRAME_FREQUENCY, SPHERE_LINES } from '../constants.ts'
+import {
+  FPS,
+  FPS_LOGGING_FRAME_FREQUENCY,
+  DEFAULT_SPHERE_LINES,
+} from '../constants.ts'
 import {
   createFrameLoop,
   fps,
@@ -43,14 +47,14 @@ const createDemoControls = () => {
       label: 'Latitude lines',
       min: 1,
       max: 180,
-      value: SPHERE_LINES.latitude,
+      value: DEFAULT_SPHERE_LINES.latitude,
       container: demoControlPanel,
     }),
     longitudeLines: createSlider({
       label: 'Longitude lines',
       min: 2,
       max: 360,
-      value: SPHERE_LINES.longitude,
+      value: DEFAULT_SPHERE_LINES.longitude,
       color: 'blue',
       container: demoControlPanel,
     }),
