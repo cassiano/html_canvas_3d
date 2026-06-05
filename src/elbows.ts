@@ -235,7 +235,6 @@ export const elbowBackPosY = (
   options: ElbowShapeOptions = {},
 ) => {
   isolateTransformations(() => {
-    translate(0, -radius / 2, radius / 2)
     rotateY(PI / 2)
 
     elbow(radius, options)
