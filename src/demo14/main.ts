@@ -31,14 +31,12 @@ import { elbowUpNegZ, elbowBackPosY } from '../elbow_primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const COLOR = 'darkGray'
 const CIRCLE_SEGMENTS = 16
 const OPACITY = 0.5
 const RADIUS = 100
 const CIRCLE_SLICES = 16
 
 const options: ElbowShapeOptions = {
-  color: COLOR,
   circleSegments: CIRCLE_SEGMENTS,
   opacity: OPACITY,
   elbowCircleSlices: CIRCLE_SLICES,
@@ -59,43 +57,51 @@ const draw = () => {
   render3dAxes()
 
   isolateTransformations(() => {
+    const color = 'lightcoral'
+
     translate(100, 0, 0)
 
-    elbowUpPosX(RADIUS, options, true)
-    elbowRightPosY(RADIUS, options, true)
-    elbowUpPosX(RADIUS, options, true)
-    elbowRightPosY(RADIUS, options, true)
-    elbowUpPosX(RADIUS, options, true)
+    elbowUpPosX(RADIUS, { ...options, color }, true)
+    elbowRightPosY(RADIUS, { ...options, color }, true)
+    elbowUpPosX(RADIUS, { ...options, color }, true)
+    elbowRightPosY(RADIUS, { ...options, color }, true)
+    elbowUpPosX(RADIUS, { ...options, color }, true)
   })
 
   isolateTransformations(() => {
+    const color = 'palevioletred'
+
     translate(-100, 0, 0)
 
-    elbowUpNegX(RADIUS, options, true)
-    elbowLeftPosY(RADIUS, options, true)
-    elbowUpNegX(RADIUS, options, true)
-    elbowLeftPosY(RADIUS, options, true)
-    elbowUpNegX(RADIUS, options, true)
+    elbowUpNegX(RADIUS, { ...options, color }, true)
+    elbowLeftPosY(RADIUS, { ...options, color }, true)
+    elbowUpNegX(RADIUS, { ...options, color }, true)
+    elbowLeftPosY(RADIUS, { ...options, color }, true)
+    elbowUpNegX(RADIUS, { ...options, color }, true)
   })
 
   isolateTransformations(() => {
+    const color = 'tomato'
+
     translate(0, 0, 100)
 
-    elbowUpPosZ(RADIUS, options, true)
-    elbowFrontPosY(RADIUS, options, true)
-    elbowUpPosZ(RADIUS, options, true)
-    elbowFrontPosY(RADIUS, options, true)
-    elbowUpPosZ(RADIUS, options, true)
+    elbowUpPosZ(RADIUS, { ...options, color }, true)
+    elbowFrontPosY(RADIUS, { ...options, color }, true)
+    elbowUpPosZ(RADIUS, { ...options, color }, true)
+    elbowFrontPosY(RADIUS, { ...options, color }, true)
+    elbowUpPosZ(RADIUS, { ...options, color }, true)
   })
 
   isolateTransformations(() => {
+    const color = 'seagreen'
+
     translate(0, 0, -100)
 
-    elbowUpNegZ(RADIUS, options, true)
-    elbowBackPosY(RADIUS, options, true)
-    elbowUpNegZ(RADIUS, options, true)
-    elbowBackPosY(RADIUS, options, true)
-    elbowUpNegZ(RADIUS, options, true)
+    elbowUpNegZ(RADIUS, { ...options, color }, true)
+    elbowBackPosY(RADIUS, { ...options, color }, true)
+    elbowUpNegZ(RADIUS, { ...options, color }, true)
+    elbowBackPosY(RADIUS, { ...options, color }, true)
+    elbowUpNegZ(RADIUS, { ...options, color }, true)
   })
 
   translate(0, -50, 0)
