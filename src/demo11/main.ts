@@ -10,7 +10,6 @@ import {
   render3dAxes,
   resetTransformationMatrix,
   text2d,
-  rotateY,
   isolateTransformations,
   translate,
   ring,
@@ -19,12 +18,8 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { cos, PI, sin } from '../math_utils.ts'
-import {
-  elbowUpPosZ,
-  elbowRightNegY,
-  elbowRightPosY,
-  elbowFrontPosX,
-} from '../elbow_primitives.ts'
+import { elbowFromTo } from '../elbow_primitives.ts'
+import { rotateY } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -50,9 +45,9 @@ const draw = () => {
   const radius = PIPE.radius + cos(millis() / 1500) * 15
   const height = PIPE.height + sin(millis() / 2500) * 150
 
-  translate(0, -height / 2, 0)
+  translate((-height / 3) * 2, -height / 2, -height / 2)
 
-  elbowRightNegY(radius * 2, {
+  elbowFromTo['-y'].x(radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
@@ -72,7 +67,7 @@ const draw = () => {
 
   translate(0, height / 2, 0)
 
-  elbowRightPosY(radius * 2, {
+  elbowFromTo.y.x(radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
@@ -93,7 +88,7 @@ const draw = () => {
 
   translate(height / 2, 0, 0)
 
-  elbowFrontPosX(radius * 2, {
+  elbowFromTo.x.z(radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
@@ -109,10 +104,60 @@ const draw = () => {
 
   translate(0, 0, height / 2)
 
-  elbowUpPosZ(radius * 2, {
+  elbowFromTo.z['-y'](radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
+  })
+
+  translate(0, -(height / 2 + radius), radius)
+
+  isolateTransformations(() => {
+    rotateX(PI / 2)
+
+    ring(radius, height, {
+      color: 'lime',
+      circleSegments: CIRCLE_SEGMENTS,
+      opacity: OPACITY,
+    })
+  })
+
+  translate(0, -height / 2, 0)
+
+  elbowFromTo['-y']['-z'](radius * 2, {
+    color: ELBOW_COLOR,
+    circleSegments: CIRCLE_SEGMENTS,
+    opacity: OPACITY,
+  })
+
+  translate(0, -radius, -(height / 2 + radius))
+
+  isolateTransformations(() => {
+    ring(radius, height, {
+      color: 'moccasin',
+      circleSegments: CIRCLE_SEGMENTS,
+      opacity: OPACITY,
+    })
+  })
+
+  translate(0, 0, -height / 2)
+
+  elbowFromTo['-z']['-x'](radius * 2, {
+    color: ELBOW_COLOR,
+    circleSegments: CIRCLE_SEGMENTS,
+    opacity: OPACITY,
+  })
+
+  translate(-(height / 2 + radius), 0, -radius)
+
+  isolateTransformations(() => {
+    rotateY(PI / 2)
+
+    ring(radius, height, {
+      color: 'lightseagreen',
+      circleSegments: CIRCLE_SEGMENTS,
+      opacity: OPACITY,
+    })
   })
 }
 

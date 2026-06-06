@@ -40,7 +40,7 @@ export const elbow = (radius: number, options: ElbowShapeOptions = {}) => {
   }
 }
 
-export const elbowRightPosY = (
+const elbowRightFromTop = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -52,7 +52,7 @@ export const elbowRightPosY = (
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
 }
 
-export const elbowRightNegY = (
+const elbowRightFromBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -66,7 +66,7 @@ export const elbowRightNegY = (
   if (includeTranslation) translate(radius / 2, -radius / 2, 0)
 }
 
-export const elbowRightNegZ = (
+const elbowRightFromBack = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -80,7 +80,7 @@ export const elbowRightNegZ = (
   if (includeTranslation) translate(radius / 2, 0, -radius / 2)
 }
 
-export const elbowRightPosZ = (
+const elbowRightFromFront = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -94,7 +94,7 @@ export const elbowRightPosZ = (
   if (includeTranslation) translate(radius / 2, 0, radius / 2)
 }
 
-export const elbowLeftPosY = (
+const elbowLeftFromTop = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -108,7 +108,7 @@ export const elbowLeftPosY = (
   if (includeTranslation) translate(-radius / 2, radius / 2, 0)
 }
 
-export const elbowLeftNegY = (
+const elbowLeftFromBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -123,7 +123,7 @@ export const elbowLeftNegY = (
   if (includeTranslation) translate(-radius / 2, -radius / 2, 0)
 }
 
-export const elbowLeftNegZ = (
+const elbowLeftFromBack = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -138,7 +138,7 @@ export const elbowLeftNegZ = (
   if (includeTranslation) translate(-radius / 2, 0, -radius / 2)
 }
 
-export const elbowLeftPosZ = (
+const elbowLeftFromFront = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -153,7 +153,7 @@ export const elbowLeftPosZ = (
   if (includeTranslation) translate(-radius / 2, 0, radius / 2)
 }
 
-export const elbowUpNegX = (
+const elbowUpFromLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -169,7 +169,7 @@ export const elbowUpNegX = (
   if (includeTranslation) translate(-radius / 2, radius / 2, 0)
 }
 
-export const elbowUpPosX = (
+const elbowUpFromRight = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -186,7 +186,7 @@ export const elbowUpPosX = (
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
 }
 
-export const elbowUpNegZ = (
+const elbowUpFromBack = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -202,7 +202,7 @@ export const elbowUpNegZ = (
   if (includeTranslation) translate(0, radius / 2, -radius / 2)
 }
 
-export const elbowUpPosZ = (
+const elbowUpFromFront = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -218,7 +218,7 @@ export const elbowUpPosZ = (
   if (includeTranslation) translate(0, radius / 2, radius / 2)
 }
 
-export const elbowDownNegX = (
+const elbowDownFromLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -232,7 +232,7 @@ export const elbowDownNegX = (
   if (includeTranslation) translate(-radius / 2, -radius / 2, 0)
 }
 
-export const elbowDownPosX = (
+const elbowDownFromRight = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -248,7 +248,7 @@ export const elbowDownPosX = (
   if (includeTranslation) translate(radius / 2, -radius / 2, 0)
 }
 
-export const elbowDownNegZ = (
+const elbowDownFromBack = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -263,7 +263,7 @@ export const elbowDownNegZ = (
   if (includeTranslation) translate(0, -radius / 2, -radius / 2)
 }
 
-export const elbowDownPosZ = (
+const elbowDownFromFront = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -278,7 +278,7 @@ export const elbowDownPosZ = (
   if (includeTranslation) translate(0, -radius / 2, radius / 2)
 }
 
-export const elbowFrontPosY = (
+const elbowFrontFromTop = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -292,7 +292,7 @@ export const elbowFrontPosY = (
   if (includeTranslation) translate(0, radius / 2, radius / 2)
 }
 
-export const elbowFrontNegY = (
+const elbowFrontFromBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -308,7 +308,7 @@ export const elbowFrontNegY = (
   if (includeTranslation) translate(0, -radius / 2, radius / 2)
 }
 
-export const elbowFrontNegX = (
+const elbowFrontFromLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -323,7 +323,7 @@ export const elbowFrontNegX = (
   if (includeTranslation) translate(-radius / 2, 0, radius / 2)
 }
 
-export const elbowFrontPosX = (
+const elbowFrontFromRight = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -339,7 +339,7 @@ export const elbowFrontPosX = (
   if (includeTranslation) translate(radius / 2, 0, radius / 2)
 }
 
-export const elbowBackPosY = (
+const elbowBackFromTop = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -353,7 +353,7 @@ export const elbowBackPosY = (
   if (includeTranslation) translate(0, radius / 2, -radius / 2)
 }
 
-export const elbowBackNegY = (
+const elbowBackFromBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -368,7 +368,7 @@ export const elbowBackNegY = (
   if (includeTranslation) translate(0, -radius / 2, -radius / 2)
 }
 
-export const elbowBackNegX = (
+const elbowBackFromLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -383,7 +383,7 @@ export const elbowBackNegX = (
   if (includeTranslation) translate(-radius / 2, 0, -radius / 2)
 }
 
-export const elbowBackPosX = (
+const elbowBackFromRight = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -397,4 +397,54 @@ export const elbowBackPosX = (
   })
 
   if (includeTranslation) translate(radius / 2, 0, -radius / 2)
+}
+
+export const elbowFromTo = {
+  x: {
+    y: elbowUpFromRight,
+    z: elbowFrontFromRight,
+
+    ['-y']: elbowDownFromRight,
+    ['-z']: elbowBackFromRight,
+  },
+
+  y: {
+    x: elbowRightFromTop,
+    z: elbowFrontFromTop,
+
+    ['-x']: elbowLeftFromTop,
+    ['-z']: elbowBackFromTop,
+  },
+
+  z: {
+    x: elbowRightFromFront,
+    y: elbowUpFromFront,
+
+    ['-x']: elbowLeftFromFront,
+    ['-y']: elbowDownFromFront,
+  },
+
+  ['-x']: {
+    y: elbowUpFromLeft,
+    z: elbowFrontFromLeft,
+
+    ['-y']: elbowDownFromLeft,
+    ['-z']: elbowBackFromLeft,
+  },
+
+  ['-y']: {
+    x: elbowRightFromBottom,
+    z: elbowFrontFromBottom,
+
+    ['-x']: elbowLeftFromBottom,
+    ['-z']: elbowBackFromBottom,
+  },
+
+  ['-z']: {
+    x: elbowRightFromBack,
+    y: elbowUpFromBack,
+
+    ['-x']: elbowLeftFromBack,
+    ['-y']: elbowDownFromBack,
+  },
 }

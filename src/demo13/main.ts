@@ -16,13 +16,8 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import {
-  ElbowShapeOptions,
-  elbowUpPosX,
-  elbowLeftPosY,
-  elbowDownNegX,
-  elbowRightNegY,
-} from '../elbow_primitives.ts'
+import { elbowFromTo } from '../elbow_primitives.ts'
+import { ElbowShapeOptions } from '../elbow_primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -55,10 +50,10 @@ const draw = () => {
 
   translate(0, -RADIUS / 2, 0)
 
-  elbowUpPosX(RADIUS, options, true)
-  elbowLeftPosY(RADIUS, options, true)
-  elbowDownNegX(RADIUS, options, true)
-  elbowRightNegY(RADIUS, options, true)
+  elbowFromTo.x.y(RADIUS, options, true)
+  elbowFromTo.y['-x'](RADIUS, options, true)
+  elbowFromTo['-x']['-y'](RADIUS, options, true)
+  elbowFromTo['-y'].x(RADIUS, options, true)
 }
 
 const onPaused = () => {
