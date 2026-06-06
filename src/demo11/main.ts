@@ -18,7 +18,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { cos, PI, sin } from '../math_utils.ts'
-import { elbowFromTo } from '../elbow_primitives.ts'
+import { elbow } from '../elbow_primitives.ts'
 import { rotateY } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ const draw = () => {
 
   translate((-height / 3) * 2, -height / 2, -height / 2)
 
-  elbowFromTo['-y'].x(radius * 2, {
+  elbow['-y'].x(radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
@@ -67,7 +67,7 @@ const draw = () => {
 
   translate(0, height / 2, 0)
 
-  elbowFromTo.y.x(radius * 2, {
+  elbow.y.x(radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
@@ -88,7 +88,7 @@ const draw = () => {
 
   translate(height / 2, 0, 0)
 
-  elbowFromTo.x.z(radius * 2, {
+  elbow.x.z(radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
@@ -104,7 +104,7 @@ const draw = () => {
 
   translate(0, 0, height / 2)
 
-  elbowFromTo.z['-y'](radius * 2, {
+  elbow.z['-y'](radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
@@ -124,7 +124,7 @@ const draw = () => {
 
   translate(0, -height / 2, 0)
 
-  elbowFromTo['-y']['-z'](radius * 2, {
+  elbow['-y']['-z'](radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,
@@ -142,7 +142,7 @@ const draw = () => {
 
   translate(0, 0, -height / 2)
 
-  elbowFromTo['-z']['-x'](radius * 2, {
+  elbow['-z']['-x'](radius * 2, {
     color: ELBOW_COLOR,
     circleSegments: CIRCLE_SEGMENTS,
     opacity: OPACITY,

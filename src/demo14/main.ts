@@ -16,7 +16,7 @@ import {
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import { ElbowShapeOptions } from '../elbow_primitives.ts'
-import { elbowFromTo } from '../elbow_primitives.ts'
+import { elbow } from '../elbow_primitives.ts'
 import { translate } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -59,26 +59,26 @@ const draw = () => {
 
   translate(-200, 0, -RADIUS / 2)
 
-  elbowFromTo.x.y(RADIUS, options1, true)
-  elbowFromTo.y.x(RADIUS, options2, true)
-  elbowFromTo.x['-y'](RADIUS, options3, true)
-  elbowFromTo['-y'].x(RADIUS, options1, true)
-  elbowFromTo.x.y(RADIUS, options2, true)
-  elbowFromTo.y.x(RADIUS, options3, true)
-  elbowFromTo.x['-y'](RADIUS, options1, true)
-  elbowFromTo['-y'].x(RADIUS, options2, true)
-  elbowFromTo.x.z(RADIUS, options3, true)
-  elbowFromTo.z['-x'](RADIUS, options1, true)
-  elbowFromTo['-x']['-y'](RADIUS, options2, true)
-  elbowFromTo['-y']['-x'](RADIUS, options3, true)
-  elbowFromTo['-x'].y(RADIUS, options1, true)
-  elbowFromTo.y['-x'](RADIUS, options2, true)
-  elbowFromTo['-x']['-y'](RADIUS, options3, true)
-  elbowFromTo['-y']['-x'](RADIUS, options1, true)
-  elbowFromTo['-x'].y(RADIUS, options2, true)
-  elbowFromTo.y['-x'](RADIUS, options3, true)
-  elbowFromTo['-x']['-z'](RADIUS, options1, true)
-  elbowFromTo['-z'].x(RADIUS, options2, true)
+  elbow.x.y(RADIUS, options1, true)
+  elbow.y.x(RADIUS, options2, true)
+  elbow.x['-y'](RADIUS, options3, true)
+  elbow['-y'].x(RADIUS, options1, true)
+  elbow.x.y(RADIUS, options2, true)
+  elbow.y.x(RADIUS, options3, true)
+  elbow.x['-y'](RADIUS, options1, true)
+  elbow['-y'].x(RADIUS, options2, true)
+  elbow.x.z(RADIUS, options3, true)
+  elbow.z['-x'](RADIUS, options1, true)
+  elbow['-x']['-y'](RADIUS, options2, true)
+  elbow['-y']['-x'](RADIUS, options3, true)
+  elbow['-x'].y(RADIUS, options1, true)
+  elbow.y['-x'](RADIUS, options2, true)
+  elbow['-x']['-y'](RADIUS, options3, true)
+  elbow['-y']['-x'](RADIUS, options1, true)
+  elbow['-x'].y(RADIUS, options2, true)
+  elbow.y['-x'](RADIUS, options3, true)
+  elbow['-x']['-z'](RADIUS, options1, true)
+  elbow['-z'].x(RADIUS, options2, true)
 }
 
 const onPaused = () => {
