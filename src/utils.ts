@@ -34,6 +34,9 @@ export const timesReduce = <T>(
 export const sample = <T>(items: T[]): T =>
   items[Math.floor(Math.random() * items.length)]
 
+export const arraySub = <T>(array1: T[], array2: T[]): T[] =>
+  array1.filter(item => !array2.includes(item))
+
 // Frame-related variables and state
 let frameCount_ = 0
 let millis_: number
