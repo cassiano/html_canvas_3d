@@ -57,9 +57,9 @@ const elbowSequence = timesMap(TOTAL_ELBOWS, () => {
   return [savedPreviousAxis, nextAxis] as const
 })
 
-// -------------------------------------------------------------------------------------------------
-
 type ElbowKeysType = keyof typeof elbow
+
+// -------------------------------------------------------------------------------------------------
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
