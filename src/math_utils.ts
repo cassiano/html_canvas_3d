@@ -124,12 +124,10 @@ export const multiply4x4MatrixBy4dPoint = (
   matrix: number[][],
   point: number[],
 ): Vector3d => {
-  const [
-    [m00, m01, m02, m03],
-    [m10, m11, m12, m13],
-    [m20, m21, m22, m23],
-    [_m30, _m31, _m32, _m33], // Not used.
-  ] = matrix
+  // Notice the matrix's 4th row is not used at all, since the point's 4th dimension will be discarded
+  // during the transformation.
+  const [[m00, m01, m02, m03], [m10, m11, m12, m13], [m20, m21, m22, m23]] =
+    matrix
   const [p0, p1, p2, p3] = point
 
   return $v(
@@ -138,17 +136,3 @@ export const multiply4x4MatrixBy4dPoint = (
     m20 * p0 + m21 * p1 + m22 * p2 + m23 * p3,
   )
 }
-
-// export const multiply4x4MatrixBy4dPoint = (
-//   matrix: Tuple<Tuple<number, 4>, 4>,
-//   point: Tuple<number, 4>,
-// ): Vector3d => {
-//   const [row0, row1, row2] = matrix
-//   const [point0, point1, point2, point3] = point
-
-//   return $v(
-//     row0[0] * point0 + row0[1] * point1 + row0[2] * point2 + row0[3] * point3,
-//     row1[0] * point0 + row1[1] * point1 + row1[2] * point2 + row1[3] * point3,
-//     row2[0] * point0 + row2[1] * point1 + row2[2] * point2 + row2[3] * point3,
-//   )
-// }
