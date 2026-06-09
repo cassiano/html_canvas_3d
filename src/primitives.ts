@@ -566,15 +566,6 @@ export const triangle2d = (
   // Skip rendering if any point is behind camera.
   if (!screenA || !screenB || !screenC) return
 
-  // if (point2dB.dist(point2dC) > 30) {
-  //   const middlePointBC = point2dB.lerp(point2dC)
-
-  //   triangle2d(point2dB, middlePointBC, point2dA, options)
-  //   triangle2d(middlePointBC, point2dC, point2dA, options)
-
-  //   return
-  // }
-
   const renderFn = () => {
     ctx.beginPath() // Start the shape
     ctx.moveTo(screenA.x, screenA.y) // Move to starting point
