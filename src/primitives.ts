@@ -5,15 +5,18 @@ import {
   Z_EPSILON,
   AXES,
 } from './constants.ts'
-import {
-  $v,
-  FOURTH_DIMENSION_COORD,
-  transformationMatrix4x1Type,
-  Vector3d,
-} from './vector_3d.ts'
+import { $v, FOURTH_DIMENSION_COORD, Vector3d } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
 import { timesForEach, timesForEachN } from './utils.ts'
-import { abs, cos, min, PI, sin, multiplyMatrices } from './math_utils.ts'
+import {
+  abs,
+  cos,
+  min,
+  PI,
+  sin,
+  multiply4x4Matrices,
+  multiply4x4MatrixBy4dPoint,
+} from './math_utils.ts'
 import {
   NORMAL_CONFIG,
   DEFAULT_ARROW_CIRCLE_SEGMENTS,
@@ -197,7 +200,7 @@ export const scale: ScaleOverloadedSignatures = (
   {
     const { x, y, z } = vector
 
-    transformationMatrix = multiplyMatrices(
+    transformationMatrix = multiply4x4Matrices(
       transformationMatrix,
       // prettier-ignore
       [
@@ -231,7 +234,7 @@ export const translate: TranslateOverloadedSignatures = (
   {
     const { x, y, z } = vector
 
-    transformationMatrix = multiplyMatrices(
+    transformationMatrix = multiply4x4Matrices(
       transformationMatrix,
       // prettier-ignore
       [
@@ -265,7 +268,7 @@ export const rotate = (
   const ty = t * y
   const tz = t * z
 
-  transformationMatrix = multiplyMatrices(
+  transformationMatrix = multiply4x4Matrices(
     transformationMatrix,
     // prettier-ignore
     [
@@ -286,7 +289,7 @@ export const rotateX = (angle: number) => {
   const c = cos(angle)
   const s = sin(angle)
 
-  transformationMatrix = multiplyMatrices(
+  transformationMatrix = multiply4x4Matrices(
     transformationMatrix,
     // prettier-ignore
     [
@@ -312,7 +315,7 @@ export const rotateY = (angle: number) => {
   // Notice that in a Right-Handed Rule (RHR) System, Z precedes X, which flips the position of the
   // sine components in the matrix relative to the X and Z array indices.
   // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221MYF8XOCxzwwbRhGazZAHx-3ZUvSLI82I%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-  transformationMatrix = multiplyMatrices(
+  transformationMatrix = multiply4x4Matrices(
     transformationMatrix,
     // prettier-ignore
     [
@@ -335,7 +338,7 @@ export const rotateZ = (angle: number) => {
   const c = cos(angle)
   const s = sin(angle)
 
-  transformationMatrix = multiplyMatrices(
+  transformationMatrix = multiply4x4Matrices(
     transformationMatrix,
     // prettier-ignore
     [
@@ -373,22 +376,39 @@ export const project3dTo2d = ({ x, y, z }: Vector3d) => {
 export const centralize = (point?: Vector3d) =>
   point?.clone().add(SCREEN_CENTER).add(panOffset)
 
-export const transform = (point: Vector3d, { isNormal = false } = {}) => {
-  const pointAs4dMatrix = point.to4dMatrix()
+// Standard version.
+// export const transform = (point: Vector3d, { isNormal = false } = {}) => {
+//   const pointAs4dMatrix = point.to4dMatrix()
+//
+//   if (isNormal) pointAs4dMatrix[3][0] = 0 // Ignore the 4th dimension (used for translations) when transforming normals.
+//
+//   // Notice that a 4x4 matrix multiplied by a 4x1 vector results in another 4x1 vector.
+//   // Also notice that we use Post-multiplication. See https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221k6P5M79qGEqAjs7Wp_-21Jqwgzl8_Z6l%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
+//   const transformedPoint = multiplyMatrices(
+//     transformationMatrix,
+//     pointAs4dMatrix,
+//   ) as transformationMatrix4x4Type
+//
+//   return Vector3d.from4dMatrix(
+//     transformedPoint as unknown as transformationMatrix4x1Type,
+//   )
+// }
 
-  if (isNormal) pointAs4dMatrix[3][0] = 0 // Ignore the 4th dimension (used for translations) when transforming normals.
-
-  // Notice that a 4x4 matrix multiplied by a 4x1 vector results in another 4x1 vector.
-  // Also notice that we use Post-multiplication. See https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221k6P5M79qGEqAjs7Wp_-21Jqwgzl8_Z6l%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-  const transformedPoint = multiplyMatrices(
-    transformationMatrix,
-    pointAs4dMatrix,
-  ) as transformationMatrix4x4Type
-
-  return Vector3d.from4dMatrix(
-    transformedPoint as unknown as transformationMatrix4x1Type,
-  )
-}
+// Optimized versions.
+export const transform = (point: Vector3d) =>
+  multiply4x4MatrixBy4dPoint(transformationMatrix, [
+    point.x,
+    point.y,
+    point.z,
+    FOURTH_DIMENSION_COORD,
+  ])
+export const transformNormal = (point: Vector3d) =>
+  multiply4x4MatrixBy4dPoint(transformationMatrix, [
+    point.x,
+    point.y,
+    point.z,
+    0,
+  ])
 
 const toScreen = (point: Vector3d) =>
   centralize(project3dTo2d(transform(point)))!
@@ -624,7 +644,7 @@ export const triangle2d = (
 const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
   const transformed = {
     center: transform(center),
-    normal: transform(normal, { isNormal: true }),
+    normal: transformNormal(normal),
   }
   const camera = $v(0, 0, FOCAL_LENGTH)
   const cameraToCenter = transformed.center.sub(camera)
