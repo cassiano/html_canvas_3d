@@ -802,6 +802,7 @@ export const circle2d = (
   const { circleSegments } = finalOptions
 
   const step = (2 * PI) / circleSegments
+  const originScreenCoords: Vector3d | undefined = toScreen(ORIGIN)
 
   for (let i = 0; i < circleSegments; i++) {
     const theta1 = i * step
@@ -811,7 +812,7 @@ export const circle2d = (
     const p2 = $v(radius * cos(theta2), radius * sin(theta2))
 
     // Form a slice by connecting the two points on the perimeter to the circle center (origin).
-    triangle2d(ORIGIN, p1, p2, options)
+    triangle2d(ORIGIN, p1, p2, options, [originScreenCoords])
   }
 }
 
@@ -871,8 +872,15 @@ export const cone = (
 
     // Form 2 slices, one connecting the above two points on the perimeter to the tip and
     // another to the upper center.
-    triangle2d(p2, p1, backCenter, options)
-    triangle2d(p1, p2, tip, options)
+    const { screenA: p2ScreenCoords, screenB: p1ScreenCoords } = triangle2d(
+      p2,
+      p1,
+      backCenter,
+      options,
+    )
+
+    if (p1ScreenCoords && p2ScreenCoords)
+      triangle2d(p1, p2, tip, options, [p1ScreenCoords, p2ScreenCoords])
   }
 }
 
