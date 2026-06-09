@@ -411,7 +411,7 @@ export const transformNormal = (point: Vector3d) =>
   ])
 
 const toScreen = (point: Vector3d) =>
-  centralize(project3dTo2d(transform(point)))!
+  centralize(project3dTo2d(transform(point)))
 
 export const point = (point3d: Vector3d, options: ShapeOptions = {}) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
@@ -519,8 +519,13 @@ export const line = (
       )
       const center = latestPoint.lerp(nextPoint)
 
-      const { x: x1, y: y1 } = toScreen(latestPoint)
-      const { x: x2, y: y2 } = toScreen(nextPoint)
+      const latestPointScreenCoords = toScreen(latestPoint)
+      const nextPointScreenCoords = toScreen(nextPoint)
+
+      if (!latestPointScreenCoords || !nextPointScreenCoords) return
+
+      const { x: x1, y: y1 } = latestPointScreenCoords
+      const { x: x2, y: y2 } = nextPointScreenCoords
 
       latestPoint = nextPoint
 
@@ -547,6 +552,11 @@ export const triangle2d = (
   pointB: Vector3d,
   pointC: Vector3d,
   options: ShapeOptions = {},
+  [screenA, screenB, screenC]: [
+    screenA?: Vector3d,
+    screenB?: Vector3d,
+    screenC?: Vector3d,
+  ] = [],
 ) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
   const {
@@ -559,12 +569,12 @@ export const triangle2d = (
     neverRenderNormals,
   } = finalOptions
 
-  const screenA = toScreen(pointA)
-  const screenB = toScreen(pointB)
-  const screenC = toScreen(pointC)
+  screenA = screenA ?? toScreen(pointA)
+  screenB = screenB ?? toScreen(pointB)
+  screenC = screenC ?? toScreen(pointC)
 
   // Skip rendering if any point is behind camera.
-  if (!screenA || !screenB || !screenC) return
+  if (!screenA || !screenB || !screenC) return { screenA, screenB, screenC }
 
   const renderFn = () => {
     ctx.beginPath() // Start the shape
@@ -602,7 +612,7 @@ export const triangle2d = (
     const crossProduct = vectorAB.cross(vectorAC)
 
     // Bypass face culling when line segments AB and AC are perfectly aligned.
-    if (crossProduct.equals(ORIGIN)) return
+    if (crossProduct.equals(ORIGIN)) return { screenA, screenB, screenC }
 
     const normal = crossProduct.normalize()
 
@@ -630,6 +640,8 @@ export const triangle2d = (
       z: calculateZ(centroid),
       renderFn,
     })
+
+  return { screenA, screenB, screenC }
 }
 
 const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
@@ -655,8 +667,10 @@ export const quad = (
   pointD: Vector3d,
   options: ShapeOptions = {},
 ) => {
-  triangle2d(pointA, pointB, pointC, options)
-  triangle2d(pointA, pointC, pointD, options)
+  const { screenA, screenC } = triangle2d(pointA, pointB, pointC, options) // Notice `screenB` is not needed.
+
+  if (screenA && screenC)
+    triangle2d(pointA, pointC, pointD, options, [screenA, screenC])
 }
 
 export const rect2d = (
