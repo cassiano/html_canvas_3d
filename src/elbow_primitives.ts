@@ -40,7 +40,7 @@ const genericElbow = (radius: number, options: ElbowShapeOptions = {}) => {
   }
 }
 
-const elbowRightFromTop = (
+const elbowFromTopToRight = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -52,7 +52,7 @@ const elbowRightFromTop = (
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
 }
 
-const elbowRightFromBottom = (
+const elbowFromBottomToRight = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -66,7 +66,7 @@ const elbowRightFromBottom = (
   if (includeTranslation) translate(radius / 2, -radius / 2, 0)
 }
 
-const elbowRightFromBack = (
+const elbowFromBackToRight = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -80,7 +80,7 @@ const elbowRightFromBack = (
   if (includeTranslation) translate(radius / 2, 0, -radius / 2)
 }
 
-const elbowRightFromFront = (
+const elbowFromFrontToRight = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -94,7 +94,7 @@ const elbowRightFromFront = (
   if (includeTranslation) translate(radius / 2, 0, radius / 2)
 }
 
-const elbowLeftFromTop = (
+const elbowFromTopToLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -108,7 +108,7 @@ const elbowLeftFromTop = (
   if (includeTranslation) translate(-radius / 2, radius / 2, 0)
 }
 
-const elbowLeftFromBottom = (
+const elbowFromBottomToLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -123,7 +123,7 @@ const elbowLeftFromBottom = (
   if (includeTranslation) translate(-radius / 2, -radius / 2, 0)
 }
 
-const elbowLeftFromBack = (
+const elbowFromBackToLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -138,7 +138,7 @@ const elbowLeftFromBack = (
   if (includeTranslation) translate(-radius / 2, 0, -radius / 2)
 }
 
-const elbowLeftFromFront = (
+const elbowFromFrontToLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -153,7 +153,7 @@ const elbowLeftFromFront = (
   if (includeTranslation) translate(-radius / 2, 0, radius / 2)
 }
 
-const elbowUpFromLeft = (
+const elbowFromLeftToTop = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -169,7 +169,7 @@ const elbowUpFromLeft = (
   if (includeTranslation) translate(-radius / 2, radius / 2, 0)
 }
 
-const elbowUpFromRight = (
+const elbowFromRightToTop = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -186,7 +186,7 @@ const elbowUpFromRight = (
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
 }
 
-const elbowUpFromBack = (
+const elbowFromBackToTop = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -202,7 +202,7 @@ const elbowUpFromBack = (
   if (includeTranslation) translate(0, radius / 2, -radius / 2)
 }
 
-const elbowUpFromFront = (
+const elbowFromFrontToTop = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -218,7 +218,7 @@ const elbowUpFromFront = (
   if (includeTranslation) translate(0, radius / 2, radius / 2)
 }
 
-const elbowDownFromLeft = (
+const elbowFromLeftToBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -232,7 +232,7 @@ const elbowDownFromLeft = (
   if (includeTranslation) translate(-radius / 2, -radius / 2, 0)
 }
 
-const elbowDownFromRight = (
+const elbowFromRightToBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -248,7 +248,7 @@ const elbowDownFromRight = (
   if (includeTranslation) translate(radius / 2, -radius / 2, 0)
 }
 
-const elbowDownFromBack = (
+const elbowFromBackToBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -263,7 +263,7 @@ const elbowDownFromBack = (
   if (includeTranslation) translate(0, -radius / 2, -radius / 2)
 }
 
-const elbowDownFromFront = (
+const elbowFromFrontToBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -278,7 +278,7 @@ const elbowDownFromFront = (
   if (includeTranslation) translate(0, -radius / 2, radius / 2)
 }
 
-const elbowFrontFromTop = (
+const elbowFromTopToFront = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -292,7 +292,7 @@ const elbowFrontFromTop = (
   if (includeTranslation) translate(0, radius / 2, radius / 2)
 }
 
-const elbowFrontFromBottom = (
+const elbowFromBottomToFront = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -308,7 +308,7 @@ const elbowFrontFromBottom = (
   if (includeTranslation) translate(0, -radius / 2, radius / 2)
 }
 
-const elbowFrontFromLeft = (
+const elbowFromLeftToFront = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -323,7 +323,7 @@ const elbowFrontFromLeft = (
   if (includeTranslation) translate(-radius / 2, 0, radius / 2)
 }
 
-const elbowFrontFromRight = (
+const elbowFromRightToFront = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -339,7 +339,7 @@ const elbowFrontFromRight = (
   if (includeTranslation) translate(radius / 2, 0, radius / 2)
 }
 
-const elbowBackFromTop = (
+const elbowFromTopToBack = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -353,7 +353,7 @@ const elbowBackFromTop = (
   if (includeTranslation) translate(0, radius / 2, -radius / 2)
 }
 
-const elbowBackFromBottom = (
+const elbowFromBottomToBack = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -368,7 +368,7 @@ const elbowBackFromBottom = (
   if (includeTranslation) translate(0, -radius / 2, -radius / 2)
 }
 
-const elbowBackFromLeft = (
+const elbowFromLeftToBack = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -383,7 +383,7 @@ const elbowBackFromLeft = (
   if (includeTranslation) translate(-radius / 2, 0, -radius / 2)
 }
 
-const elbowBackFromRight = (
+const elbowFromRightToBack = (
   radius: number,
   options: ElbowShapeOptions = {},
   includeTranslation = false,
@@ -401,50 +401,50 @@ const elbowBackFromRight = (
 
 export const elbow = {
   x: {
-    y: elbowUpFromRight,
-    z: elbowFrontFromRight,
+    y: elbowFromRightToTop,
+    z: elbowFromRightToFront,
 
-    ['-y']: elbowDownFromRight,
-    ['-z']: elbowBackFromRight,
+    ['-y']: elbowFromRightToBottom,
+    ['-z']: elbowFromRightToBack,
   },
 
   y: {
-    x: elbowRightFromTop,
-    z: elbowFrontFromTop,
+    x: elbowFromTopToRight,
+    z: elbowFromTopToFront,
 
-    ['-x']: elbowLeftFromTop,
-    ['-z']: elbowBackFromTop,
+    ['-x']: elbowFromTopToLeft,
+    ['-z']: elbowFromTopToBack,
   },
 
   z: {
-    x: elbowRightFromFront,
-    y: elbowUpFromFront,
+    x: elbowFromFrontToRight,
+    y: elbowFromFrontToTop,
 
-    ['-x']: elbowLeftFromFront,
-    ['-y']: elbowDownFromFront,
+    ['-x']: elbowFromFrontToLeft,
+    ['-y']: elbowFromFrontToBottom,
   },
 
   ['-x']: {
-    y: elbowUpFromLeft,
-    z: elbowFrontFromLeft,
+    y: elbowFromLeftToTop,
+    z: elbowFromLeftToFront,
 
-    ['-y']: elbowDownFromLeft,
-    ['-z']: elbowBackFromLeft,
+    ['-y']: elbowFromLeftToBottom,
+    ['-z']: elbowFromLeftToBack,
   },
 
   ['-y']: {
-    x: elbowRightFromBottom,
-    z: elbowFrontFromBottom,
+    x: elbowFromBottomToRight,
+    z: elbowFromBottomToFront,
 
-    ['-x']: elbowLeftFromBottom,
-    ['-z']: elbowBackFromBottom,
+    ['-x']: elbowFromBottomToLeft,
+    ['-z']: elbowFromBottomToBack,
   },
 
   ['-z']: {
-    x: elbowRightFromBack,
-    y: elbowUpFromBack,
+    x: elbowFromBackToRight,
+    y: elbowFromBackToTop,
 
-    ['-x']: elbowLeftFromBack,
-    ['-y']: elbowDownFromBack,
+    ['-x']: elbowFromBackToLeft,
+    ['-y']: elbowFromBackToBottom,
   },
 }
