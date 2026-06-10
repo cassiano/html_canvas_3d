@@ -1,4 +1,4 @@
-import { PI } from './math_utils.ts'
+import { PI, HALF_PI, TWO_PI } from './math_utils.ts'
 import { DEFAULT_SHAPE_OPTIONS, ring } from './primitives.ts'
 import {
   DEFAULT_CIRCLE_SEGMENTS,
@@ -26,14 +26,14 @@ const genericElbow = (radius: number, options: ElbowShapeOptions = {}) => {
   }
   const { elbowCircleSlices } = finalOptions
 
-  const ringDepth = (2 * PI * radius) / 4 / elbowCircleSlices // (2.π.R)/4 = 1/4 of circle perimeter.
+  const ringDepth = (TWO_PI * radius) / 4 / elbowCircleSlices // (2.π.R)/4 = 1/4 of circle perimeter.
 
-  for (let theta = 0; theta < PI / 2; theta += PI / 2 / elbowCircleSlices) {
+  for (let theta = 0; theta < HALF_PI; theta += HALF_PI / elbowCircleSlices) {
     isolateTransformations(() => {
       translate(radius / 2, 0, 0)
       rotateZ(-theta)
       translate(-radius / 2, ringDepth / 2, 0)
-      rotateX(-PI / 2)
+      rotateX(-HALF_PI)
 
       ring(radius / 2, ringDepth, options)
     })
@@ -72,7 +72,7 @@ const elbowRightFromBack = (
   includeTranslation = false,
 ) => {
   isolateTransformations(() => {
-    rotateX(-PI / 2)
+    rotateX(-HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -86,7 +86,7 @@ const elbowRightFromFront = (
   includeTranslation = false,
 ) => {
   isolateTransformations(() => {
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -129,7 +129,7 @@ const elbowLeftFromBack = (
   includeTranslation = false,
 ) => {
   isolateTransformations(() => {
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
     rotateZ(PI)
 
     genericElbow(radius, options)
@@ -144,7 +144,7 @@ const elbowLeftFromFront = (
   includeTranslation = false,
 ) => {
   isolateTransformations(() => {
-    rotateX(-PI / 2)
+    rotateX(-HALF_PI)
     rotateZ(PI)
 
     genericElbow(radius, options)
@@ -194,7 +194,7 @@ const elbowUpFromBack = (
   isolateTransformations(() => {
     translate(0, radius / 2, -radius / 2)
     rotateX(PI)
-    rotateY(PI / 2)
+    rotateY(HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -210,7 +210,7 @@ const elbowUpFromFront = (
   isolateTransformations(() => {
     translate(0, radius / 2, radius / 2)
     rotateX(PI)
-    rotateY(-PI / 2)
+    rotateY(-HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -255,7 +255,7 @@ const elbowDownFromBack = (
 ) => {
   isolateTransformations(() => {
     translate(0, -radius / 2, -radius / 2)
-    rotateY(-PI / 2)
+    rotateY(-HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -270,7 +270,7 @@ const elbowDownFromFront = (
 ) => {
   isolateTransformations(() => {
     translate(0, -radius / 2, radius / 2)
-    rotateY(PI / 2)
+    rotateY(HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -284,7 +284,7 @@ const elbowFrontFromTop = (
   includeTranslation = false,
 ) => {
   isolateTransformations(() => {
-    rotateY(-PI / 2)
+    rotateY(-HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -299,8 +299,8 @@ const elbowFrontFromBottom = (
 ) => {
   isolateTransformations(() => {
     translate(0, -radius / 2, radius / 2)
-    rotateY(-PI / 2)
-    rotateZ(PI / 2)
+    rotateY(-HALF_PI)
+    rotateZ(HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -315,7 +315,7 @@ const elbowFrontFromLeft = (
 ) => {
   isolateTransformations(() => {
     translate(-radius / 2, 0, radius / 2)
-    rotateX(-PI / 2)
+    rotateX(-HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -330,7 +330,7 @@ const elbowFrontFromRight = (
 ) => {
   isolateTransformations(() => {
     translate(radius / 2, 0, radius / 2)
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
     rotateZ(PI)
 
     genericElbow(radius, options)
@@ -345,7 +345,7 @@ const elbowBackFromTop = (
   includeTranslation = false,
 ) => {
   isolateTransformations(() => {
-    rotateY(PI / 2)
+    rotateY(HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -359,7 +359,7 @@ const elbowBackFromBottom = (
   includeTranslation = false,
 ) => {
   isolateTransformations(() => {
-    rotateY(PI / 2)
+    rotateY(HALF_PI)
     rotateX(PI)
 
     genericElbow(radius, options)
@@ -375,7 +375,7 @@ const elbowBackFromLeft = (
 ) => {
   isolateTransformations(() => {
     translate(-radius / 2, 0, -radius / 2)
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
 
     genericElbow(radius, options)
   })
@@ -390,7 +390,7 @@ const elbowBackFromRight = (
 ) => {
   isolateTransformations(() => {
     translate(radius / 2, 0, -radius / 2)
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
     rotateY(PI)
 
     genericElbow(radius, options)

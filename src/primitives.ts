@@ -23,6 +23,7 @@ import {
   DEFAULT_SPHERE_LINES,
 } from './constants.ts'
 import { ORIGIN } from './constants.ts'
+import { TWO_PI, HALF_PI } from './math_utils.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -467,7 +468,7 @@ export const arrow = (
 
     translate(0, lineAB.mag(), 0)
 
-    rotateX(-PI / 2)
+    rotateX(-HALF_PI)
 
     cone(tipRadius, tipHeight, {
       ...options,
@@ -714,7 +715,7 @@ export const box = (
   // Left face (-x).
   isolateTransformations(() => {
     translate(-width / 2, 0, 0)
-    rotateY(-PI / 2) // Turn 90ᵒ clockwise.
+    rotateY(-HALF_PI) // Turn 90ᵒ clockwise.
 
     rect2d(depth, height, options)
   })
@@ -722,7 +723,7 @@ export const box = (
   // Right face (+x).
   isolateTransformations(() => {
     translate(width / 2, 0, 0)
-    rotateY(PI / 2) // Turn 90ᵒ counter-clockwise.
+    rotateY(HALF_PI) // Turn 90ᵒ counter-clockwise.
 
     rect2d(depth, height, options)
   })
@@ -730,7 +731,7 @@ export const box = (
   // Bottom face (-y).
   isolateTransformations(() => {
     translate(0, -height / 2, 0)
-    rotateX(PI / 2) // Turn 90ᵒ counter-clockwise.
+    rotateX(HALF_PI) // Turn 90ᵒ counter-clockwise.
 
     rect2d(width, depth, options)
   })
@@ -738,7 +739,7 @@ export const box = (
   // Top face (+y).
   isolateTransformations(() => {
     translate(0, height / 2, 0)
-    rotateX(-PI / 2) // Turn 90ᵒ clockwise.
+    rotateX(-HALF_PI) // Turn 90ᵒ clockwise.
 
     rect2d(width, depth, options)
   })
@@ -766,7 +767,7 @@ export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
 
   const getPoint = (latIndex: number, longIndex: number): Vector3d => {
     const latAngle = (latIndex / latSegments) * PI // [0, PI]
-    const longAngle = (longIndex / longSegments) * 2 * PI // [0, 2.PI]
+    const longAngle = (longIndex / longSegments) * TWO_PI // [0, 2.PI]
 
     // RHR Mapping:
     return $v(
@@ -801,7 +802,7 @@ export const circle2d = (
   }
   const { circleSegments } = finalOptions
 
-  const step = (2 * PI) / circleSegments
+  const step = TWO_PI / circleSegments
   const originScreenCoords: Vector3d | undefined = toScreen(ORIGIN)
 
   for (let i = 0; i < circleSegments; i++) {
@@ -828,7 +829,7 @@ export const ring = (
   }
   const { circleSegments } = finalOptions
 
-  const step = (2 * PI) / circleSegments
+  const step = TWO_PI / circleSegments
 
   isolateTransformations(() => {
     translate(0, 0, -depth / 2)
@@ -859,7 +860,7 @@ export const cone = (
   }
   const { circleSegments } = finalOptions
 
-  const step = (2 * PI) / circleSegments
+  const step = TWO_PI / circleSegments
   const tip = $v(0, 0, depth / 2)
   const backCenter = $v(0, 0, -depth / 2)
 
@@ -896,7 +897,7 @@ export const cylinder = (
   }
   const { circleSegments } = finalOptions
 
-  const step = (2 * PI) / circleSegments
+  const step = TWO_PI / circleSegments
   const backCenter = $v(0, 0, -depth / 2)
   const frontCenter = $v(0, 0, depth / 2)
 

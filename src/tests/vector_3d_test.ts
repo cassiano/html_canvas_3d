@@ -157,10 +157,10 @@ test('Vector - AngleBetween', () => {
   const angle = v1.angleBetween(v2)
 
   // Angle between X and Y axis is PI/2 (90ᴼ)
-  assertAlmostEquals(angle, PI / 2)
+  assertAlmostEquals(angle, HALF_PI)
 
-  assertAlmostEquals(v1.angleBetween(0, 1, 0), PI / 2)
-  assertAlmostEquals(v1.angleBetween($v(0, 1, 0)), PI / 2)
+  assertAlmostEquals(v1.angleBetween(0, 1, 0), HALF_PI)
+  assertAlmostEquals(v1.angleBetween($v(0, 1, 0)), HALF_PI)
 
   // Angle between same vector should be 0
   assertAlmostEquals(v1.angleBetween(1, 0, 0), 0)

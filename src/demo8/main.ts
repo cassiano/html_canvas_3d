@@ -12,7 +12,7 @@ import {
   text2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI } from '../math_utils.ts'
+import { PI, HALF_PI } from '../math_utils.ts'
 import {
   rotateX,
   cylinder,
@@ -42,7 +42,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, HEIGHT / 2 + OFFSET, 0)
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
 
     cylinder(RADIUS, HEIGHT, {
       color: 'orange',
@@ -52,7 +52,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, -(HEIGHT / 2 + OFFSET), 0)
-    rotateX(-PI / 2)
+    rotateX(-HALF_PI)
 
     cylinder(RADIUS, HEIGHT, {
       color: 'brown',
@@ -62,7 +62,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(HEIGHT / 2 + OFFSET, 0, 0)
-    rotateY(-PI / 2)
+    rotateY(-HALF_PI)
 
     cylinder(RADIUS, HEIGHT, {
       color: 'yellow',
@@ -72,7 +72,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(-(HEIGHT / 2 + OFFSET), 0, 0)
-    rotateY(PI / 2)
+    rotateY(HALF_PI)
 
     cylinder(RADIUS, HEIGHT, {
       color: 'pink',

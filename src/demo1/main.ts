@@ -15,7 +15,7 @@ import {
   translate,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI } from '../math_utils.ts'
+import { PI, HALF_PI } from '../math_utils.ts'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
 import { rotateY, square2d } from '../primitives.ts'
 
@@ -45,7 +45,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, -DEPTH, 0)
-    rotateX(-PI / 2)
+    rotateX(-HALF_PI)
 
     square2d(500, { color: 'steelblue', isDoubleSided: true })
   })

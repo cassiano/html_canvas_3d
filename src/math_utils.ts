@@ -17,8 +17,11 @@ export const {
   floor,
 } = Math
 
-export const radians = (degrees: number) => (degrees / 360) * (2 * PI)
-export const degrees = (radians: number) => (radians / (2 * PI)) * 360
+export const TWO_PI = 2 * PI
+export const HALF_PI = PI / 2
+
+export const radians = (degrees: number) => (degrees / 360) * TWO_PI
+export const degrees = (radians: number) => (radians / TWO_PI) * 360
 
 export const random = (min: number, max: number) =>
   Math.random() * (max - min) + min

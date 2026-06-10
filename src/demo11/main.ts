@@ -17,7 +17,7 @@ import {
   rotateX,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { cos, PI, sin } from '../math_utils.ts'
+import { cos, PI, sin, HALF_PI } from '../math_utils.ts'
 import { elbow } from '../elbow_primitives.ts'
 import { rotateY } from '../primitives.ts'
 
@@ -56,7 +56,7 @@ const draw = () => {
   translate(0, height / 2, 0)
 
   isolateTransformations(() => {
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
 
     ring(radius, height, {
       color: 'pink',
@@ -76,8 +76,8 @@ const draw = () => {
   translate(radius + height / 2, radius, 0)
 
   isolateTransformations(() => {
-    rotateZ(PI / 2)
-    rotateX(PI / 2)
+    rotateZ(HALF_PI)
+    rotateX(HALF_PI)
 
     ring(radius, height, {
       color: 'yellow',
@@ -113,7 +113,7 @@ const draw = () => {
   translate(0, -(height / 2 + radius), radius)
 
   isolateTransformations(() => {
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
 
     ring(radius, height, {
       color: 'lime',
@@ -151,7 +151,7 @@ const draw = () => {
   translate(-(height / 2 + radius), 0, -radius)
 
   isolateTransformations(() => {
-    rotateY(PI / 2)
+    rotateY(HALF_PI)
 
     ring(radius, height, {
       color: 'lightseagreen',

@@ -23,7 +23,7 @@ import {
   ring,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { cos, PI, sin } from '../math_utils.ts'
+import { cos, sin, HALF_PI } from '../math_utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ const draw = () => {
   ) {
     isolateTransformations(() => {
       rotateY(millis() / 50)
-      rotateX(-PI / 2)
+      rotateX(-HALF_PI)
 
       const hue = millis() / 100
       const saturation = 100

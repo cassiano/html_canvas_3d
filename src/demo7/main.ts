@@ -12,7 +12,7 @@ import {
   text2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI } from '../math_utils.ts'
+import { PI, HALF_PI } from '../math_utils.ts'
 import {
   rotateX,
   cone,
@@ -41,7 +41,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, HEIGHT / 2, 0)
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
 
     cone(RADIUS, HEIGHT, {
       color: 'orange',
@@ -51,7 +51,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(0, -HEIGHT / 2, 0)
-    rotateX(-PI / 2)
+    rotateX(-HALF_PI)
 
     cone(RADIUS, HEIGHT, {
       color: 'brown',
@@ -61,7 +61,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(HEIGHT / 2, 0, 0)
-    rotateY(-PI / 2)
+    rotateY(-HALF_PI)
 
     cone(RADIUS, HEIGHT, {
       color: 'yellow',
@@ -71,7 +71,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     translate(-HEIGHT / 2, 0, 0)
-    rotateY(PI / 2)
+    rotateY(HALF_PI)
 
     cone(RADIUS, HEIGHT, {
       color: 'pink',
