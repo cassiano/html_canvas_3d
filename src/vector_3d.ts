@@ -277,11 +277,13 @@ export class Vector3d {
     return Vector3d.create(matrix[0][0], matrix[1][0], matrix[2][0])
   }
 
-  static random2D() {
+  // p5.js calls it `random2D()` instead.
+  static random2d() {
     return Vector3d.create(Math.random(), Math.random()).normalize()
   }
 
-  static random3D() {
+  // p5.js calls it `random3D()` instead.
+  static random3d() {
     return Vector3d.create(
       Math.random(),
       Math.random(),
