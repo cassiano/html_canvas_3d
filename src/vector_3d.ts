@@ -297,6 +297,10 @@ export class Vector3d {
     yield this.z
   }
 
+  /////////////////////
+  // Private methods //
+  /////////////////////
+
   private inferAnotherVectorFromParams = (
     xOrAnotherVector: number | Vector3d,
     y?: number,
