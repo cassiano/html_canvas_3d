@@ -20,8 +20,12 @@ export const {
 export const TWO_PI = 2 * PI
 export const HALF_PI = PI / 2
 
-export const radians = (degrees: number) => (degrees / 360) * TWO_PI
-export const degrees = (radians: number) => (radians / TWO_PI) * 360
+export const FULL_CIRCLE_IN_DEGREES = 360
+
+export const radians = (degrees: number) =>
+  (degrees / FULL_CIRCLE_IN_DEGREES) * TWO_PI
+export const degrees = (radians: number) =>
+  (radians / TWO_PI) * FULL_CIRCLE_IN_DEGREES
 
 export const random = (min: number, max: number) =>
   Math.random() * (max - min) + min
