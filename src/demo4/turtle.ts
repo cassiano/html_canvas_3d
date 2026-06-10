@@ -1,7 +1,7 @@
 import {
+  cone,
   cube,
   line,
-  point,
   pop,
   push,
   rotateY,
@@ -10,6 +10,8 @@ import {
   translate,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
+import { isolateTransformations, rotateX } from '../primitives.ts'
+import { HALF_PI } from '../math_utils.ts'
 
 const TINY_AXIS_LENGTH = 50
 
@@ -102,15 +104,26 @@ export class Turtle {
     const zPos = $v(0, 0, TINY_AXIS_LENGTH / 2)
 
     // X-axis
-    line(xNeg, xPos, { color: 'darkRed' })
-    point(xPos, { color: 'red', size: 5 })
+    isolateTransformations(() => {
+      line(xNeg, xPos, { color: 'red' })
+      translate(xPos)
+      rotateY(HALF_PI)
+      cone(2, 7, { color: 'red', size: 5, circleSegments: 10 })
+    })
 
     // Y-axis
-    line(yNeg, yPos, { color: 'darkGreen' })
-    point(yPos, { color: 'green', size: 5 })
+    isolateTransformations(() => {
+      line(yNeg, yPos, { color: 'green' })
+      translate(yPos)
+      rotateX(-HALF_PI)
+      cone(2, 7, { color: 'green', size: 5, circleSegments: 10 })
+    })
 
     // Z-axis
-    line(zNeg, zPos, { color: 'darkBlue' })
-    point(zPos, { color: 'blue', size: 5 })
+    isolateTransformations(() => {
+      line(zNeg, zPos, { color: 'blue' })
+      translate(zPos)
+      cone(2, 7, { color: 'blue', size: 5, circleSegments: 10 })
+    })
   }
 }
