@@ -8,6 +8,7 @@ import {
 import { Vector3d } from '../vector_3d.ts'
 import { abs, PI, sign } from '../math_utils.ts'
 import { Cubie } from './cubie.ts'
+import { AXES, AXES_NAMES } from '../constants.ts'
 
 export class CubieFace {
   constructor(
@@ -29,7 +30,21 @@ export class CubieFace {
     return this.cubie.center.clone().add(this.center)
   }
 
+  isPlacedExternally() {
+    for (const axis of AXES_NAMES)
+      if (this.normal.equals(AXES[axis]) && this.cubie.isExternalInAxis[axis])
+        return true
+
+    return false
+  }
+
+  isPlacedInternally() {
+    return !this.isPlacedExternally()
+  }
+
   render() {
+    if (this.cubie.cubieSpacing === 0 && this.isPlacedInternally()) return // Skip rendering in this case.
+
     isolateTransformations(() => {
       translate(this.center)
 

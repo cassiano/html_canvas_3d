@@ -6,6 +6,7 @@ import { FACE_COLORS, FACE_NORMALS, FACES_PER_CUBIE } from './constants.ts'
 import { RubikCube } from './rubik_cube.ts'
 import { rotateX, rotateY, rotateZ } from '../primitives.ts'
 import { millis } from '../utils.ts'
+import { AXES_NAMES, AxesNamesType } from '../constants.ts'
 
 export class Cubie {
   position: Vector3d
@@ -17,6 +18,7 @@ export class Cubie {
     x: number,
     y: number,
     z: number,
+    public isExternalInAxis: Record<AxesNamesType, boolean>,
   ) {
     this.position = $v(x, y, z)
 
@@ -34,7 +36,17 @@ export class Cubie {
     return this.position.clone().mult(this.size + this.cubieSpacing)
   }
 
+  isExternal() {
+    return AXES_NAMES.some(axis => this.isExternalInAxis[axis])
+  }
+
+  isInternal() {
+    return !this.isExternal()
+  }
+
   render(rotateCubies = false) {
+    if (this.cubieSpacing === 0 && this.isInternal()) return // Skip rendering in this case.
+
     isolateTransformations(() => {
       translate(this.center)
 

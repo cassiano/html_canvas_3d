@@ -11,6 +11,10 @@ export const AXES = {
   ['-z']: $v(0, 0, -1),
 }
 
+export type AxesNamesType = keyof typeof AXES
+
+export const AXES_NAMES: AxesNamesType[] = ['x', 'y', 'z', '-x', '-y', '-z']
+
 export const FPS = 120
 export const FPS_LOGGING_FRAME_FREQUENCY = 30
 export const FOCAL_LENGTH = 400

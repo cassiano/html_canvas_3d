@@ -48,7 +48,7 @@ const createDemoControls = () => {
     cubiesPerAxis: createSlider({
       label: 'Cubies per axis',
       min: 1,
-      max: 20,
+      max: 70,
       value: INITIAL_CUBIES_PER_AXIS,
       container: demoControlPanel,
     }),
