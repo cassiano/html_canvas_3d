@@ -131,11 +131,11 @@ export const multiply4x4MatrixBy4dPoint = (
   // during the transformation.
   const [[m00, m01, m02, m03], [m10, m11, m12, m13], [m20, m21, m22, m23]] =
     matrix
-  const [px, py, pz, pw] = point
+  const [x, y, z, w] = point
 
   return $v(
-    m00 * px + m01 * py + m02 * pz + m03 * pw,
-    m10 * px + m11 * py + m12 * pz + m13 * pw,
-    m20 * px + m21 * py + m22 * pz + m23 * pw,
+    m00 * x + m01 * y + m02 * z + m03 * w,
+    m10 * x + m11 * y + m12 * z + m13 * w,
+    m20 * x + m21 * y + m22 * z + m23 * w,
   )
 }

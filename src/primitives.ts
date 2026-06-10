@@ -953,12 +953,8 @@ export const render3dAxes = () => {
 }
 
 const calculateZ = (point3d: Vector3d): number => {
-  const thirdRow = transformationMatrix[2]
+  const [tm20, tm21, tm22, tm23] = transformationMatrix[2] // 3rd row.
+  const { x, y, z } = point3d
 
-  return (
-    thirdRow[0] * point3d.x +
-    thirdRow[1] * point3d.y +
-    thirdRow[2] * point3d.z +
-    thirdRow[3] * FOURTH_DIMENSION_COORD
-  )
+  return tm20 * x + tm21 * y + tm22 * z + tm23 * FOURTH_DIMENSION_COORD
 }
