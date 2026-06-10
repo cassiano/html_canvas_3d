@@ -20,6 +20,9 @@ export const {
 export const radians = (degrees: number) => (degrees / 360) * (2 * PI)
 export const degrees = (radians: number) => (radians / (2 * PI)) * 360
 
+export const random = (min: number, max: number) =>
+  Math.random() * (max - min) + min
+
 export const map = (
   value: number,
   start1: number,
