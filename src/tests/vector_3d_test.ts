@@ -20,7 +20,7 @@ import {
   FOURTH_DIMENSION_COORD,
   transformationMatrix4x1Type,
 } from '../vector_3d.ts'
-import { PI } from '../math_utils.ts'
+import { PI, HALF_PI } from '../math_utils.ts'
 import { AXES } from '../constants.ts'
 
 const test = Deno.test
