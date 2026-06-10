@@ -277,6 +277,18 @@ export class Vector3d {
     return Vector3d.create(matrix[0][0], matrix[1][0], matrix[2][0])
   }
 
+  static random2D() {
+    return Vector3d.create(Math.random(), Math.random()).normalize()
+  }
+
+  static random3D() {
+    return Vector3d.create(
+      Math.random(),
+      Math.random(),
+      Math.random(),
+    ).normalize()
+  }
+
   *[Symbol.iterator](): Generator<number, void, unknown> {
     yield this.x
     yield this.y
