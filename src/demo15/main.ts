@@ -14,7 +14,7 @@ import {
   rotateX,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { map, PI } from '../math_utils.ts'
+import { PI, floor, map } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
 import { sample, timesMap } from '../utils.ts'
 
@@ -73,11 +73,10 @@ const draw = () => {
 
   render3dAxes()
 
-  const saturation = 100
-  const lightness = 80
-
   elbowSequence.forEach(([source, destination], i) => {
-    const hue = map(i, 0, TOTAL_ELBOWS - 1, 0, 255)
+    const hue = floor(map(i, 0, TOTAL_ELBOWS - 1, 0, 360))
+    const saturation = 100
+    const lightness = 75
 
     // @ts-ignore: source and destination are both typed as `AxisType`.
     elbow[source][destination]?.(
