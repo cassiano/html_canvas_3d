@@ -44,8 +44,12 @@ export class Cubie {
     return !this.isExternal()
   }
 
-  render(rotateCubies = false) {
-    if (this.cubieSpacing === 0 && this.isInternal()) return // Skip rendering in this case.
+  render({ rotateCubies = false, renderVisibleFacesOnly = false } = {}) {
+    if (
+      (this.cubieSpacing === 0 || renderVisibleFacesOnly) &&
+      this.isInternal()
+    )
+      return // Skip rendering in this case.
 
     isolateTransformations(() => {
       translate(this.center)
@@ -65,7 +69,7 @@ export class Cubie {
         )
       }
 
-      this.faces.forEach(face => face.render())
+      this.faces.forEach(face => face.render({ renderVisibleFacesOnly }))
     })
   }
 }

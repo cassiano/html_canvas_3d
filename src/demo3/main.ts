@@ -28,7 +28,6 @@ import {
 } from './constants.ts'
 import { frameCount, createSlider, createToggle } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
-import { ROTATE_CUBIES } from './constants.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -39,7 +38,11 @@ const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
-let rotateCubiesToggle: ReturnType<typeof createToggle>
+
+const toggles: {
+  rotateCubies?: ReturnType<typeof createToggle>
+  renderVisibleFacesOnly?: ReturnType<typeof createToggle>
+} = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
@@ -71,9 +74,16 @@ const createDemoControls = () => {
     }),
   }
 
-  rotateCubiesToggle = createToggle({
+  toggles.rotateCubies = createToggle({
     label: 'Rotate cubies?',
-    value: ROTATE_CUBIES,
+    value: false,
+    showValue: false,
+    container: demoControlPanel,
+  })
+
+  toggles.renderVisibleFacesOnly = createToggle({
+    label: 'Render visible faces only?',
+    value: false,
     showValue: false,
     container: demoControlPanel,
   })
@@ -107,7 +117,10 @@ const draw = () => {
 
   render3dAxes()
 
-  cube?.render(rotateCubiesToggle.getValue())
+  cube?.render({
+    rotateCubies: toggles.rotateCubies?.getValue(),
+    renderVisibleFacesOnly: toggles.renderVisibleFacesOnly?.getValue(),
+  })
 }
 
 const onPaused = () => {

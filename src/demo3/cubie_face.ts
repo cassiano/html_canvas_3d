@@ -40,8 +40,12 @@ export class CubieFace {
     return !this.isFacingOutside()
   }
 
-  render() {
-    if (this.cubie.cubieSpacing === 0 && this.isFacingInside()) return // Skip rendering in this case.
+  render({ renderVisibleFacesOnly = false } = {}) {
+    if (
+      (this.cubie.cubieSpacing === 0 || renderVisibleFacesOnly) &&
+      this.isFacingInside()
+    )
+      return // Skip rendering in this case.
 
     isolateTransformations(() => {
       translate(this.center)
@@ -55,7 +59,10 @@ export class CubieFace {
           rotateX(PI)
         }
 
-        square2d(this.size, { color: this.color })
+        square2d(this.size, {
+          color: this.color,
+          isDoubleSided: renderVisibleFacesOnly,
+        })
       })
     })
   }
