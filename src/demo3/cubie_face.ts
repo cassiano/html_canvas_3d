@@ -30,20 +30,23 @@ export class CubieFace {
     return this.cubie.center.clone().add(this.center)
   }
 
-  isFacingOutside() {
-    return AXES_NAMES.some(
-      axis => this.normal.equals(AXES[axis]) && this.cubie.isInAxisEdge[axis],
+  isExternal() {
+    return (
+      this.cubie.isExternal() &&
+      AXES_NAMES.some(
+        axis => this.normal.equals(AXES[axis]) && this.cubie.isInAxisEdge[axis],
+      )
     )
   }
 
-  isFacingInside() {
-    return !this.isFacingOutside()
+  isInternal() {
+    return !this.isExternal()
   }
 
   render({ renderExternalFacesOnly = false } = {}) {
     if (
       (this.cubie.cubieSpacing === 0 || renderExternalFacesOnly) &&
-      this.isFacingInside()
+      this.isInternal()
     )
       return // Skip rendering in this case.
 
