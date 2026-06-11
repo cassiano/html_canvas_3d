@@ -20,10 +20,13 @@ export class Cubie {
     x: number,
     y: number,
     z: number,
-    public isInAxisEdge: Record<AxesNamesType, boolean>,
+    public isLocatedInAxisEndpoint: Record<AxesNamesType, boolean>,
   ) {
     this.position = $v(x, y, z)
-    this.isExternal = AXES_NAMES.some(axis => this.isInAxisEdge[axis])
+
+    this.isExternal = AXES_NAMES.some(
+      axis => this.isLocatedInAxisEndpoint[axis],
+    )
 
     this.faces = timesMap(
       FACES_PER_CUBIE,

@@ -22,7 +22,9 @@ export class CubieFace {
     this.isExternal =
       this.cubie.isExternal &&
       AXES_NAMES.some(
-        axis => this.normal.equals(AXES[axis]) && this.cubie.isInAxisEdge[axis],
+        axis =>
+          this.normal.equals(AXES[axis]) &&
+          this.cubie.isLocatedInAxisEndpoint[axis],
       )
   }
 
