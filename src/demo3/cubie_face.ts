@@ -44,9 +44,10 @@ export class CubieFace {
   }
 
   render() {
+    const { renderExternalFacesOnly } = demo3Form.toggles!
+
     if (
-      (this.cubie.cubieSpacing === 0 ||
-        demo3Form.toggles.renderExternalFacesOnly?.getValue()) &&
+      (this.cubie.cubieSpacing === 0 || renderExternalFacesOnly.getValue()) &&
       this.isInternal
     )
       return // Skip rendering in this case.
@@ -66,8 +67,7 @@ export class CubieFace {
         square2d(this.size, {
           color: this.color,
           isDoubleSided:
-            demo3Form.toggles.renderExternalFacesOnly?.getValue() &&
-            this.cubie.cubieSpacing > 0,
+            renderExternalFacesOnly.getValue() && this.cubie.cubieSpacing > 0,
         })
       })
     })

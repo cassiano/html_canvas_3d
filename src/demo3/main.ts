@@ -40,11 +40,17 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 let demoControlPanel: HTMLDivElement | null
 
 type Demo3FormType = {
-  sliders: Record<string, ReturnType<typeof createSlider>>
-  toggles: Record<string, ReturnType<typeof createToggle>>
+  sliders?: Record<
+    'cubiesPerAxis' | 'cubieSize' | 'cubieSpacing',
+    ReturnType<typeof createSlider>
+  >
+  toggles?: Record<
+    'rotateCubies' | 'renderExternalFacesOnly',
+    ReturnType<typeof createToggle>
+  >
 }
 
-export const demo3Form: Demo3FormType = { sliders: {}, toggles: {} }
+export const demo3Form: Demo3FormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
@@ -92,11 +98,13 @@ const createDemoControls = () => {
   }
 
   const createRubikCube = () => {
-    const cubieSize = demo3Form.sliders.cubieSize.getValue()
-    const cubiesPerAxis = demo3Form.sliders.cubiesPerAxis.getValue()
-    const cubieSpacing = demo3Form.sliders.cubieSpacing.getValue()
+    const { cubieSize, cubiesPerAxis, cubieSpacing } = demo3Form.sliders!
 
-    cube = new RubikCube(cubieSize, cubiesPerAxis, cubieSpacing)
+    cube = new RubikCube(
+      cubieSize.getValue(),
+      cubiesPerAxis.getValue(),
+      cubieSpacing.getValue(),
+    )
   }
 
   Object.values(demo3Form.sliders).forEach(slider =>

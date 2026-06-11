@@ -44,9 +44,10 @@ export class Cubie {
   }
 
   render() {
+    const { renderExternalFacesOnly, rotateCubies } = demo3Form.toggles!
+
     if (
-      (this.cubieSpacing === 0 ||
-        demo3Form.toggles.renderExternalFacesOnly?.getValue()) &&
+      (this.cubieSpacing === 0 || renderExternalFacesOnly.getValue()) &&
       this.isInternal
     )
       return // Skip rendering in this case.
@@ -54,7 +55,7 @@ export class Cubie {
     isolateTransformations(() => {
       translate(this.center)
 
-      if (demo3Form.toggles.rotateCubies?.getValue()) {
+      if (rotateCubies.getValue()) {
         rotateX(
           ((this.position.x + this.position.y + this.position.z) * millis()) /
             5000,
