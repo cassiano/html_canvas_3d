@@ -40,9 +40,9 @@ export class CubieFace {
     return !this.isFacingOutside()
   }
 
-  render({ renderVisibleFacesOnly = false } = {}) {
+  render({ renderExternalFacesOnly = false } = {}) {
     if (
-      (this.cubie.cubieSpacing === 0 || renderVisibleFacesOnly) &&
+      (this.cubie.cubieSpacing === 0 || renderExternalFacesOnly) &&
       this.isFacingInside()
     )
       return // Skip rendering in this case.
@@ -61,7 +61,7 @@ export class CubieFace {
 
         square2d(this.size, {
           color: this.color,
-          isDoubleSided: renderVisibleFacesOnly,
+          isDoubleSided: renderExternalFacesOnly,
         })
       })
     })

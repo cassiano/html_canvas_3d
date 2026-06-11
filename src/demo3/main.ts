@@ -41,7 +41,7 @@ let demoControlPanel: HTMLDivElement | null
 
 const toggles: {
   rotateCubies?: ReturnType<typeof createToggle>
-  renderVisibleFacesOnly?: ReturnType<typeof createToggle>
+  renderExternalFacesOnly?: ReturnType<typeof createToggle>
 } = {}
 
 const createDemoControls = () => {
@@ -81,8 +81,8 @@ const createDemoControls = () => {
     container: demoControlPanel,
   })
 
-  toggles.renderVisibleFacesOnly = createToggle({
-    label: 'Render visible faces only?',
+  toggles.renderExternalFacesOnly = createToggle({
+    label: 'Render external faces only?',
     value: false,
     showValue: false,
     container: demoControlPanel,
@@ -119,7 +119,7 @@ const draw = () => {
 
   cube?.render({
     rotateCubies: toggles.rotateCubies?.getValue(),
-    renderVisibleFacesOnly: toggles.renderVisibleFacesOnly?.getValue(),
+    renderExternalFacesOnly: toggles.renderExternalFacesOnly?.getValue(),
   })
 }
 
