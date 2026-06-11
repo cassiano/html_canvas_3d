@@ -1,19 +1,18 @@
-import { $v } from './vector_3d.ts'
+import { $v, Vector3d } from './vector_3d.ts'
+
+export const AXES_NAMES = ['x', 'y', 'z', '-x', '-y', '-z'] as const
+
+export type AxesNamesType = (typeof AXES_NAMES)[number]
 
 // Canonical unit vectors (+ and -).
-export const AXES = {
+export const AXES: Record<AxesNamesType, Vector3d> = {
   x: $v(1, 0, 0),
   y: $v(0, 1, 0),
   z: $v(0, 0, 1),
-
   ['-x']: $v(-1, 0, 0),
   ['-y']: $v(0, -1, 0),
   ['-z']: $v(0, 0, -1),
 }
-
-export type AxesNamesType = keyof typeof AXES
-
-export const AXES_NAMES: AxesNamesType[] = ['x', 'y', 'z', '-x', '-y', '-z']
 
 export const FPS = 120
 export const FPS_LOGGING_FRAME_FREQUENCY = 30
