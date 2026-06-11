@@ -2,7 +2,11 @@
 // Coral Snake Demo //
 //////////////////////
 
-import { FPS, FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
+import {
+  FPS,
+  FPS_LOGGING_FRAME_FREQUENCY,
+  AxesNamesType,
+} from '../constants.ts'
 import { createFrameLoop, millis, frameCount, fps } from '../utils.ts'
 import {
   background,
@@ -17,6 +21,7 @@ import { $v } from '../vector_3d.ts'
 import { PI, floor, map } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
 import { sample, timesMap } from '../utils.ts'
+import { Tuple } from '../utility_types.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -34,7 +39,8 @@ const options: ElbowShapeOptions = {
   color: COLOR,
 }
 
-const AXES_TRANSITIONS = {
+// 24 possible axes transitions.
+const AXES_TRANSITIONS: Record<AxesNamesType, Tuple<AxesNamesType, 4>> = {
   x: ['y', '-y', 'z', '-z'],
   y: ['x', '-x', 'z', '-z'],
   z: ['x', '-x', 'y', '-y'],
@@ -43,21 +49,17 @@ const AXES_TRANSITIONS = {
   ['-z']: ['x', '-x', 'y', '-y'],
 }
 
-type AxisType = keyof typeof AXES_TRANSITIONS
-
 const axesKeys = Object.keys(AXES_TRANSITIONS)
-let previousAxis: AxisType = sample(axesKeys) as AxisType
+let previousAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
 
 const elbowSequence = timesMap(TOTAL_ELBOWS, () => {
-  const nextAxis = sample(AXES_TRANSITIONS[previousAxis]) as AxisType
+  const nextAxis = sample(AXES_TRANSITIONS[previousAxis]) as AxesNamesType
   const savedPreviousAxis = previousAxis
 
   previousAxis = nextAxis
 
   return [savedPreviousAxis, nextAxis] as const
 })
-
-type ElbowKeysType = keyof typeof elbow
 
 // -------------------------------------------------------------------------------------------------
 
