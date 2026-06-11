@@ -32,8 +32,7 @@ export class CubieFace {
 
   isFacingOutside() {
     return AXES_NAMES.some(
-      axis =>
-        this.normal.equals(AXES[axis]) && this.cubie.isExternalInAxis[axis],
+      axis => this.normal.equals(AXES[axis]) && this.cubie.isInAxisEdge[axis],
     )
   }
 

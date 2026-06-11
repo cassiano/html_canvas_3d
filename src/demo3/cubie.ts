@@ -18,7 +18,7 @@ export class Cubie {
     x: number,
     y: number,
     z: number,
-    public isExternalInAxis: Record<AxesNamesType, boolean>,
+    public isInAxisEdge: Record<AxesNamesType, boolean>,
   ) {
     this.position = $v(x, y, z)
 
@@ -37,7 +37,7 @@ export class Cubie {
   }
 
   isExternal() {
-    return AXES_NAMES.some(axis => this.isExternalInAxis[axis])
+    return AXES_NAMES.some(axis => this.isInAxisEdge[axis])
   }
 
   isInternal() {
