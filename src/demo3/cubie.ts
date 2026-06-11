@@ -11,6 +11,7 @@ import { AXES_NAMES, AxesNamesType } from '../constants.ts'
 export class Cubie {
   position: Vector3d
   faces: CubieFace[]
+  isExternal: boolean
 
   constructor(
     public cube: RubikCube,
@@ -21,6 +22,7 @@ export class Cubie {
     public isInAxisEdge: Record<AxesNamesType, boolean>,
   ) {
     this.position = $v(x, y, z)
+    this.isExternal = AXES_NAMES.some(axis => this.isInAxisEdge[axis])
 
     this.faces = timesMap(
       FACES_PER_CUBIE,
@@ -36,19 +38,12 @@ export class Cubie {
     return this.position.clone().mult(this.size + this.cubieSpacing)
   }
 
-  isExternal() {
-    return AXES_NAMES.some(axis => this.isInAxisEdge[axis])
-  }
-
-  isInternal() {
-    return !this.isExternal()
+  get isInternal() {
+    return !this.isExternal
   }
 
   render({ rotateCubies = false, renderExternalFacesOnly = false } = {}) {
-    if (
-      (this.cubieSpacing === 0 || renderExternalFacesOnly) &&
-      this.isInternal()
-    )
+    if ((this.cubieSpacing === 0 || renderExternalFacesOnly) && this.isInternal)
       return // Skip rendering in this case.
 
     isolateTransformations(() => {

@@ -11,11 +11,19 @@ import { Cubie } from './cubie.ts'
 import { AXES, AXES_NAMES } from '../constants.ts'
 
 export class CubieFace {
+  isExternal: boolean
+
   constructor(
     public cubie: Cubie,
     public color: string,
     public normal: Vector3d,
-  ) {}
+  ) {
+    this.isExternal =
+      this.cubie.isExternal &&
+      AXES_NAMES.some(
+        axis => this.normal.equals(AXES[axis]) && this.cubie.isInAxisEdge[axis],
+      )
+  }
 
   get size() {
     return this.cubie.size
@@ -30,23 +38,14 @@ export class CubieFace {
     return this.cubie.center.clone().add(this.center)
   }
 
-  isExternal() {
-    return (
-      this.cubie.isExternal() &&
-      AXES_NAMES.some(
-        axis => this.normal.equals(AXES[axis]) && this.cubie.isInAxisEdge[axis],
-      )
-    )
-  }
-
-  isInternal() {
-    return !this.isExternal()
+  get isInternal() {
+    return !this.isExternal
   }
 
   render({ renderExternalFacesOnly = false } = {}) {
     if (
       (this.cubie.cubieSpacing === 0 || renderExternalFacesOnly) &&
-      this.isInternal()
+      this.isInternal
     )
       return // Skip rendering in this case.
 
