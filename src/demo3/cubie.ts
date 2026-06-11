@@ -11,8 +11,8 @@ import { demo3Form } from './main.ts'
 
 export class Cubie {
   position: Vector3d
-  faces: CubieFace[]
   isExternal: boolean
+  faces: CubieFace[]
 
   constructor(
     public cube: RubikCube,
