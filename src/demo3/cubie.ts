@@ -7,6 +7,7 @@ import { RubikCube } from './rubik_cube.ts'
 import { rotateX, rotateY, rotateZ } from '../primitives.ts'
 import { millis } from '../utils.ts'
 import { AXES_NAMES, AxesNamesType } from '../constants.ts'
+import { demo3Form } from './main.ts'
 
 export class Cubie {
   position: Vector3d
@@ -42,14 +43,18 @@ export class Cubie {
     return !this.isExternal
   }
 
-  render({ rotateCubies = false, renderExternalFacesOnly = false } = {}) {
-    if ((this.cubieSpacing === 0 || renderExternalFacesOnly) && this.isInternal)
+  render() {
+    if (
+      (this.cubieSpacing === 0 ||
+        demo3Form.toggles.renderExternalFacesOnly?.getValue()) &&
+      this.isInternal
+    )
       return // Skip rendering in this case.
 
     isolateTransformations(() => {
       translate(this.center)
 
-      if (rotateCubies) {
+      if (demo3Form.toggles.rotateCubies?.getValue()) {
         rotateX(
           ((this.position.x + this.position.y + this.position.z) * millis()) /
             5000,
@@ -64,7 +69,7 @@ export class Cubie {
         )
       }
 
-      this.faces.forEach(face => face.render({ renderExternalFacesOnly }))
+      this.faces.forEach(face => face.render())
     })
   }
 }

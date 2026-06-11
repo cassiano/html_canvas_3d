@@ -39,15 +39,22 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
 
-const toggles: {
-  rotateCubies?: ReturnType<typeof createToggle>
-  renderExternalFacesOnly?: ReturnType<typeof createToggle>
-} = {}
+// export const demo3Toggles: {
+//   rotateCubies?: ReturnType<typeof createToggle>
+//   renderExternalFacesOnly?: ReturnType<typeof createToggle>
+// } = {}
+
+type Demo3FormType = {
+  sliders: Record<string, ReturnType<typeof createSlider>>
+  toggles: Record<string, ReturnType<typeof createToggle>>
+}
+
+export const demo3Form: Demo3FormType = { sliders: {}, toggles: {} }
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  const sliders = {
+  demo3Form.sliders = {
     cubiesPerAxis: createSlider({
       label: 'Cubies per axis',
       min: 1,
@@ -74,29 +81,30 @@ const createDemoControls = () => {
     }),
   }
 
-  toggles.rotateCubies = createToggle({
-    label: 'Rotate cubies?',
-    value: false,
-    showValue: false,
-    container: demoControlPanel,
-  })
-
-  toggles.renderExternalFacesOnly = createToggle({
-    label: 'Render external faces only?',
-    value: false,
-    showValue: false,
-    container: demoControlPanel,
-  })
+  demo3Form.toggles = {
+    rotateCubies: createToggle({
+      label: 'Rotate cubies?',
+      value: false,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+    renderExternalFacesOnly: createToggle({
+      label: 'Render external faces only?',
+      value: false,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+  }
 
   const createRubikCube = () => {
-    const cubieSize = sliders.cubieSize.getValue()
-    const cubiesPerAxis = sliders.cubiesPerAxis.getValue()
-    const cubieSpacing = sliders.cubieSpacing.getValue()
+    const cubieSize = demo3Form.sliders.cubieSize.getValue()
+    const cubiesPerAxis = demo3Form.sliders.cubiesPerAxis.getValue()
+    const cubieSpacing = demo3Form.sliders.cubieSpacing.getValue()
 
     cube = new RubikCube(cubieSize, cubiesPerAxis, cubieSpacing)
   }
 
-  Object.values(sliders).forEach(slider =>
+  Object.values(demo3Form.sliders).forEach(slider =>
     slider.getInput().addEventListener('input', createRubikCube),
   )
 
@@ -117,10 +125,7 @@ const draw = () => {
 
   render3dAxes()
 
-  cube?.render({
-    rotateCubies: toggles.rotateCubies?.getValue(),
-    renderExternalFacesOnly: toggles.renderExternalFacesOnly?.getValue(),
-  })
+  cube?.render()
 }
 
 const onPaused = () => {

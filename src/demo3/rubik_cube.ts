@@ -30,9 +30,7 @@ export class RubikCube {
     ).flat(2)
   }
 
-  render({ rotateCubies = false, renderExternalFacesOnly = false } = {}) {
-    this.cubies.forEach(cubie =>
-      cubie.render({ rotateCubies, renderExternalFacesOnly }),
-    )
+  render() {
+    this.cubies.forEach(cubie => cubie.render())
   }
 }

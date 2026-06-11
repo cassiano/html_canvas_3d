@@ -9,6 +9,7 @@ import { Vector3d } from '../vector_3d.ts'
 import { abs, PI, sign, HALF_PI } from '../math_utils.ts'
 import { Cubie } from './cubie.ts'
 import { AXES, AXES_NAMES } from '../constants.ts'
+import { demo3Form } from './main.ts'
 
 export class CubieFace {
   isExternal: boolean
@@ -42,9 +43,10 @@ export class CubieFace {
     return !this.isExternal
   }
 
-  render({ renderExternalFacesOnly = false } = {}) {
+  render() {
     if (
-      (this.cubie.cubieSpacing === 0 || renderExternalFacesOnly) &&
+      (this.cubie.cubieSpacing === 0 ||
+        demo3Form.toggles.renderExternalFacesOnly?.getValue()) &&
       this.isInternal
     )
       return // Skip rendering in this case.
@@ -63,7 +65,9 @@ export class CubieFace {
 
         square2d(this.size, {
           color: this.color,
-          isDoubleSided: renderExternalFacesOnly && this.cubie.cubieSpacing > 0,
+          isDoubleSided:
+            demo3Form.toggles.renderExternalFacesOnly?.getValue() &&
+            this.cubie.cubieSpacing > 0,
         })
       })
     })
