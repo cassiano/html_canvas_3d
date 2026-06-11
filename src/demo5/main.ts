@@ -34,15 +34,17 @@ const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
-let sliders: {
-  latitudeLines: ReturnType<typeof createSlider>
-  longitudeLines: ReturnType<typeof createSlider>
+
+type Demo5FormType = {
+  sliders: Record<string, ReturnType<typeof createSlider>>
 }
+
+export const demo5Form: Demo5FormType = { sliders: {} }
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  sliders = {
+  demo5Form.sliders = {
     latitudeLines: createSlider({
       label: 'Latitude lines',
       min: 1,
@@ -78,8 +80,8 @@ const draw = () => {
 
   sphere(250, {
     color: 'cornflowerblue',
-    latitudeLines: sliders.latitudeLines.getValue(),
-    longitudeLines: sliders.longitudeLines.getValue(),
+    latitudeLines: demo5Form.sliders.latitudeLines.getValue(),
+    longitudeLines: demo5Form.sliders.longitudeLines.getValue(),
   })
 }
 

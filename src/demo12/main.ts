@@ -37,14 +37,17 @@ const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
-let sliders: {
-  totalRings: ReturnType<typeof createSlider>
+
+type Demo12FormType = {
+  sliders: Record<string, ReturnType<typeof createSlider>>
 }
+
+export const demo12Form: Demo12FormType = { sliders: {} }
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  sliders = {
+  demo12Form.sliders = {
     totalRings: createSlider({
       label: 'Total rings',
       min: 1,
@@ -62,7 +65,7 @@ const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
     console.log({ fps: fps() })
 
-  const totalRings = sliders.totalRings.getValue()
+  const totalRings = demo12Form.sliders.totalRings.getValue()
 
   background('lightGray')
 

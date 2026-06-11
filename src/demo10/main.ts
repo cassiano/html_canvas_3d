@@ -35,10 +35,16 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
 
+type Demo10FormType = {
+  sliders: Record<string, ReturnType<typeof createSlider>>
+}
+
+export const demo10Form: Demo10FormType = { sliders: {} }
+
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  const sliders = {
+  demo10Form.sliders = {
     tileSize: createSlider({
       label: 'Tile size',
       min: 3,
@@ -65,14 +71,14 @@ const createDemoControls = () => {
   }
 
   const createTerrain = () => {
-    const tileSize = sliders.tileSize.getValue()
-    const smoothiness = sliders.smoothiness.getValue()
-    const depth = sliders.depth.getValue()
+    const tileSize = demo10Form.sliders.tileSize.getValue()
+    const smoothiness = demo10Form.sliders.smoothiness.getValue()
+    const depth = demo10Form.sliders.depth.getValue()
 
     terrain = new Terrain(tileSize, 500, 500, depth, smoothiness)
   }
 
-  Object.values(sliders).forEach(slider =>
+  Object.values(demo10Form.sliders).forEach(slider =>
     slider.getInput().addEventListener('input', createTerrain),
   )
 

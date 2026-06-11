@@ -81,10 +81,16 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
 
+type Demo4FormType = {
+  sliders: Record<string, ReturnType<typeof createSlider>>
+}
+
+export const demo4Form: Demo4FormType = { sliders: {} }
+
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  const sliders = {
+  demo4Form.sliders = {
     smallerCubeScale: createSlider({
       label: 'Smaller cube %',
       min: 0,
@@ -105,9 +111,9 @@ const createDemoControls = () => {
   }
 
   const createTurtle = () => {
-    const generations = sliders.generations.getValue()
+    const generations = demo4Form.sliders.generations.getValue()
     const smallerCubeScale = max(
-      sliders.smallerCubeScale.getValue() / 100,
+      demo4Form.sliders.smallerCubeScale.getValue() / 100,
       Number.EPSILON, // `smallerCubeScale` cannot be zero.
     )
 
@@ -119,16 +125,18 @@ const createDemoControls = () => {
   }
 
   const generateSentence = () => {
-    const generations = sliders.generations.getValue()
+    const generations = demo4Form.sliders.generations.getValue()
 
     lsystem.reset()
 
     sentence = timesReduce(generations, () => lsystem.generate(), lsystem.axiom)
   }
 
-  sliders.smallerCubeScale.getInput().addEventListener('input', createTurtle)
+  demo4Form.sliders.smallerCubeScale
+    .getInput()
+    .addEventListener('input', createTurtle)
 
-  sliders.generations.getInput().addEventListener('input', () => {
+  demo4Form.sliders.generations.getInput().addEventListener('input', () => {
     generateSentence()
     createTurtle()
   })
