@@ -63,7 +63,7 @@ export class CubieFace {
 
         square2d(this.size, {
           color: this.color,
-          isDoubleSided: renderExternalFacesOnly,
+          isDoubleSided: renderExternalFacesOnly && this.cubie.cubieSpacing > 0,
         })
       })
     })
