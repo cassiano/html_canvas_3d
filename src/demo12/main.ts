@@ -65,7 +65,9 @@ const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
     console.log({ fps: fps() })
 
-  const totalRings = demo12Form.sliders!.totalRings.getValue()
+  if (!demo12Form.sliders) return
+
+  const { totalRings } = demo12Form.sliders
 
   background('lightGray')
 
@@ -74,13 +76,13 @@ const draw = () => {
 
   render3dAxes()
 
-  const highlightedRing = Math.floor(millis() / 100) % totalRings
+  const highlightedRing = Math.floor(millis() / 100) % totalRings.getValue()
   let ringIndex = 0
 
   for (
     let radius = LARGEST_RING_RADIUS;
     radius > 0;
-    radius -= 250 / totalRings
+    radius -= 250 / totalRings.getValue()
   ) {
     isolateTransformations(() => {
       rotateY(millis() / 50)
@@ -90,7 +92,7 @@ const draw = () => {
       const saturation = 100
       const lightness =
         ringIndex === highlightedRing ||
-        totalRings - ringIndex === highlightedRing
+        totalRings.getValue() - ringIndex === highlightedRing
           ? 100
           : ((cos(millis() / 5000) + 1) / 2) * 40 + 30
 

@@ -114,9 +114,11 @@ const createDemoControls = () => {
   }
 
   const createTurtle = () => {
-    const generations = demo4Form.sliders!.generations.getValue()
+    if (!demo4Form.sliders) return
+
+    const generations = demo4Form.sliders.generations.getValue()
     const smallerCubeScale = max(
-      demo4Form.sliders!.smallerCubeScale.getValue() / 100,
+      demo4Form.sliders.smallerCubeScale.getValue() / 100,
       Number.EPSILON, // `smallerCubeScale` cannot be zero.
     )
 
@@ -128,7 +130,9 @@ const createDemoControls = () => {
   }
 
   const generateSentence = () => {
-    const generations = demo4Form.sliders!.generations.getValue()
+    if (!demo4Form.sliders) return
+
+    const generations = demo4Form.sliders.generations.getValue()
 
     lsystem.reset()
 

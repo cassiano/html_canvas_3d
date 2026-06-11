@@ -74,11 +74,17 @@ const createDemoControls = () => {
   }
 
   const createTerrain = () => {
-    const tileSize = demo10Form.sliders!.tileSize.getValue()
-    const smoothiness = demo10Form.sliders!.smoothiness.getValue()
-    const depth = demo10Form.sliders!.depth.getValue()
+    if (!demo10Form.sliders) return
 
-    terrain = new Terrain(tileSize, 500, 500, depth, smoothiness)
+    const { tileSize, smoothiness, depth } = demo10Form.sliders
+
+    terrain = new Terrain(
+      tileSize.getValue(),
+      500,
+      500,
+      depth.getValue(),
+      smoothiness.getValue(),
+    )
   }
 
   Object.values(demo10Form.sliders).forEach(slider =>

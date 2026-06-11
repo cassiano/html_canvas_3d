@@ -81,10 +81,14 @@ const draw = () => {
 
   render3dAxes()
 
+  if (!demo5Form.sliders) return
+
+  const { latitudeLines, longitudeLines } = demo5Form.sliders
+
   sphere(250, {
     color: 'cornflowerblue',
-    latitudeLines: demo5Form.sliders!.latitudeLines.getValue(),
-    longitudeLines: demo5Form.sliders!.longitudeLines.getValue(),
+    latitudeLines: latitudeLines.getValue(),
+    longitudeLines: longitudeLines.getValue(),
   })
 }
 

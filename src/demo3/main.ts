@@ -98,7 +98,9 @@ const createDemoControls = () => {
   }
 
   const createRubikCube = () => {
-    const { cubieSize, cubiesPerAxis, cubieSpacing } = demo3Form.sliders!
+    if (!demo3Form.sliders) return
+
+    const { cubieSize, cubiesPerAxis, cubieSpacing } = demo3Form.sliders
 
     cube = new RubikCube(
       cubieSize.getValue(),

@@ -44,7 +44,9 @@ export class Cubie {
   }
 
   render() {
-    const { renderExternalFacesOnly, rotateCubies } = demo3Form.toggles!
+    if (!demo3Form.toggles) return
+
+    const { renderExternalFacesOnly, rotateCubies } = demo3Form.toggles
 
     if (
       (this.cubieSpacing === 0 || renderExternalFacesOnly.getValue()) &&
