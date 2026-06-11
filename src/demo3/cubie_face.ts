@@ -6,7 +6,7 @@ import {
   translate,
 } from './../primitives.ts'
 import { Vector3d } from '../vector_3d.ts'
-import { abs, PI, sign } from '../math_utils.ts'
+import { abs, PI, sign, HALF_PI } from '../math_utils.ts'
 import { Cubie } from './cubie.ts'
 import { AXES, AXES_NAMES } from '../constants.ts'
 
@@ -54,9 +54,9 @@ export class CubieFace {
 
       isolateTransformations(() => {
         if (abs(this.normal.x) === 1) {
-          rotateY((sign(this.normal.x) * PI) / 2)
+          rotateY(sign(this.normal.x) * HALF_PI)
         } else if (abs(this.normal.y) === 1) {
-          rotateX((-sign(this.normal.y) * PI) / 2)
+          rotateX(-sign(this.normal.y) * HALF_PI)
         } else if (this.normal.z === -1) {
           rotateX(PI)
         }
