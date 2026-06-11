@@ -82,10 +82,13 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 let demoControlPanel: HTMLDivElement | null
 
 type Demo4FormType = {
-  sliders: Record<string, ReturnType<typeof createSlider>>
+  sliders?: Record<
+    'smallerCubeScale' | 'generations',
+    ReturnType<typeof createSlider>
+  >
 }
 
-export const demo4Form: Demo4FormType = { sliders: {} }
+export const demo4Form: Demo4FormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
@@ -111,9 +114,9 @@ const createDemoControls = () => {
   }
 
   const createTurtle = () => {
-    const generations = demo4Form.sliders.generations.getValue()
+    const generations = demo4Form.sliders!.generations.getValue()
     const smallerCubeScale = max(
-      demo4Form.sliders.smallerCubeScale.getValue() / 100,
+      demo4Form.sliders!.smallerCubeScale.getValue() / 100,
       Number.EPSILON, // `smallerCubeScale` cannot be zero.
     )
 
@@ -125,7 +128,7 @@ const createDemoControls = () => {
   }
 
   const generateSentence = () => {
-    const generations = demo4Form.sliders.generations.getValue()
+    const generations = demo4Form.sliders!.generations.getValue()
 
     lsystem.reset()
 

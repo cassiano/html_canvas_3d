@@ -39,10 +39,10 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 let demoControlPanel: HTMLDivElement | null
 
 type Demo12FormType = {
-  sliders: Record<string, ReturnType<typeof createSlider>>
+  sliders?: Record<'totalRings', ReturnType<typeof createSlider>>
 }
 
-export const demo12Form: Demo12FormType = { sliders: {} }
+export const demo12Form: Demo12FormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
@@ -65,7 +65,7 @@ const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
     console.log({ fps: fps() })
 
-  const totalRings = demo12Form.sliders.totalRings.getValue()
+  const totalRings = demo12Form.sliders!.totalRings.getValue()
 
   background('lightGray')
 
