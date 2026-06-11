@@ -39,11 +39,6 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
 
-// export const demo3Toggles: {
-//   rotateCubies?: ReturnType<typeof createToggle>
-//   renderExternalFacesOnly?: ReturnType<typeof createToggle>
-// } = {}
-
 type Demo3FormType = {
   sliders: Record<string, ReturnType<typeof createSlider>>
   toggles: Record<string, ReturnType<typeof createToggle>>
