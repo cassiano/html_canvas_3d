@@ -9,7 +9,7 @@ import { Vector3d } from '../vector_3d.ts'
 import { abs, PI, sign, HALF_PI } from '../math_utils.ts'
 import { Cubie } from './cubie.ts'
 import { AXES, AXES_NAMES } from '../constants.ts'
-import { Demo3FormReader } from './demo3_form_reader.ts'
+import { Demo3FormReader } from './demo3_form.ts'
 
 export class CubieFace {
   isExternal: boolean

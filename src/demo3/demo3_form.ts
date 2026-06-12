@@ -1,4 +1,17 @@
-import { demo3Form } from './main.ts'
+import { createSlider, createToggle } from '../utils.ts'
+
+type Demo3FormType = {
+  sliders?: Record<
+    'cubiesPerAxis' | 'cubieSize' | 'cubieSpacing',
+    ReturnType<typeof createSlider>
+  >
+  toggles?: Record<
+    'rotateCubies' | 'renderExternalFacesOnly',
+    ReturnType<typeof createToggle>
+  >
+}
+
+export const demo3Form: Demo3FormType = {}
 
 export class Demo3FormReader {
   static get cubiesPerAxis() {

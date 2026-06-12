@@ -28,7 +28,7 @@ import {
 } from './constants.ts'
 import { frameCount, createSlider, createToggle } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
-import { Demo3FormReader } from './demo3_form_reader.ts'
+import { Demo3FormReader, demo3Form } from './demo3_form.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -39,19 +39,6 @@ const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
-
-type Demo3FormType = {
-  sliders?: Record<
-    'cubiesPerAxis' | 'cubieSize' | 'cubieSpacing',
-    ReturnType<typeof createSlider>
-  >
-  toggles?: Record<
-    'rotateCubies' | 'renderExternalFacesOnly',
-    ReturnType<typeof createToggle>
-  >
-}
-
-export const demo3Form: Demo3FormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)

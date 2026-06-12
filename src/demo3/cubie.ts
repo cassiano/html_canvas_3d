@@ -7,7 +7,7 @@ import { RubikCube } from './rubik_cube.ts'
 import { rotateX, rotateY, rotateZ } from '../primitives.ts'
 import { millis } from '../utils.ts'
 import { AXES_NAMES, AxesNamesType } from '../constants.ts'
-import { Demo3FormReader } from './demo3_form_reader.ts'
+import { Demo3FormReader } from './demo3_form.ts'
 
 export class Cubie {
   position: Vector3d
