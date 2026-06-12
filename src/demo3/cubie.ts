@@ -7,7 +7,7 @@ import { RubikCube } from './rubik_cube.ts'
 import { rotateX, rotateY, rotateZ } from '../primitives.ts'
 import { millis } from '../utils.ts'
 import { AXES_NAMES, AxesNamesType } from '../constants.ts'
-import { demo3Form } from './main.ts'
+import { Demo3FormReader } from './demo3_form_reader.ts'
 
 export class Cubie {
   position: Vector3d
@@ -16,7 +16,6 @@ export class Cubie {
 
   constructor(
     public cube: RubikCube,
-    public cubieSpacing: number,
     x: number,
     y: number,
     z: number,
@@ -39,7 +38,7 @@ export class Cubie {
   }
 
   get center() {
-    return this.position.clone().mult(this.size + this.cubieSpacing)
+    return this.position.clone().mult(this.size + Demo3FormReader.cubieSpacing)
   }
 
   get isInternal() {
@@ -47,12 +46,9 @@ export class Cubie {
   }
 
   render() {
-    if (!demo3Form.toggles) return
-
-    const { renderExternalFacesOnly, rotateCubies } = demo3Form.toggles
-
     if (
-      (this.cubieSpacing === 0 || renderExternalFacesOnly.getValue()) &&
+      (Demo3FormReader.cubieSpacing === 0 ||
+        Demo3FormReader.renderExternalFacesOnly) &&
       this.isInternal
     )
       return // Skip rendering in this case.
@@ -60,7 +56,7 @@ export class Cubie {
     isolateTransformations(() => {
       translate(this.center)
 
-      if (rotateCubies.getValue()) {
+      if (Demo3FormReader.rotateCubies) {
         rotateX(
           ((this.position.x + this.position.y + this.position.z) * millis()) /
             5000,

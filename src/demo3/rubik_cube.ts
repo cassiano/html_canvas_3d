@@ -7,14 +7,12 @@ export class RubikCube {
   constructor(
     public cubieSize: number,
     public cubiesPerAxis: number,
-    cubieSpacing: number,
   ) {
     this.cubies = timesMapN(
       [cubiesPerAxis, cubiesPerAxis, cubiesPerAxis],
       (x, y, z) =>
         new Cubie(
           this,
-          cubieSpacing,
           x - (cubiesPerAxis - 1) / 2,
           y - (cubiesPerAxis - 1) / 2,
           z - (cubiesPerAxis - 1) / 2,

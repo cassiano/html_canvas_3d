@@ -28,6 +28,7 @@ import {
 } from './constants.ts'
 import { frameCount, createSlider, createToggle } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
+import { Demo3FormReader } from './demo3_form_reader.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -98,19 +99,14 @@ const createDemoControls = () => {
   }
 
   const createRubikCube = () => {
-    if (!demo3Form.sliders) return
-
-    const { cubieSize, cubiesPerAxis, cubieSpacing } = demo3Form.sliders
-
     cube = new RubikCube(
-      cubieSize.getValue(),
-      cubiesPerAxis.getValue(),
-      cubieSpacing.getValue(),
+      Demo3FormReader.cubieSize,
+      Demo3FormReader.cubiesPerAxis,
     )
   }
 
-  Object.values(demo3Form.sliders).forEach(slider =>
-    slider.getInput().addEventListener('input', createRubikCube),
+  ;[demo3Form.sliders.cubiesPerAxis, demo3Form.sliders.cubieSize].forEach(
+    slider => slider.getInput().addEventListener('input', createRubikCube),
   )
 
   createRubikCube()
