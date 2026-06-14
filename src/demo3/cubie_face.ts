@@ -9,7 +9,7 @@ import { Vector3d } from '../vector_3d.ts'
 import { abs, PI, sign, HALF_PI } from '../math_utils.ts'
 import { Cubie } from './cubie.ts'
 import { AXES, AXES_NAMES } from '../constants.ts'
-import { Demo3FormReader } from './demo3_form.ts'
+import { cubieSpacing, renderExternalFacesOnly } from './demo3_form.ts'
 
 export class CubieFace {
   isExternal: boolean
@@ -46,11 +46,7 @@ export class CubieFace {
   }
 
   render() {
-    if (
-      (Demo3FormReader.cubieSpacing === 0 ||
-        Demo3FormReader.renderExternalFacesOnly) &&
-      this.isInternal
-    )
+    if ((cubieSpacing() === 0 || renderExternalFacesOnly()) && this.isInternal)
       return // Skip rendering in this case.
 
     isolateTransformations(() => {
@@ -67,9 +63,7 @@ export class CubieFace {
 
         square2d(this.size, {
           color: this.color,
-          isDoubleSided:
-            Demo3FormReader.renderExternalFacesOnly &&
-            Demo3FormReader.cubieSpacing > 0,
+          isDoubleSided: renderExternalFacesOnly() && cubieSpacing() > 0,
         })
       })
     })

@@ -13,38 +13,36 @@ type Demo3FormType = {
 
 export const demo3Form: Demo3FormType = {}
 
-export class Demo3FormReader {
-  static get cubiesPerAxis() {
-    return this.sliders.cubiesPerAxis.getValue()
-  }
+export const cubiesPerAxis = () => {
+  return sliders().cubiesPerAxis.getValue()
+}
 
-  static get cubieSize() {
-    return this.sliders.cubieSize.getValue()
-  }
+export const cubieSize = () => {
+  return sliders().cubieSize.getValue()
+}
 
-  static get cubieSpacing() {
-    return this.sliders.cubieSpacing.getValue()
-  }
+export const cubieSpacing = () => {
+  return sliders().cubieSpacing.getValue()
+}
 
-  static get rotateCubies() {
-    return this.toggles.rotateCubies.getValue()
-  }
+export const rotateCubies = () => {
+  return toggles().rotateCubies.getValue()
+}
 
-  static get renderExternalFacesOnly() {
-    return this.toggles.renderExternalFacesOnly.getValue()
-  }
+export const renderExternalFacesOnly = () => {
+  return toggles().renderExternalFacesOnly.getValue()
+}
 
-  private static get sliders() {
-    if (!demo3Form.sliders)
-      throw new Error('demo3Form.sliders should contain a value')
+const sliders = () => {
+  if (!demo3Form.sliders)
+    throw new Error('demo3Form.sliders should contain a value')
 
-    return demo3Form.sliders
-  }
+  return demo3Form.sliders
+}
 
-  private static get toggles() {
-    if (!demo3Form.toggles)
-      throw new Error('demo3Form.toggles should contain a value')
+const toggles = () => {
+  if (!demo3Form.toggles)
+    throw new Error('demo3Form.toggles should contain a value')
 
-    return demo3Form.toggles
-  }
+  return demo3Form.toggles
 }

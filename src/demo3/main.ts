@@ -28,7 +28,7 @@ import {
 } from './constants.ts'
 import { frameCount, createSlider, createToggle } from '../utils.ts'
 import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
-import { Demo3FormReader, demo3Form } from './demo3_form.ts'
+import { demo3Form, cubieSize, cubiesPerAxis } from './demo3_form.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -86,10 +86,7 @@ const createDemoControls = () => {
   }
 
   const createRubikCube = () => {
-    cube = new RubikCube(
-      Demo3FormReader.cubieSize,
-      Demo3FormReader.cubiesPerAxis,
-    )
+    cube = new RubikCube(cubieSize(), cubiesPerAxis())
   }
 
   ;[demo3Form.sliders.cubiesPerAxis, demo3Form.sliders.cubieSize].forEach(
