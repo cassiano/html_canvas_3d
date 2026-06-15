@@ -1,9 +1,9 @@
 import {
   DEFAULT_CIRCLE_SEGMENTS,
-  DEFAULT_LINE_SEGMENTS,
   FOCAL_LENGTH,
   Z_EPSILON,
   AXES,
+  MIN_LINE_SEGMENT_SIZE,
 } from './constants.ts'
 import { $v, FOURTH_DIMENSION_COORD, Vector3d } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
@@ -12,10 +12,12 @@ import {
   abs,
   cos,
   min,
+  max,
   PI,
   sin,
   multiply4x4Matrices,
   multiply4x4MatrixBy4dPoint,
+  floor,
 } from './math_utils.ts'
 import {
   NORMAL_CONFIG,
@@ -493,15 +495,32 @@ export const line = (
   // Skip rendering if either point is behind camera.
   if (!screenA || !screenB) return
 
-  if (noSplit) {
-    const center = point3dA.lerp(point3dB)
+  const segmentCount = noSplit
+    ? 1
+    : max(floor(point3dA.dist(point3dB) / MIN_LINE_SEGMENT_SIZE), 1)
+
+  let latestPoint = point3dA
+
+  timesForEach(segmentCount, i => {
+    const nextPoint = point3dA.lerp(point3dB, (1 / segmentCount) * (i + 1))
+    const center = latestPoint.lerp(nextPoint)
+
+    const latestPointScreenCoords = toScreen(latestPoint)
+    const nextPointScreenCoords = toScreen(nextPoint)
+
+    if (!latestPointScreenCoords || !nextPointScreenCoords) return
+
+    const { x: x1, y: y1 } = latestPointScreenCoords
+    const { x: x2, y: y2 } = nextPointScreenCoords
+
+    latestPoint = nextPoint
 
     const renderFn = () => {
       ctx.strokeStyle = color
       ctx.lineWidth = lineWidth
       ctx.beginPath()
-      ctx.moveTo(screenA.x, screenA.y)
-      ctx.lineTo(screenB.x, screenB.y)
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
       ctx.stroke()
     }
 
@@ -510,42 +529,7 @@ export const line = (
       z: calculateZ(center),
       renderFn,
     })
-  } else {
-    let latestPoint = point3dA
-
-    timesForEach(DEFAULT_LINE_SEGMENTS, i => {
-      const nextPoint = point3dA.lerp(
-        point3dB,
-        (1 / DEFAULT_LINE_SEGMENTS) * (i + 1),
-      )
-      const center = latestPoint.lerp(nextPoint)
-
-      const latestPointScreenCoords = toScreen(latestPoint)
-      const nextPointScreenCoords = toScreen(nextPoint)
-
-      if (!latestPointScreenCoords || !nextPointScreenCoords) return
-
-      const { x: x1, y: y1 } = latestPointScreenCoords
-      const { x: x2, y: y2 } = nextPointScreenCoords
-
-      latestPoint = nextPoint
-
-      const renderFn = () => {
-        ctx.strokeStyle = color
-        ctx.lineWidth = lineWidth
-        ctx.beginPath()
-        ctx.moveTo(x1, y1)
-        ctx.lineTo(x2, y2)
-        ctx.stroke()
-      }
-
-      deferredRenderList.push({
-        id: deferredRenderList.length,
-        z: calculateZ(center),
-        renderFn,
-      })
-    })
-  }
+  })
 }
 
 export const triangle2d = (

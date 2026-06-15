@@ -15,6 +15,7 @@ export const {
   atan,
   sign,
   floor,
+  ceil,
 } = Math
 
 export const TWO_PI = 2 * PI
