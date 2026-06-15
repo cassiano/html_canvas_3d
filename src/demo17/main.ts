@@ -23,10 +23,10 @@ const COLOR = 'powderblue'
 const CIRCLE_SEGMENTS = 36
 const TORUS_CIRCLE_SEGMENTS = 72
 const OPACITY = 0.5
-const RADIUS = 200
-const TUBE_RADIUS = 70
+const RADIUS = 150
+const TUBE_RADIUS = 50
 const CIRCLE_SLICES = 32
-const TUBE_RING_DEPTH = 50
+const TUBE_RING_DEPTH = 30
 
 const options: ElbowShapeOptions = {
   color: COLOR,
