@@ -876,7 +876,7 @@ export const cone = (
     const p2 = $v(radius * cos(theta2), radius * sin(theta2), -depth / 2)
 
     // Form 2 slices, one connecting the above two points on the perimeter to the tip and
-    // another to the upper center.
+    // another to the back center.
     const { screenA: p2ScreenCoords, screenB: p1ScreenCoords } = triangle2d(
       p2,
       p1,
