@@ -219,7 +219,7 @@ export const scale: ScaleOverloadedSignatures = (
 }
 
 interface TranslateOverloadedSignatures {
-  (x: number, y: number, z: number): void
+  (x: number, y: number, z?: number): void
   (vector: Vector3d): void
 }
 
@@ -830,6 +830,26 @@ export const ring = (
       quad(p1, p2, p3, p4, options)
     }
   })
+}
+
+export const torus = (
+  radius: number, // XY-plane
+  tubeRadius: number, // XY-plane
+  tubeRingDepth: number, // Z-axis.
+  torusCircleSegments: number,
+  options: CircularShapeOptions = {},
+) => {
+  for (let angle = 0; angle < TWO_PI; angle += TWO_PI / torusCircleSegments) {
+    isolateTransformations(() => {
+      translate(
+        (radius + tubeRadius) * cos(angle),
+        (radius + tubeRadius) * sin(angle),
+      )
+      rotate(HALF_PI, $v(cos(angle), sin(angle)))
+
+      ring(tubeRadius, tubeRingDepth, options)
+    })
+  }
 }
 
 export const cone = (
