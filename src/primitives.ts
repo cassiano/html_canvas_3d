@@ -835,11 +835,21 @@ export const ring = (
 export const torus = (
   radius: number, // XY-plane
   tubeRadius: number, // XY-plane
-  tubeRingDepth: number, // Z-axis.
   torusCircleSegments: number,
   options: CircularShapeOptions = {},
 ) => {
-  for (let angle = 0; angle < TWO_PI; angle += TWO_PI / torusCircleSegments) {
+  const angleStep = TWO_PI / torusCircleSegments
+  const p1 = $v(
+    (radius + 2 * tubeRadius) * cos(0),
+    (radius + 2 * tubeRadius) * sin(0),
+  )
+  const p2 = $v(
+    (radius + 2 * tubeRadius) * cos(angleStep),
+    (radius + 2 * tubeRadius) * sin(angleStep),
+  )
+  const tubeRingDepth = p1.dist(p2)
+
+  for (let angle = 0; angle < TWO_PI; angle += angleStep) {
     isolateTransformations(() => {
       translate(
         (radius + tubeRadius) * cos(angle),

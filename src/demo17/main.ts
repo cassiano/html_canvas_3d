@@ -26,7 +26,6 @@ const OPACITY = 0.5
 const RADIUS = 150
 const TUBE_RADIUS = 50
 const CIRCLE_SLICES = 32
-const TUBE_RING_DEPTH = 30
 
 const options: ElbowShapeOptions = {
   color: COLOR,
@@ -49,7 +48,7 @@ const draw = () => {
 
   render3dAxes()
 
-  torus(RADIUS, TUBE_RADIUS, TUBE_RING_DEPTH, TORUS_CIRCLE_SEGMENTS, options)
+  torus(RADIUS, TUBE_RADIUS, TORUS_CIRCLE_SEGMENTS, options)
 }
 
 const onPaused = () => {
