@@ -28,6 +28,9 @@ export const radians = (degrees: number) =>
 export const degrees = (radians: number) =>
   (radians / TWO_PI) * FULL_CIRCLE_IN_DEGREES
 
+export const polarToCartesian = (radius: number, angle: number) =>
+  $v(radius * cos(angle), radius * sin(angle))
+
 export const random = (min: number, max: number) =>
   Math.random() * (max - min) + min
 
