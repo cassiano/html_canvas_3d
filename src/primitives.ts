@@ -822,8 +822,8 @@ export const ring = (
 
       const p1 = polarToCartesian2d(radius, theta1)
       const p2 = polarToCartesian2d(radius, theta2)
-      const p3 = polarToCartesian2d(radius, theta2).setZ(depth)
-      const p4 = polarToCartesian2d(radius, theta1).setZ(depth)
+      const p3 = p2.clone().setZ(depth)
+      const p4 = p1.clone().setZ(depth)
 
       quad(p1, p2, p3, p4, options)
     }
