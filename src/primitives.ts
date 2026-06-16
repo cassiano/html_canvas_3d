@@ -25,7 +25,7 @@ import {
   DEFAULT_SPHERE_LINES,
 } from './constants.ts'
 import { ORIGIN } from './constants.ts'
-import { TWO_PI, HALF_PI, polarToCartesian } from './math_utils.ts'
+import { TWO_PI, HALF_PI, polarToCartesian, map } from './math_utils.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -746,19 +746,17 @@ export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
     ...options,
   }
 
-  const longSegments = finalOptions.longitudeLines
   const latSegments = finalOptions.latitudeLines + 1
+  const longSegments = finalOptions.longitudeLines
 
   const getPoint = (latIndex: number, longIndex: number): Vector3d => {
-    const latAngle = (latIndex / latSegments) * PI // [0, PI]
-    const longAngle = (longIndex / longSegments) * TWO_PI // [0, 2.PI]
+    const latAngle = map(latIndex, 0, latSegments, 0, PI) // [0, PI]
+    const longAngle = map(longIndex, 0, longSegments, 0, TWO_PI) // [0, 2*PI]
+    const latRadius = radius * sin(latAngle)
+    const [x, z] = polarToCartesian(latRadius, longAngle) // Use RHR Mapping.
+    const [y] = polarToCartesian(radius, latAngle) // Use `y` as if it were the `x` coordinate.
 
-    // RHR Mapping:
-    return $v(
-      sin(latAngle) * cos(longAngle),
-      cos(latAngle),
-      sin(latAngle) * sin(longAngle),
-    ).mult(radius)
+    return $v(x, y, z)
   }
 
   timesForEachN([latSegments, longSegments], (latIndex, longIndex) => {
