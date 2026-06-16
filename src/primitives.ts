@@ -25,7 +25,7 @@ import {
   DEFAULT_SPHERE_LINES,
 } from './constants.ts'
 import { ORIGIN } from './constants.ts'
-import { TWO_PI, HALF_PI, polarToCartesian, map } from './math_utils.ts'
+import { TWO_PI, HALF_PI, polarToCartesian2d, map } from './math_utils.ts'
 
 export const animation = document.getElementById(
   'animation',
@@ -753,8 +753,8 @@ export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
     const latAngle = map(latIndex, 0, latSegments, 0, PI) // [0, PI]
     const longAngle = map(longIndex, 0, longSegments, 0, TWO_PI) // [0, 2*PI]
     const latRadius = radius * sin(latAngle)
-    const [x, z] = polarToCartesian(latRadius, longAngle) // Use RHR Mapping.
-    const [y] = polarToCartesian(radius, latAngle) // Use `y` as if it were the `x` coordinate.
+    const [x, z] = polarToCartesian2d(latRadius, longAngle) // Use RHR Mapping.
+    const [y] = polarToCartesian2d(radius, latAngle) // Use `y` as if it were the `x` coordinate.
 
     return $v(x, y, z)
   }
@@ -791,8 +791,8 @@ export const circle2d = (
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = polarToCartesian(radius, theta1)
-    const p2 = polarToCartesian(radius, theta2)
+    const p1 = polarToCartesian2d(radius, theta1)
+    const p2 = polarToCartesian2d(radius, theta2)
 
     // Form a slice by connecting the two points on the perimeter to the circle center (origin).
     triangle2d(ORIGIN, p1, p2, options, [originScreenCoords])
@@ -820,10 +820,10 @@ export const ring = (
       const theta1 = i * step
       const theta2 = (i + 1) * step
 
-      const p1 = polarToCartesian(radius, theta1)
-      const p2 = polarToCartesian(radius, theta2)
-      const p3 = polarToCartesian(radius, theta2).setZ(depth)
-      const p4 = polarToCartesian(radius, theta1).setZ(depth)
+      const p1 = polarToCartesian2d(radius, theta1)
+      const p2 = polarToCartesian2d(radius, theta2)
+      const p3 = polarToCartesian2d(radius, theta2).setZ(depth)
+      const p4 = polarToCartesian2d(radius, theta1).setZ(depth)
 
       quad(p1, p2, p3, p4, options)
     }
@@ -837,14 +837,14 @@ export const torus = (
   options: CircularShapeOptions = {},
 ) => {
   const angleStep = TWO_PI / torusCircleSegments
-  const p1 = polarToCartesian(internalRadius + 2 * tubeRadius, 0)
-  const p2 = polarToCartesian(internalRadius + 2 * tubeRadius, angleStep)
+  const p1 = polarToCartesian2d(internalRadius + 2 * tubeRadius, 0)
+  const p2 = polarToCartesian2d(internalRadius + 2 * tubeRadius, angleStep)
   const tubeRingDepth = p1.dist(p2)
 
   for (let angle = 0; angle < TWO_PI; angle += angleStep) {
     isolateTransformations(() => {
-      translate(polarToCartesian(internalRadius + tubeRadius, angle))
-      rotate(HALF_PI, polarToCartesian(1, angle))
+      translate(polarToCartesian2d(internalRadius + tubeRadius, angle))
+      rotate(HALF_PI, polarToCartesian2d(1, angle))
 
       ring(tubeRadius, tubeRingDepth, options)
     })
@@ -871,8 +871,8 @@ export const cone = (
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = polarToCartesian(radius, theta1).setZ(-depth / 2)
-    const p2 = polarToCartesian(radius, theta2).setZ(-depth / 2)
+    const p1 = polarToCartesian2d(radius, theta1).setZ(-depth / 2)
+    const p2 = polarToCartesian2d(radius, theta2).setZ(-depth / 2)
 
     // Form 2 slices, one connecting the above two points on the perimeter to the tip and
     // another to the back center.
@@ -908,8 +908,8 @@ export const cylinder = (
     const theta1 = i * step
     const theta2 = (i + 1) * step
 
-    const p1 = polarToCartesian(radius, theta1).setZ(-depth / 2)
-    const p2 = polarToCartesian(radius, theta2).setZ(-depth / 2)
+    const p1 = polarToCartesian2d(radius, theta1).setZ(-depth / 2)
+    const p2 = polarToCartesian2d(radius, theta2).setZ(-depth / 2)
     const upperP1 = p1.clone().add(0, 0, depth)
     const upperP2 = p2.clone().add(0, 0, depth)
 
