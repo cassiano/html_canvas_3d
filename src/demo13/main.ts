@@ -1,6 +1,6 @@
-///////////////
-// Tire Demo //
-///////////////
+////////////////
+// Torus Demo //
+////////////////
 
 import { FPS, FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 import { createFrameLoop, fps, frameCount, millis } from '../utils.ts'
@@ -11,27 +11,27 @@ import {
   resetTransformationMatrix,
   text2d,
   rotateY,
-  rotateX,
-  translate,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI } from '../math_utils.ts'
-import { elbow } from '../elbow_primitives.ts'
 import { ElbowShapeOptions } from '../elbow_primitives.ts'
+import { torus, rotateX, isolateTransformations } from '../primitives.ts'
+import { PI } from '../math_utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const COLOR = 'darkGray'
-const CIRCLE_SEGMENTS = 32
+const COLOR = 'tomato'
+const CIRCLE_SEGMENTS = 36
+const TORUS_CIRCLE_SEGMENTS = 72
 const OPACITY = 0.5
-const RADIUS = 200
+const RADIUS = 100
+const TUBE_RADIUS = 50
 const CIRCLE_SLICES = 32
 
 const options: ElbowShapeOptions = {
   color: COLOR,
-  circleSegments: CIRCLE_SEGMENTS,
   opacity: OPACITY,
   elbowCircleSlices: CIRCLE_SLICES,
+  circleSegments: CIRCLE_SEGMENTS,
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -48,12 +48,29 @@ const draw = () => {
 
   render3dAxes()
 
-  translate(0, -RADIUS / 2, 0)
+  isolateTransformations(() => {
+    rotateX(-millis() / 1500)
 
-  elbow.x.y(RADIUS, options, true)
-  elbow.y['-x'](RADIUS, options, true)
-  elbow['-x']['-y'](RADIUS, options, true)
-  elbow['-y'].x(RADIUS, options, true)
+    torus(RADIUS, TUBE_RADIUS, TORUS_CIRCLE_SEGMENTS, options)
+  })
+
+  isolateTransformations(() => {
+    rotateX(-millis() / 2000)
+
+    torus(RADIUS + TUBE_RADIUS * 2, TUBE_RADIUS, TORUS_CIRCLE_SEGMENTS, {
+      ...options,
+      color: 'seagreen',
+    })
+  })
+
+  isolateTransformations(() => {
+    rotateX(-millis() / 1000)
+
+    torus(0, RADIUS / 2, TORUS_CIRCLE_SEGMENTS, {
+      ...options,
+      color: 'steelblue',
+    })
+  })
 }
 
 const onPaused = () => {
