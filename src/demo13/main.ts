@@ -27,11 +27,20 @@ const RADIUS = 100
 const TUBE_RADIUS = 50
 const CIRCLE_SLICES = 32
 
-const options: ElbowShapeOptions = {
+const options1: ElbowShapeOptions = {
   color: COLOR,
   opacity: OPACITY,
   elbowCircleSlices: CIRCLE_SLICES,
   circleSegments: CIRCLE_SEGMENTS,
+}
+
+const options2: ElbowShapeOptions = {
+  ...options1,
+  color: 'seagreen',
+}
+const options3: ElbowShapeOptions = {
+  ...options1,
+  color: 'steelblue',
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -49,27 +58,26 @@ const draw = () => {
   render3dAxes()
 
   isolateTransformations(() => {
-    rotateX(-millis() / 1500)
+    rotateY(-millis() / 2000)
 
-    torus(RADIUS, TUBE_RADIUS, TORUS_CIRCLE_SEGMENTS, options)
+    torus(RADIUS, TUBE_RADIUS, TORUS_CIRCLE_SEGMENTS, options1)
   })
 
   isolateTransformations(() => {
-    rotateX(-millis() / 2000)
+    rotateY(-millis() / 2500)
 
-    torus(RADIUS + TUBE_RADIUS * 2, TUBE_RADIUS, TORUS_CIRCLE_SEGMENTS, {
-      ...options,
-      color: 'seagreen',
-    })
+    torus(
+      RADIUS + TUBE_RADIUS * 2,
+      TUBE_RADIUS,
+      TORUS_CIRCLE_SEGMENTS,
+      options2,
+    )
   })
 
   isolateTransformations(() => {
-    rotateX(-millis() / 1000)
+    rotateY(-millis() / 1500)
 
-    torus(0, RADIUS / 2, TORUS_CIRCLE_SEGMENTS, {
-      ...options,
-      color: 'steelblue',
-    })
+    torus(0, RADIUS / 2, TORUS_CIRCLE_SEGMENTS, options3)
   })
 }
 
