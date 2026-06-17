@@ -19,7 +19,6 @@ import { PI } from '../math_utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const COLOR = 'tomato'
 const CIRCLE_SEGMENTS = 36
 const TORUS_CIRCLE_SEGMENTS = 72
 const OPACITY = 0.5
@@ -27,19 +26,23 @@ const RADIUS = 100
 const TUBE_RADIUS = 50
 const CIRCLE_SLICES = 32
 
-const options1: ElbowShapeOptions = {
-  color: COLOR,
+const commonOptions: ElbowShapeOptions = {
   opacity: OPACITY,
   elbowCircleSlices: CIRCLE_SLICES,
   circleSegments: CIRCLE_SEGMENTS,
 }
 
+const options1: ElbowShapeOptions = {
+  ...commonOptions,
+  color: 'tomato',
+}
+
 const options2: ElbowShapeOptions = {
-  ...options1,
+  ...commonOptions,
   color: 'seagreen',
 }
 const options3: ElbowShapeOptions = {
-  ...options1,
+  ...commonOptions,
   color: 'steelblue',
 }
 
