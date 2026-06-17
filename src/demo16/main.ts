@@ -51,7 +51,7 @@ const draw = () => {
   isolateTransformations(() => {
     translate(150, 200, -RADIUS / 2)
 
-    elbow.x.z(RADIUS, options1, true)
+    elbow['-y'].z(RADIUS, options1, true)
     elbow.z['-x'](RADIUS, options1, true)
     elbow['-x']['-z'](RADIUS, options1, true)
     elbow['-z']['-y'](RADIUS, options1, true)
@@ -80,7 +80,7 @@ const draw = () => {
   isolateTransformations(() => {
     translate(-150, 200, -RADIUS / 2)
 
-    elbow.x.z(RADIUS, options2, true)
+    elbow['-y'].z(RADIUS, options2, true)
     elbow.z['-x'](RADIUS, options2, true)
     elbow['-x']['-z'](RADIUS, options2, true)
     elbow['-z']['-y'](RADIUS, options2, true)
