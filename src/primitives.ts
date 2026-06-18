@@ -836,12 +836,12 @@ export const torus = (
   torusCircleSegments: number,
   options: CircularShapeOptions = {},
 ) => {
-  const angleStep = TWO_PI / torusCircleSegments
+  const step = TWO_PI / torusCircleSegments
   const p1 = polarToCartesian2d(internalRadius + 2 * tubeRadius, 0)
-  const p2 = polarToCartesian2d(internalRadius + 2 * tubeRadius, angleStep)
+  const p2 = polarToCartesian2d(internalRadius + 2 * tubeRadius, step)
   const tubeRingDepth = p1.dist(p2)
 
-  for (let angle = 0; angle < TWO_PI; angle += angleStep) {
+  for (let angle = 0; angle < TWO_PI; angle += step) {
     isolateTransformations(() => {
       translate(polarToCartesian2d(internalRadius + tubeRadius, angle))
       rotate(HALF_PI, polarToCartesian2d(1, angle))
