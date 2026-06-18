@@ -752,9 +752,9 @@ export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
   const getPoint = (latIndex: number, longIndex: number): Vector3d => {
     const latAngle = map(latIndex, 0, latSegments, 0, PI) // [0, PI]
     const longAngle = map(longIndex, 0, longSegments, 0, TWO_PI) // [0, 2*PI]
-    const latRadius = radius * sin(latAngle)
+
+    const [y, latRadius] = polarToCartesian2d(radius, latAngle)
     const [x, z] = polarToCartesian2d(latRadius, longAngle) // Use RHR Mapping.
-    const [y] = polarToCartesian2d(radius, latAngle) // Use `y` as if it were the `x` coordinate.
 
     return $v(x, y, z)
   }
