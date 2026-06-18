@@ -788,11 +788,10 @@ export const circle2d = (
   const originScreenCoords: Vector3d | undefined = toScreen(ORIGIN)
 
   for (let i = 0; i < circleSegments; i++) {
-    const theta1 = i * step
-    const theta2 = (i + 1) * step
+    const theta = i * step
 
-    const p1 = polarToCartesian2d(radius, theta1)
-    const p2 = polarToCartesian2d(radius, theta2)
+    const p1 = polarToCartesian2d(radius, theta)
+    const p2 = polarToCartesian2d(radius, theta + step)
 
     // Form a slice by connecting the two points on the perimeter to the circle center (origin).
     triangle2d(ORIGIN, p1, p2, options, [originScreenCoords])
