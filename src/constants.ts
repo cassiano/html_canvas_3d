@@ -27,7 +27,7 @@ export const ORIGIN = $v(0, 0, 0)
 export const Z_EPSILON = 1e-10
 
 export const NORMAL_CONFIG = {
-  length: 20,
+  length: 15,
   color: 'black',
   tip: { radius: 2, height: 5, circleSegments: 3 },
 }
