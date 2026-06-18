@@ -6,7 +6,7 @@ export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>
 export const FOURTH_DIMENSION_COORD = 1
 
 export class Vector3d {
-  coords: [x: number, y: number, z: number]
+  private coords: [x: number, y: number, z: number]
 
   constructor(x: number, y: number, z = 0) {
     this.coords = [x, y, z]

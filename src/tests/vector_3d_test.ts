@@ -36,14 +36,15 @@ test('Vector - Constructor and Getters/Setters', () => {
   v.x = 10
   v.y = 20
   v.z = 30
-  assertEquals(v.coords, [10, 20, 30])
+
+  assertEquals([...v], [10, 20, 30])
 })
 
 test('Vector - Clone', () => {
   const v1 = $v(1, 2, 3)
   const v2 = v1.clone()
 
-  assertEquals(v1.coords, v2.coords)
+  assertEquals([...v1], [...v2])
   assertNotEquals(v1, v2) // Ensure it's a different reference
 })
 
@@ -70,29 +71,29 @@ test('Vector - Add (overloads)', () => {
   // Vector overload
   const v1 = $v(1, 1, 1)
   v1.add($v(1, 2, 3))
-  assertEquals(v1.coords, [1 + 1, 1 + 2, 1 + 3])
+  assertEquals([...v1], [1 + 1, 1 + 2, 1 + 3])
 
   // Scalars overload
   v1.add(1, 1, 1)
-  assertEquals(v1.coords, [2 + 1, 3 + 1, 4 + 1])
+  assertEquals([...v1], [2 + 1, 3 + 1, 4 + 1])
 })
 
 test('Vector - Sub (overloads)', () => {
   const v1 = $v(10, 10, 10)
   v1.sub($v(1, 2, 3))
-  assertEquals(v1.coords, [10 - 1, 10 - 2, 10 - 3])
+  assertEquals([...v1], [10 - 1, 10 - 2, 10 - 3])
 
   v1.sub(1, 1, 1)
-  assertEquals(v1.coords, [9 - 1, 8 - 1, 7 - 1])
+  assertEquals([...v1], [9 - 1, 8 - 1, 7 - 1])
 })
 
 test('Vector - Mult and Div', () => {
   const v = $v(1, 2, 3)
   v.mult(2)
-  assertEquals(v.coords, [1 * 2, 2 * 2, 3 * 2])
+  assertEquals([...v], [1 * 2, 2 * 2, 3 * 2])
 
   v.div(2)
-  assertEquals(v.coords, [2 / 2, 4 / 2, 6 / 2])
+  assertEquals([...v], [2 / 2, 4 / 2, 6 / 2])
 
   assertThrows(
     () => v.div(0),
@@ -114,10 +115,10 @@ test('Vector - Dot Product', () => {
 
 test('Vector - Cross Product', () => {
   const result1 = AXES.x.cross(AXES.y)
-  assertEquals(result1.coords, AXES.z.coords) // X cross Y = Z
+  assertEquals([...result1], [...AXES.z]) // X cross Y = Z
 
   const result2 = AXES.y.cross(AXES.x)
-  assertEquals(result2.coords, AXES['-z'].coords) // Y cross X = -Z
+  assertEquals([...result2], [...AXES['-z']]) // Y cross X = -Z
 })
 
 test('Vector - Distance', () => {
@@ -150,7 +151,7 @@ test('Vector - 4D Matrix conversion', () => {
   assertEquals(matrix, [[5], [10], [15], [1]])
 
   const fromMat = Vector3d.from4dMatrix(matrix)
-  assertEquals(fromMat.coords, [5, 10, 15])
+  assertEquals([...fromMat], [5, 10, 15])
 })
 
 test('Vector - AngleBetween', () => {
@@ -177,15 +178,15 @@ test('Vector - lerp (Linear intERPolation)', () => {
 
   // Default ratio 0.5
   const mid = v1.lerp(v2)
-  assertEquals(mid.coords, [5, 5, 5])
+  assertEquals([...mid], [5, 5, 5])
 
   // Specific ratio 0.2 via Vector
   const low = v1.lerp(v2, 0.2)
-  assertEquals(low.coords, [2, 2, 2])
+  assertEquals([...low], [2, 2, 2])
 
   // Specific ratio 0.8 via coordinates
   const high = v1.lerp(10, 10, 10, 0.8)
-  assertEquals(high.coords, [8, 8, 8])
+  assertEquals([...high], [8, 8, 8])
 })
 
 test('Vector - Iterator and Serialization', () => {
@@ -240,7 +241,7 @@ test('Vector - Getters and Setters', () => {
   v.y = 2
   v.z = 3
 
-  assertEquals(v.coords, [1, 2, 3])
+  assertEquals([...v], [1, 2, 3])
   assertEquals(v.x, 1)
   assertEquals(v.y, 2)
   assertEquals(v.z, 3)
@@ -259,7 +260,7 @@ test('Vector - Method Chaining (Fluent API)', () => {
     .div(3)
 
   assertEquals(v, result, 'Methods should return the same instance')
-  assertEquals(v.coords, [1, 1, 1])
+  assertEquals([...v], [1, 1, 1])
 })
 
 // --- Utilities & Symbols Coverage ---
