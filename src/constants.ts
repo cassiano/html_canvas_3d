@@ -23,8 +23,11 @@ export const DEFAULT_CIRCLE_SEGMENTS = 72
 export const DEFAULT_ARROW_CIRCLE_SEGMENTS = 10
 export const DEFAULT_SPHERE_LINES = { longitude: 72, latitude: 36 }
 export const DEFAULT_ELBOW_CIRCLE_SLICES = 16
-export const ORIGIN = $v(0, 0, 0)
 export const Z_EPSILON = 1e-10
+
+export const ORIGIN = $v(0, 0, 0)
+export const NULL_VECTOR = ORIGIN
+export const ZERO_VECTOR = ORIGIN
 
 export const NORMAL_CONFIG = {
   length: 15,

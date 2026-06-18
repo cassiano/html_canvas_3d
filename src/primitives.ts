@@ -4,6 +4,7 @@ import {
   Z_EPSILON,
   AXES,
   MIN_LINE_SEGMENT_SIZE,
+  ZERO_VECTOR,
 } from './constants.ts'
 import { $v, FOURTH_DIMENSION_COORD, Vector3d } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
@@ -463,7 +464,7 @@ export const arrow = (
     const yAngle = AXES.y.angleBetween(lineAB)
 
     // If AB line is already over the Y-axis, no need to rotate.
-    if (!orthogonalAxis.equals(ORIGIN)) rotate(yAngle, orthogonalAxis)
+    if (!orthogonalAxis.equals(ZERO_VECTOR)) rotate(yAngle, orthogonalAxis)
     else if (lineAB.y < 0) rotateX(PI) // Or `rotateZ(PI)`.
 
     line(ORIGIN, $v(0, lineAB.mag(), 0), options)
@@ -597,7 +598,7 @@ export const triangle2d = (
     const crossProduct = vectorAB.cross(vectorAC)
 
     // Bypass face culling when line segments AB and AC are perfectly aligned.
-    if (crossProduct.equals(ORIGIN)) return { screenA, screenB, screenC }
+    if (crossProduct.equals(ZERO_VECTOR)) return { screenA, screenB, screenC }
 
     const normal = crossProduct.normalize()
 
