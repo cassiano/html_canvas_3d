@@ -34,13 +34,14 @@ const commonOptions: ElbowShapeOptions = {
 
 const options1: ElbowShapeOptions = {
   ...commonOptions,
-  color: 'tomato',
+  color: 'seagreen',
 }
 
 const options2: ElbowShapeOptions = {
   ...commonOptions,
-  color: 'seagreen',
+  color: 'tomato',
 }
+
 const options3: ElbowShapeOptions = {
   ...commonOptions,
   color: 'steelblue',
@@ -61,24 +62,24 @@ const draw = () => {
   render3dAxes()
 
   isolateTransformations(() => {
-    rotateY(-millis() / 2000)
-
-    torus(RADIUS, TUBE_RADIUS, TORUS_CIRCLE_SEGMENTS, options1)
-  })
-
-  isolateTransformations(() => {
-    rotateY(-millis() / 2500)
+    rotateY(-millis() / 3000)
 
     torus(
       RADIUS + TUBE_RADIUS * 2,
       TUBE_RADIUS,
       TORUS_CIRCLE_SEGMENTS,
-      options2,
+      options1,
     )
   })
 
   isolateTransformations(() => {
-    rotateY(-millis() / 1500)
+    rotateY(-millis() / 2000)
+
+    torus(RADIUS, TUBE_RADIUS, TORUS_CIRCLE_SEGMENTS, options2)
+  })
+
+  isolateTransformations(() => {
+    rotateY(-millis() / 1000)
 
     torus(0, RADIUS / 2, TORUS_CIRCLE_SEGMENTS, options3)
   })
