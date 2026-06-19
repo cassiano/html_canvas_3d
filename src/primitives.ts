@@ -276,8 +276,8 @@ export const rotate = (
     transformationMatrix,
     // prettier-ignore
     [
-    //        ȋ               ĵ                k̂         4d
-    //  --------------  --------------  ---------------  --
+    //        ȋ               ĵ                k̂        4d
+    //  --------------  --------------  --------------  --
       [     tx * x + c, tx * y - s * z, tx * z + s * y,  0 ],
       [ ty * x + s * z,     ty * y + c, ty * z - s * x,  0 ],
       [ tz * x - s * y, tz * y + s * x,     tz * z + c,  0 ],
