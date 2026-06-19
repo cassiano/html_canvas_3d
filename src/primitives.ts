@@ -406,6 +406,8 @@ export const transform = (point: Vector3d) =>
     point.z,
     FOURTH_DIMENSION_COORD,
   ])
+
+// https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221bVRsjpez2q3HdcsuDn1nKKO_de1Zmyly%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing, https://drive.google.com/file/d/1bvI7QTO-_Yvs8iV2MDNuaO-NVDi9NYnq/view?usp=sharing
 export const transformNormal = (point: Vector3d) =>
   multiply4x4MatrixBy4dPoint(transformationMatrix, [
     point.x,
