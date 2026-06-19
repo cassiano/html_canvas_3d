@@ -817,11 +817,10 @@ export const ring = (
     translate(0, 0, -depth / 2)
 
     for (let i = 0; i < circleSegments; i++) {
-      const theta1 = i * step
-      const theta2 = (i + 1) * step
+      const theta = i * step
 
-      const p1 = polarToCartesian2d(radius, theta1)
-      const p2 = polarToCartesian2d(radius, theta2)
+      const p1 = polarToCartesian2d(radius, theta)
+      const p2 = polarToCartesian2d(radius, theta + step)
       const p3 = p2.clone().setZ(depth)
       const p4 = p1.clone().setZ(depth)
 
@@ -868,11 +867,10 @@ export const cone = (
   const backCenter = $v(0, 0, -depth / 2)
 
   for (let i = 0; i < circleSegments; i++) {
-    const theta1 = i * step
-    const theta2 = (i + 1) * step
+    const theta = i * step
 
-    const p1 = polarToCartesian2d(radius, theta1).setZ(-depth / 2)
-    const p2 = polarToCartesian2d(radius, theta2).setZ(-depth / 2)
+    const p1 = polarToCartesian2d(radius, theta).setZ(-depth / 2)
+    const p2 = polarToCartesian2d(radius, theta + step).setZ(-depth / 2)
 
     // Form 2 slices, one connecting the above two points on the perimeter to the tip and
     // another to the back center.
@@ -905,11 +903,10 @@ export const cylinder = (
   const frontCenter = $v(0, 0, depth / 2)
 
   for (let i = 0; i < circleSegments; i++) {
-    const theta1 = i * step
-    const theta2 = (i + 1) * step
+    const theta = i * step
 
-    const p1 = polarToCartesian2d(radius, theta1).setZ(-depth / 2)
-    const p2 = polarToCartesian2d(radius, theta2).setZ(-depth / 2)
+    const p1 = polarToCartesian2d(radius, theta).setZ(-depth / 2)
+    const p2 = polarToCartesian2d(radius, theta + step).setZ(-depth / 2)
     const upperP1 = p1.clone().add(0, 0, depth)
     const upperP2 = p2.clone().add(0, 0, depth)
 
