@@ -1,4 +1,4 @@
-import { acos, sqrt } from './math_utils.ts'
+import { acos, sqrt, polarToCartesian2d } from './math_utils.ts'
 import { Tuple } from './utility_types.ts'
 
 export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>
@@ -61,6 +61,22 @@ export class Vector3d {
 
   mag() {
     return sqrt(this.magSq())
+  }
+
+  heading() {
+    if (this.z !== 0)
+      throw new Error('z coordinate must be zero when calling `heading()`')
+
+    return this.angleBetween($v(1, 0, 0))
+  }
+
+  setHeading(newHeading: number) {
+    if (this.z !== 0)
+      throw new Error('z coordinate must be zero when calling `setHeading()`')
+
+    const mag = this.mag()
+
+    ;[this.x, this.y] = polarToCartesian2d(mag, newHeading)
   }
 
   normalize(): Vector3d {
