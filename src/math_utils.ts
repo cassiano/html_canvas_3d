@@ -31,8 +31,7 @@ export const degrees = (radians: number) =>
 export const polarToCartesian2d = (radius: number, angle: number) =>
   $v(radius * cos(angle), radius * sin(angle))
 
-export const random = (min: number, max: number) =>
-  Math.random() * (max - min) + min
+export const random = (min = 0, max = 1) => Math.random() * (max - min) + min
 
 export const map = (
   value: number,
