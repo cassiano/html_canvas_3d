@@ -1,4 +1,5 @@
 import { FPS_WINDOW } from './constants.ts'
+import { random } from './math_utils.ts'
 import { isolateTransformations } from './primitives.ts'
 
 declare function requestAnimationFrame(callback: (time: number) => void): number
@@ -414,3 +415,6 @@ export const createDemoControlPanel = (canvasContainer: HTMLElement) => {
 
   return demoControlPanel
 }
+
+export const randomColor = () =>
+  `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`
