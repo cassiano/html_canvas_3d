@@ -301,11 +301,11 @@ export class Vector3d {
   // Private methods //
   /////////////////////
 
-  private inferAnotherVectorFromParams = (
+  private inferAnotherVectorFromParams(
     xOrAnotherVector: number | Vector3d,
     y?: number,
     z?: number,
-  ) => {
+  ) {
     return typeof xOrAnotherVector === 'number'
       ? $v(xOrAnotherVector, y!, z ?? 0) // 1st signature: (x, y, z?)
       : xOrAnotherVector // 2nd signature: (anotherVector)
