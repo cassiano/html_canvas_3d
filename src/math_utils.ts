@@ -28,8 +28,15 @@ export const radians = (degrees: number) =>
 export const degrees = (radians: number) =>
   (radians / TWO_PI) * FULL_CIRCLE_IN_DEGREES
 
-export const polarToCartesian2d = (radius: number, angle: number) =>
-  $v(radius * cos(angle), radius * sin(angle))
+// https://en.wikipedia.org/wiki/Polar_coordinate_system
+export const polarToCartesian2d = (radius: number, polarAngle: number) =>
+  $v(radius * cos(polarAngle), radius * sin(polarAngle))
+
+export const cartesianToPolar2d = (x: number, y: number) => {
+  const cartesianVector = $v(x, y)
+
+  return [cartesianVector.mag(), cartesianVector.heading()] as const
+}
 
 export const random = (min = 0, max = 1) => Math.random() * (max - min) + min
 
