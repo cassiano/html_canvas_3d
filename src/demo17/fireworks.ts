@@ -116,7 +116,9 @@ export class Fireworks {
 
     // Emit a single burst of particles.
     timesForEach(particleCount, () => {
-      const velocity = Vector3d.random2d().mult(random(1, 5)).sub(2.5, 2.5)
+      const velocity = Vector3d.nonNormalizedRandom2d(-1, 1).setMag(
+        random(0.1, 3),
+      )
 
       this.createParticle(
         position.clone(),
