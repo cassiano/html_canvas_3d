@@ -421,7 +421,7 @@ const toScreen = (point: Vector3d) =>
 
 export const point = (point3d: Vector3d, options: ShapeOptions = {}) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
-  const { color, size } = finalOptions
+  const { color, size, opacity } = finalOptions
 
   const screen = toScreen(point3d)
 
@@ -430,6 +430,7 @@ export const point = (point3d: Vector3d, options: ShapeOptions = {}) => {
 
   const renderFn = () => {
     ctx.fillStyle = color
+    ctx.globalAlpha = opacity //  Set transparency
     ctx.fillRect(screen.x - size / 2, screen.y - size / 2, size, size)
   }
 
