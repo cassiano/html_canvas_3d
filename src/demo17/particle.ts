@@ -29,9 +29,8 @@ export class Particle extends Mover2D {
 
   private render() {
     point(this.position, {
-      size: 4,
+      size: map(this.lifespan, PARTICLE_LIFESPAN, 0, 5, 0, true),
       color: this.color,
-      opacity: map(this.lifespan, PARTICLE_LIFESPAN, 0, 1, 0, true),
     })
   }
 

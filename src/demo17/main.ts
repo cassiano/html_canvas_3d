@@ -36,6 +36,11 @@ const draw = () => {
 
     if (fireworks.isDead()) Fireworks.destroy(i)
   })
+
+  // logJson({
+  //   count: Fireworks.count(),
+  //   addedParticleCount: Fireworks.addedParticleCount(),
+  // })
 }
 
 const onPaused = () => {
