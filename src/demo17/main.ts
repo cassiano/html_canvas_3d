@@ -26,9 +26,9 @@ const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
     console.log({ fps: fps() })
 
-  background('lightGray')
+  background('black')
 
-  if (random() < 1 / 100) Fireworks.create(850, 850)
+  if (random() < 2 / 100) Fireworks.create(850, 850)
 
   Fireworks.reversedForEach((fireworks, i) => {
     fireworks.applyForce(gravity)

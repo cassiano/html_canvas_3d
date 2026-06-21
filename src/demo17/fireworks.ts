@@ -14,11 +14,11 @@ export class Fireworks {
   constructor(
     public width: number,
     public height: number,
-    public color = randomColor(),
+    public color = randomColor(127, 255),
   ) {
     this.createParticle(
       $v(random(-width / 4, width / 4), -height / 2),
-      $v(random(-2, 2), random(3, 6)),
+      $v(random(-2, 2), random(5, 6)),
       Number.MAX_VALUE,
       'gray',
       width,
