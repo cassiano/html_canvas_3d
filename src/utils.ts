@@ -416,5 +416,5 @@ export const createDemoControlPanel = (canvasContainer: HTMLElement) => {
   return demoControlPanel
 }
 
-export const randomColor = () =>
-  `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`
+export const randomColor = (min = 0, max = 255) =>
+  `rgb(${random(min, max)}, ${random(min, max)}, ${random(min, max)})`
