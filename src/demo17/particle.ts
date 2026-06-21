@@ -1,6 +1,8 @@
 import { point } from '../primitives.ts'
 import { Vector3d } from '../vector_3d.ts'
 import { Mover2D } from './mover_2d.ts'
+import { map } from '../math_utils.ts'
+import { PARTICLE_LIFESPAN } from './fireworks.ts'
 
 export class Particle extends Mover2D {
   constructor(
@@ -16,17 +18,21 @@ export class Particle extends Mover2D {
 
   run() {
     this.update()
-    this.lifespan -= 1
+    this.lifespan--
 
-    this.draw()
+    this.render()
   }
 
   isDead() {
     return this.lifespan <= 0 || this.isOffScreen()
   }
 
-  private draw() {
-    point(this.position, { size: 4, color: this.color })
+  private render() {
+    point(this.position, {
+      size: 4,
+      color: this.color,
+      opacity: map(this.lifespan, PARTICLE_LIFESPAN, 0, 1, 0, true),
+    })
   }
 
   private isOffScreen() {

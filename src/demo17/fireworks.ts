@@ -3,7 +3,7 @@ import { randomColor, timesForEach } from '../utils.ts'
 import { random } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 
-const PARTICLE_LIFESPAN = 1000
+export const PARTICLE_LIFESPAN = 300
 const FIREWORKS_PARTICLES_COUNT_RANGE = [100, 500] as const
 
 // https://natureofcode.com/book/chapter-4-particle-systems/
@@ -67,7 +67,7 @@ export class Fireworks {
       if (particle.isDead()) {
         this.destroyParticle(i)
 
-        return
+        continue
       }
     }
 
@@ -116,10 +116,7 @@ export class Fireworks {
 
     // Emit a single burst of particles.
     timesForEach(particleCount, () => {
-      const velocity = Vector3d.random2d().sub(0.5, 0.5) // [-0.5, 0.5]
-      const newVelocityMag = random(-5, 5)
-
-      velocity.mult(newVelocityMag)
+      const velocity = Vector3d.random2d().mult(random(1, 5)).sub(2.5, 2.5)
 
       this.createParticle(
         position.clone(),
