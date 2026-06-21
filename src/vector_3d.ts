@@ -1,4 +1,4 @@
-import { acos, sqrt, polarToCartesian2d } from './math_utils.ts'
+import { acos, sqrt, polarToCartesian2d, random } from './math_utils.ts'
 import { Tuple } from './utility_types.ts'
 
 export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>
@@ -295,16 +295,20 @@ export class Vector3d {
 
   // p5.js calls it `random2D()` instead.
   static random2d() {
-    return Vector3d.create(Math.random(), Math.random()).normalize()
+    return Vector3d.nonNormalizedRandom2d().normalize()
   }
 
   // p5.js calls it `random3D()` instead.
   static random3d() {
-    return Vector3d.create(
-      Math.random(),
-      Math.random(),
-      Math.random(),
-    ).normalize()
+    return Vector3d.nonNormalizedRandom3d().normalize()
+  }
+
+  static nonNormalizedRandom2d(min = 0, max = 1) {
+    return Vector3d.create(random(min, max), random(min, max))
+  }
+
+  static nonNormalizedRandom3d(min = 0, max = 1) {
+    return Vector3d.create(random(min, max), random(min, max), random(min, max))
   }
 
   *[Symbol.iterator](): Generator<number, void, unknown> {
