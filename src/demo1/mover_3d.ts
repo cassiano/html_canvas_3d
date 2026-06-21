@@ -1,4 +1,5 @@
 import { $v, Vector3d } from '../vector_3d.ts'
+import { ZERO_VECTOR } from '../constants.ts'
 
 export abstract class Mover3D {
   position: Vector3d
@@ -12,8 +13,8 @@ export abstract class Mover3D {
     z: number,
   ) {
     this.position = $v(x, y, z)
-    this.velocity = $v(0, 0, 0)
-    this.acceleration = $v(0, 0, 0)
+    this.velocity = ZERO_VECTOR.clone()
+    this.acceleration = ZERO_VECTOR.clone()
   }
 
   update(depth: number) {
