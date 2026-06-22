@@ -1,10 +1,10 @@
 import { point } from '../primitives.ts'
 import { Vector3d } from '../vector_3d.ts'
-import { Mover2D } from './mover_2d.ts'
+import { Mover3D } from './mover_3d.ts'
 import { map } from '../math_utils.ts'
 import { PARTICLE_LIFESPAN } from './fireworks.ts'
 
-export class Particle extends Mover2D {
+export class Particle extends Mover3D {
   constructor(
     public position: Vector3d,
     public velocity: Vector3d,

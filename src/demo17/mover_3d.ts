@@ -1,7 +1,7 @@
 import { Vector3d } from '../vector_3d.ts'
 import { ZERO_VECTOR } from '../constants.ts'
 
-export abstract class Mover2D {
+export abstract class Mover3D {
   acceleration: Vector3d
 
   constructor(
