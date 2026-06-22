@@ -39,7 +39,7 @@ const draw = () => {
 
   // logJson({
   //   count: Fireworks.count(),
-  //   addedParticleCount: Fireworks.addedParticleCount(),
+  //   globalParticleCount: Fireworks.globalParticleCount(),
   // })
 }
 
