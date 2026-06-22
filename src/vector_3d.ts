@@ -65,14 +65,14 @@ export class Vector3d {
 
   heading() {
     if (this.z !== 0)
-      throw new Error('z coordinate must be zero when calling `heading()`')
+      throw new Error('`heading()` can only be called on 2d vectors')
 
     return this.angleBetween($v(1, 0, 0))
   }
 
   setHeading(newHeading: number) {
     if (this.z !== 0)
-      throw new Error('z coordinate must be zero when calling `setHeading()`')
+      throw new Error('`setHeading()` can only be called on 2d vectors')
 
     const mag = this.mag()
 

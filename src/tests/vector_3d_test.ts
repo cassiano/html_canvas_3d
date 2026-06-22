@@ -67,16 +67,16 @@ test('Vector - Normalize and setMag', () => {
   assertEquals(v.mag(), 5)
 })
 
-test('Vector - Heading and setHeading cannot be called with 3d vectors', () => {
+test('Vector - Heading and setHeading can only be called on 2d vectors', () => {
   const v = $v(1, 2, 3)
 
   assertThrows(
     () => v.heading(),
-    'z coordinate must be zero when calling `heading()`',
+    '`heading()` can only be called on 2d vectors',
   )
   assertThrows(
     () => v.setHeading(PI),
-    'z coordinate must be zero when calling `setHeading()`',
+    '`setHeading()` can only be called on 2d vectors',
   )
 })
 
