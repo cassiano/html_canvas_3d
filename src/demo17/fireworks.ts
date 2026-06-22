@@ -4,7 +4,7 @@ import { random } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 
 export const PARTICLE_LIFESPAN = 300
-const FIREWORKS_PARTICLES_COUNT_RANGE = [100, 1000] as const
+const FIREWORKS_PARTICLES_COUNT_RANGE = [100, 2500] as const
 
 // https://natureofcode.com/book/chapter-4-particle-systems/
 export class Fireworks {
@@ -18,7 +18,7 @@ export class Fireworks {
   ) {
     this.createParticle(
       $v(random(-width / 4, width / 4), -height / 2),
-      $v(random(-2, 2), random(5, 6)),
+      $v(random(-2, 2), random(5, 10)),
       Number.MAX_VALUE,
       'gray',
       width,
