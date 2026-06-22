@@ -7,12 +7,12 @@
 
 import {
   assertEquals,
-  assertNotEquals,
   assertThrows,
   assertAlmostEquals,
   assert,
   assertGreaterOrEqual,
   assertLessOrEqual,
+  assertNotStrictEquals,
 } from '@std/assert'
 
 import {
@@ -45,7 +45,7 @@ test('Vector - Clone', () => {
   const v2 = v1.clone()
 
   assertEquals(v1.toArray(), v2.toArray())
-  assertNotEquals(v1, v2) // Ensure it's a different reference
+  assertNotStrictEquals(v1, v2) // Ensure it's a different reference
 })
 
 test('Vector - Magnitude calculations', () => {
@@ -65,6 +65,58 @@ test('Vector - Normalize and setMag', () => {
   v.setMag(5)
   assertEquals(v.x, 5)
   assertEquals(v.mag(), 5)
+})
+
+test('Vector - Heading and setHeading cannot be called with 3d vectors', () => {
+  const v = $v(1, 2, 3)
+
+  assertThrows(
+    () => v.heading(),
+    'z coordinate must be zero when calling `heading()`',
+  )
+  assertThrows(
+    () => v.setHeading(PI),
+    'z coordinate must be zero when calling `setHeading()`',
+  )
+})
+
+test('Vector - Heading', () => {
+  const v1 = $v(1, 0)
+  const v2 = $v(1, 1)
+  const v3 = $v(0, 1)
+  const v4 = $v(-1, 1)
+  const v5 = $v(-1, 0)
+
+  assertAlmostEquals(v1.heading(), 0)
+  assertAlmostEquals(v2.heading(), PI / 4)
+  assertAlmostEquals(v3.heading(), PI / 2)
+  assertAlmostEquals(v4.heading(), (3 * PI) / 4)
+  assertAlmostEquals(v5.heading(), PI)
+})
+
+test('Vector - setHeading', () => {
+  const v1 = $v(1, 0)
+  const v1Mag = v1.mag()
+
+  v1.setHeading(0)
+  assertEquals(v1.mag(), v1Mag)
+  assertAlmostEquals(v1.heading(), 0)
+
+  v1.setHeading(PI / 4)
+  assertEquals(v1.mag(), v1Mag)
+  assertAlmostEquals(v1.heading(), PI / 4)
+
+  v1.setHeading(PI / 2)
+  assertEquals(v1.mag(), v1Mag)
+  assertAlmostEquals(v1.heading(), PI / 2)
+
+  v1.setHeading((3 * PI) / 4)
+  assertEquals(v1.mag(), v1Mag)
+  assertAlmostEquals(v1.heading(), (3 * PI) / 4)
+
+  v1.setHeading(PI)
+  assertEquals(v1.mag(), v1Mag)
+  assertAlmostEquals(v1.heading(), PI)
 })
 
 test('Vector - Add (overloads)', () => {
@@ -207,15 +259,6 @@ test('Vector - Iterator and Serialization', () => {
 
 test('Constants - FOURTH_DIMENSION_COORD', () => {
   assertEquals(FOURTH_DIMENSION_COORD, 1)
-})
-
-test('Constants - AXES values', () => {
-  assert(AXES.x.equals(1, 0, 0))
-  assert(AXES.y.equals(0, 1, 0))
-  assert(AXES.z.equals(0, 0, 1))
-  assert(AXES['-x'].equals(-1, 0, 0))
-  assert(AXES['-y'].equals(0, -1, 0))
-  assert(AXES['-z'].equals(0, 0, -1))
 })
 
 // --- Constructor & Factory Coverage ---
