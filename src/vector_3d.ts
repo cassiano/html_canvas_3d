@@ -64,19 +64,19 @@ export class Vector3d {
   }
 
   heading() {
-    if (this.z !== 0)
+    if (this.z !== 0) {
       throw new Error('`heading()` can only be called on 2d vectors')
+    }
 
     return this.angleBetween($v(1, 0, 0))
   }
 
   setHeading(newHeading: number) {
-    if (this.z !== 0)
+    if (this.z !== 0) {
       throw new Error('`setHeading()` can only be called on 2d vectors')
+    }
 
-    const mag = this.mag()
-
-    ;[this.x, this.y] = polarToCartesian2d(mag, newHeading)
+    ;[this.x, this.y] = polarToCartesian2d(this.mag(), newHeading)
   }
 
   normalize(): Vector3d {
