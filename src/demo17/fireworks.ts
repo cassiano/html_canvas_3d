@@ -4,7 +4,7 @@ import { random } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 
 export const PARTICLE_LIFESPAN = 300
-const FIREWORKS_PARTICLES_COUNT_RANGE = [10, 500] as const
+const FIREWORKS_PARTICLES_COUNT_RANGE = [100, 1000] as const
 
 // https://natureofcode.com/book/chapter-4-particle-systems/
 export class Fireworks {
@@ -27,7 +27,7 @@ export class Fireworks {
   }
 
   static reset() {
-    this.fireworksCollection.splice(0)
+    this.fireworksCollection.length = 0
   }
 
   static create(width: number, height: number) {
@@ -47,7 +47,7 @@ export class Fireworks {
       fn(this.fireworksCollection[i], i)
   }
 
-  static addedParticleCount() {
+  static globalParticleCount() {
     return this.fireworksCollection.reduce(
       (acc, fireworks) => acc + fireworks.particleCount(),
       0,
@@ -68,11 +68,7 @@ export class Fireworks {
 
       particle.run()
 
-      if (particle.isDead()) {
-        this.destroyParticle(i)
-
-        continue
-      }
+      if (particle.isDead()) this.destroyParticle(i)
     }
 
     this.checkExplosion()
