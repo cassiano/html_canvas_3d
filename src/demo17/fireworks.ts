@@ -1,7 +1,8 @@
 import { Particle } from './particle.ts'
 import { randomColor, timesForEach } from '../utils.ts'
-import { random } from '../math_utils.ts'
+import { floor, random } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
+import { NULL_VECTOR } from '../constants.ts'
 
 export const PARTICLE_LIFESPAN = 300
 const FIREWORKS_PARTICLES_COUNT_RANGE = [100, 2500] as const
@@ -114,11 +115,44 @@ export class Fireworks {
 
     const particleCount = random(...FIREWORKS_PARTICLES_COUNT_RANGE)
 
+    let velocity = NULL_VECTOR.clone()
+    let velocityInc = 0
+    let radiusInc = 0
+    const explosionShape = floor(random(0, 4)) // [0, 3]
+
     // Emit a single burst of particles.
     timesForEach(particleCount, () => {
-      const velocity = Vector3d.nonNormalizedRandom2d(-1, 1).setMag(
-        random(0.1, 3),
-      )
+      switch (explosionShape) {
+        case 0:
+          // Regular (spherical-shaped) explosion.
+          velocity = Vector3d.random2d().setMag(random(0.1, 3))
+          break
+
+        case 1:
+          // Donut-shaped explosion.
+          velocity = Vector3d.random2d().setMag(random(2, 3))
+          break
+
+        case 2: {
+          // Concentric circles-shaped explosion.
+          const radius = floor(random(1, 4))
+
+          velocity = Vector3d.random2d().setMag(
+            random(radius / 2, radius / 2 + 0.25),
+          )
+
+          break
+        }
+        case 3:
+          // Spiral-shaped explosion.
+          radiusInc += 0.06
+          velocityInc += 0.002
+
+          velocity = Vector3d.random2d()
+            .setMag(velocityInc)
+            .setHeading(radiusInc)
+          break
+      }
 
       this.createParticle(
         position.clone(),
