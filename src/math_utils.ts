@@ -43,61 +43,59 @@ export const random = (min = 0, max = 1) => Math.random() * (max - min) + min
 export const map = (
   value: number,
   lower: number,
-  upper: number,
+  higher: number,
   projectedLower: number,
   projectedUpper: number,
   withinBounds = false,
 ) => {
   if (withinBounds) {
-    if (lower <= upper) {
+    if (lower <= higher) {
       if (value <= lower) return projectedLower
-      else if (value >= upper) return projectedUpper
+      else if (value >= higher) return projectedUpper
     } else if (value >= lower) {
       return projectedLower
-    } else if (value <= upper) {
+    } else if (value <= higher) {
       return projectedUpper
     }
   }
 
   return (
-    ((value - lower) / (upper - lower)) * (projectedUpper - projectedLower) +
+    ((value - lower) / (higher - lower)) * (projectedUpper - projectedLower) +
     projectedLower
   )
 }
 
-// Standard version.
-// export const multiplyMatrices = (
-//   leftMatrix: number[][],
-//   rightMatrix: number[][],
-// ): number[][] => {
-//   const colsLeft = leftMatrix[0].length
-//   const colsRight = rightMatrix[0].length
-//   const rowsLeft = leftMatrix.length
-//   const rowsRight = rightMatrix.length
+export const multiplyMatrices = (
+  leftMatrix: number[][],
+  rightMatrix: number[][],
+): number[][] => {
+  const colsLeft = leftMatrix[0].length
+  const colsRight = rightMatrix[0].length
+  const rowsLeft = leftMatrix.length
+  const rowsRight = rightMatrix.length
 
-//   if (colsLeft !== rowsRight)
-//     throw new Error(
-//       `Number of columns from left matrix (${colsLeft}) must match number of rows from right one (${rowsRight})`,
-//     )
+  if (colsLeft !== rowsRight)
+    throw new Error(
+      `Number of columns from left matrix (${colsLeft}) must match number of rows from right one (${rowsRight})`,
+    )
 
-//   const result: number[][] = []
+  const result: number[][] = []
 
-//   for (let row = 0; row < rowsLeft; row++) {
-//     result[row] = []
+  for (let row = 0; row < rowsLeft; row++) {
+    result[row] = []
 
-//     for (let col = 0; col < colsRight; col++) {
-//       result[row][col] = 0
+    for (let col = 0; col < colsRight; col++) {
+      result[row][col] = 0
 
-//       // colsLeft = rowsRight
-//       for (let i = 0; i < colsLeft; i++)
-//         result[row][col] += leftMatrix[row][i] * rightMatrix[i][col]
-//     }
-//   }
+      // colsLeft = rowsRight
+      for (let i = 0; i < colsLeft; i++)
+        result[row][col] += leftMatrix[row][i] * rightMatrix[i][col]
+    }
+  }
 
-//   return result
-// }
+  return result
+}
 
-// Optimized version.
 export const multiply4x4Matrices = (
   leftMatrix: Tuple<Tuple<number, 4>, 4>,
   rightMatrix: Tuple<Tuple<number, 4>, 4>,

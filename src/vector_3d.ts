@@ -3,8 +3,6 @@ import { Tuple } from './utility_types.ts'
 
 export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>
 
-export const FOURTH_DIMENSION_COORD = 1
-
 export class Vector3d {
   private coords: [x: number, y: number, z: number]
 
@@ -282,17 +280,8 @@ export class Vector3d {
     return JSON.stringify(this.toArray())
   }
 
-  to4dMatrix() {
-    // 4x1 matrix.
-    return [[this.x], [this.y], [this.z], [FOURTH_DIMENSION_COORD]]
-  }
-
   static create(x: number, y: number, z?: number) {
     return new Vector3d(x, y, z)
-  }
-
-  static from4dMatrix(matrix: transformationMatrix4x1Type) {
-    return Vector3d.create(matrix[0][0], matrix[1][0], matrix[2][0])
   }
 
   // p5.js calls it `random2D()` instead.

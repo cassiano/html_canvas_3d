@@ -6,7 +6,7 @@ import {
   MIN_LINE_SEGMENT_SIZE,
   ZERO_VECTOR,
 } from './constants.ts'
-import { $v, FOURTH_DIMENSION_COORD, Vector3d } from './vector_3d.ts'
+import { $v, Vector3d } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
 import { timesForEach, timesForEachN } from './utils.ts'
 import {
@@ -27,6 +27,8 @@ import {
 } from './constants.ts'
 import { ORIGIN } from './constants.ts'
 import { TWO_PI, HALF_PI, polarToCartesian2d, map } from './math_utils.ts'
+
+const FOURTH_DIMENSION_COORD = 1
 
 export const animation = document.getElementById(
   'animation',

@@ -15,13 +15,7 @@ import {
   assertNotStrictEquals,
 } from '@std/assert'
 
-import {
-  Vector3d,
-  $v,
-  createVector,
-  FOURTH_DIMENSION_COORD,
-  transformationMatrix4x1Type,
-} from '../vector_3d.ts'
+import { Vector3d, $v, createVector } from '../vector_3d.ts'
 import { PI, HALF_PI } from '../math_utils.ts'
 import { AXES } from '../constants.ts'
 
@@ -197,15 +191,6 @@ test('Vector - Equality and Helpers', () => {
   assertEquals(zero.isAllZeros(), true)
 })
 
-test('Vector - 4D Matrix conversion', () => {
-  const v = $v(5, 10, 15)
-  const matrix = v.to4dMatrix() as transformationMatrix4x1Type
-  assertEquals(matrix, [[5], [10], [15], [1]])
-
-  const fromMat = Vector3d.from4dMatrix(matrix)
-  assertEquals(fromMat.toArray(), [5, 10, 15])
-})
-
 test('Vector - AngleBetween', () => {
   const v1 = $v(1, 0, 0)
   const v2 = $v(0, 1, 0)
@@ -253,12 +238,6 @@ test('Vector - Iterator and Serialization', () => {
 
   // toString
   assertEquals(v.toString(), '[1,2,3]')
-})
-
-// --- Constants Coverage ---
-
-test('Constants - FOURTH_DIMENSION_COORD', () => {
-  assertEquals(FOURTH_DIMENSION_COORD, 1)
 })
 
 // --- Constructor & Factory Coverage ---
