@@ -77,6 +77,8 @@ export class Vector3d {
     }
 
     ;[this.x, this.y] = polarToCartesian2d(this.mag(), newHeading)
+
+    return this
   }
 
   normalize(): Vector3d {
@@ -294,21 +296,23 @@ export class Vector3d {
   }
 
   // p5.js calls it `random2D()` instead.
-  static random2d() {
-    return Vector3d.nonNormalizedRandom2d().normalize()
+  static random2d({ normalized = true, min = -1, max = 1 } = {}) {
+    const vector = Vector3d.create(random(min, max), random(min, max))
+    if (normalized) vector.normalize()
+
+    return vector
   }
 
   // p5.js calls it `random3D()` instead.
-  static random3d() {
-    return Vector3d.nonNormalizedRandom3d().normalize()
-  }
+  static random3d({ normalized = true, min = -1, max = 1 } = {}) {
+    const vector = Vector3d.create(
+      random(min, max),
+      random(min, max),
+      random(min, max),
+    )
+    if (normalized) vector.normalize()
 
-  static nonNormalizedRandom2d(min = 0, max = 1) {
-    return Vector3d.create(random(min, max), random(min, max))
-  }
-
-  static nonNormalizedRandom3d(min = 0, max = 1) {
-    return Vector3d.create(random(min, max), random(min, max), random(min, max))
+    return vector
   }
 
   *[Symbol.iterator](): Generator<number, void, unknown> {
