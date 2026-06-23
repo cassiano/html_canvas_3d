@@ -12,14 +12,18 @@ export class Fireworks {
   particles: Particle[] = []
   exploded = false
 
+  private static fireworksCollection: Fireworks[] = []
+
   constructor(
     public width: number,
     public height: number,
     public color = randomColor(127, 255),
   ) {
+    const initialPosition = $v(random(-width / 2, width / 2), -height / 2)
+
     this.createParticle(
-      $v(random(-width / 4, width / 4), -height / 2),
-      $v(random(-2, 2), random(5, 10)),
+      initialPosition,
+      $v(initialPosition.x < 0 ? random(0, 3) : random(-3, 0), random(5, 10)),
       Number.MAX_VALUE,
       'gray',
       width,
@@ -167,6 +171,4 @@ export class Fireworks {
 
     this.exploded = true
   }
-
-  private static fireworksCollection: Fireworks[] = []
 }
