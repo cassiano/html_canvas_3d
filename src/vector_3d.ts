@@ -285,23 +285,17 @@ export class Vector3d {
   }
 
   // p5.js calls it `random2D()` instead.
-  static random2d({ normalized = true, min = -1, max = 1 } = {}) {
-    const vector = Vector3d.create(random(min, max), random(min, max))
-    if (normalized) vector.normalize()
-
-    return vector
+  static random2d() {
+    return Vector3d.create(random(-1, 1), random(-1, 1)).normalize()
   }
 
   // p5.js calls it `random3D()` instead.
-  static random3d({ normalized = true, min = -1, max = 1 } = {}) {
-    const vector = Vector3d.create(
-      random(min, max),
-      random(min, max),
-      random(min, max),
-    )
-    if (normalized) vector.normalize()
-
-    return vector
+  static random3d() {
+    return Vector3d.create(
+      random(-1, 1),
+      random(-1, 1),
+      random(-1, 1),
+    ).normalize()
   }
 
   *[Symbol.iterator](): Generator<number, void, unknown> {
