@@ -330,13 +330,13 @@ test('Vector - clone is deep enough', () => {
   assertEquals(v2.x, 1, 'Cloned vector should not change when original changes')
 })
 
-test('Vector - Static random methods', () => {
+test('Vector - Static random methods with default options', () => {
   const v1 = Vector3d.random2d()
 
   assertAlmostEquals(v1.mag(), 1)
 
-  assertGreaterOrEqual(v1.x, 0)
-  assertGreaterOrEqual(v1.y, 0)
+  assertGreaterOrEqual(v1.x, -1)
+  assertGreaterOrEqual(v1.y, -1)
   assertEquals(v1.z, 0)
 
   assertLessOrEqual(v1.x, 1)
@@ -346,11 +346,32 @@ test('Vector - Static random methods', () => {
 
   assertAlmostEquals(v2.mag(), 1)
 
-  assertGreaterOrEqual(v2.x, 0)
-  assertGreaterOrEqual(v2.y, 0)
-  assertGreaterOrEqual(v2.z, 0)
+  assertGreaterOrEqual(v2.x, -1)
+  assertGreaterOrEqual(v2.y, -1)
+  assertGreaterOrEqual(v2.z, -1)
 
   assertLessOrEqual(v2.x, 1)
   assertLessOrEqual(v2.y, 1)
   assertLessOrEqual(v2.z, 1)
+})
+
+test('Vector - Static random methods with custom options', () => {
+  const v1 = Vector3d.random2d({ normalized: false, min: 10, max: 20 })
+
+  assertGreaterOrEqual(v1.x, 10)
+  assertGreaterOrEqual(v1.y, 10)
+  assertEquals(v1.z, 0)
+
+  assertLessOrEqual(v1.x, 20)
+  assertLessOrEqual(v1.y, 20)
+
+  const v2 = Vector3d.random3d({ normalized: false, min: 10, max: 20 })
+
+  assertGreaterOrEqual(v2.x, 10)
+  assertGreaterOrEqual(v2.y, 10)
+  assertGreaterOrEqual(v2.z, 10)
+
+  assertLessOrEqual(v2.x, 20)
+  assertLessOrEqual(v2.y, 20)
+  assertLessOrEqual(v2.z, 20)
 })
