@@ -42,24 +42,27 @@ export const random = (min = 0, max = 1) => Math.random() * (max - min) + min
 
 export const map = (
   value: number,
-  start1: number,
-  stop1: number,
-  start2: number,
-  stop2: number,
+  lower: number,
+  upper: number,
+  projectedLower: number,
+  projectedUpper: number,
   withinBounds = false,
 ) => {
   if (withinBounds) {
-    if (start1 <= stop1) {
-      if (value <= start1) return start2
-      else if (value >= stop1) return stop2
-    } else if (value >= start1) {
-      return start2
-    } else if (value <= stop1) {
-      return stop2
+    if (lower <= upper) {
+      if (value <= lower) return projectedLower
+      else if (value >= upper) return projectedUpper
+    } else if (value >= lower) {
+      return projectedLower
+    } else if (value <= upper) {
+      return projectedUpper
     }
   }
 
-  return ((value - start1) / (stop1 - start1)) * (stop2 - start2) + start2
+  return (
+    ((value - lower) / (upper - lower)) * (projectedUpper - projectedLower) +
+    projectedLower
+  )
 }
 
 // Standard version.
