@@ -1,6 +1,6 @@
-//////////////////////
-// Coral Snake Demo //
-//////////////////////
+////////////////////////////
+// Twin Elbows Tower Demo //
+////////////////////////////
 
 import { FPS, FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 import { createFrameLoop, millis, frameCount, fps } from '../utils.ts'

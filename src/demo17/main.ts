@@ -1,6 +1,6 @@
-//////////////////////
-// Coral Snake Demo //
-//////////////////////
+////////////////////
+// Fireworks Demo //
+////////////////////
 
 import { FPS, FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
 import { createFrameLoop, frameCount, fps } from '../utils.ts'
