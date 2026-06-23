@@ -28,7 +28,7 @@ const draw = () => {
 
   background('black')
 
-  if (random() < 3 / 100) Fireworks.create(850, 850)
+  if (random() < 10 / 100) Fireworks.create(850, 850)
 
   Fireworks.reversedForEach((fireworks, i) => {
     fireworks.applyForce(gravity)

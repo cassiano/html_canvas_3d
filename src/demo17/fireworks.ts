@@ -4,8 +4,8 @@ import { floor, random } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { NULL_VECTOR } from '../constants.ts'
 
-export const PARTICLE_LIFESPAN = 300
-const FIREWORKS_PARTICLES_COUNT_RANGE = [100, 2500] as const
+export const PARTICLE_LIFESPAN = 250
+const FIREWORKS_PARTICLES_COUNT_RANGE = [10, 1500] as const
 
 // https://natureofcode.com/book/chapter-4-particle-systems/
 export class Fireworks {
