@@ -117,7 +117,8 @@ export class Fireworks {
 
     let velocity = NULL_VECTOR.clone()
     let velocityInc = 0
-    let radiusInc = 0
+    let angleInc = 0
+
     const explosionShape = floor(random(0, 4)) // [0, 3]
 
     // Emit a single burst of particles.
@@ -145,12 +146,12 @@ export class Fireworks {
         }
         case 3:
           // Spiral-shaped explosion.
-          radiusInc += 0.06
           velocityInc += 0.002
+          angleInc += 0.06
 
           velocity = Vector3d.random2d()
             .setMag(velocityInc)
-            .setHeading(radiusInc)
+            .setHeading(angleInc)
           break
       }
 
