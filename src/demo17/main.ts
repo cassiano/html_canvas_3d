@@ -59,7 +59,7 @@ const createDemoControls = () => {
     }),
     launchPeriod: createSlider({
       label: 'Launch period',
-      min: 5,
+      min: 1,
       max: 120,
       value: DEFAULT_FIREWORKS_LAUNCH_PERIOD_IN_FRAMES,
       container: demoControlPanel,
