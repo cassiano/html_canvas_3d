@@ -2,7 +2,7 @@
 // Toruses Demo //
 //////////////////
 
-import { FPS, FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
+import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { createFrameLoop, fps, frameCount, millis } from '../utils.ts'
 import {
   background,
@@ -51,8 +51,7 @@ const options3: ElbowShapeOptions = {
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
-  if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
-    console.log({ fps: fps() })
+  if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
   background('lightGray')
 

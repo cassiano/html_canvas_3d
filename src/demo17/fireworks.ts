@@ -3,9 +3,9 @@ import { randomColor, timesForEach } from '../utils.ts'
 import { floor, random } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { NULL_VECTOR } from '../constants.ts'
+import { maxParticles, minParticles } from './demo17_form.ts'
 
 export const PARTICLE_LIFESPAN = 250
-const FIREWORKS_PARTICLES_COUNT_RANGE = [10, 1500] as const
 
 // https://natureofcode.com/book/chapter-4-particle-systems/
 export class Fireworks {
@@ -117,7 +117,7 @@ export class Fireworks {
   private explode(position: Vector3d) {
     this.particles = []
 
-    const particleCount = random(...FIREWORKS_PARTICLES_COUNT_RANGE)
+    const particleCount = random(minParticles(), maxParticles())
 
     let velocity = NULL_VECTOR.clone()
     let velocityInc = 0

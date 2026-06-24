@@ -15,7 +15,7 @@ export const AXES: Record<AxesNamesType, Vector3d> = {
 }
 
 export const FPS = 120
-export const FPS_LOGGING_FRAME_FREQUENCY = 30
+export const FPS_LOGGING_FRAME_PERIOD = 30
 export const FOCAL_LENGTH = 400
 export const FPS_WINDOW = 100
 export const MIN_LINE_SEGMENT_SIZE = 20

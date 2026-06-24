@@ -27,7 +27,7 @@ import {
   INITIAL_CUBIE_SPACING,
 } from './constants.ts'
 import { frameCount, createSlider, createToggle } from '../utils.ts'
-import { FPS_LOGGING_FRAME_FREQUENCY } from '../constants.ts'
+import { FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { demo3Form, cubieSize, cubiesPerAxis } from './demo3_form.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -100,8 +100,7 @@ const createDemoControls = () => {
 
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
-  if (frameCount() % FPS_LOGGING_FRAME_FREQUENCY === 0)
-    console.log({ fps: fps() })
+  if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
   background('lightGray')
 
