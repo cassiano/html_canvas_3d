@@ -28,7 +28,7 @@ import { launchPeriod } from './demo17_form.ts'
 const GRAVITY = 0.03
 const gravity = $v(0, -GRAVITY, 0)
 const FIREWORKS_PARTICLES_COUNT_RANGE = [10, 1000] as const
-const DEFAULT_FIREWORKS_LAUNCH_PERIOD_IN_FRAMES = 10
+const DEFAULT_FIREWORKS_LAUNCH_PERIOD_IN_FRAMES = 12
 
 // -------------------------------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ const createDemoControls = () => {
     launchPeriod: createSlider({
       label: 'Launch period',
       min: 5,
-      max: 50,
+      max: 120,
       value: DEFAULT_FIREWORKS_LAUNCH_PERIOD_IN_FRAMES,
       container: demoControlPanel,
     }),
