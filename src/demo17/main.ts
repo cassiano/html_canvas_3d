@@ -76,6 +76,9 @@ const createDemoControls = () => {
   }
 }
 
+// const counts = { fireworks: 0, particles: 0 }
+// const maxCounts = { fireworks: 0, particles: 0 }
+
 // -------------------------------------------------------------------------------------------------
 
 const draw = () => {
@@ -95,10 +98,15 @@ const draw = () => {
     if (fireworks.isDead()) Fireworks.destroy(i)
   })
 
-  // logJson({
-  //   count: Fireworks.count(),
-  //   globalParticleCount: Fireworks.globalParticleCount(),
-  // })
+  // counts.fireworks = Fireworks.count()
+  // counts.particles = Fireworks.globalParticleCount()
+
+  // if (counts.fireworks > maxCounts.fireworks)
+  //   maxCounts.fireworks = counts.fireworks
+  // if (counts.particles > maxCounts.particles)
+  //   maxCounts.particles = counts.particles
+
+  // logJson({ counts, maxCounts })
 }
 
 const onPaused = () => {
