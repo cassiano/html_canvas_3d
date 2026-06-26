@@ -908,6 +908,8 @@ export const cylinder = (
   const frontCenter = $v(0, 0, depth / 2)
 
   for (let i = 0; i < circleSegments; i++) {
+    if (i / circleSegments >= options.percentage!) return
+
     const theta = i * step
 
     const p1 = polarToCartesian2d(radius, theta).setZ(-depth / 2)
