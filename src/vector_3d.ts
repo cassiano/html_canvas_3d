@@ -1,7 +1,4 @@
 import { acos, sqrt, polarToCartesian2d, random } from './math_utils.ts'
-import { Tuple } from './utility_types.ts'
-
-export type transformationMatrix4x1Type = Tuple<Tuple<number, 1>, 4>
 
 export class Vector3d {
   private coords: [x: number, y: number, z: number]
