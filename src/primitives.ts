@@ -81,7 +81,9 @@ export const render3dScene = () => {
 
 export const SCREEN_CENTER = $v(animation.width / 2, animation.height / 2, 0)
 
-const AXIS_LENGTH = min(animation.width, animation.height) * 0.65
+const getScreenCenter = () => $v(animation.width / 2, animation.height / 2, 0)
+
+const getAxisLength = () => min(animation.width, animation.height) * 0.65
 
 export let renderNormals = false
 
@@ -380,7 +382,7 @@ export const project3dTo2d = ({ x, y, z }: Vector3d) => {
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 export const centralize = (point?: Vector3d) =>
-  point?.clone().add(SCREEN_CENTER).add(panOffset)
+  point?.clone().add(getScreenCenter()).add(panOffset)
 
 // Standard version.
 // export const transform = (point: Vector3d, { isNormal = false } = {}) => {
@@ -930,13 +932,13 @@ export const text2d = (message: string, point: Vector3d) => {
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
-  const position = transform(point).clone().add(SCREEN_CENTER)
+  const position = transform(point).clone().add(getScreenCenter())
 
   ctx.fillText(message, position.x, position.y)
 }
 
 export const render3dAxes = () => {
-  const halfLength = AXIS_LENGTH / 2
+  const halfLength = getAxisLength() / 2
 
   arrow(AXES['-x'].clone().mult(halfLength), AXES.x.clone().mult(halfLength), {
     color: 'red',

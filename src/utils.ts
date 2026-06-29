@@ -405,7 +405,7 @@ export const createDemoControlPanel = (canvasContainer: HTMLElement) => {
 
   demoControlPanel.style.position = 'absolute'
   demoControlPanel.style.top = '10px'
-  demoControlPanel.style.left = '10px'
+  demoControlPanel.style.left = '300px'
   demoControlPanel.style.backgroundColor = 'white'
   demoControlPanel.style.padding = '10px'
   demoControlPanel.style.borderRadius = '5px'

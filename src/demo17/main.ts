@@ -18,7 +18,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { Fireworks } from './fireworks.ts'
-import { render3dAxes } from '../primitives.ts'
+import { render3dAxes, animation } from '../primitives.ts'
 import { demo17Form, show3dAxes } from './demo17_form.ts'
 import { createSlider } from '../utils.ts'
 import { launchPeriod } from './demo17_form.ts'
@@ -89,7 +89,8 @@ const draw = () => {
 
   if (show3dAxes()) render3dAxes()
 
-  if (frameCount() % launchPeriod() === 0) Fireworks.create(850, 850)
+  if (frameCount() % launchPeriod() === 0)
+    Fireworks.create(animation.width, animation.height)
 
   Fireworks.reversedForEach((fireworks, i) => {
     fireworks.applyForce(gravity)

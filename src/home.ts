@@ -17,6 +17,18 @@ const canvasContainer = document.getElementById(
   'canvas-container',
 ) as HTMLDivElement
 
+// Function to resize canvas to fit its container
+function resizeCanvas() {
+  const rect = canvasContainer.getBoundingClientRect()
+
+  animation.width = rect.width
+  animation.height = rect.height
+}
+
+// Resize canvas on load and window resize
+resizeCanvas()
+window.addEventListener('resize', resizeCanvas)
+
 const DEMO_COUNT = 17
 const DEFAULT_DEMO = 1 // Starting with 1.
 
