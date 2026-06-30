@@ -27,7 +27,7 @@ function resizeCanvas() {
 
 // Resize canvas on load and window resize
 resizeCanvas()
-window.addEventListener('resize', resizeCanvas)
+self.addEventListener('resize', resizeCanvas)
 
 const DEMO_COUNT = 17
 const DEFAULT_DEMO = 1 // Starting with 1.

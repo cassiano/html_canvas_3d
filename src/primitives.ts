@@ -83,7 +83,7 @@ export const SCREEN_CENTER = $v(animation.width / 2, animation.height / 2, 0)
 
 const getScreenCenter = () => $v(animation.width / 2, animation.height / 2, 0)
 
-const getAxisLength = () => min(animation.width, animation.height) * 0.65
+const getAxisLength = () => min(animation.width, animation.height) * 0.6
 
 export let renderNormals = false
 
