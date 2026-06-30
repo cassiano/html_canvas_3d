@@ -1,6 +1,6 @@
 import { Particle } from './particle.ts'
 import { randomColor, timesForEach } from '../utils.ts'
-import { floor, random } from '../math_utils.ts'
+import { floor, random, sign } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { NULL_VECTOR } from '../constants.ts'
 import { maxParticles, minParticles } from './demo17_form.ts'
@@ -23,7 +23,7 @@ export class Fireworks {
 
     this.createParticle(
       initialPosition,
-      $v(initialPosition.x < 0 ? random(0, 3) : random(-3, 0), random(5, 10)),
+      $v(-sign(initialPosition.x) * random(0, 3), random(5, 10)),
       Number.MAX_VALUE,
       'gray',
       width,
