@@ -45,9 +45,7 @@ const elbowFromTopToRight = (
   options: ElbowShapeOptions = {},
   includeTranslation = false,
 ) => {
-  isolateTransformations(() => {
-    genericElbow(radius, options)
-  })
+  genericElbow(radius, options)
 
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
 }
