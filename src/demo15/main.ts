@@ -115,15 +115,12 @@ const visitedCoords = breadcrumbs.reduce(
 )
 
 const averageCoords = $v(
-  min(...visitedCoords[0]) +
-    (max(...visitedCoords[0]) - min(...visitedCoords[0])) / 2,
-  min(...visitedCoords[1]) +
-    (max(...visitedCoords[1]) - min(...visitedCoords[1])) / 2,
-  min(...visitedCoords[2]) +
-    (max(...visitedCoords[2]) - min(...visitedCoords[2])) / 2,
+  (max(...visitedCoords[0]) + min(...visitedCoords[0])) / 2,
+  (max(...visitedCoords[1]) + min(...visitedCoords[1])) / 2,
+  (max(...visitedCoords[2]) + min(...visitedCoords[2])) / 2,
 )
 
-const centerCoords = averageCoords.mult(-RADIUS)
+const centerCoords = averageCoords.clone().mult(-RADIUS)
 
 // -------------------------------------------------------------------------------------------------
 
