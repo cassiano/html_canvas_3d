@@ -133,12 +133,12 @@ const draw = () => {
 
   background('lightGray')
 
-  scale(1 / ceil(maxAxisDistance / 8))
-
   rotateX(PI / 4)
   rotateY(-millis() / 2000)
 
   render3dAxes()
+
+  scale(1 / ceil(maxAxisDistance / 8))
 
   translate(centerCoords)
 
