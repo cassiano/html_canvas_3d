@@ -2,8 +2,13 @@
 // Colorful Random Snake Demo //
 ////////////////////////////////
 
-import { FPS, FPS_LOGGING_FRAME_PERIOD, AxesNamesType } from '../constants.ts'
-import { createFrameLoop, millis, frameCount, fps } from '../utils.ts'
+import {
+  FPS,
+  FPS_LOGGING_FRAME_PERIOD,
+  AxesNamesType,
+  ORIGIN,
+} from '../constants.ts'
+import { createFrameLoop, millis, frameCount, fps, logJson } from '../utils.ts'
 import {
   background,
   render3dScene,
@@ -13,7 +18,7 @@ import {
   rotateY,
   rotateX,
 } from '../primitives.ts'
-import { $v } from '../vector_3d.ts'
+import { $v, Vector3d } from '../vector_3d.ts'
 import { PI, floor, map } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
 import { sample, timesMap } from '../utils.ts'
@@ -25,7 +30,7 @@ const CIRCLE_SEGMENTS = 16
 const OPACITY = 0.5
 const RADIUS = 100
 const CIRCLE_SLICES = 16
-const TOTAL_ELBOWS = 25
+const TOTAL_ELBOWS = 30
 const COLOR = 'peachpuff'
 
 const options: ElbowShapeOptions = {
@@ -45,17 +50,51 @@ const AXES_TRANSITIONS: Record<AxesNamesType, Tuple<AxesNamesType, 4>> = {
   ['-z']: ['x', '-x', 'y', '-y'],
 }
 
+const AXES_VISITS_HISTORY = {
+  x: (previous: Vector3d) => previous.clone().add(1, 0, 0),
+  y: (previous: Vector3d) => previous.clone().add(0, 1, 0),
+  z: (previous: Vector3d) => previous.clone().add(0, 0, 1),
+  ['-x']: (previous: Vector3d) => previous.clone().sub(1, 0, 0),
+  ['-y']: (previous: Vector3d) => previous.clone().sub(0, 1, 0),
+  ['-z']: (previous: Vector3d) => previous.clone().sub(0, 0, 1),
+}
+
+const breadcrumbs = [ORIGIN]
 const axesKeys = Object.keys(AXES_TRANSITIONS)
 let previousAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
+let nextAxis: AxesNamesType
 
 const elbowSequence = timesMap(TOTAL_ELBOWS, () => {
-  const nextAxis = sample(AXES_TRANSITIONS[previousAxis]) as AxesNamesType
+  breadcrumbs.push(
+    AXES_VISITS_HISTORY[previousAxis](breadcrumbs[breadcrumbs.length - 1]),
+  )
+
+  let invalidVisit = true
+  let retryCount = 0
+
+  while (invalidVisit && retryCount <= 8) {
+    nextAxis = sample(AXES_TRANSITIONS[previousAxis]) as AxesNamesType
+    retryCount++
+
+    invalidVisit =
+      breadcrumbs.findIndex(value =>
+        value.equals(
+          AXES_VISITS_HISTORY[nextAxis](breadcrumbs[breadcrumbs.length - 1]),
+        ),
+      ) !== -1
+  }
+
+  if (retryCount > 8)
+    throw new Error('Retry count exceeded when finding new axes transitions')
+
   const savedPreviousAxis = previousAxis
 
   previousAxis = nextAxis
 
   return [savedPreviousAxis, nextAxis] as const
 })
+
+logJson({ breadcrumbs })
 
 // -------------------------------------------------------------------------------------------------
 
