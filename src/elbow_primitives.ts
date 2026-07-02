@@ -17,7 +17,8 @@ export type ElbowShapeOptions = CircularShapeOptions & {
   elbowCircleSlices?: number
 }
 
-const genericElbow = (radius: number, options: ElbowShapeOptions = {}) => {
+// Top -> Right
+const defaultElbow = (radius: number, options: ElbowShapeOptions = {}) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
     circleSegments: DEFAULT_CIRCLE_SEGMENTS,
@@ -45,7 +46,7 @@ const elbowFromTopToRight = (
   options: ElbowShapeOptions = {},
   includeTranslation = false,
 ) => {
-  genericElbow(radius, options)
+  defaultElbow(radius, options)
 
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
 }
@@ -58,7 +59,7 @@ const elbowFromBottomToRight = (
   isolateTransformations(() => {
     rotateX(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(radius / 2, -radius / 2, 0)
@@ -72,7 +73,7 @@ const elbowFromBackToRight = (
   isolateTransformations(() => {
     rotateX(-HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(radius / 2, 0, -radius / 2)
@@ -86,7 +87,7 @@ const elbowFromFrontToRight = (
   isolateTransformations(() => {
     rotateX(HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(radius / 2, 0, radius / 2)
@@ -100,7 +101,7 @@ const elbowFromTopToLeft = (
   isolateTransformations(() => {
     rotateY(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(-radius / 2, radius / 2, 0)
@@ -115,7 +116,7 @@ const elbowFromBottomToLeft = (
     rotateX(PI)
     rotateY(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(-radius / 2, -radius / 2, 0)
@@ -130,7 +131,7 @@ const elbowFromBackToLeft = (
     rotateX(HALF_PI)
     rotateZ(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(-radius / 2, 0, -radius / 2)
@@ -145,7 +146,7 @@ const elbowFromFrontToLeft = (
     rotateX(-HALF_PI)
     rotateZ(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(-radius / 2, 0, radius / 2)
@@ -161,7 +162,7 @@ const elbowFromLeftToTop = (
 
     rotateX(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(-radius / 2, radius / 2, 0)
@@ -178,7 +179,7 @@ const elbowFromRightToTop = (
     rotateX(PI)
     rotateY(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
@@ -194,7 +195,7 @@ const elbowFromBackToTop = (
     rotateX(PI)
     rotateY(HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(0, radius / 2, -radius / 2)
@@ -210,7 +211,7 @@ const elbowFromFrontToTop = (
     rotateX(PI)
     rotateY(-HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(0, radius / 2, radius / 2)
@@ -224,7 +225,7 @@ const elbowFromLeftToBottom = (
   isolateTransformations(() => {
     translate(-radius / 2, -radius / 2, 0)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(-radius / 2, -radius / 2, 0)
@@ -240,7 +241,7 @@ const elbowFromRightToBottom = (
 
     rotateY(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(radius / 2, -radius / 2, 0)
@@ -255,7 +256,7 @@ const elbowFromBackToBottom = (
     translate(0, -radius / 2, -radius / 2)
     rotateY(-HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(0, -radius / 2, -radius / 2)
@@ -270,7 +271,7 @@ const elbowFromFrontToBottom = (
     translate(0, -radius / 2, radius / 2)
     rotateY(HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(0, -radius / 2, radius / 2)
@@ -284,7 +285,7 @@ const elbowFromTopToFront = (
   isolateTransformations(() => {
     rotateY(-HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(0, radius / 2, radius / 2)
@@ -300,7 +301,7 @@ const elbowFromBottomToFront = (
     rotateY(-HALF_PI)
     rotateZ(HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(0, -radius / 2, radius / 2)
@@ -315,7 +316,7 @@ const elbowFromLeftToFront = (
     translate(-radius / 2, 0, radius / 2)
     rotateX(-HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(-radius / 2, 0, radius / 2)
@@ -331,7 +332,7 @@ const elbowFromRightToFront = (
     rotateX(HALF_PI)
     rotateZ(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(radius / 2, 0, radius / 2)
@@ -345,7 +346,7 @@ const elbowFromTopToBack = (
   isolateTransformations(() => {
     rotateY(HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(0, radius / 2, -radius / 2)
@@ -360,7 +361,7 @@ const elbowFromBottomToBack = (
     rotateY(HALF_PI)
     rotateX(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(0, -radius / 2, -radius / 2)
@@ -375,7 +376,7 @@ const elbowFromLeftToBack = (
     translate(-radius / 2, 0, -radius / 2)
     rotateX(HALF_PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(-radius / 2, 0, -radius / 2)
@@ -391,7 +392,7 @@ const elbowFromRightToBack = (
     rotateX(HALF_PI)
     rotateY(PI)
 
-    genericElbow(radius, options)
+    defaultElbow(radius, options)
   })
 
   if (includeTranslation) translate(radius / 2, 0, -radius / 2)
