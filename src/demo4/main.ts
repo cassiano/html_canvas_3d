@@ -1,7 +1,3 @@
-/////////////////////////
-// Jerusalem Cube Demo //
-/////////////////////////
-
 import { createFrameLoop, fps, millis, timesReduce } from './../utils.ts'
 import {
   background,

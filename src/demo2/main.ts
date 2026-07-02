@@ -1,7 +1,3 @@
-////////////////////////
-// Colored Boxes Demo //
-////////////////////////
-
 import { createFrameLoop, fps, millis } from './../utils.ts'
 import {
   background,

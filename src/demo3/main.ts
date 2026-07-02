@@ -1,7 +1,3 @@
-/////////////////////
-// Rubik Cube Demo //
-/////////////////////
-
 import { FPS } from './../constants.ts'
 import {
   createDemoControlPanel,

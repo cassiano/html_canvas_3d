@@ -1,7 +1,3 @@
-/////////////////
-// Arrows Demo //
-/////////////////
-
 import { FPS, ORIGIN, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { createFrameLoop, fps, millis, frameCount } from '../utils.ts'
 import {

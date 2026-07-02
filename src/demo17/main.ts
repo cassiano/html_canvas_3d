@@ -1,7 +1,3 @@
-////////////////////
-// Fireworks Demo //
-////////////////////
-
 import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import {
   createFrameLoop,

@@ -1,7 +1,3 @@
-/////////////////
-// Sphere Demo //
-/////////////////
-
 import {
   FPS,
   FPS_LOGGING_FRAME_PERIOD,

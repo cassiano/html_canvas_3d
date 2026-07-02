@@ -1,7 +1,3 @@
-/////////////////////
-// Sine Curve Demo //
-/////////////////////
-
 import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { createFrameLoop, frameCount, fps, millis } from '../utils.ts'
 import {
