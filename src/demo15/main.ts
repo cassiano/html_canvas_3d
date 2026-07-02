@@ -20,11 +20,11 @@ import {
   rotateX,
 } from '../primitives.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
-import { PI, floor, map, max, min } from '../math_utils.ts'
+import { PI, ceil, floor, map, max, min } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
-import { sample, logJson } from '../utils.ts'
+import { sample } from '../utils.ts'
 import { Tuple } from '../utility_types.ts'
-import { translate, rotateY, scale } from '../primitives.ts'
+import { translate, scale, rotateY } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -34,8 +34,6 @@ const RADIUS = 100
 const CIRCLE_SLICES = 16
 const TOTAL_ELBOWS = 100
 const COLOR = 'peachpuff'
-
-const MAX_RETRY_COUNT = 100
 
 const options: ElbowShapeOptions = {
   circleSegments: CIRCLE_SEGMENTS,
@@ -67,22 +65,21 @@ const breadcrumbs = [ORIGIN]
 const axesKeys = Object.keys(AXES_TRANSITIONS)
 let previousAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
 let nextAxis: AxesNamesType
-let stopGeneration = false
+let skipGeneration = false
 const elbowSequence: [AxesNamesType, AxesNamesType][] = []
 
 timesForEach(TOTAL_ELBOWS, () => {
-  if (stopGeneration) return null
+  if (skipGeneration) return
 
   breadcrumbs.push(
     AXES_VISITS_HISTORY[previousAxis](breadcrumbs[breadcrumbs.length - 1]),
   )
 
   let invalidVisit = true
-  let retryCount = 0
+  const transitions = [...AXES_TRANSITIONS[previousAxis]]
 
-  while (invalidVisit && retryCount <= MAX_RETRY_COUNT) {
-    nextAxis = sample(AXES_TRANSITIONS[previousAxis]) as AxesNamesType
-    retryCount++
+  while (invalidVisit && transitions.length > 0) {
+    nextAxis = sample(transitions) as AxesNamesType
 
     invalidVisit =
       breadcrumbs.findIndex(value =>
@@ -90,9 +87,11 @@ timesForEach(TOTAL_ELBOWS, () => {
           AXES_VISITS_HISTORY[nextAxis](breadcrumbs[breadcrumbs.length - 1]),
         ),
       ) !== -1
+
+    if (invalidVisit) transitions.splice(transitions.indexOf(nextAxis), 1)
   }
 
-  stopGeneration = retryCount > MAX_RETRY_COUNT
+  skipGeneration = transitions.length === 0
 
   const savedPreviousAxis = previousAxis
 
@@ -100,8 +99,6 @@ timesForEach(TOTAL_ELBOWS, () => {
 
   elbowSequence.push([savedPreviousAxis, nextAxis] as const)
 })
-
-logJson({ breadcrumbs })
 
 const visitedCoords = breadcrumbs.reduce(
   (acc, item) => {
@@ -114,13 +111,19 @@ const visitedCoords = breadcrumbs.reduce(
   [[], [], []] as Tuple<number[], 3>,
 )
 
+const [xMax, xMin] = [max(...visitedCoords[0]), min(...visitedCoords[0])]
+const [yMax, yMin] = [max(...visitedCoords[1]), min(...visitedCoords[1])]
+const [zMax, zMin] = [max(...visitedCoords[2]), min(...visitedCoords[2])]
+
 const averageCoords = $v(
-  (max(...visitedCoords[0]) + min(...visitedCoords[0])) / 2,
-  (max(...visitedCoords[1]) + min(...visitedCoords[1])) / 2,
-  (max(...visitedCoords[2]) + min(...visitedCoords[2])) / 2,
+  (xMax + xMin) / 2,
+  (yMax + yMin) / 2,
+  (zMax + zMin) / 2,
 )
 
 const centerCoords = averageCoords.clone().mult(-RADIUS)
+
+const maxAxisDistance = max(xMax - xMin, yMax - yMin, zMax - zMin)
 
 // -------------------------------------------------------------------------------------------------
 
@@ -130,7 +133,7 @@ const draw = () => {
 
   background('lightGray')
 
-  scale(1 / 2)
+  scale(1 / ceil(maxAxisDistance / 8))
 
   rotateX(PI / 4)
   rotateY(-millis() / 2000)
