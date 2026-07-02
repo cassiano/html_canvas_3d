@@ -1,1 +1,0 @@
-import{F as e,H as t,I as n,L as r,M as i,N as a,Z as o,a as s,c,et as l,j as u,n as d,o as f,x as p,y as m}from"./index-CZ_5WSVl.js";var h=()=>{f()%30==0&&console.log({fps:s()}),m(`lightGray`),n(l/4),r(-c()/2e3),u(),e(l/4,o(1,1,1)),p(200,{color:`teal`,isDoubleSided:!0,opacity:1})},{start:g,stop:_}=d(()=>{a(),h(),i()},()=>{t(`PAUSED`,o(0,300))},120);export{g as start,_ as stop};
