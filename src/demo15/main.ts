@@ -8,7 +8,14 @@ import {
   AxesNamesType,
   ORIGIN,
 } from '../constants.ts'
-import { createFrameLoop, millis, frameCount, fps, logJson } from '../utils.ts'
+import {
+  createFrameLoop,
+  millis,
+  frameCount,
+  fps,
+  logJson,
+  timesForEach,
+} from '../utils.ts'
 import {
   background,
   render3dScene,
@@ -21,7 +28,7 @@ import {
 import { $v, Vector3d } from '../vector_3d.ts'
 import { PI, floor, map } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
-import { sample, timesMap } from '../utils.ts'
+import { sample } from '../utils.ts'
 import { Tuple } from '../utility_types.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -63,8 +70,12 @@ const breadcrumbs = [ORIGIN]
 const axesKeys = Object.keys(AXES_TRANSITIONS)
 let previousAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
 let nextAxis: AxesNamesType
+let stopGeneration = false
+const elbowSequence: [AxesNamesType, AxesNamesType][] = []
 
-const elbowSequence = timesMap(TOTAL_ELBOWS, () => {
+timesForEach(TOTAL_ELBOWS, () => {
+  if (stopGeneration) return null
+
   breadcrumbs.push(
     AXES_VISITS_HISTORY[previousAxis](breadcrumbs[breadcrumbs.length - 1]),
   )
@@ -72,7 +83,7 @@ const elbowSequence = timesMap(TOTAL_ELBOWS, () => {
   let invalidVisit = true
   let retryCount = 0
 
-  while (invalidVisit && retryCount <= 8) {
+  while (invalidVisit && retryCount <= 4) {
     nextAxis = sample(AXES_TRANSITIONS[previousAxis]) as AxesNamesType
     retryCount++
 
@@ -84,14 +95,13 @@ const elbowSequence = timesMap(TOTAL_ELBOWS, () => {
       ) !== -1
   }
 
-  if (retryCount > 8)
-    throw new Error('Retry count exceeded when finding new axes transitions')
+  stopGeneration = retryCount > 4
 
   const savedPreviousAxis = previousAxis
 
   previousAxis = nextAxis
 
-  return [savedPreviousAxis, nextAxis] as const
+  elbowSequence.push([savedPreviousAxis, nextAxis] as const)
 })
 
 logJson({ breadcrumbs })
