@@ -806,6 +806,7 @@ export const circle2d = (
   }
 }
 
+// [/doc_img/primitives.ts/2026-07-03-11-36-30.png]
 export const ring = (
   radius: number, // XY-plane
   depth: number, // Z-axis
