@@ -42,16 +42,6 @@ const options: ElbowShapeOptions = {
   color: COLOR,
 }
 
-// 24 possible axes transitions.
-const AXES_TRANSITIONS: Record<AxesNamesType, Tuple<AxesNamesType, 4>> = {
-  x: ['y', '-y', 'z', '-z'],
-  y: ['x', '-x', 'z', '-z'],
-  z: ['x', '-x', 'y', '-y'],
-  ['-x']: ['y', '-y', 'z', '-z'],
-  ['-y']: ['x', '-x', 'z', '-z'],
-  ['-z']: ['x', '-x', 'y', '-y'],
-}
-
 const AXES_VISITS_HISTORY = {
   x: (previous: Vector3d) => previous.clone().add(1, 0, 0),
   y: (previous: Vector3d) => previous.clone().add(0, 1, 0),
@@ -62,7 +52,7 @@ const AXES_VISITS_HISTORY = {
 }
 
 const breadcrumbs = [ORIGIN]
-const axesKeys = Object.keys(AXES_TRANSITIONS)
+const axesKeys = Object.keys(elbow)
 let previousAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
 let nextAxis: AxesNamesType
 let skipGeneration = false
@@ -76,7 +66,7 @@ timesForEach(TOTAL_ELBOWS, () => {
   )
 
   let invalidVisit = true
-  const transitions = [...AXES_TRANSITIONS[previousAxis]]
+  const transitions = Object.keys(elbow[previousAxis])
 
   while (invalidVisit && transitions.length > 0) {
     nextAxis = sample(transitions) as AxesNamesType
