@@ -22,18 +22,30 @@ import {
 import { $v, Vector3d } from '../vector_3d.ts'
 import { PI, ceil, floor, map, max, min } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
-import { sample } from '../utils.ts'
+import {
+  sample,
+  createSlider,
+  createDemoControlPanel,
+  createToggle,
+} from '../utils.ts'
 import { Tuple } from '../utility_types.ts'
-import { translate, scale, rotateY } from '../primitives.ts'
+import { sphere, line } from '../primitives.ts'
+import { translate, scale, isolateTransformations } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
 const CIRCLE_SEGMENTS = 16
-const OPACITY = 0.5
+const OPACITY = 0.25
 const RADIUS = 100
 const CIRCLE_SLICES = 16
-const TOTAL_ELBOWS = 100
+const TOTAL_ELBOWS = 50
 const COLOR = 'peachpuff'
+
+const DEFAULT_BALL_SPEED_FACTOR = 250
+const BALL_RADIUS = (RADIUS / 2) * 0.7
+const BALL_COLOR = 'white'
+const BALL_PATH_COLOR = 'yellow'
+const BALL_PATH_LINE_WIDTH = 5
 
 const options: ElbowShapeOptions = {
   circleSegments: CIRCLE_SEGMENTS,
@@ -117,6 +129,45 @@ const maxAxisDistance = max(xMax - xMin, yMax - yMin, zMax - zMin)
 
 // -------------------------------------------------------------------------------------------------
 
+// Get the canvas container
+const canvasContainer = document.getElementById('canvas-container')
+if (!canvasContainer) throw new Error('canvasContainer not found')
+
+let demoControlPanel: HTMLDivElement | null
+
+type Demo15FormType = {
+  sliders?: Record<'ballSpeedFactor', ReturnType<typeof createSlider>>
+  toggles?: Record<'showBallPath', ReturnType<typeof createToggle>>
+}
+
+export const demo15Form: Demo15FormType = {}
+
+const createDemoControls = () => {
+  demoControlPanel = createDemoControlPanel(canvasContainer)
+
+  demo15Form.sliders = {
+    ballSpeedFactor: createSlider({
+      label: 'Ball speed',
+      min: 100,
+      max: 1000,
+      step: 10,
+      value: DEFAULT_BALL_SPEED_FACTOR,
+      container: demoControlPanel,
+    }),
+  }
+
+  demo15Form.toggles = {
+    showBallPath: createToggle({
+      label: 'Show ball path?',
+      value: false,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+  }
+}
+
+// -------------------------------------------------------------------------------------------------
+
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
@@ -124,7 +175,7 @@ const draw = () => {
   background('lightGray')
 
   rotateX(PI / 4)
-  rotateY(-millis() / 2000)
+  // rotateY(-millis() / 2000)
 
   render3dAxes()
 
@@ -132,17 +183,74 @@ const draw = () => {
 
   translate(centerCoords)
 
-  elbowSequence.forEach(([source, destination], i) => {
-    const hue = floor(map(i, 0, TOTAL_ELBOWS - 1, 0, 360))
-    const saturation = 100
-    const lightness = 75
+  isolateTransformations(() => {
+    elbowSequence.forEach(([source, destination], i) => {
+      const hue = floor(map(i, 0, TOTAL_ELBOWS - 1, 0, 360))
+      const saturation = 100
+      const lightness = 75
 
-    // @ts-ignore: source and destination are both typed as `AxisType`.
-    elbow[source][destination]?.(
-      RADIUS,
-      { ...options, color: `hsl(${hue}, ${saturation}%, ${lightness}%)` },
-      true,
-    )
+      // @ts-ignore: source and destination are both typed as `AxisType`.
+      elbow[source][destination]?.(
+        RADIUS,
+        { ...options, color: `hsl(${hue}, ${saturation}%, ${lightness}%)` },
+        true,
+      )
+    })
+  })
+
+  const ballSpeedFactor =
+    demo15Form.sliders?.ballSpeedFactor.getValue() ?? DEFAULT_BALL_SPEED_FACTOR
+
+  let previousPoint = ORIGIN
+
+  const currentIndex =
+    floor(millis() / ballSpeedFactor) % (elbowSequence.length * 2)
+
+  elbowSequence.forEach((sequence, i) => {
+    const nextPoint1 = AXES_VISITS_HISTORY[sequence[0]](previousPoint)
+    const nextPoint2 = AXES_VISITS_HISTORY[sequence[1]](nextPoint1)
+
+    if (i === floor(currentIndex / 2)) {
+      isolateTransformations(() => {
+        if (currentIndex % 2 === 0)
+          translate(
+            previousPoint
+              .lerp(nextPoint1, (millis() % ballSpeedFactor) / ballSpeedFactor)
+              .clone()
+              .mult(RADIUS / 2),
+          )
+        else
+          translate(
+            nextPoint1
+              .lerp(nextPoint2, (millis() % ballSpeedFactor) / ballSpeedFactor)
+              .clone()
+              .mult(RADIUS / 2),
+          )
+
+        sphere(BALL_RADIUS, { color: BALL_COLOR, noStroke: true })
+      })
+    }
+
+    if (demo15Form.toggles?.showBallPath.getValue()) {
+      line(
+        previousPoint.clone().mult(RADIUS / 2),
+        nextPoint1.clone().mult(RADIUS / 2),
+        {
+          color: BALL_PATH_COLOR,
+          lineWidth: BALL_PATH_LINE_WIDTH,
+        },
+      )
+      line(
+        nextPoint1.clone().mult(RADIUS / 2),
+        nextPoint2.clone().mult(RADIUS / 2),
+        {
+          color: BALL_PATH_COLOR,
+          lineWidth: BALL_PATH_LINE_WIDTH,
+        },
+      )
+    }
+
+    previousPoint = nextPoint2
   })
 }
 
@@ -150,7 +258,7 @@ const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
-const { start, stop } = createFrameLoop(
+const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
@@ -159,5 +267,17 @@ const { start, stop } = createFrameLoop(
   onPaused,
   FPS,
 )
+
+const start = () => {
+  createDemoControls()
+  startFrameLoop()
+}
+
+const stop = () => {
+  demoControlPanel?.remove()
+  demoControlPanel = null
+
+  stopFrameLoop()
+}
 
 export { start, stop }
