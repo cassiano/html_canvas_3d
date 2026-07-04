@@ -29,7 +29,7 @@ import {
   createToggle,
 } from '../utils.ts'
 import { Tuple } from '../utility_types.ts'
-import { sphere, line } from '../primitives.ts'
+import { sphere, line, rotateY } from '../primitives.ts'
 import { translate, scale, isolateTransformations } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ const draw = () => {
   background('lightGray')
 
   rotateX(PI / 4)
-  // rotateY(-millis() / 2000)
+  rotateY(-millis() / 2000)
 
   render3dAxes()
 
