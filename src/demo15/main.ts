@@ -147,7 +147,7 @@ const createDemoControls = () => {
 
   demo15Form.sliders = {
     ballSpeedFactor: createSlider({
-      label: 'Ball speed',
+      label: 'Ball speed Factor',
       min: 100,
       max: 1000,
       step: 10,
