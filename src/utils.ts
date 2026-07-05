@@ -32,6 +32,13 @@ export const timesReduce = <T>(
   return acc
 }
 
+export const reversedForEach = <T>(
+  collection: T[],
+  fn: (item: T, index: number) => void,
+) => {
+  for (let i = collection.length - 1; i >= 0; i--) fn(collection[i], i)
+}
+
 export const sample = <T>(items: T[]): T =>
   items[Math.floor(Math.random() * items.length)]
 

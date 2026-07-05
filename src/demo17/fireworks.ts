@@ -1,5 +1,5 @@
 import { Particle } from './particle.ts'
-import { randomColor, timesForEach } from '../utils.ts'
+import { randomColor, reversedForEach, timesForEach } from '../utils.ts'
 import { floor, random, sign } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { NULL_VECTOR } from '../constants.ts'
@@ -48,8 +48,7 @@ export class Fireworks {
   }
 
   static reversedForEach(fn: (item: Fireworks, index: number) => void) {
-    for (let i = this.fireworksCollection.length - 1; i >= 0; i--)
-      fn(this.fireworksCollection[i], i)
+    reversedForEach(this.fireworksCollection, fn)
   }
 
   static globalParticleCount() {
