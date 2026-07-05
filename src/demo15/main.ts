@@ -34,14 +34,14 @@ import { translate, scale, isolateTransformations } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const CIRCLE_SEGMENTS = 16
+const CIRCLE_SEGMENTS = 12
 const OPACITY = 0.25
 const RADIUS = 100
-const CIRCLE_SLICES = 16
-const TOTAL_ELBOWS = 50
+const CIRCLE_SLICES = 8
+const TOTAL_ELBOWS = 100
 const COLOR = 'peachpuff'
 
-const DEFAULT_BALL_SPEED_FACTOR = 250
+const DEFAULT_BALL_SPEED = 5
 const BALL_RADIUS = (RADIUS / 2) * 0.7
 const BALL_COLOR = 'white'
 const BALL_PATH_COLOR = 'yellow'
@@ -136,8 +136,11 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 let demoControlPanel: HTMLDivElement | null
 
 type Demo15FormType = {
-  sliders?: Record<'ballSpeedFactor', ReturnType<typeof createSlider>>
-  toggles?: Record<'showBallPath', ReturnType<typeof createToggle>>
+  sliders?: Record<'ballSpeed', ReturnType<typeof createSlider>>
+  toggles?: Record<
+    'showBallPath' | 'rotateAroundYAxis',
+    ReturnType<typeof createToggle>
+  >
 }
 
 export const demo15Form: Demo15FormType = {}
@@ -146,12 +149,11 @@ const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
   demo15Form.sliders = {
-    ballSpeedFactor: createSlider({
-      label: 'Ball speed Factor',
-      min: 100,
-      max: 1000,
-      step: 10,
-      value: DEFAULT_BALL_SPEED_FACTOR,
+    ballSpeed: createSlider({
+      label: 'Ball speed',
+      min: 1,
+      max: 10,
+      value: DEFAULT_BALL_SPEED,
       container: demoControlPanel,
     }),
   }
@@ -160,6 +162,12 @@ const createDemoControls = () => {
     showBallPath: createToggle({
       label: 'Show ball path?',
       value: false,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+    rotateAroundYAxis: createToggle({
+      label: 'Rotate around Y-axis?',
+      value: true,
       showValue: false,
       container: demoControlPanel,
     }),
@@ -175,7 +183,10 @@ const draw = () => {
   background('lightGray')
 
   rotateX(PI / 4)
-  rotateY(-millis() / 2000)
+
+  if (demo15Form.toggles?.rotateAroundYAxis.getValue())
+    rotateY(-millis() / 2000)
+  else rotateY(PI / 6)
 
   render3dAxes()
 
@@ -198,8 +209,13 @@ const draw = () => {
     })
   })
 
-  const ballSpeedFactor =
-    demo15Form.sliders?.ballSpeedFactor.getValue() ?? DEFAULT_BALL_SPEED_FACTOR
+  const ballSpeedFactor = map(
+    demo15Form.sliders?.ballSpeed.getValue() ?? DEFAULT_BALL_SPEED,
+    1,
+    10,
+    500,
+    50,
+  )
 
   let previousPoint = ORIGIN
 
