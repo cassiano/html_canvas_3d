@@ -3,7 +3,7 @@ import {
   FOCAL_LENGTH,
   Z_EPSILON,
   AXES,
-  MIN_LINE_SEGMENT_SIZE,
+  MAX_LINE_SEGMENT_SIZE,
   ZERO_VECTOR,
 } from './constants.ts'
 import { $v, Vector3d } from './vector_3d.ts'
@@ -505,7 +505,7 @@ export const line = (
 
   const segmentCount = noSplit
     ? 1
-    : max(floor(point3dA.dist(point3dB) / MIN_LINE_SEGMENT_SIZE), 1)
+    : max(floor(point3dA.dist(point3dB) / MAX_LINE_SEGMENT_SIZE), 1)
 
   let latestPoint = point3dA
 
