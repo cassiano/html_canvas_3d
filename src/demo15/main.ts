@@ -38,7 +38,7 @@ const CIRCLE_SEGMENTS = 12
 const OPACITY = 0.25
 const RADIUS = 100
 const CIRCLE_SLICES = 8
-const TOTAL_ELBOWS = 100
+const TOTAL_ELBOWS = 50
 const COLOR = 'peachpuff'
 
 const DEFAULT_BALL_SPEED = 5
