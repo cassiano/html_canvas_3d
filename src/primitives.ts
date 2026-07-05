@@ -25,7 +25,7 @@ import {
   DEFAULT_ARROW_CIRCLE_SEGMENTS,
   DEFAULT_SPHERE_LINES,
 } from './constants.ts'
-import { ORIGIN } from './constants.ts'
+import { ORIGIN, MAX_TRIANGLE_SIDE_SIZE_SQUARED } from './constants.ts'
 import { TWO_PI, HALF_PI, polarToCartesian2d, map } from './math_utils.ts'
 
 const FOURTH_DIMENSION_COORD = 1
@@ -588,6 +588,73 @@ export const triangle2d = (
 
     ctx.fill() // Fill the shape
     ctx.restore()
+  }
+
+  const sideLengthsSquared = [
+    pointA.distSq(pointB),
+    pointB.distSq(pointC),
+    pointC.distSq(pointA),
+  ] as const
+
+  // Sub-divide the triangle if any side is greater than the allowed maximum size.
+  if (
+    sideLengthsSquared.some(
+      lengthSquared => lengthSquared > MAX_TRIANGLE_SIDE_SIZE_SQUARED,
+    )
+  ) {
+    const [lenSqAB, lenSqBC, lenSqCA] = sideLengthsSquared
+    const smallerSide: 'AB' | 'BC' | 'CA' =
+      lenSqAB <= lenSqBC && lenSqAB <= lenSqCA
+        ? 'AB'
+        : lenSqBC <= lenSqAB && lenSqBC <= lenSqCA
+          ? 'BC'
+          : 'CA'
+
+    switch (smallerSide) {
+      case 'AB': {
+        const midCA = pointC.lerp(pointA)
+        const midBC = pointB.lerp(pointC)
+
+        triangle2d(midCA, midBC, pointC, options, [
+          undefined,
+          undefined,
+          screenC,
+        ])
+
+        quad(pointA, pointB, midBC, midCA, options)
+
+        break
+      }
+
+      case 'BC': {
+        const midAB = pointA.lerp(pointB)
+        const midCA = pointC.lerp(pointA)
+
+        triangle2d(pointA, midAB, midCA, options, [screenA])
+
+        quad(midAB, pointB, pointC, midCA, options)
+
+        break
+      }
+
+      case 'CA': {
+        const midAB = pointA.lerp(pointB)
+        const midBC = pointB.lerp(pointC)
+
+        triangle2d(midAB, pointB, midBC, options, [undefined, screenB])
+
+        quad(pointA, midAB, midBC, pointC, options)
+
+        break
+      }
+
+      default: {
+        const exhaustiveCheck: never = smallerSide
+        throw exhaustiveCheck
+      }
+    }
+
+    return { screenA, screenB, screenC }
   }
 
   const centroid = $v(
