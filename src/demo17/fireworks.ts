@@ -6,6 +6,7 @@ import { NULL_VECTOR } from '../constants.ts'
 import { maxParticles, minParticles, renderIn3d } from './demo17_form.ts'
 
 export const PARTICLE_LIFESPAN = 250
+export const DEPTH = 400
 
 // https://natureofcode.com/book/chapter-4-particle-systems/
 export class Fireworks {
@@ -19,11 +20,21 @@ export class Fireworks {
     public height: number,
     public color = randomColor(127, 255),
   ) {
-    const initialPosition = $v(random(-width / 2, width / 2), -height / 2)
+    const initialPosition = $v(
+      random(-width / 2, width / 2),
+      -height / 2,
+      renderIn3d() ? random(-DEPTH / 2, DEPTH / 2) : 0,
+    )
+
+    const initialVelocity = $v(
+      -sign(initialPosition.x) * random(0, 3),
+      random(5, 10),
+      renderIn3d() ? -sign(initialPosition.z) * random(0, 3) : 0,
+    )
 
     this.createParticle(
       initialPosition,
-      $v(-sign(initialPosition.x) * random(0, 3), random(5, 10)),
+      initialVelocity,
       Number.MAX_VALUE,
       'gray',
       width,
