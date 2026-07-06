@@ -243,7 +243,12 @@ const draw = () => {
               .mult(RADIUS / 2),
           )
 
-        sphere(BALL_RADIUS, { color: BALL_COLOR, noStroke: true })
+        sphere(BALL_RADIUS, {
+          color: BALL_COLOR,
+          noStroke: true,
+          longitudeLines: 18,
+          latitudeLines: 9,
+        })
       })
     }
 
