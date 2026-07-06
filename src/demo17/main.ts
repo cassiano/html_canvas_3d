@@ -70,7 +70,7 @@ const createDemoControls = () => {
       container: demoControlPanel,
     }),
     renderIn3d: createToggle({
-      label: 'Render in 3D instead of 2D?',
+      label: '3D (instead of 2D)?',
       value: false,
       showValue: false,
       container: demoControlPanel,
