@@ -590,69 +590,29 @@ export const triangle2d = (
     ctx.restore()
   }
 
-  const sideLengthsSquared = [
-    pointA.distSq(pointB),
-    pointB.distSq(pointC),
-    pointC.distSq(pointA),
-  ] as const
-
   // Sub-divide the triangle if any side is greater than the allowed maximum size.
   if (
-    sideLengthsSquared.some(
-      lengthSquared => lengthSquared > MAX_TRIANGLE_SIDE_SIZE_SQUARED,
-    )
+    pointA.distSq(pointB) > MAX_TRIANGLE_SIDE_SIZE_SQUARED ||
+    pointB.distSq(pointC) > MAX_TRIANGLE_SIDE_SIZE_SQUARED ||
+    pointC.distSq(pointA) > MAX_TRIANGLE_SIDE_SIZE_SQUARED
   ) {
-    const [lenSqAB, lenSqBC, lenSqCA] = sideLengthsSquared
-    const smallerSide: 'AB' | 'BC' | 'CA' =
-      lenSqAB <= lenSqBC && lenSqAB <= lenSqCA
-        ? 'AB'
-        : lenSqBC <= lenSqAB && lenSqBC <= lenSqCA
-          ? 'BC'
-          : 'CA'
+    const midAB = pointA.lerp(pointB)
+    const midBC = pointB.lerp(pointC)
+    const midCA = pointC.lerp(pointA)
 
-    switch (smallerSide) {
-      case 'AB': {
-        const midCA = pointC.lerp(pointA)
-        const midBC = pointB.lerp(pointC)
-
-        triangle2d(midCA, midBC, pointC, options, [
-          undefined,
-          undefined,
-          screenC,
-        ])
-
-        quad(pointA, pointB, midBC, midCA, options)
-
-        break
-      }
-
-      case 'BC': {
-        const midAB = pointA.lerp(pointB)
-        const midCA = pointC.lerp(pointA)
-
-        triangle2d(pointA, midAB, midCA, options, [screenA])
-
-        quad(midAB, pointB, pointC, midCA, options)
-
-        break
-      }
-
-      case 'CA': {
-        const midAB = pointA.lerp(pointB)
-        const midBC = pointB.lerp(pointC)
-
-        triangle2d(midAB, pointB, midBC, options, [undefined, screenB])
-
-        quad(pointA, midAB, midBC, pointC, options)
-
-        break
-      }
-
-      default: {
-        const exhaustiveCheck: never = smallerSide
-        throw exhaustiveCheck
-      }
-    }
+    const { screenB: screenAB, screenC: screenCA } = triangle2d(
+      pointA,
+      midAB,
+      midCA,
+      options,
+      [screenA],
+    )
+    const { screenC: screenBC } = triangle2d(midAB, pointB, midBC, options, [
+      screenAB,
+      screenB,
+    ])
+    triangle2d(midCA, midBC, pointC, options, [screenCA, screenBC, screenC])
+    triangle2d(midAB, midBC, midCA, options, [screenAB, screenBC, screenCA])
 
     return { screenA, screenB, screenC }
   }
