@@ -3,7 +3,7 @@ import { randomColor, reversedForEach, timesForEach } from '../utils.ts'
 import { floor, random, sign } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { NULL_VECTOR } from '../constants.ts'
-import { maxParticles, minParticles } from './demo17_form.ts'
+import { maxParticles, minParticles, renderIn3d } from './demo17_form.ts'
 
 export const PARTICLE_LIFESPAN = 250
 
@@ -129,19 +129,23 @@ export class Fireworks {
       switch (explosionShape) {
         case 0:
           // Regular (spherical-shaped) explosion.
-          velocity = Vector3d.random2d().setMag(random(0.1, 3))
+          velocity = Vector3d[renderIn3d() ? 'random3d' : 'random2d']().setMag(
+            random(0.1, 3),
+          )
           break
 
         case 1:
           // Donut-shaped explosion.
-          velocity = Vector3d.random2d().setMag(random(2, 3))
+          velocity = Vector3d[renderIn3d() ? 'random3d' : 'random2d']().setMag(
+            random(2, 3),
+          )
           break
 
         case 2: {
           // Concentric circles-shaped explosion.
           const radius = floor(random(1, 4))
 
-          velocity = Vector3d.random2d().setMag(
+          velocity = Vector3d[renderIn3d() ? 'random3d' : 'random2d']().setMag(
             random(radius / 2, radius / 2 + 0.25),
           )
 
@@ -152,7 +156,7 @@ export class Fireworks {
           velocityInc += 0.002
           angleInc += 0.06
 
-          velocity = Vector3d.random2d()
+          velocity = Vector3d[renderIn3d() ? 'random3d' : 'random2d']()
             .setMag(velocityInc)
             .setHeading(angleInc)
           break

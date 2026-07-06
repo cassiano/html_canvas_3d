@@ -5,7 +5,7 @@ type Demo17FormType = {
     'minParticles' | 'maxParticles' | 'launchPeriod',
     ReturnType<typeof createSlider>
   >
-  toggles?: Record<'show3dAxes', ReturnType<typeof createToggle>>
+  toggles?: Record<'show3dAxes' | 'renderIn3d', ReturnType<typeof createToggle>>
 }
 
 export const demo17Form: Demo17FormType = {}
@@ -24,6 +24,10 @@ export const launchPeriod = () => {
 
 export const show3dAxes = () => {
   return toggles().show3dAxes.getValue()
+}
+
+export const renderIn3d = () => {
+  return toggles().renderIn3d.getValue()
 }
 
 const sliders = () => {
