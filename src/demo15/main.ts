@@ -20,7 +20,7 @@ import {
   rotateX,
 } from '../primitives.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
-import { PI, ceil, floor, map, max, min } from '../math_utils.ts'
+import { PI, ceil, floor, map, max, min, TWO_PI } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
 import {
   sample,
@@ -29,7 +29,7 @@ import {
   createToggle,
 } from '../utils.ts'
 import { Tuple } from '../utility_types.ts'
-import { sphere, line, rotateY } from '../primitives.ts'
+import { sphere, line, rotateY, rotateZ } from '../primitives.ts'
 import { translate, scale, isolateTransformations } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -209,13 +209,9 @@ const draw = () => {
     })
   })
 
-  const ballSpeedFactor = map(
-    demo15Form.sliders?.ballSpeed.getValue() ?? DEFAULT_BALL_SPEED,
-    1,
-    10,
-    500,
-    50,
-  )
+  const ballSpeed =
+    demo15Form.sliders?.ballSpeed.getValue() ?? DEFAULT_BALL_SPEED
+  const ballSpeedFactor = map(ballSpeed, 1, 10, 500, 50)
 
   let previousPoint = ORIGIN
 
@@ -228,24 +224,28 @@ const draw = () => {
 
     if (i === floor(currentIndex / 2)) {
       isolateTransformations(() => {
-        if (currentIndex % 2 === 0)
+        if (currentIndex % 2 === 0) {
           translate(
             previousPoint
               .lerp(nextPoint1, (millis() % ballSpeedFactor) / ballSpeedFactor)
               .clone()
               .mult(RADIUS / 2),
           )
-        else
+        } else {
           translate(
             nextPoint1
               .lerp(nextPoint2, (millis() % ballSpeedFactor) / ballSpeedFactor)
               .clone()
               .mult(RADIUS / 2),
           )
+        }
+
+        rotateX(((millis() / 2000) * TWO_PI * ballSpeed) / 5)
+        rotateY(((millis() / 2000) * TWO_PI * ballSpeed) / 5)
+        rotateZ(((millis() / 2000) * TWO_PI * ballSpeed) / 5)
 
         sphere(BALL_RADIUS, {
           color: BALL_COLOR,
-          noStroke: true,
           longitudeLines: 18,
           latitudeLines: 9,
         })
