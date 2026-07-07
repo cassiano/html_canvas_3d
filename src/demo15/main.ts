@@ -250,7 +250,7 @@ const draw = () => {
           if (!axisName) return
 
           rotate(
-            (millis() / 2000) * TWO_PI,
+            (millis() / 2000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
             AXES[BALL_PATH_ROTATIONS_MAPPING[axisName]],
           )
         } else {
@@ -267,7 +267,7 @@ const draw = () => {
           if (!axisName) return
 
           rotate(
-            (millis() / 2000) * TWO_PI,
+            (millis() / 2000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
             AXES[BALL_PATH_ROTATIONS_MAPPING[axisName]],
           )
         }
