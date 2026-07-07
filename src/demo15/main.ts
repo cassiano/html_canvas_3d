@@ -245,7 +245,9 @@ const draw = () => {
           )
 
           const pathAxis = nextPoint1.clone().sub(previousPoint)
-          const axisName = AXES_NAMES.find(axis => pathAxis.equals(AXES[axis]))
+          const axisName = AXES_NAMES.find(axisName =>
+            pathAxis.equals(AXES[axisName]),
+          )
 
           if (!axisName) return
 
@@ -262,7 +264,9 @@ const draw = () => {
           )
 
           const pathAxis = nextPoint2.clone().sub(nextPoint1)
-          const axisName = AXES_NAMES.find(axis => pathAxis.equals(AXES[axis]))
+          const axisName = AXES_NAMES.find(axisName =>
+            pathAxis.equals(AXES[axisName]),
+          )
 
           if (!axisName) return
 
