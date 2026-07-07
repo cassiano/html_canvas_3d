@@ -2,7 +2,7 @@ import { createToggle, createSlider } from '../utils.ts'
 
 type Demo17FormType = {
   sliders?: Record<
-    'minParticles' | 'maxParticles' | 'launchPeriod',
+    'minParticles' | 'maxParticles' | 'launchesPer100Frames',
     ReturnType<typeof createSlider>
   >
   toggles?: Record<'show3dAxes' | 'renderIn3d', ReturnType<typeof createToggle>>
@@ -18,8 +18,8 @@ export const maxParticles = () => {
   return sliders().maxParticles.getValue()
 }
 
-export const launchPeriod = () => {
-  return sliders().launchPeriod.getValue()
+export const launchesPer100Frames = () => {
+  return sliders().launchesPer100Frames.getValue()
 }
 
 export const show3dAxes = () => {

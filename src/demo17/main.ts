@@ -17,14 +17,14 @@ import { Fireworks } from './fireworks.ts'
 import { render3dAxes, animation } from '../primitives.ts'
 import { demo17Form, show3dAxes } from './demo17_form.ts'
 import { createSlider } from '../utils.ts'
-import { launchPeriod } from './demo17_form.ts'
+import { launchesPer100Frames as launchesPer100Frames } from './demo17_form.ts'
 
 // -------------------------------------------------------------------------------------------------
 
 const GRAVITY = 0.03
 const gravity = $v(0, -GRAVITY, 0)
 const FIREWORKS_PARTICLES_COUNT_RANGE = [10, 1000] as const
-const DEFAULT_FIREWORKS_LAUNCH_PERIOD_IN_FRAMES = 12
+const DEFAULT_FIREWORKS_LAUNCHES_PER_100_FRAMES = 10
 
 // -------------------------------------------------------------------------------------------------
 
@@ -53,11 +53,11 @@ const createDemoControls = () => {
       value: FIREWORKS_PARTICLES_COUNT_RANGE[1],
       container: demoControlPanel,
     }),
-    launchPeriod: createSlider({
-      label: 'Launch period',
+    launchesPer100Frames: createSlider({
+      label: 'Launches per 100 frames',
       min: 1,
-      max: 120,
-      value: DEFAULT_FIREWORKS_LAUNCH_PERIOD_IN_FRAMES,
+      max: 100,
+      value: DEFAULT_FIREWORKS_LAUNCHES_PER_100_FRAMES,
       container: demoControlPanel,
     }),
   }
@@ -78,6 +78,8 @@ const createDemoControls = () => {
   }
 }
 
+let launchCount = 0
+
 // const counts = { fireworks: 0, particles: 0 }
 // const maxCounts = { fireworks: 0, particles: 0 }
 
@@ -91,8 +93,14 @@ const draw = () => {
 
   if (show3dAxes()) render3dAxes()
 
-  if (frameCount() % launchPeriod() === 0)
+  // Reset the launch count every 100 frames.
+  if (frameCount() % 100 === 0) launchCount = 0
+
+  if (launchCount < launchesPer100Frames()) {
     Fireworks.create(animation.width, animation.height)
+
+    launchCount++
+  }
 
   Fireworks.reversedForEach((fireworks, i) => {
     fireworks.applyForce(gravity)
