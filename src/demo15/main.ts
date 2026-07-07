@@ -49,7 +49,10 @@ const BALL_COLOR = 'white'
 const BALL_PATH_COLOR = 'yellow'
 const BALL_PATH_LINE_WIDTH = 5
 
-const BALL_PATH_ROTATIONS_MAPPING: Record<AxesNamesType, AxesNamesType> = {
+const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
+  AxesNamesType,
+  AxesNamesType
+> = {
   x: '-z',
   y: '-x',
   z: 'y',
@@ -253,7 +256,7 @@ const draw = () => {
 
           rotate(
             (millis() / 2000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
-            AXES[BALL_PATH_ROTATIONS_MAPPING[axisName]],
+            AXES[BALL_PATH_PERPENDICULAR_AXIS_MAPPING[axisName]],
           )
         } else {
           translate(
@@ -272,7 +275,7 @@ const draw = () => {
 
           rotate(
             (millis() / 2000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
-            AXES[BALL_PATH_ROTATIONS_MAPPING[axisName]],
+            AXES[BALL_PATH_PERPENDICULAR_AXIS_MAPPING[axisName]],
           )
         }
 
