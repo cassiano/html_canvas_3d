@@ -23,7 +23,8 @@ import { launchesPer100Frames as launchesPer100Frames } from './demo17_form.ts'
 
 const GRAVITY = 0.03
 const gravity = $v(0, -GRAVITY, 0)
-const FIREWORKS_PARTICLES_COUNT_RANGE = [10, 1000] as const
+const FIREWORKS_PARTICLES_DEFAULT_MIN_COUNT = 100
+const FIREWORKS_PARTICLES_DEFAULT_MAX_COUNT = 1000
 const DEFAULT_FIREWORKS_LAUNCHES_PER_100_FRAMES = 10
 
 // -------------------------------------------------------------------------------------------------
@@ -42,7 +43,7 @@ const createDemoControls = () => {
       label: 'Particles (min)',
       min: 100,
       max: 1000,
-      value: FIREWORKS_PARTICLES_COUNT_RANGE[0],
+      value: FIREWORKS_PARTICLES_DEFAULT_MIN_COUNT,
       container: demoControlPanel,
     }),
     maxParticles: createSlider({
@@ -50,7 +51,7 @@ const createDemoControls = () => {
       min: 100,
       max: 10000,
       step: 100,
-      value: FIREWORKS_PARTICLES_COUNT_RANGE[1],
+      value: FIREWORKS_PARTICLES_DEFAULT_MAX_COUNT,
       container: demoControlPanel,
     }),
     launchesPer100Frames: createSlider({
