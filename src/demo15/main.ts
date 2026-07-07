@@ -18,6 +18,7 @@ import {
   resetTransformationMatrix,
   text2d,
   rotateX,
+  rotate,
 } from '../primitives.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { PI, ceil, floor, map, max, min, TWO_PI } from '../math_utils.ts'
@@ -29,8 +30,9 @@ import {
   createToggle,
 } from '../utils.ts'
 import { Tuple } from '../utility_types.ts'
-import { sphere, line, rotateY, rotateZ } from '../primitives.ts'
+import { sphere, line, rotateY } from '../primitives.ts'
 import { translate, scale, isolateTransformations } from '../primitives.ts'
+import { AXES, AXES_NAMES } from '../constants.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -47,6 +49,15 @@ const BALL_COLOR = 'white'
 const BALL_PATH_COLOR = 'yellow'
 const BALL_PATH_LINE_WIDTH = 5
 
+const BALL_PATH_ROTATIONS_MAPPING: Record<AxesNamesType, AxesNamesType> = {
+  x: '-z',
+  y: '-x',
+  z: 'y',
+  ['-x']: 'z',
+  ['-y']: 'x',
+  ['-z']: '-y',
+}
+
 const options: ElbowShapeOptions = {
   circleSegments: CIRCLE_SEGMENTS,
   opacity: OPACITY,
@@ -54,14 +65,15 @@ const options: ElbowShapeOptions = {
   color: COLOR,
 }
 
-const AXES_VISITS_HISTORY = {
-  x: (previous: Vector3d) => previous.clone().add(1, 0, 0),
-  y: (previous: Vector3d) => previous.clone().add(0, 1, 0),
-  z: (previous: Vector3d) => previous.clone().add(0, 0, 1),
-  ['-x']: (previous: Vector3d) => previous.clone().sub(1, 0, 0),
-  ['-y']: (previous: Vector3d) => previous.clone().sub(0, 1, 0),
-  ['-z']: (previous: Vector3d) => previous.clone().sub(0, 0, 1),
-}
+const AXES_VISITS_HISTORY: Record<AxesNamesType, (prev: Vector3d) => Vector3d> =
+  {
+    x: (previous: Vector3d) => previous.clone().add(1, 0, 0),
+    y: (previous: Vector3d) => previous.clone().add(0, 1, 0),
+    z: (previous: Vector3d) => previous.clone().add(0, 0, 1),
+    ['-x']: (previous: Vector3d) => previous.clone().sub(1, 0, 0),
+    ['-y']: (previous: Vector3d) => previous.clone().sub(0, 1, 0),
+    ['-z']: (previous: Vector3d) => previous.clone().sub(0, 0, 1),
+  }
 
 const breadcrumbs = [ORIGIN]
 const axesKeys = Object.keys(elbow)
@@ -231,6 +243,16 @@ const draw = () => {
               .clone()
               .mult(RADIUS / 2),
           )
+
+          const pathAxis = nextPoint1.clone().sub(previousPoint)
+          const axisName = AXES_NAMES.find(axis => pathAxis.equals(AXES[axis]))
+
+          if (!axisName) return
+
+          rotate(
+            (millis() / 2000) * TWO_PI,
+            AXES[BALL_PATH_ROTATIONS_MAPPING[axisName]],
+          )
         } else {
           translate(
             nextPoint1
@@ -238,11 +260,17 @@ const draw = () => {
               .clone()
               .mult(RADIUS / 2),
           )
-        }
 
-        rotateX(((millis() / 2000) * TWO_PI * ballSpeed) / 5)
-        rotateY(((millis() / 2000) * TWO_PI * ballSpeed) / 5)
-        rotateZ(((millis() / 2000) * TWO_PI * ballSpeed) / 5)
+          const pathAxis = nextPoint2.clone().sub(nextPoint1)
+          const axisName = AXES_NAMES.find(axis => pathAxis.equals(AXES[axis]))
+
+          if (!axisName) return
+
+          rotate(
+            (millis() / 2000) * TWO_PI,
+            AXES[BALL_PATH_ROTATIONS_MAPPING[axisName]],
+          )
+        }
 
         sphere(BALL_RADIUS, {
           color: BALL_COLOR,
