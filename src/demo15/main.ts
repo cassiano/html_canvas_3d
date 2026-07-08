@@ -51,14 +51,55 @@ const BALL_PATH_LINE_WIDTH = 5
 
 const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
   AxesNamesType,
-  AxesNamesType
+  Record<string, AxesNamesType>
 > = {
-  x: '-z',
-  y: '-x',
-  z: 'y',
-  ['-x']: 'z',
-  ['-y']: 'x',
-  ['-z']: '-y',
+  x: {
+    y: '-z',
+    z: 'y',
+
+    ['-y']: 'z',
+    ['-z']: '-y',
+  },
+
+  y: {
+    x: 'z',
+    z: '-x',
+
+    ['-x']: '-z',
+    ['-z']: 'x',
+  },
+
+  z: {
+    x: '-y',
+    y: 'x',
+
+    ['-x']: 'y',
+    ['-y']: '-x',
+  },
+
+  ['-x']: {
+    y: 'z',
+    z: '-y',
+
+    ['-y']: '-z',
+    ['-z']: 'y',
+  },
+
+  ['-y']: {
+    x: '-z',
+    z: 'x',
+
+    ['-x']: 'z',
+    ['-z']: '-x',
+  },
+
+  ['-z']: {
+    x: 'y',
+    y: '-x',
+
+    ['-x']: '-y',
+    ['-y']: 'x',
+  },
 }
 
 const options: ElbowShapeOptions = {
@@ -237,6 +278,18 @@ const draw = () => {
     const nextPoint1 = AXES_VISITS_HISTORY[sequence[0]](previousPoint)
     const nextPoint2 = AXES_VISITS_HISTORY[sequence[1]](nextPoint1)
 
+    const pathAxis1 = nextPoint1.clone().sub(previousPoint)
+    const axisName1 = AXES_NAMES.find(axisName =>
+      pathAxis1.equals(AXES[axisName]),
+    )
+
+    const pathAxis2 = nextPoint2.clone().sub(nextPoint1)
+    const axisName2 = AXES_NAMES.find(axisName =>
+      pathAxis2.equals(AXES[axisName]),
+    )
+
+    if (!axisName1 || !axisName2) return
+
     if (i === floor(currentIndex / 2)) {
       isolateTransformations(() => {
         if (currentIndex % 2 === 0) {
@@ -246,18 +299,6 @@ const draw = () => {
               .clone()
               .mult(RADIUS / 2),
           )
-
-          const pathAxis = nextPoint1.clone().sub(previousPoint)
-          const axisName = AXES_NAMES.find(axisName =>
-            pathAxis.equals(AXES[axisName]),
-          )
-
-          if (!axisName) return
-
-          rotate(
-            (millis() / 2000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
-            AXES[BALL_PATH_PERPENDICULAR_AXIS_MAPPING[axisName]],
-          )
         } else {
           translate(
             nextPoint1
@@ -265,19 +306,12 @@ const draw = () => {
               .clone()
               .mult(RADIUS / 2),
           )
-
-          const pathAxis = nextPoint2.clone().sub(nextPoint1)
-          const axisName = AXES_NAMES.find(axisName =>
-            pathAxis.equals(AXES[axisName]),
-          )
-
-          if (!axisName) return
-
-          rotate(
-            (millis() / 2000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
-            AXES[BALL_PATH_PERPENDICULAR_AXIS_MAPPING[axisName]],
-          )
         }
+
+        rotate(
+          (millis() / 2000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
+          AXES[BALL_PATH_PERPENDICULAR_AXIS_MAPPING[axisName1][axisName2]],
+        )
 
         sphere(BALL_RADIUS, {
           color: BALL_COLOR,
