@@ -3,8 +3,7 @@
   "specifiers": {
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.12",
-    "npm:deno@^2.7.14": "2.7.14",
-    "npm:vite@^8.0.13": "8.0.13"
+    "npm:deno@^2.7.14": "2.7.14"
   },
   "jsr": {
     "@std/assert@1.0.19": {
@@ -383,7 +382,7 @@
       "dependencies": [
         "npm:deno@^2.7.14",
         "npm:gh-pages@^6.3.0",
-        "npm:vite@^8.0.13"
+        "npm:vite@^8.1.3"
       ]
     }
   }
