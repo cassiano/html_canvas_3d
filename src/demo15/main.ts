@@ -21,7 +21,7 @@ import {
   rotate,
 } from '../primitives.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
-import { PI, ceil, floor, map, max, min, TWO_PI, abs } from '../math_utils.ts'
+import { PI, ceil, floor, map, max, min, TWO_PI } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
 import {
   sample,
@@ -148,8 +148,7 @@ timesForEach(TOTAL_ELBOWS, () => {
 
     invalidVisit =
       breadcrumbs.findIndex(value => value.equals(newLocation)) !== -1 ||
-      newLocation.x ** 2 + abs(newLocation.y) ** 2 + abs(newLocation.z) ** 2 >
-        SPHERICAL_RADIUS_LIMIT_SQUARED
+      newLocation.magSq() > SPHERICAL_RADIUS_LIMIT_SQUARED
 
     if (invalidVisit) transitions.splice(transitions.indexOf(nextAxis), 1)
   }
@@ -274,21 +273,21 @@ const draw = () => {
     demo15Form.sliders?.ballSpeed.getValue() ?? DEFAULT_BALL_SPEED
   const ballSpeedFactor = map(ballSpeed, 1, 10, 500, 50)
 
-  let previousPoint = ORIGIN
+  let entryPoint = ORIGIN
 
   const currentIndex =
     floor(millis() / ballSpeedFactor) % (elbowSequence.length * 2)
 
   elbowSequence.forEach((sequence, i) => {
-    const nextPoint1 = AXES_VISITS_HISTORY[sequence[0]](previousPoint)
-    const nextPoint2 = AXES_VISITS_HISTORY[sequence[1]](nextPoint1)
+    const intermediatePoint = AXES_VISITS_HISTORY[sequence[0]](entryPoint)
+    const exitPoint = AXES_VISITS_HISTORY[sequence[1]](intermediatePoint)
 
-    const pathAxis1 = nextPoint1.clone().sub(previousPoint)
+    const pathAxis1 = intermediatePoint.clone().sub(entryPoint)
     const axisName1 = AXES_NAMES.find(axisName =>
       pathAxis1.equals(AXES[axisName]),
     )
 
-    const pathAxis2 = nextPoint2.clone().sub(nextPoint1)
+    const pathAxis2 = exitPoint.clone().sub(intermediatePoint)
     const axisName2 = AXES_NAMES.find(axisName =>
       pathAxis2.equals(AXES[axisName]),
     )
@@ -299,15 +298,18 @@ const draw = () => {
       isolateTransformations(() => {
         if (currentIndex % 2 === 0) {
           translate(
-            previousPoint
-              .lerp(nextPoint1, (millis() % ballSpeedFactor) / ballSpeedFactor)
+            entryPoint
+              .lerp(
+                intermediatePoint,
+                (millis() % ballSpeedFactor) / ballSpeedFactor,
+              )
               .clone()
               .mult(RADIUS / 2),
           )
         } else {
           translate(
-            nextPoint1
-              .lerp(nextPoint2, (millis() % ballSpeedFactor) / ballSpeedFactor)
+            intermediatePoint
+              .lerp(exitPoint, (millis() % ballSpeedFactor) / ballSpeedFactor)
               .clone()
               .mult(RADIUS / 2),
           )
@@ -328,16 +330,16 @@ const draw = () => {
 
     if (demo15Form.toggles?.showBallPath.getValue()) {
       line(
-        previousPoint.clone().mult(RADIUS / 2),
-        nextPoint1.clone().mult(RADIUS / 2),
+        entryPoint.clone().mult(RADIUS / 2),
+        intermediatePoint.clone().mult(RADIUS / 2),
         {
           color: BALL_PATH_COLOR,
           lineWidth: BALL_PATH_LINE_WIDTH,
         },
       )
       line(
-        nextPoint1.clone().mult(RADIUS / 2),
-        nextPoint2.clone().mult(RADIUS / 2),
+        intermediatePoint.clone().mult(RADIUS / 2),
+        exitPoint.clone().mult(RADIUS / 2),
         {
           color: BALL_PATH_COLOR,
           lineWidth: BALL_PATH_LINE_WIDTH,
@@ -345,7 +347,7 @@ const draw = () => {
       )
     }
 
-    previousPoint = nextPoint2
+    entryPoint = exitPoint
   })
 }
 
