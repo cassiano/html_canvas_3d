@@ -38,11 +38,11 @@ export abstract class Mover3D {
 
   abstract distanceFromCenterToBorder(): number
 
-  touchedBottom(depth: number) {
-    return -this.position.y + this.distanceFromCenterToBorder() > depth
+  touchedBottom(height: number) {
+    return -this.position.y + this.distanceFromCenterToBorder() > height
   }
 
-  checkEdges(depth: number) {
-    if (this.touchedBottom(depth)) this.velocity.y *= -1
+  checkEdges(height: number) {
+    if (this.touchedBottom(height)) this.velocity.y *= -1
   }
 }
