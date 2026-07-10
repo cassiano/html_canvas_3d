@@ -21,7 +21,7 @@ import {
   rotate,
 } from '../primitives.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
-import { PI, ceil, floor, map, max, min, TWO_PI } from '../math_utils.ts'
+import { PI, ceil, floor, map, max, min, TWO_PI, abs } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
 import {
   sample,
@@ -39,8 +39,8 @@ import { AXES, AXES_NAMES } from '../constants.ts'
 const CIRCLE_SEGMENTS = 12
 const OPACITY = 0.25
 const RADIUS = 100
-const CIRCLE_SLICES = 8
-const TOTAL_ELBOWS = 50
+const CIRCLE_SLICES = 12
+const TOTAL_ELBOWS = 300
 const COLOR = 'peachpuff'
 
 const DEFAULT_BALL_SPEED = 5
@@ -48,6 +48,9 @@ const BALL_RADIUS = (RADIUS / 2) * 0.7
 const BALL_COLOR = 'white'
 const BALL_PATH_COLOR = 'yellow'
 const BALL_PATH_LINE_WIDTH = 5
+
+const SPHERICAL_RADIUS_LIMIT = 10
+const SPHERICAL_RADIUS_LIMIT_SQUARED = SPHERICAL_RADIUS_LIMIT ** 2
 
 const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
   AxesNamesType,
@@ -139,12 +142,14 @@ timesForEach(TOTAL_ELBOWS, () => {
   while (invalidVisit && transitions.length > 0) {
     nextAxis = sample(transitions) as AxesNamesType
 
+    const newLocation = AXES_VISITS_HISTORY[nextAxis](
+      breadcrumbs[breadcrumbs.length - 1],
+    )
+
     invalidVisit =
-      breadcrumbs.findIndex(value =>
-        value.equals(
-          AXES_VISITS_HISTORY[nextAxis](breadcrumbs[breadcrumbs.length - 1]),
-        ),
-      ) !== -1
+      breadcrumbs.findIndex(value => value.equals(newLocation)) !== -1 ||
+      newLocation.x ** 2 + abs(newLocation.y) ** 2 + abs(newLocation.z) ** 2 >
+        SPHERICAL_RADIUS_LIMIT_SQUARED
 
     if (invalidVisit) transitions.splice(transitions.indexOf(nextAxis), 1)
   }
@@ -252,7 +257,7 @@ const draw = () => {
 
   isolateTransformations(() => {
     elbowSequence.forEach(([source, destination], i) => {
-      const hue = floor(map(i, 0, TOTAL_ELBOWS - 1, 0, 360))
+      const hue = floor(map(i, 0, elbowSequence.length - 1, 0, 360))
       const saturation = 100
       const lightness = 75
 
@@ -316,7 +321,7 @@ const draw = () => {
         sphere(BALL_RADIUS, {
           color: BALL_COLOR,
           longitudeLines: 18,
-          latitudeLines: 9,
+          latitudeLines: 12,
         })
       })
     }
