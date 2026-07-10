@@ -17,10 +17,10 @@ export abstract class Mover3D {
     this.acceleration = ZERO_VECTOR.clone()
   }
 
-  update(depth: number) {
+  update(height: number) {
     this.position.add(this.velocity)
 
-    if (!this.touchedBottom(depth)) this.velocity.add(this.acceleration)
+    if (!this.touchedBottom(height)) this.velocity.add(this.acceleration)
 
     this.acceleration.mult(0)
   }

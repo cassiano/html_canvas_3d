@@ -17,7 +17,7 @@ import { rotateY, square2d } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const DEPTH = 5000
+const HEIGHT = 5000
 const GRAVITY = 0.5
 const gravity = $v(0, -GRAVITY, 0)
 // const mover = new CubeMover(10, 0, 0, 0, 100)
@@ -39,7 +39,7 @@ const draw = () => {
   render3dAxes()
 
   isolateTransformations(() => {
-    translate(0, -DEPTH, 0)
+    translate(0, -HEIGHT, 0)
     rotateX(-HALF_PI)
 
     square2d(500, { color: 'steelblue', isDoubleSided: true })
@@ -48,8 +48,8 @@ const draw = () => {
   mover.render()
 
   // Do the physics and animation updates.
-  mover.update(DEPTH)
-  mover.checkEdges(DEPTH)
+  mover.update(HEIGHT)
+  mover.checkEdges(HEIGHT)
   mover.applyForce(weight)
 }
 
