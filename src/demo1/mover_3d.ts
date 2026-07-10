@@ -6,13 +6,16 @@ export abstract class Mover3D {
   velocity: Vector3d
   acceleration: Vector3d
 
+  constructor(mass: number, position: Vector3d)
+  constructor(mass: number, x: number, y: number, z: number)
   constructor(
     public mass: number,
-    x: number,
-    y: number,
-    z: number,
+    xOrPosition: number | Vector3d,
+    y?: number,
+    z?: number,
   ) {
-    this.position = $v(x, y, z)
+    this.position =
+      typeof xOrPosition === 'number' ? $v(xOrPosition, y!, z!) : xOrPosition
     this.velocity = ZERO_VECTOR.clone()
     this.acceleration = ZERO_VECTOR.clone()
   }

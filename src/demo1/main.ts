@@ -20,9 +20,7 @@ import { rotateY, square2d } from '../primitives.ts'
 const HEIGHT = 5000
 const GRAVITY = 0.5
 const gravity = $v(0, -GRAVITY, 0)
-// const mover = new CubeMover(10, 0, 0, 0, 100)
-// const mover = new SphereMover(10, 0, 300, 0, 100)
-const mover = new CubeSphereMover(10, 0, 300, 0, 100)
+const mover = new CubeSphereMover(10, 0, 300, 0, 100) // Or: `new CubeSphereMover(10, $v(0, 300, 0), 100)`
 const weight = gravity.clone().mult(mover.mass)
 
 // -------------------------------------------------------------------------------------------------

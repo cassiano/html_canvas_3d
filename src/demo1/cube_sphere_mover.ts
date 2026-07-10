@@ -1,3 +1,5 @@
+// deno-lint-ignore-file constructor-super
+
 import {
   cube,
   isolateTransformations,
@@ -8,17 +10,30 @@ import {
   translate,
 } from '../primitives.ts'
 import { millis } from '../utils.ts'
+import { Vector3d } from '../vector_3d.ts'
 import { Mover3D } from './mover_3d.ts'
 
 export class CubeSphereMover extends Mover3D {
+  radius: number
+
+  constructor(mass: number, position: Vector3d, radius: number)
+  constructor(mass: number, x: number, y: number, z: number, radius: number)
   constructor(
     mass: number,
-    x: number,
-    y: number,
-    z: number,
-    public radius: number,
+    xOrPosition: number | Vector3d,
+    yOrRadius: number,
+    z?: number,
+    radius?: number,
   ) {
-    super(mass, x, y, z)
+    if (typeof xOrPosition === 'number') {
+      super(mass, xOrPosition, yOrRadius, z!)
+
+      this.radius = radius!
+    } else {
+      super(mass, xOrPosition)
+
+      this.radius = yOrRadius
+    }
   }
 
   override distanceFromCenterToBorder() {
