@@ -4,13 +4,7 @@ import {
   AxesNamesType,
   ORIGIN,
 } from '../constants.ts'
-import {
-  createFrameLoop,
-  frameCount,
-  fps,
-  timesForEach,
-  millis,
-} from '../utils.ts'
+import { createFrameLoop, frameCount, fps, millis } from '../utils.ts'
 import {
   background,
   render3dScene,
@@ -40,7 +34,6 @@ const CIRCLE_SEGMENTS = 12
 const OPACITY = 0.25
 const RADIUS = 100
 const CIRCLE_SLICES = 12
-const TOTAL_ELBOWS = 300
 const COLOR = 'peachpuff'
 
 const DEFAULT_BALL_SPEED = 5
@@ -125,13 +118,11 @@ const AXES_VISITS_HISTORY: Record<AxesNamesType, (prev: Vector3d) => Vector3d> =
 const breadcrumbs = [ORIGIN]
 const axesKeys = Object.keys(elbow)
 let previousAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
-let nextAxis: AxesNamesType
+let nextAxis!: AxesNamesType
 let skipGeneration = false
 const elbowSequence: [AxesNamesType, AxesNamesType][] = []
 
-timesForEach(TOTAL_ELBOWS, () => {
-  if (skipGeneration) return
-
+while (!skipGeneration) {
   breadcrumbs.push(
     AXES_VISITS_HISTORY[previousAxis](breadcrumbs[breadcrumbs.length - 1]),
   )
@@ -160,7 +151,7 @@ timesForEach(TOTAL_ELBOWS, () => {
   previousAxis = nextAxis
 
   elbowSequence.push([savedPreviousAxis, nextAxis] as const)
-})
+}
 
 const visitedCoords = breadcrumbs.reduce(
   (acc, item) => {
