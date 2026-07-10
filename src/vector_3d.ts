@@ -262,11 +262,11 @@ export class Vector3d {
         ? interpolationAmount
         : yOrInterpolationAmount) ?? 0.5 // 0.5 = Default interpolation amount.
 
-    return $v(
-      this.x + actualInterpolationAmount * (anotherVector.x - this.x),
-      this.y + actualInterpolationAmount * (anotherVector.y - this.y),
-      this.z + actualInterpolationAmount * (anotherVector.z - this.z),
-    )
+    return anotherVector
+      .clone()
+      .sub(this)
+      .mult(actualInterpolationAmount)
+      .add(this)
   }
 
   toArray() {
