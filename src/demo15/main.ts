@@ -37,7 +37,7 @@ import {
 import { Tuple } from '../utility_types.ts'
 import { sphere, line, rotateY, rotateZ } from '../primitives.ts'
 import { translate, scale, isolateTransformations } from '../primitives.ts'
-import { AXES, AXES_NAMES } from '../constants.ts'
+import { AXES } from '../constants.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -60,7 +60,11 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
   AxesNamesType,
   Record<
     string,
-    { rotationAxis: AxesNamesType; transformationFn: (radius: number) => void }
+    {
+      rotationAxis: AxesNamesType
+      transformationFn: (radius: number) => void
+      inverted: boolean
+    }
   >
 > = {
   x: {
@@ -71,6 +75,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateX(PI)
         rotateY(PI)
       },
+      inverted: true,
     },
     z: {
       rotationAxis: 'y',
@@ -79,6 +84,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateX(HALF_PI)
         rotateZ(PI)
       },
+      inverted: true,
     },
     ['-y']: {
       rotationAxis: 'z',
@@ -86,6 +92,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         translate(radius / 2, -radius / 2, 0)
         rotateY(PI)
       },
+      inverted: true,
     },
     ['-z']: {
       rotationAxis: '-y',
@@ -94,28 +101,36 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateX(HALF_PI)
         rotateY(PI)
       },
+      inverted: true,
     },
   },
 
   y: {
-    x: { rotationAxis: 'z', transformationFn: (_radius: number) => {} },
+    x: {
+      rotationAxis: 'z',
+      transformationFn: (_radius: number) => {},
+      inverted: false,
+    },
     z: {
       rotationAxis: '-x',
       transformationFn: (_radius: number) => {
         rotateY(-HALF_PI)
       },
+      inverted: false,
     },
     ['-x']: {
       rotationAxis: '-z',
       transformationFn: (_radius: number) => {
         rotateY(PI)
       },
+      inverted: false,
     },
     ['-z']: {
       rotationAxis: 'x',
       transformationFn: (_radius: number) => {
         rotateY(HALF_PI)
       },
+      inverted: false,
     },
   },
 
@@ -125,6 +140,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       transformationFn: (_radius: number) => {
         rotateX(HALF_PI)
       },
+      inverted: false,
     },
     y: {
       rotationAxis: 'x',
@@ -133,6 +149,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateX(PI)
         rotateY(-HALF_PI)
       },
+      inverted: true,
     },
     ['-x']: {
       rotationAxis: 'y',
@@ -140,6 +157,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateX(-HALF_PI)
         rotateZ(PI)
       },
+      inverted: false,
     },
     ['-y']: {
       rotationAxis: '-x',
@@ -147,6 +165,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         translate(0, -radius / 2, radius / 2)
         rotateY(HALF_PI)
       },
+      inverted: true,
     },
   },
 
@@ -157,6 +176,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         translate(-radius / 2, radius / 2, 0)
         rotateX(PI)
       },
+      inverted: true,
     },
     z: {
       rotationAxis: '-y',
@@ -164,12 +184,14 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         translate(-radius / 2, 0, radius / 2)
         rotateX(-HALF_PI)
       },
+      inverted: true,
     },
     ['-y']: {
       rotationAxis: '-z',
-      transformationFn: (_radius: number) => {
-        rotateX(PI)
+      transformationFn: (radius: number) => {
+        translate(-radius / 2, -radius / 2, 0)
       },
+      inverted: true,
     },
     ['-z']: {
       rotationAxis: 'y',
@@ -177,6 +199,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         translate(-radius / 2, 0, -radius / 2)
         rotateX(HALF_PI)
       },
+      inverted: true,
     },
   },
 
@@ -186,6 +209,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       transformationFn: (_radius: number) => {
         rotateX(PI)
       },
+      inverted: false,
     },
     z: {
       rotationAxis: 'x',
@@ -194,6 +218,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateY(-HALF_PI)
         rotateZ(HALF_PI)
       },
+      inverted: true,
     },
     ['-x']: {
       rotationAxis: 'z',
@@ -201,6 +226,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateX(PI)
         rotateY(PI)
       },
+      inverted: false,
     },
     ['-z']: {
       rotationAxis: '-x',
@@ -208,6 +234,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateY(HALF_PI)
         rotateX(PI)
       },
+      inverted: false,
     },
   },
 
@@ -217,6 +244,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       transformationFn: (_radius: number) => {
         rotateX(-HALF_PI)
       },
+      inverted: false,
     },
     y: {
       rotationAxis: '-x',
@@ -225,13 +253,15 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         rotateX(PI)
         rotateY(HALF_PI)
       },
+      inverted: true,
     },
     ['-x']: {
       rotationAxis: '-y',
       transformationFn: (_radius: number) => {
-        rotateX(PI)
-        rotateY(PI)
+        rotateX(HALF_PI)
+        rotateZ(PI)
       },
+      inverted: false,
     },
     ['-y']: {
       rotationAxis: 'x',
@@ -239,6 +269,7 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
         translate(0, -radius / 2, -radius / 2)
         rotateY(-HALF_PI)
       },
+      inverted: true,
     },
   },
 }
@@ -297,6 +328,8 @@ while (!skipGeneration) {
 
   elbowSequence.push([savedPreviousAxis, nextAxis] as const)
 }
+
+// logJson({ breadcrumbs, elbowSequence })
 
 const visitedCoords = breadcrumbs.reduce(
   (acc, item) => {
@@ -407,7 +440,7 @@ const draw = () => {
 
   const ballSpeed =
     demo15Form.sliders?.ballSpeed.getValue() ?? DEFAULT_BALL_SPEED
-  const ballSpeedFactor = map(ballSpeed, 1, 10, 500, 50)
+  const ballSpeedFactor = map(ballSpeed, 1, 10, 1500, 50)
 
   let entryPoint = ORIGIN
 
@@ -417,20 +450,9 @@ const draw = () => {
     const intermediatePoint = AXES_VISITS_HISTORY[sequence[0]](entryPoint)
     const exitPoint = AXES_VISITS_HISTORY[sequence[1]](intermediatePoint)
 
-    const pathAxis1 = intermediatePoint.clone().sub(entryPoint)
-    const axisName1 = AXES_NAMES.find(axisName =>
-      pathAxis1.equals(AXES[axisName]),
-    )
-
-    const pathAxis2 = exitPoint.clone().sub(intermediatePoint)
-    const axisName2 = AXES_NAMES.find(axisName =>
-      pathAxis2.equals(AXES[axisName]),
-    )
-
-    if (!axisName1 || !axisName2) return
-
     if (i === currentIndex) {
-      const mapping = BALL_PATH_PERPENDICULAR_AXIS_MAPPING[axisName1][axisName2]
+      const mapping =
+        BALL_PATH_PERPENDICULAR_AXIS_MAPPING[sequence[0]][sequence[1]]
 
       isolateTransformations(() => {
         translate(entryPoint.clone().mult(RADIUS / 2))
@@ -441,8 +463,8 @@ const draw = () => {
           (millis() % ballSpeedFactor) / ballSpeedFactor,
           0,
           1,
-          0,
-          HALF_PI,
+          mapping.inverted ? HALF_PI : 0,
+          mapping.inverted ? 0 : HALF_PI,
         )
 
         translate($v(1 - cos(theta), sin(theta), 0).mult(RADIUS / 2))
