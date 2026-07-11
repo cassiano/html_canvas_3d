@@ -15,7 +15,18 @@ import {
   rotate,
 } from '../primitives.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
-import { PI, ceil, floor, map, max, min, TWO_PI } from '../math_utils.ts'
+import {
+  PI,
+  ceil,
+  floor,
+  map,
+  max,
+  min,
+  TWO_PI,
+  HALF_PI,
+  cos,
+  sin,
+} from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
 import {
   sample,
@@ -24,7 +35,7 @@ import {
   createToggle,
 } from '../utils.ts'
 import { Tuple } from '../utility_types.ts'
-import { sphere, line, rotateY } from '../primitives.ts'
+import { sphere, line, rotateY, rotateZ } from '../primitives.ts'
 import { translate, scale, isolateTransformations } from '../primitives.ts'
 import { AXES, AXES_NAMES } from '../constants.ts'
 
@@ -42,59 +53,193 @@ const BALL_COLOR = 'white'
 const BALL_PATH_COLOR = 'yellow'
 const BALL_PATH_LINE_WIDTH = 5
 
-const SPHERICAL_RADIUS_LIMIT = 10
+const SPHERICAL_RADIUS_LIMIT = 3
 const SPHERICAL_RADIUS_LIMIT_SQUARED = SPHERICAL_RADIUS_LIMIT ** 2
 
 const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
   AxesNamesType,
-  Record<string, AxesNamesType>
+  Record<
+    string,
+    { rotationAxis: AxesNamesType; transformationFn: (radius: number) => void }
+  >
 > = {
   x: {
-    y: '-z',
-    z: 'y',
-
-    ['-y']: 'z',
-    ['-z']: '-y',
+    y: {
+      rotationAxis: '-z',
+      transformationFn: (radius: number) => {
+        translate(radius / 2, radius / 2, 0)
+        rotateX(PI)
+        rotateY(PI)
+      },
+    },
+    z: {
+      rotationAxis: 'y',
+      transformationFn: (radius: number) => {
+        translate(radius / 2, 0, radius / 2)
+        rotateX(HALF_PI)
+        rotateZ(PI)
+      },
+    },
+    ['-y']: {
+      rotationAxis: 'z',
+      transformationFn: (radius: number) => {
+        translate(radius / 2, -radius / 2, 0)
+        rotateY(PI)
+      },
+    },
+    ['-z']: {
+      rotationAxis: '-y',
+      transformationFn: (radius: number) => {
+        translate(radius / 2, 0, -radius / 2)
+        rotateX(HALF_PI)
+        rotateY(PI)
+      },
+    },
   },
 
   y: {
-    x: 'z',
-    z: '-x',
-
-    ['-x']: '-z',
-    ['-z']: 'x',
+    x: { rotationAxis: 'z', transformationFn: (_radius: number) => {} },
+    z: {
+      rotationAxis: '-x',
+      transformationFn: (_radius: number) => {
+        rotateY(-HALF_PI)
+      },
+    },
+    ['-x']: {
+      rotationAxis: '-z',
+      transformationFn: (_radius: number) => {
+        rotateY(PI)
+      },
+    },
+    ['-z']: {
+      rotationAxis: 'x',
+      transformationFn: (_radius: number) => {
+        rotateY(HALF_PI)
+      },
+    },
   },
 
   z: {
-    x: '-y',
-    y: 'x',
-
-    ['-x']: 'y',
-    ['-y']: '-x',
+    x: {
+      rotationAxis: '-y',
+      transformationFn: (_radius: number) => {
+        rotateX(HALF_PI)
+      },
+    },
+    y: {
+      rotationAxis: 'x',
+      transformationFn: (radius: number) => {
+        translate(0, radius / 2, radius / 2)
+        rotateX(PI)
+        rotateY(-HALF_PI)
+      },
+    },
+    ['-x']: {
+      rotationAxis: 'y',
+      transformationFn: (_radius: number) => {
+        rotateX(-HALF_PI)
+        rotateZ(PI)
+      },
+    },
+    ['-y']: {
+      rotationAxis: '-x',
+      transformationFn: (radius: number) => {
+        translate(0, -radius / 2, radius / 2)
+        rotateY(HALF_PI)
+      },
+    },
   },
 
   ['-x']: {
-    y: 'z',
-    z: '-y',
-
-    ['-y']: '-z',
-    ['-z']: 'y',
+    y: {
+      rotationAxis: 'z',
+      transformationFn: (radius: number) => {
+        translate(-radius / 2, radius / 2, 0)
+        rotateX(PI)
+      },
+    },
+    z: {
+      rotationAxis: '-y',
+      transformationFn: (radius: number) => {
+        translate(-radius / 2, 0, radius / 2)
+        rotateX(-HALF_PI)
+      },
+    },
+    ['-y']: {
+      rotationAxis: '-z',
+      transformationFn: (_radius: number) => {
+        rotateX(PI)
+      },
+    },
+    ['-z']: {
+      rotationAxis: 'y',
+      transformationFn: (radius: number) => {
+        translate(-radius / 2, 0, -radius / 2)
+        rotateX(HALF_PI)
+      },
+    },
   },
 
   ['-y']: {
-    x: '-z',
-    z: 'x',
-
-    ['-x']: 'z',
-    ['-z']: '-x',
+    x: {
+      rotationAxis: '-z',
+      transformationFn: (_radius: number) => {
+        rotateX(PI)
+      },
+    },
+    z: {
+      rotationAxis: 'x',
+      transformationFn: (radius: number) => {
+        translate(0, -radius / 2, radius / 2)
+        rotateY(-HALF_PI)
+        rotateZ(HALF_PI)
+      },
+    },
+    ['-x']: {
+      rotationAxis: 'z',
+      transformationFn: (_radius: number) => {
+        rotateX(PI)
+        rotateY(PI)
+      },
+    },
+    ['-z']: {
+      rotationAxis: '-x',
+      transformationFn: (_radius: number) => {
+        rotateY(HALF_PI)
+        rotateX(PI)
+      },
+    },
   },
 
   ['-z']: {
-    x: 'y',
-    y: '-x',
-
-    ['-x']: '-y',
-    ['-y']: 'x',
+    x: {
+      rotationAxis: 'y',
+      transformationFn: (_radius: number) => {
+        rotateX(-HALF_PI)
+      },
+    },
+    y: {
+      rotationAxis: '-x',
+      transformationFn: (radius: number) => {
+        translate(0, radius / 2, -radius / 2)
+        rotateX(PI)
+        rotateY(HALF_PI)
+      },
+    },
+    ['-x']: {
+      rotationAxis: '-y',
+      transformationFn: (_radius: number) => {
+        rotateX(PI)
+        rotateY(PI)
+      },
+    },
+    ['-y']: {
+      rotationAxis: 'x',
+      transformationFn: (radius: number) => {
+        translate(0, -radius / 2, -radius / 2)
+        rotateY(-HALF_PI)
+      },
+    },
   },
 }
 
@@ -266,8 +411,7 @@ const draw = () => {
 
   let entryPoint = ORIGIN
 
-  const currentIndex =
-    floor(millis() / ballSpeedFactor) % (elbowSequence.length * 2)
+  const currentIndex = floor(millis() / ballSpeedFactor) % elbowSequence.length
 
   elbowSequence.forEach((sequence, i) => {
     const intermediatePoint = AXES_VISITS_HISTORY[sequence[0]](entryPoint)
@@ -285,30 +429,27 @@ const draw = () => {
 
     if (!axisName1 || !axisName2) return
 
-    if (i === floor(currentIndex / 2)) {
+    if (i === currentIndex) {
+      const mapping = BALL_PATH_PERPENDICULAR_AXIS_MAPPING[axisName1][axisName2]
+
       isolateTransformations(() => {
-        if (currentIndex % 2 === 0) {
-          translate(
-            entryPoint
-              .lerp(
-                intermediatePoint,
-                (millis() % ballSpeedFactor) / ballSpeedFactor,
-              )
-              .clone()
-              .mult(RADIUS / 2),
-          )
-        } else {
-          translate(
-            intermediatePoint
-              .lerp(exitPoint, (millis() % ballSpeedFactor) / ballSpeedFactor)
-              .clone()
-              .mult(RADIUS / 2),
-          )
-        }
+        translate(entryPoint.clone().mult(RADIUS / 2))
+
+        mapping.transformationFn(RADIUS)
+
+        const theta = map(
+          (millis() % ballSpeedFactor) / ballSpeedFactor,
+          0,
+          1,
+          0,
+          HALF_PI,
+        )
+
+        translate($v(1 - cos(theta), sin(theta), 0).mult(RADIUS / 2))
 
         rotate(
           (millis() / 2000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
-          AXES[BALL_PATH_PERPENDICULAR_AXIS_MAPPING[axisName1][axisName2]],
+          AXES[mapping.rotationAxis],
         )
 
         sphere(BALL_RADIUS, {
