@@ -160,7 +160,6 @@ const elbowFromLeftToTop = (
 ) => {
   isolateTransformations(() => {
     translate(-radius / 2, radius / 2, 0)
-
     rotateX(PI)
 
     defaultElbow(radius, options)
@@ -176,7 +175,6 @@ const elbowFromRightToTop = (
 ) => {
   isolateTransformations(() => {
     translate(radius / 2, radius / 2, 0)
-
     rotateX(PI)
     rotateY(PI)
 
@@ -239,7 +237,6 @@ const elbowFromRightToBottom = (
 ) => {
   isolateTransformations(() => {
     translate(radius / 2, -radius / 2, 0)
-
     rotateY(PI)
 
     defaultElbow(radius, options)
