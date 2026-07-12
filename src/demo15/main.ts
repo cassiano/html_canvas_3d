@@ -48,12 +48,12 @@ const CIRCLE_SLICES = 12
 const COLOR = 'peachpuff'
 
 const DEFAULT_BALL_SPEED = 5
-const BALL_RADIUS = (RADIUS / 2) * 0.7
+const BALL_RADIUS = (RADIUS / 2) * 0.95
 const BALL_COLOR = 'white'
 const BALL_PATH_COLOR = 'yellow'
 const BALL_PATH_LINE_WIDTH = 5
 
-const SPHERICAL_RADIUS_LIMIT = 4
+const SPHERICAL_RADIUS_LIMIT = 3
 const SPHERICAL_RADIUS_LIMIT_SQUARED = SPHERICAL_RADIUS_LIMIT ** 2
 
 const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
@@ -61,7 +61,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
   Record<
     string,
     {
-      rotationAxis?: AxesNamesType
       transformationFn: (radius: number) => void
       inverted: boolean
     }
@@ -69,7 +68,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
 > = {
   x: {
     y: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(radius / 2, radius / 2, 0)
         rotateX(PI)
@@ -78,7 +76,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: true,
     },
     z: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(radius / 2, 0, radius / 2)
         rotateX(HALF_PI)
@@ -87,7 +84,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: true,
     },
     ['-y']: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(radius / 2, -radius / 2, 0)
         rotateY(PI)
@@ -95,7 +91,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: true,
     },
     ['-z']: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(radius / 2, 0, -radius / 2)
         rotateX(HALF_PI)
@@ -107,26 +102,22 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
 
   y: {
     x: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {},
       inverted: false,
     },
     z: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateY(-HALF_PI)
       },
       inverted: false,
     },
     ['-x']: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateY(PI)
       },
       inverted: false,
     },
     ['-z']: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateY(HALF_PI)
       },
@@ -136,14 +127,12 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
 
   z: {
     x: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateX(HALF_PI)
       },
       inverted: false,
     },
     y: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(0, radius / 2, radius / 2)
         rotateX(PI)
@@ -152,7 +141,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: true,
     },
     ['-x']: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateX(-HALF_PI)
         rotateZ(PI)
@@ -160,7 +148,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: false,
     },
     ['-y']: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(0, -radius / 2, radius / 2)
         rotateY(HALF_PI)
@@ -171,7 +158,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
 
   ['-x']: {
     y: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(-radius / 2, radius / 2, 0)
         rotateX(PI)
@@ -179,7 +165,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: true,
     },
     z: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(-radius / 2, 0, radius / 2)
         rotateX(-HALF_PI)
@@ -187,14 +172,12 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: true,
     },
     ['-y']: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(-radius / 2, -radius / 2, 0)
       },
       inverted: true,
     },
     ['-z']: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(-radius / 2, 0, -radius / 2)
         rotateX(HALF_PI)
@@ -205,14 +188,12 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
 
   ['-y']: {
     x: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateX(PI)
       },
       inverted: false,
     },
     z: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(0, -radius / 2, radius / 2)
         rotateY(-HALF_PI)
@@ -221,7 +202,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: true,
     },
     ['-x']: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateX(PI)
         rotateY(PI)
@@ -229,7 +209,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: false,
     },
     ['-z']: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateY(HALF_PI)
         rotateX(PI)
@@ -240,14 +219,12 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
 
   ['-z']: {
     x: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateX(-HALF_PI)
       },
       inverted: false,
     },
     y: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(0, radius / 2, -radius / 2)
         rotateX(PI)
@@ -256,7 +233,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: true,
     },
     ['-x']: {
-      rotationAxis: 'z',
       transformationFn: (_radius: number) => {
         rotateX(HALF_PI)
         rotateZ(PI)
@@ -264,7 +240,6 @@ const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
       inverted: false,
     },
     ['-y']: {
-      rotationAxis: '-z',
       transformationFn: (radius: number) => {
         translate(0, -radius / 2, -radius / 2)
         rotateY(-HALF_PI)
@@ -467,11 +442,10 @@ const draw = () => {
 
         translate($v(1 - cos(theta), sin(theta), 0).mult(RADIUS / 2))
 
-        if (mapping.rotationAxis !== undefined)
-          rotate(
-            (millis() / 3000) * TWO_PI * map(ballSpeed, 1, 10, 1, 2),
-            AXES[mapping.rotationAxis],
-          )
+        rotate(
+          (millis() / 3000) * TWO_PI * map(ballSpeed, 1, 10, 1, 3),
+          AXES[mapping.inverted ? '-z' : 'z'],
+        )
 
         sphere(BALL_RADIUS, {
           color: BALL_COLOR,
