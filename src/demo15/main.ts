@@ -12,20 +12,19 @@ import {
   resetTransformationMatrix,
   text2d,
   rotateX,
-  rotate,
 } from '../primitives.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import {
   PI,
-  ceil,
   floor,
   map,
-  max,
-  min,
-  TWO_PI,
   HALF_PI,
   cos,
   sin,
+  TWO_PI,
+  max,
+  min,
+  ceil,
 } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
 import {
@@ -34,10 +33,10 @@ import {
   createDemoControlPanel,
   createToggle,
 } from '../utils.ts'
-import { Tuple } from '../utility_types.ts'
-import { sphere, line, rotateY, rotateZ } from '../primitives.ts'
-import { translate, scale, isolateTransformations } from '../primitives.ts'
+import { rotateY, rotateZ, rotate, sphere, scale } from '../primitives.ts'
+import { translate, isolateTransformations } from '../primitives.ts'
 import { AXES } from '../constants.ts'
+import { Tuple } from '../utility_types.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -50,11 +49,11 @@ const COLOR = 'peachpuff'
 const DEFAULT_BALL_SPEED = 7
 const BALL_RADIUS = (RADIUS / 2) * 0.95
 const BALL_COLOR = 'white'
-const BALL_PATH_COLOR = 'yellow'
-const BALL_PATH_LINE_WIDTH = 5
 
-const SPHERICAL_RADIUS_LIMIT = 5
+const SPHERICAL_RADIUS_LIMIT = 4
 const SPHERICAL_RADIUS_LIMIT_SQUARED = SPHERICAL_RADIUS_LIMIT ** 2
+
+const MAX_RETRIES = 99
 
 const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
   AxesNamesType,
@@ -256,59 +255,147 @@ const options: ElbowShapeOptions = {
   color: COLOR,
 }
 
-const AXES_VISITS_HISTORY: Record<AxesNamesType, (prev: Vector3d) => Vector3d> =
-  {
-    x: (previous: Vector3d) => previous.clone().add(1, 0, 0),
-    y: (previous: Vector3d) => previous.clone().add(0, 1, 0),
-    z: (previous: Vector3d) => previous.clone().add(0, 0, 1),
-    ['-x']: (previous: Vector3d) => previous.clone().sub(1, 0, 0),
-    ['-y']: (previous: Vector3d) => previous.clone().sub(0, 1, 0),
-    ['-z']: (previous: Vector3d) => previous.clone().sub(0, 0, 1),
-  }
-
-const breadcrumbs = [ORIGIN]
-const axesKeys = Object.keys(elbow)
-let previousAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
-let nextAxis!: AxesNamesType
-let skipGeneration = false
-const elbowSequence: [AxesNamesType, AxesNamesType][] = []
-
-while (!skipGeneration) {
-  breadcrumbs.push(
-    AXES_VISITS_HISTORY[previousAxis](breadcrumbs[breadcrumbs.length - 1]),
-  )
-
-  let invalidVisit = true
-  const transitions = Object.keys(elbow[previousAxis])
-
-  while (invalidVisit && transitions.length > 0) {
-    nextAxis = sample(transitions) as AxesNamesType
-
-    const newLocation = AXES_VISITS_HISTORY[nextAxis](
-      breadcrumbs[breadcrumbs.length - 1],
-    )
-
-    invalidVisit =
-      breadcrumbs.findIndex(value => value.equals(newLocation)) !== -1 ||
-      newLocation.magSq() > SPHERICAL_RADIUS_LIMIT_SQUARED
-
-    if (invalidVisit) transitions.splice(transitions.indexOf(nextAxis), 1)
-  }
-
-  skipGeneration = transitions.length === 0
-
-  const savedPreviousAxis = previousAxis
-
-  previousAxis = nextAxis
-
-  elbowSequence.push([savedPreviousAxis, nextAxis] as const)
+const AXES_VISITS: Record<
+  AxesNamesType,
+  (prev: Vector3d, offset?: number) => Vector3d
+> = {
+  x: (previous: Vector3d, offset = 1) => previous.clone().add(offset, 0, 0),
+  y: (previous: Vector3d, offset = 1) => previous.clone().add(0, offset, 0),
+  z: (previous: Vector3d, offset = 1) => previous.clone().add(0, 0, offset),
+  ['-x']: (previous: Vector3d, offset = 1) =>
+    previous.clone().sub(offset, 0, 0),
+  ['-y']: (previous: Vector3d, offset = 1) =>
+    previous.clone().sub(0, offset, 0),
+  ['-z']: (previous: Vector3d, offset = 1) =>
+    previous.clone().sub(0, 0, offset),
 }
 
-const visitedCoords = breadcrumbs.reduce(
-  (acc, item) => {
-    acc[0].push(item.x)
-    acc[1].push(item.y)
-    acc[2].push(item.z)
+// -------------------------------------------------------------------------------------------------
+
+// Get the canvas container
+const canvasContainer = document.getElementById('canvas-container')
+if (!canvasContainer) throw new Error('canvasContainer not found')
+
+let demoControlPanel: HTMLDivElement | null
+
+type Demo15FormType = {
+  sliders?: Record<'ballSpeed', ReturnType<typeof createSlider>>
+  toggles?: Record<
+    'applyCentripetalForce' | 'rotateAroundYAxis',
+    ReturnType<typeof createToggle>
+  >
+}
+
+export const demo15Form: Demo15FormType = {}
+
+const createDemoControls = () => {
+  demoControlPanel = createDemoControlPanel(canvasContainer)
+
+  demo15Form.sliders = {
+    ballSpeed: createSlider({
+      label: 'Ball speed',
+      min: 1,
+      max: 10,
+      value: DEFAULT_BALL_SPEED,
+      container: demoControlPanel,
+    }),
+  }
+
+  demo15Form.toggles = {
+    applyCentripetalForce: createToggle({
+      label: 'Apply centripetal force?',
+      value: true,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+    rotateAroundYAxis: createToggle({
+      label: 'Rotate around Y-axis?',
+      value: true,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+  }
+}
+
+// -------------------------------------------------------------------------------------------------
+
+const axesKeys = Object.keys(elbow)
+
+const elbows: {
+  from: AxesNamesType
+  to: AxesNamesType
+  center: Vector3d
+  startingPosition: Vector3d
+  remainingTransitions: AxesNamesType[]
+}[] = []
+
+let skipGeneration = false
+let retries = 0
+let fromAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
+let transitions: AxesNamesType[] | undefined = undefined
+
+while (!skipGeneration) {
+  let validVisit = false
+  transitions ??= Object.keys(elbow[fromAxis]) as AxesNamesType[]
+
+  let toAxis: AxesNamesType
+  let newCenter: Vector3d
+
+  while (!validVisit && transitions.length > 0) {
+    toAxis = sample(transitions) as AxesNamesType
+
+    newCenter = AXES_VISITS[fromAxis](
+      elbows.length === 0
+        ? AXES_VISITS[fromAxis](ORIGIN, -0.5)
+        : elbows[elbows.length - 1].center,
+    )
+
+    transitions.splice(transitions.indexOf(toAxis), 1)
+
+    validVisit =
+      elbows.findIndex(({ center }) => center.equals(newCenter)) === -1 &&
+      newCenter.magSq() <= SPHERICAL_RADIUS_LIMIT_SQUARED
+  }
+
+  if (validVisit) {
+    elbows.push({
+      from: fromAxis,
+      to: toAxis!,
+      center: newCenter!,
+      startingPosition:
+        elbows.length === 0
+          ? ORIGIN
+          : AXES_VISITS[fromAxis](elbows[elbows.length - 1].center, 0.5),
+      remainingTransitions: transitions,
+    })
+
+    fromAxis = toAxis!
+    transitions = undefined
+  } else {
+    const previousElbow = elbows[elbows.length - 2]
+
+    // Backtrack to the previous elbow and try a different path.
+    fromAxis = previousElbow.to
+    transitions = previousElbow.remainingTransitions
+
+    // Remove the current elbow.
+    elbows.pop()
+
+    if (++retries > MAX_RETRIES) {
+      skipGeneration = true
+
+      console.warn(
+        'Max retries reached. Stopping generation of elbows to avoid infinite loop.',
+      )
+    }
+  }
+}
+
+const visitedCoords = elbows.reduce(
+  (acc, { center }) => {
+    acc[0].push(center.x)
+    acc[1].push(center.y)
+    acc[2].push(center.z)
 
     return acc
   },
@@ -331,53 +418,6 @@ const maxAxisDistance = max(xMax - xMin, yMax - yMin, zMax - zMin)
 
 // -------------------------------------------------------------------------------------------------
 
-// Get the canvas container
-const canvasContainer = document.getElementById('canvas-container')
-if (!canvasContainer) throw new Error('canvasContainer not found')
-
-let demoControlPanel: HTMLDivElement | null
-
-type Demo15FormType = {
-  sliders?: Record<'ballSpeed', ReturnType<typeof createSlider>>
-  toggles?: Record<
-    'showBallPath' | 'rotateAroundYAxis',
-    ReturnType<typeof createToggle>
-  >
-}
-
-export const demo15Form: Demo15FormType = {}
-
-const createDemoControls = () => {
-  demoControlPanel = createDemoControlPanel(canvasContainer)
-
-  demo15Form.sliders = {
-    ballSpeed: createSlider({
-      label: 'Ball speed',
-      min: 1,
-      max: 10,
-      value: DEFAULT_BALL_SPEED,
-      container: demoControlPanel,
-    }),
-  }
-
-  demo15Form.toggles = {
-    showBallPath: createToggle({
-      label: 'Show ball path?',
-      value: false,
-      showValue: false,
-      container: demoControlPanel,
-    }),
-    rotateAroundYAxis: createToggle({
-      label: 'Rotate around Y-axis?',
-      value: true,
-      showValue: false,
-      container: demoControlPanel,
-    }),
-  }
-}
-
-// -------------------------------------------------------------------------------------------------
-
 const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
@@ -392,89 +432,77 @@ const draw = () => {
 
   render3dAxes()
 
-  scale(1 / ceil(maxAxisDistance / 8))
+  scale(1 / ceil(maxAxisDistance / 6))
 
   translate(centerCoords)
 
   isolateTransformations(() => {
-    elbowSequence.forEach(([source, destination], i) => {
-      const hue = floor(map(i, 0, elbowSequence.length - 1, 0, 360))
+    for (let i = 0; i < elbows.length; i++) {
+      const { from, to } = elbows[i]
+      const hue = floor(map(i, 0, elbows.length - 1, 0, 360))
       const saturation = 100
       const lightness = 75
 
       // @ts-ignore: source and destination are both typed as `AxisType`.
-      elbow[source][destination]?.(
+      elbow[from][to]?.(
         RADIUS,
         { ...options, color: `hsl(${hue}, ${saturation}%, ${lightness}%)` },
         true,
       )
-    })
+    }
   })
 
   const ballSpeed =
     demo15Form.sliders?.ballSpeed.getValue() ?? DEFAULT_BALL_SPEED
+
   const ballSpeedFactor = map(ballSpeed, 1, 10, 1500, 50)
+  const currentIndex = floor(millis() / ballSpeedFactor) % elbows.length
 
-  let entryPoint = ORIGIN
+  const mapping =
+    BALL_PATH_PERPENDICULAR_AXIS_MAPPING[elbows[currentIndex].from][
+      elbows[currentIndex].to
+    ]
 
-  const currentIndex = floor(millis() / ballSpeedFactor) % elbowSequence.length
+  const theta = map(
+    (millis() % ballSpeedFactor) / ballSpeedFactor,
+    0,
+    1,
+    mapping.inverted ? HALF_PI : 0,
+    mapping.inverted ? 0 : HALF_PI,
+  )
 
-  elbowSequence.forEach((sequence, i) => {
-    const intermediatePoint = AXES_VISITS_HISTORY[sequence[0]](entryPoint)
-    const exitPoint = AXES_VISITS_HISTORY[sequence[1]](intermediatePoint)
+  isolateTransformations(() => {
+    const entryPoint = elbows[currentIndex].startingPosition
+      .clone()
+      .mult(RADIUS)
 
-    if (i === currentIndex) {
-      const mapping =
-        BALL_PATH_PERPENDICULAR_AXIS_MAPPING[sequence[0]][sequence[1]]
+    // Move the ball to its entry point.
+    translate(entryPoint)
 
-      const theta = map(
-        (millis() % ballSpeedFactor) / ballSpeedFactor,
-        0,
-        1,
-        mapping.inverted ? HALF_PI : 0,
-        mapping.inverted ? 0 : HALF_PI,
-      )
+    // Apply the transformation function to orient the ball's path correctly.
+    mapping.transformationFn(RADIUS)
 
-      isolateTransformations(() => {
-        translate(entryPoint.clone().mult(RADIUS / 2))
+    // Move the ball to the correct position along the circular path.
+    translate($v(1 - cos(theta), sin(theta), 0).mult(RADIUS / 2))
 
-        mapping.transformationFn(RADIUS)
+    const applyCentripetalForce =
+      demo15Form.toggles?.applyCentripetalForce.getValue()
 
-        translate($v(1 - cos(theta), sin(theta), 0).mult(RADIUS / 2))
+    rotate(
+      (millis() / 3000) * TWO_PI * map(ballSpeed, 1, 10, 1, 3),
+      AXES[
+        (mapping.inverted && !applyCentripetalForce) ||
+        (!mapping.inverted && applyCentripetalForce)
+          ? '-z'
+          : 'z'
+      ],
+    )
 
-        rotate(
-          (millis() / 3000) * TWO_PI * map(ballSpeed, 1, 10, 1, 3),
-          AXES[mapping.inverted ? '-z' : 'z'],
-        )
-
-        sphere(BALL_RADIUS, {
-          color: BALL_COLOR,
-          longitudeLines: 18,
-          latitudeLines: 12,
-        })
-      })
-    }
-
-    if (demo15Form.toggles?.showBallPath.getValue()) {
-      line(
-        entryPoint.clone().mult(RADIUS / 2),
-        intermediatePoint.clone().mult(RADIUS / 2),
-        {
-          color: BALL_PATH_COLOR,
-          lineWidth: BALL_PATH_LINE_WIDTH,
-        },
-      )
-      line(
-        intermediatePoint.clone().mult(RADIUS / 2),
-        exitPoint.clone().mult(RADIUS / 2),
-        {
-          color: BALL_PATH_COLOR,
-          lineWidth: BALL_PATH_LINE_WIDTH,
-        },
-      )
-    }
-
-    entryPoint = exitPoint
+    sphere(BALL_RADIUS, {
+      color: BALL_COLOR,
+      longitudeLines: 18,
+      latitudeLines: 12,
+    })
   })
 }
 
