@@ -55,7 +55,7 @@ const SPHERICAL_RADIUS_LIMIT_SQUARED = SPHERICAL_RADIUS_LIMIT ** 2
 
 const MAX_RETRIES = 999
 
-const BALL_PATH_PERPENDICULAR_AXIS_MAPPING: Record<
+const BALL_ROTATION_MAPPINGS: Record<
   AxesNamesType,
   Record<
     string,
@@ -255,7 +255,7 @@ const options: ElbowShapeOptions = {
   color: COLOR,
 }
 
-const AXES_VISITS: Record<
+const ELBOWS_PATHS: Record<
   AxesNamesType,
   (prev: Vector3d, offset?: number) => Vector3d
 > = {
@@ -319,15 +319,16 @@ const createDemoControls = () => {
 
 // -------------------------------------------------------------------------------------------------
 
-const axesKeys = Object.keys(elbow)
-
-const elbows: {
+type ElbowDetails = {
   from: AxesNamesType
   to: AxesNamesType
   center: Vector3d
   startingPosition: Vector3d
   remainingTransitions: AxesNamesType[]
-}[] = []
+}
+
+const axesKeys = Object.keys(elbow)
+const elbows: ElbowDetails[] = []
 
 let skipGeneration = false
 let retries = 0
@@ -344,9 +345,9 @@ while (!skipGeneration) {
   while (!validVisit && transitions.length > 0) {
     toAxis = sample(transitions) as AxesNamesType
 
-    newCenter = AXES_VISITS[fromAxis](
+    newCenter = ELBOWS_PATHS[fromAxis](
       elbows.length === 0
-        ? AXES_VISITS[fromAxis](ORIGIN, -0.5)
+        ? ELBOWS_PATHS[fromAxis](ORIGIN, -0.5)
         : elbows[elbows.length - 1].center,
     )
 
@@ -365,7 +366,7 @@ while (!skipGeneration) {
       startingPosition:
         elbows.length === 0
           ? ORIGIN
-          : AXES_VISITS[fromAxis](elbows[elbows.length - 1].center, 0.5),
+          : ELBOWS_PATHS[fromAxis](elbows[elbows.length - 1].center, 0.5),
       remainingTransitions: transitions,
     })
 
@@ -459,9 +460,7 @@ const draw = () => {
   const currentIndex = floor(millis() / ballSpeedFactor) % elbows.length
 
   const mapping =
-    BALL_PATH_PERPENDICULAR_AXIS_MAPPING[elbows[currentIndex].from][
-      elbows[currentIndex].to
-    ]
+    BALL_ROTATION_MAPPINGS[elbows[currentIndex].from][elbows[currentIndex].to]
 
   const theta = map(
     (millis() % ballSpeedFactor) / ballSpeedFactor,
