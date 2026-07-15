@@ -476,10 +476,12 @@ const draw = () => {
       .clone()
       .mult(RADIUS)
 
-    // Move the ball to its entry point.
+    // Move the ball to the elbows's starting position, which is the entry point of the ball
+    // into the elbow.
     translate(entryPoint)
 
-    // Apply the transformation function to orient the ball's path correctly.
+    // Apply the transformation function such that the ball path aligns with the XY plane where
+    // the elbow is drawn. This is necessary because the ball path is always drawn in the XY plane.
     mapping.transformationFn(RADIUS)
 
     // Move the ball to the correct position along the circular path.
@@ -488,6 +490,7 @@ const draw = () => {
     const applyCentripetalForce =
       demo15Form.toggles?.applyCentripetalForce.getValue()
 
+    // Rotate the ball around the appropriate axis to follow the circular path of the elbow.
     rotate(
       (millis() / 3000) * TWO_PI * map(ballSpeed, 1, 10, 1, 3),
       AXES[
