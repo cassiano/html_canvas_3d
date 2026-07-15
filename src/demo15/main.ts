@@ -40,10 +40,10 @@ import { Tuple } from '../utility_types.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const CIRCLE_SEGMENTS = 12
+const CIRCLE_SEGMENTS = 16
 const OPACITY = 0.25
 const RADIUS = 100
-const CIRCLE_SLICES = 12
+const CIRCLE_SLICES = 16
 const COLOR = 'peachpuff'
 
 const DEFAULT_BALL_SPEED = 7
