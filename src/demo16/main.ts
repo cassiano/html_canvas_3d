@@ -44,7 +44,7 @@ const draw = () => {
   render3dAxes()
 
   isolateTransformations(() => {
-    translate(150, 200, -RADIUS / 2)
+    translate(200, 200, -RADIUS / 2)
 
     elbow['-y'].z(RADIUS, options1, true)
     elbow.z['-x'](RADIUS, options1, true)
@@ -73,7 +73,7 @@ const draw = () => {
   })
 
   isolateTransformations(() => {
-    translate(-150, 200, -RADIUS / 2)
+    translate(-100, 200, -RADIUS / 2)
 
     elbow['-y'].z(RADIUS, options2, true)
     elbow.z['-x'](RADIUS, options2, true)
