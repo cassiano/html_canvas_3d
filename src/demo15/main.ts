@@ -50,7 +50,7 @@ const DEFAULT_BALL_SPEED = 7
 const BALL_RADIUS = (RADIUS / 2) * 0.99
 const BALL_COLOR = 'white'
 
-const SPHERICAL_RADIUS_LIMIT = 4
+const SPHERICAL_RADIUS_LIMIT = 3
 const SPHERICAL_RADIUS_LIMIT_SQUARED = SPHERICAL_RADIUS_LIMIT ** 2
 
 const MAX_RETRIES = 9999
@@ -281,7 +281,7 @@ let demoControlPanel: HTMLDivElement | null
 type Demo15FormType = {
   sliders?: Record<'ballSpeed', ReturnType<typeof createSlider>>
   toggles?: Record<
-    'applyCentripetalForce' | 'rotateAroundYAxis' | 'showSurroundingSphere',
+    'applyCentripetalForce' | 'showVirtualSphere' | 'rotateAroundYAxis',
     ReturnType<typeof createToggle>
   >
 }
@@ -308,14 +308,14 @@ const createDemoControls = () => {
       showValue: false,
       container: demoControlPanel,
     }),
-    rotateAroundYAxis: createToggle({
-      label: 'Rotate around Y-axis?',
-      value: true,
+    showVirtualSphere: createToggle({
+      label: 'Show Virtual sphere?',
+      value: false,
       showValue: false,
       container: demoControlPanel,
     }),
-    showSurroundingSphere: createToggle({
-      label: 'Show surrounding sphere?',
+    rotateAroundYAxis: createToggle({
+      label: 'Rotate around Y-axis?',
       value: true,
       showValue: false,
       container: demoControlPanel,
@@ -442,7 +442,7 @@ const draw = () => {
 
   scale(1 / ceil(maxAxisDistance / 6))
 
-  if (demo15Form.toggles?.showSurroundingSphere.getValue())
+  if (demo15Form.toggles?.showVirtualSphere.getValue())
     sphere((SPHERICAL_RADIUS_LIMIT + 1 / 2) * RADIUS, {
       opacity: 0.1,
       color: 'lightGray',
