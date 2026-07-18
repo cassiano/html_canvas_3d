@@ -50,10 +50,10 @@ const DEFAULT_BALL_SPEED = 7
 const BALL_RADIUS = (RADIUS / 2) * 0.99
 const BALL_COLOR = 'white'
 
-const SPHERICAL_RADIUS_LIMIT = 3
+const SPHERICAL_RADIUS_LIMIT = 4
 const SPHERICAL_RADIUS_LIMIT_SQUARED = SPHERICAL_RADIUS_LIMIT ** 2
 
-const MAX_RETRIES = 999
+const MAX_RETRIES = 9999
 
 const BALL_ROTATION_MAPPINGS: Record<
   AxesNamesType,
@@ -281,7 +281,7 @@ let demoControlPanel: HTMLDivElement | null
 type Demo15FormType = {
   sliders?: Record<'ballSpeed', ReturnType<typeof createSlider>>
   toggles?: Record<
-    'applyCentripetalForce' | 'rotateAroundYAxis',
+    'applyCentripetalForce' | 'rotateAroundYAxis' | 'showSurroundingSphere',
     ReturnType<typeof createToggle>
   >
 }
@@ -310,6 +310,12 @@ const createDemoControls = () => {
     }),
     rotateAroundYAxis: createToggle({
       label: 'Rotate around Y-axis?',
+      value: true,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+    showSurroundingSphere: createToggle({
+      label: 'Show surrounding sphere?',
       value: true,
       showValue: false,
       container: demoControlPanel,
@@ -373,14 +379,15 @@ while (!skipGeneration) {
     fromAxis = toAxis!
     transitions = undefined
   } else {
-    const previousElbow = elbows[elbows.length - 2]
+    // Remove the last elbow.
+    elbows.pop()
+
+    // Locate its previous elbow.
+    const previousElbow = elbows[elbows.length - 1]
 
     // Backtrack to the previous elbow and try a different path.
     fromAxis = previousElbow.to
     transitions = previousElbow.remainingTransitions
-
-    // Remove the current elbow.
-    elbows.pop()
 
     if (++retries > MAX_RETRIES) {
       skipGeneration = true
@@ -434,6 +441,12 @@ const draw = () => {
   render3dAxes()
 
   scale(1 / ceil(maxAxisDistance / 6))
+
+  if (demo15Form.toggles?.showSurroundingSphere.getValue())
+    sphere((SPHERICAL_RADIUS_LIMIT + 1 / 2) * RADIUS, {
+      opacity: 0.1,
+      color: 'lightGray',
+    })
 
   translate(centerCoords)
 
