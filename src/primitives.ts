@@ -837,6 +837,36 @@ export const ring = (
   })
 }
 
+export const sphericalCheeseSlice = (
+  radius: number, // XY-plane
+  depth: number, // Z-axis
+  options: CircularShapeOptions = {},
+) => {
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
+    ...options,
+  }
+  const { circleSegments } = finalOptions
+
+  const step = TWO_PI / circleSegments
+
+  isolateTransformations(() => {
+    for (let i = 0; i < circleSegments; i++) {
+      const theta = i * step
+      const avgX = polarToCartesian2d(radius, theta + step / 2).x
+      const z = map(avgX, -radius, radius, depth, 0, true)
+
+      const p1 = polarToCartesian2d(radius, theta)
+      const p2 = polarToCartesian2d(radius, theta + step)
+      const p3 = p2.clone().setZ(z)
+      const p4 = p1.clone().setZ(z)
+
+      quad(p1, p2, p3, p4, options)
+    }
+  })
+}
+
 export const torus = (
   internalRadius: number, // XY-plane
   tubeRadius: number, // XY-plane

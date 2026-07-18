@@ -1,5 +1,5 @@
 import { PI, HALF_PI, TWO_PI } from './math_utils.ts'
-import { DEFAULT_SHAPE_OPTIONS, ring } from './primitives.ts'
+import { DEFAULT_SHAPE_OPTIONS, sphericalCheeseSlice } from './primitives.ts'
 import {
   DEFAULT_CIRCLE_SEGMENTS,
   DEFAULT_ELBOW_CIRCLE_SLICES,
@@ -34,10 +34,10 @@ const defaultElbow = (radius: number, options: ElbowShapeOptions = {}) => {
     isolateTransformations(() => {
       translate(radius / 2, 0, 0)
       rotateZ(-theta)
-      translate(-radius / 2, ringDepth / 2, 0)
+      translate(-radius / 2, 0, 0)
       rotateX(-HALF_PI)
 
-      ring(radius / 2, ringDepth, options)
+      sphericalCheeseSlice(radius / 2, ringDepth, options)
     })
   }
 }
