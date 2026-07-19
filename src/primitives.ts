@@ -837,6 +837,7 @@ export const ring = (
   })
 }
 
+// [/doc_img/primitives.ts/2026-07-19-15-40-03.png]
 export const sphericalCheeseSlice = (
   radius: number, // XY-plane
   depth: number, // Z-axis
