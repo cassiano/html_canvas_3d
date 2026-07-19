@@ -16,8 +16,35 @@ import {
 import { $v } from '../vector_3d.ts'
 import { PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
-import { frameCount } from '../utils.ts'
+import { frameCount, createToggle, createDemoControlPanel } from '../utils.ts'
 import { FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
+
+// -------------------------------------------------------------------------------------------------
+
+// Get the canvas container
+const canvasContainer = document.getElementById('canvas-container')
+if (!canvasContainer) throw new Error('canvasContainer not found')
+
+let demoControlPanel: HTMLDivElement | null
+
+type FormType = {
+  toggles?: Record<'rotateAroundYAxis', ReturnType<typeof createToggle>>
+}
+
+export const demoForm: FormType = {}
+
+const createDemoControls = () => {
+  demoControlPanel = createDemoControlPanel(canvasContainer)
+
+  demoForm.toggles = {
+    rotateAroundYAxis: createToggle({
+      label: 'Rotate around Y axis?',
+      value: true,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+  }
+}
 
 // -------------------------------------------------------------------------------------------------
 
@@ -28,7 +55,9 @@ const draw = () => {
   background('lightGray')
 
   rotateX(PI / 4)
-  rotateY(-millis() / 2000)
+
+  if (demoForm.toggles?.rotateAroundYAxis.getValue()) rotateY(-millis() / 2000)
+  else rotateY(PI / 6)
 
   render3dAxes()
 
@@ -69,7 +98,7 @@ const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
-const { start, stop } = createFrameLoop(
+const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
@@ -78,5 +107,17 @@ const { start, stop } = createFrameLoop(
   onPaused,
   FPS,
 )
+
+const start = () => {
+  createDemoControls()
+  startFrameLoop()
+}
+
+const stop = () => {
+  demoControlPanel?.remove()
+  demoControlPanel = null
+
+  stopFrameLoop()
+}
 
 export { start, stop }

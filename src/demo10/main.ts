@@ -18,6 +18,7 @@ import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import { rotateX, rotateZ } from '../primitives.ts'
 import { Terrain } from './terrain.ts'
+import { createToggle } from '../utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -31,19 +32,20 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
 
-type Demo10FormType = {
+type FormType = {
   sliders?: Record<
     'tileSize' | 'smoothiness' | 'depth',
     ReturnType<typeof createSlider>
   >
+  toggles?: Record<'rotateAroundZAxis', ReturnType<typeof createToggle>>
 }
 
-export const demo10Form: Demo10FormType = {}
+export const demoForm: FormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  demo10Form.sliders = {
+  demoForm.sliders = {
     tileSize: createSlider({
       label: 'Tile size',
       min: 3,
@@ -69,10 +71,19 @@ const createDemoControls = () => {
     }),
   }
 
-  const createTerrain = () => {
-    if (!demo10Form.sliders) return
+  demoForm.toggles = {
+    rotateAroundZAxis: createToggle({
+      label: 'Rotate around Z axis?',
+      value: true,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+  }
 
-    const { tileSize, smoothiness, depth } = demo10Form.sliders
+  const createTerrain = () => {
+    if (!demoForm.sliders) return
+
+    const { tileSize, smoothiness, depth } = demoForm.sliders
 
     terrain = new Terrain(
       tileSize.getValue(),
@@ -83,7 +94,7 @@ const createDemoControls = () => {
     )
   }
 
-  Object.values(demo10Form.sliders).forEach(slider =>
+  Object.values(demoForm.sliders).forEach(slider =>
     slider.getInput().addEventListener('input', createTerrain),
   )
 
@@ -99,7 +110,9 @@ const draw = () => {
   background('lightGray')
 
   rotateX(-PI / 4)
-  rotateZ(-millis() / 2000)
+
+  if (demoForm.toggles?.rotateAroundZAxis.getValue()) rotateZ(-millis() / 2000)
+  else rotateZ(PI / 6)
 
   render3dAxes()
 

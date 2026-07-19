@@ -6,7 +6,7 @@ type Demo3FormType = {
     ReturnType<typeof createSlider>
   >
   toggles?: Record<
-    'rotateCubies' | 'renderExternalFacesOnly',
+    'rotateCubies' | 'renderExternalFacesOnly' | 'rotateAroundXAndYAxes',
     ReturnType<typeof createToggle>
   >
 }
@@ -31,6 +31,10 @@ export const rotateCubies = () => {
 
 export const renderExternalFacesOnly = () => {
   return toggles().renderExternalFacesOnly.getValue()
+}
+
+export const rotateAroundXAndYAxes = () => {
+  return toggles().rotateAroundXAndYAxes.getValue()
 }
 
 const sliders = () => {

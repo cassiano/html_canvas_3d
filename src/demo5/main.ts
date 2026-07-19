@@ -22,6 +22,7 @@ import {
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import { sphere, rotateX, rotateZ } from '../primitives.ts'
+import { createToggle } from '../utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -31,19 +32,20 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
 
-type Demo5FormType = {
+type DemoFormType = {
   sliders?: Record<
     'latitudeLines' | 'longitudeLines',
     ReturnType<typeof createSlider>
   >
+  toggles?: Record<'rotateAroundYAndZAxes', ReturnType<typeof createToggle>>
 }
 
-export const demo5Form: Demo5FormType = {}
+export const demoForm: DemoFormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  demo5Form.sliders = {
+  demoForm.sliders = {
     latitudeLines: createSlider({
       label: 'Latitude lines',
       min: 1,
@@ -60,6 +62,15 @@ const createDemoControls = () => {
       container: demoControlPanel,
     }),
   }
+
+  demoForm.toggles = {
+    rotateAroundYAndZAxes: createToggle({
+      label: 'Rotate around Y and Z axes?',
+      value: true,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -71,14 +82,17 @@ const draw = () => {
   background('lightGray')
 
   rotateX(PI / 4)
-  rotateY(-millis() / 2000)
-  rotateZ(millis() / 3000)
+
+  if (demoForm.toggles?.rotateAroundYAndZAxes.getValue()) {
+    rotateY(-millis() / 2000)
+    rotateZ(millis() / 3000)
+  }
 
   render3dAxes()
 
-  if (!demo5Form.sliders) return
+  if (!demoForm.sliders) return
 
-  const { latitudeLines, longitudeLines } = demo5Form.sliders
+  const { latitudeLines, longitudeLines } = demoForm.sliders
 
   sphere(250, {
     color: 'cornflowerblue',

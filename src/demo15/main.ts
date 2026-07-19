@@ -309,13 +309,13 @@ const createDemoControls = () => {
       container: demoControlPanel,
     }),
     showVirtualSphere: createToggle({
-      label: 'Show Virtual sphere?',
+      label: 'Show virtual sphere?',
       value: false,
       showValue: false,
       container: demoControlPanel,
     }),
     rotateAroundYAxis: createToggle({
-      label: 'Rotate around Y-axis?',
+      label: 'Rotate around Y axis?',
       value: true,
       showValue: false,
       container: demoControlPanel,

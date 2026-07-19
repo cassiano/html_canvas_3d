@@ -19,7 +19,8 @@ import {
   ring,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { cos, sin, HALF_PI } from '../math_utils.ts'
+import { cos, sin, HALF_PI, PI } from '../math_utils.ts'
+import { createToggle } from '../utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -34,21 +35,31 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
 
-type Demo12FormType = {
+type DemoFormType = {
   sliders?: Record<'totalRings', ReturnType<typeof createSlider>>
+  toggles?: Record<'rotateAroundXAndYAxes', ReturnType<typeof createToggle>>
 }
 
-export const demo12Form: Demo12FormType = {}
+export const demoForm: DemoFormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  demo12Form.sliders = {
+  demoForm.sliders = {
     totalRings: createSlider({
       label: 'Total rings',
       min: 1,
       max: 100,
       value: DEFAULT_TOTAL_RINGS,
+      container: demoControlPanel,
+    }),
+  }
+
+  demoForm.toggles = {
+    rotateAroundXAndYAxes: createToggle({
+      label: 'Rotate around X and Y axes?',
+      value: true,
+      showValue: false,
       container: demoControlPanel,
     }),
   }
@@ -60,14 +71,19 @@ const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
-  if (!demo12Form.sliders) return
+  if (!demoForm.sliders) return
 
-  const { totalRings } = demo12Form.sliders
+  const { totalRings } = demoForm.sliders
 
   background('lightGray')
 
-  rotateX(sin(millis() / 5000) * 1.5)
-  rotateY(-millis() / 2000)
+  if (demoForm.toggles?.rotateAroundXAndYAxes.getValue()) {
+    rotateX(sin(millis() / 5000) * 1.5)
+    rotateY(-millis() / 2000)
+  } else {
+    rotateX(PI / 4)
+    rotateY(PI / 6)
+  }
 
   render3dAxes()
 

@@ -15,7 +15,7 @@ import {
   text2d,
 } from './../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { sin } from './../math_utils.ts'
+import { PI, sin } from './../math_utils.ts'
 import { RubikCube } from './rubik_cube.ts'
 import {
   INITIAL_CUBIE_SIZE,
@@ -79,6 +79,12 @@ const createDemoControls = () => {
       showValue: false,
       container: demoControlPanel,
     }),
+    rotateAroundXAndYAxes: createToggle({
+      label: 'Rotate around X and Y axes?',
+      value: true,
+      showValue: false,
+      container: demoControlPanel,
+    }),
   }
 
   const createRubikCube = () => {
@@ -100,8 +106,13 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(sin(millis() / 5000) * 1.5)
-  rotateY(-millis() / 2000)
+  if (demo3Form.toggles?.rotateAroundXAndYAxes.getValue()) {
+    rotateX(sin(millis() / 5000) * 1.5)
+    rotateY(-millis() / 2000)
+  } else {
+    rotateX(PI / 4)
+    rotateY(PI / 6)
+  }
 
   render3dAxes()
 

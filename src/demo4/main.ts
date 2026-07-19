@@ -13,7 +13,12 @@ import { max, PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
 import { LSystem } from './l_system.ts'
 import { Turtle } from './turtle.ts'
-import { frameCount, createDemoControlPanel, createSlider } from '../utils.ts'
+import {
+  frameCount,
+  createDemoControlPanel,
+  createSlider,
+  createToggle,
+} from '../utils.ts'
 import { FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { radians } from '../math_utils.ts'
 
@@ -77,19 +82,20 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 
 let demoControlPanel: HTMLDivElement | null
 
-type Demo4FormType = {
+type DemoFormType = {
   sliders?: Record<
     'smallerCubeScale' | 'generations',
     ReturnType<typeof createSlider>
   >
+  toggles?: Record<'rotateAroundYAxis', ReturnType<typeof createToggle>>
 }
 
-export const demo4Form: Demo4FormType = {}
+export const demoForm: DemoFormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
-  demo4Form.sliders = {
+  demoForm.sliders = {
     smallerCubeScale: createSlider({
       label: 'Smaller cube %',
       min: 0,
@@ -109,12 +115,21 @@ const createDemoControls = () => {
     }),
   }
 
-  const createTurtle = () => {
-    if (!demo4Form.sliders) return
+  demoForm.toggles = {
+    rotateAroundYAxis: createToggle({
+      label: 'Rotate around Y axis?',
+      value: true,
+      showValue: false,
+      container: demoControlPanel,
+    }),
+  }
 
-    const generations = demo4Form.sliders.generations.getValue()
+  const createTurtle = () => {
+    if (!demoForm.sliders) return
+
+    const generations = demoForm.sliders.generations.getValue()
     const smallerCubeScale = max(
-      demo4Form.sliders.smallerCubeScale.getValue() / 100,
+      demoForm.sliders.smallerCubeScale.getValue() / 100,
       Number.EPSILON, // `smallerCubeScale` cannot be zero.
     )
 
@@ -126,20 +141,20 @@ const createDemoControls = () => {
   }
 
   const generateSentence = () => {
-    if (!demo4Form.sliders) return
+    if (!demoForm.sliders) return
 
-    const generations = demo4Form.sliders.generations.getValue()
+    const generations = demoForm.sliders.generations.getValue()
 
     lsystem.reset()
 
     sentence = timesReduce(generations, () => lsystem.generate(), lsystem.axiom)
   }
 
-  demo4Form.sliders.smallerCubeScale
+  demoForm.sliders.smallerCubeScale
     .getInput()
     .addEventListener('input', createTurtle)
 
-  demo4Form.sliders.generations.getInput().addEventListener('input', () => {
+  demoForm.sliders.generations.getInput().addEventListener('input', () => {
     generateSentence()
     createTurtle()
   })
@@ -157,7 +172,9 @@ const draw = () => {
   background('lightGray')
 
   rotateX(PI / 4)
-  rotateY(-millis() / 2000)
+
+  if (demoForm.toggles?.rotateAroundYAxis.getValue()) rotateY(-millis() / 2000)
+  else rotateY(PI / 6)
 
   render3dAxes()
 
