@@ -22,10 +22,11 @@ import {
 import { $v } from '../vector_3d.ts'
 import { elbow } from '../elbow_primitives.ts'
 import { PI } from '../math_utils.ts'
+import { isolateTransformations } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
-const RADIUS = 200
+const RADIUS = 175
 
 // -------------------------------------------------------------------------------------------------
 
@@ -69,12 +70,53 @@ const draw = () => {
 
   render3dAxes()
 
-  elbow.y.x(RADIUS, { isDoubleSided: true })
+  isolateTransformations(() => {
+    translate(-(RADIUS / 2 + RADIUS / 4), RADIUS / 4, 0)
 
-  translate(0, RADIUS / 2, 0)
-  cube(RADIUS, { opacity: 0.2 })
+    elbow.y.x(RADIUS, { isDoubleSided: true })
 
-  point(ORIGIN, { size: 10, color: 'red' })
+    translate(0, RADIUS / 2, 0)
+    cube(RADIUS, { opacity: 0.2 })
+
+    // Highlight the elbow's center.
+    point(ORIGIN, { size: 10, color: 'orange' })
+  })
+
+  isolateTransformations(() => {
+    translate(RADIUS / 2 + RADIUS / 4, RADIUS / 4, 0)
+
+    elbow.y['-x'](RADIUS, { isDoubleSided: true })
+
+    translate(0, RADIUS / 2, 0)
+    cube(RADIUS, { opacity: 0.2 })
+
+    // Highlight the elbow's center.
+    point(ORIGIN, { size: 10, color: 'orange' })
+  })
+
+  isolateTransformations(() => {
+    translate(-(RADIUS / 2 + RADIUS / 4), -RADIUS / 4, 0)
+
+    elbow['-y'].x(RADIUS, { isDoubleSided: true })
+
+    translate(0, -RADIUS / 2, 0)
+    cube(RADIUS, { opacity: 0.2 })
+
+    // Highlight the elbow's center.
+    point(ORIGIN, { size: 10, color: 'orange' })
+  })
+
+  isolateTransformations(() => {
+    translate(RADIUS / 2 + RADIUS / 4, -RADIUS / 4, 0)
+
+    elbow['-y']['-x'](RADIUS, { isDoubleSided: true })
+
+    translate(0, -RADIUS / 2, 0)
+    cube(RADIUS, { opacity: 0.2 })
+
+    // Highlight the elbow's center.
+    point(ORIGIN, { size: 10, color: 'orange' })
+  })
 }
 
 const onPaused = () => {
