@@ -45,7 +45,7 @@ const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
   demoForm.toggles = {
-    rotateAroundZAxis: createToggle({
+    rotateAroundYAxis: createToggle({
       label: 'Rotate around Y axis?',
       value: true,
       showValue: false,
@@ -64,8 +64,8 @@ const draw = () => {
 
   rotateX(PI / 4)
 
-  if (demoForm.toggles?.rotateAroundZAxis.getValue()) rotateY(-millis() / 2000)
-  else rotateY(PI / 6)
+  if (demoForm.toggles?.rotateAroundYAxis.getValue()) rotateY(-millis() / 2000)
+  else rotateY(-PI / 6)
 
   render3dAxes()
 
