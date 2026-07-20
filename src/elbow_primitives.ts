@@ -30,7 +30,7 @@ const defaultElbow = (radius: number, options: ElbowShapeOptions = {}) => {
   const ringDepth = (TWO_PI * radius) / 4 / elbowCircleSlices // (2.π.R)/4 = 1/4 of circle perimeter.
 
   for (let theta = 0; theta < HALF_PI; theta += HALF_PI / elbowCircleSlices) {
-    // [/doc_img/elbow_primitives.ts/2026-07-19-15-56-37.png]
+    // [/doc_img/elbow_primitives.ts/2026-07-20-09-58-58.png]
     isolateTransformations(() => {
       translate(radius / 2, 0, 0)
       rotateZ(-theta)
