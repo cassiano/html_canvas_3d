@@ -50,8 +50,7 @@ const DEFAULT_BALL_SPEED = 7
 const BALL_RADIUS = (RADIUS / 2) * 0.99
 const BALL_COLOR = 'white'
 
-const SPHERICAL_RADIUS_LIMIT = 3
-const SPHERICAL_RADIUS_LIMIT_SQUARED = SPHERICAL_RADIUS_LIMIT ** 2
+const DEFAULT_VIRTUAL_SPHERE_RADIUS = 3
 
 const MAX_RETRIES = 9999
 
@@ -279,7 +278,10 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 let demoControlPanel: HTMLDivElement | null
 
 type Demo15FormType = {
-  sliders?: Record<'ballSpeed', ReturnType<typeof createSlider>>
+  sliders?: Record<
+    'ballSpeed' | 'virtualSphereRadius',
+    ReturnType<typeof createSlider>
+  >
   toggles?: Record<
     'applyCentripetalForce' | 'showVirtualSphere' | 'rotateAroundYAxis',
     ReturnType<typeof createToggle>
@@ -297,6 +299,14 @@ const createDemoControls = () => {
       min: 1,
       max: 10,
       value: DEFAULT_BALL_SPEED,
+      container: demoControlPanel,
+    }),
+    virtualSphereRadius: createSlider({
+      label: 'Virtual sphere radius',
+      min: 3,
+      max: 6,
+      value: DEFAULT_VIRTUAL_SPHERE_RADIUS,
+      onChange: generateElbows,
       container: demoControlPanel,
     }),
   }
@@ -333,96 +343,103 @@ type ElbowDetails = {
   remainingTransitions: AxesNamesType[]
 }
 
-const axesKeys = Object.keys(elbow)
+let centerCoords: Vector3d
+let maxAxisDistance: number
 const elbows: ElbowDetails[] = []
 
-let skipGeneration = false
-let retries = 0
-let fromAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
-let transitions: AxesNamesType[] | undefined = undefined
+const generateElbows = (virtualSphereRadius: number) => {
+  const axesKeys = Object.keys(elbow)
 
-while (!skipGeneration) {
-  let validVisit = false
-  transitions ??= Object.keys(elbow[fromAxis]) as AxesNamesType[]
+  let skipGeneration = false
+  let retries = 0
+  let fromAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
+  let transitions: AxesNamesType[] | undefined = undefined
 
-  let toAxis: AxesNamesType
-  let newCenter: Vector3d
+  while (!skipGeneration) {
+    let validVisit = false
+    transitions ??= Object.keys(elbow[fromAxis]) as AxesNamesType[]
 
-  while (!validVisit && transitions.length > 0) {
-    toAxis = sample(transitions) as AxesNamesType
+    let toAxis: AxesNamesType
+    let newCenter: Vector3d
 
-    newCenter = ELBOWS_PATHS[fromAxis](
-      elbows.length === 0
-        ? ELBOWS_PATHS[fromAxis](ORIGIN, -0.5)
-        : elbows[elbows.length - 1].center,
-    )
+    while (!validVisit && transitions.length > 0) {
+      toAxis = sample(transitions) as AxesNamesType
 
-    transitions.splice(transitions.indexOf(toAxis), 1)
-
-    validVisit =
-      elbows.findIndex(({ center }) => center.equals(newCenter)) === -1 &&
-      newCenter.magSq() <= SPHERICAL_RADIUS_LIMIT_SQUARED
-  }
-
-  if (validVisit) {
-    elbows.push({
-      from: fromAxis,
-      to: toAxis!,
-      center: newCenter!,
-      startingPosition:
+      newCenter = ELBOWS_PATHS[fromAxis](
         elbows.length === 0
-          ? ORIGIN
-          : ELBOWS_PATHS[fromAxis](elbows[elbows.length - 1].center, 0.5),
-      remainingTransitions: transitions,
-    })
-
-    fromAxis = toAxis!
-    transitions = undefined
-  } else {
-    // Remove the last elbow.
-    elbows.pop()
-
-    // Locate its previous elbow.
-    const previousElbow = elbows[elbows.length - 1]
-
-    // Backtrack to the previous elbow and try a different path.
-    fromAxis = previousElbow.to
-    transitions = previousElbow.remainingTransitions
-
-    if (++retries > MAX_RETRIES) {
-      skipGeneration = true
-
-      console.warn(
-        'Max retries reached. Stopping generation of elbows to avoid infinite loop.',
+          ? ELBOWS_PATHS[fromAxis](ORIGIN, -0.5)
+          : elbows[elbows.length - 1].center,
       )
+
+      transitions.splice(transitions.indexOf(toAxis), 1)
+
+      validVisit =
+        elbows.findIndex(({ center }) => center.equals(newCenter)) === -1 &&
+        newCenter.magSq() <= virtualSphereRadius ** 2
+    }
+
+    if (validVisit) {
+      elbows.push({
+        from: fromAxis,
+        to: toAxis!,
+        center: newCenter!,
+        startingPosition:
+          elbows.length === 0
+            ? ORIGIN
+            : ELBOWS_PATHS[fromAxis](elbows[elbows.length - 1].center, 0.5),
+        remainingTransitions: transitions,
+      })
+
+      fromAxis = toAxis!
+      transitions = undefined
+    } else {
+      // Remove the last elbow.
+      elbows.pop()
+
+      // Locate its previous elbow.
+      const previousElbow = elbows[elbows.length - 1]
+
+      // Backtrack to the previous elbow and try a different path.
+      fromAxis = previousElbow.to
+      transitions = previousElbow.remainingTransitions
+
+      if (++retries > MAX_RETRIES) {
+        skipGeneration = true
+
+        console.warn(
+          'Max retries reached. Stopping generation of elbows to avoid infinite loop.',
+        )
+      }
     }
   }
+
+  const visitedCoords = elbows.reduce(
+    (acc, { center }) => {
+      acc[0].push(center.x)
+      acc[1].push(center.y)
+      acc[2].push(center.z)
+
+      return acc
+    },
+    [[], [], []] as Tuple<number[], 3>,
+  )
+
+  const [xMax, xMin] = [max(...visitedCoords[0]), min(...visitedCoords[0])]
+  const [yMax, yMin] = [max(...visitedCoords[1]), min(...visitedCoords[1])]
+  const [zMax, zMin] = [max(...visitedCoords[2]), min(...visitedCoords[2])]
+
+  const averageCoords = $v(
+    (xMax + xMin) / 2,
+    (yMax + yMin) / 2,
+    (zMax + zMin) / 2,
+  )
+
+  centerCoords = averageCoords.clone().mult(-RADIUS)
+
+  maxAxisDistance = max(xMax - xMin, yMax - yMin, zMax - zMin)
 }
 
-const visitedCoords = elbows.reduce(
-  (acc, { center }) => {
-    acc[0].push(center.x)
-    acc[1].push(center.y)
-    acc[2].push(center.z)
-
-    return acc
-  },
-  [[], [], []] as Tuple<number[], 3>,
-)
-
-const [xMax, xMin] = [max(...visitedCoords[0]), min(...visitedCoords[0])]
-const [yMax, yMin] = [max(...visitedCoords[1]), min(...visitedCoords[1])]
-const [zMax, zMin] = [max(...visitedCoords[2]), min(...visitedCoords[2])]
-
-const averageCoords = $v(
-  (xMax + xMin) / 2,
-  (yMax + yMin) / 2,
-  (zMax + zMin) / 2,
-)
-
-const centerCoords = averageCoords.clone().mult(-RADIUS)
-
-const maxAxisDistance = max(xMax - xMin, yMax - yMin, zMax - zMin)
+generateElbows(DEFAULT_VIRTUAL_SPHERE_RADIUS)
 
 // -------------------------------------------------------------------------------------------------
 
@@ -442,11 +459,16 @@ const draw = () => {
 
   scale(1 / ceil(maxAxisDistance / 6))
 
-  if (demo15Form.toggles?.showVirtualSphere.getValue())
-    sphere((SPHERICAL_RADIUS_LIMIT + 1 / 2) * RADIUS, {
+  if (demo15Form.toggles?.showVirtualSphere.getValue()) {
+    const virtualSphereRadius =
+      demo15Form.sliders?.virtualSphereRadius.getValue() ??
+      DEFAULT_VIRTUAL_SPHERE_RADIUS
+
+    sphere((virtualSphereRadius + 1 / 2) * RADIUS, {
       opacity: 0.1,
       color: 'lightGray',
     })
+  }
 
   translate(centerCoords)
 
@@ -468,6 +490,8 @@ const draw = () => {
 
   const ballSpeed =
     demo15Form.sliders?.ballSpeed.getValue() ?? DEFAULT_BALL_SPEED
+
+  // logJson({ elbowsLength: elbows.length })
 
   const ballSpeedFactor = map(ballSpeed, 1, 10, 1500, 50)
   const currentIndex = floor(millis() / ballSpeedFactor) % elbows.length
