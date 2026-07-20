@@ -23,6 +23,7 @@ import { $v } from '../vector_3d.ts'
 import { elbow } from '../elbow_primitives.ts'
 import { PI } from '../math_utils.ts'
 import { isolateTransformations } from '../primitives.ts'
+import { createSlider } from '../utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -37,6 +38,7 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 let demoControlPanel: HTMLDivElement | null
 
 type FormType = {
+  sliders?: Record<'spaceInTheMiddle', ReturnType<typeof createSlider>>
   toggles?: Record<'rotateAroundYAxis', ReturnType<typeof createToggle>>
 }
 
@@ -44,6 +46,16 @@ export const demoForm: FormType = {}
 
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
+
+  demoForm.sliders = {
+    spaceInTheMiddle: createSlider({
+      label: 'Space in the middle',
+      min: 0,
+      max: RADIUS / 2,
+      value: RADIUS / 4,
+      container: demoControlPanel,
+    }),
+  }
 
   demoForm.toggles = {
     rotateAroundYAxis: createToggle({
@@ -70,10 +82,12 @@ const draw = () => {
 
   render3dAxes()
 
-  isolateTransformations(() => {
-    translate(-(RADIUS / 2 + RADIUS / 4), RADIUS / 4, 0)
+  const spaceInTheMiddle = demoForm.sliders?.spaceInTheMiddle.getValue() ?? 0
 
-    elbow.y.x(RADIUS, { isDoubleSided: true })
+  isolateTransformations(() => {
+    translate(-(RADIUS / 2 + spaceInTheMiddle), spaceInTheMiddle, 0)
+
+    elbow.y.x(RADIUS, { opacity: 0.5 })
 
     translate(0, RADIUS / 2, 0)
     cube(RADIUS, { opacity: 0.2 })
@@ -83,9 +97,9 @@ const draw = () => {
   })
 
   isolateTransformations(() => {
-    translate(RADIUS / 2 + RADIUS / 4, RADIUS / 4, 0)
+    translate(RADIUS / 2 + spaceInTheMiddle, spaceInTheMiddle, 0)
 
-    elbow.y['-x'](RADIUS, { isDoubleSided: true })
+    elbow.y['-x'](RADIUS, { opacity: 0.5 })
 
     translate(0, RADIUS / 2, 0)
     cube(RADIUS, { opacity: 0.2 })
@@ -95,9 +109,9 @@ const draw = () => {
   })
 
   isolateTransformations(() => {
-    translate(-(RADIUS / 2 + RADIUS / 4), -RADIUS / 4, 0)
+    translate(-(RADIUS / 2 + spaceInTheMiddle), -spaceInTheMiddle, 0)
 
-    elbow['-y'].x(RADIUS, { isDoubleSided: true })
+    elbow['-y'].x(RADIUS, { opacity: 0.5 })
 
     translate(0, -RADIUS / 2, 0)
     cube(RADIUS, { opacity: 0.2 })
@@ -107,9 +121,9 @@ const draw = () => {
   })
 
   isolateTransformations(() => {
-    translate(RADIUS / 2 + RADIUS / 4, -RADIUS / 4, 0)
+    translate(RADIUS / 2 + spaceInTheMiddle, -spaceInTheMiddle, 0)
 
-    elbow['-y']['-x'](RADIUS, { isDoubleSided: true })
+    elbow['-y']['-x'](RADIUS, { opacity: 0.5 })
 
     translate(0, -RADIUS / 2, 0)
     cube(RADIUS, { opacity: 0.2 })
