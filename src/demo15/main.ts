@@ -350,6 +350,8 @@ const elbows: ElbowDetails[] = []
 const generateElbows = (virtualSphereRadius: number) => {
   const axesKeys = Object.keys(elbow)
 
+  elbows.length = 0
+
   let skipGeneration = false
   let retries = 0
   let fromAxis: AxesNamesType = sample(axesKeys) as AxesNamesType
@@ -490,8 +492,6 @@ const draw = () => {
 
   const ballSpeed =
     demo15Form.sliders?.ballSpeed.getValue() ?? DEFAULT_BALL_SPEED
-
-  // logJson({ elbowsLength: elbows.length })
 
   const ballSpeedFactor = map(ballSpeed, 1, 10, 1500, 50)
   const currentIndex = floor(millis() / ballSpeedFactor) % elbows.length
