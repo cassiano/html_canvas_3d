@@ -1,4 +1,4 @@
-import { FPS, FPS_LOGGING_FRAME_PERIOD, ORIGIN } from '../constants.ts'
+import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import {
   createFrameLoop,
   frameCount,
@@ -17,7 +17,6 @@ import {
   translate,
   rotateX,
   rotateY,
-  point,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { elbow } from '../elbow_primitives.ts'
@@ -82,9 +81,6 @@ const draw = () => {
 
     translate(0, RADIUS / 2, 0)
     cube(RADIUS, { opacity: 0.2 })
-
-    // Highlight the elbow's center.
-    point(ORIGIN, { size: 10, color: 'orange' })
   })
 
   isolateTransformations(() => {
@@ -94,9 +90,6 @@ const draw = () => {
 
     translate(0, RADIUS / 2, 0)
     cube(RADIUS, { opacity: 0.2 })
-
-    // Highlight the elbow's center.
-    point(ORIGIN, { size: 10, color: 'orange' })
   })
 
   isolateTransformations(() => {
@@ -106,9 +99,6 @@ const draw = () => {
 
     translate(0, -RADIUS / 2, 0)
     cube(RADIUS, { opacity: 0.2 })
-
-    // Highlight the elbow's center.
-    point(ORIGIN, { size: 10, color: 'orange' })
   })
 
   isolateTransformations(() => {
@@ -118,9 +108,6 @@ const draw = () => {
 
     translate(0, -RADIUS / 2, 0)
     cube(RADIUS, { opacity: 0.2 })
-
-    // Highlight the elbow's center.
-    point(ORIGIN, { size: 10, color: 'orange' })
   })
 }
 
