@@ -5,12 +5,28 @@
     <link rel="icon" type="image/svg+xml" href="/html_canvas_3d/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>html_canvas_3d</title>
-    <script type="module" crossorigin src="/html_canvas_3d/assets/index-DTdlhMGh.js"></script>
-    <link rel="stylesheet" crossorigin href="/html_canvas_3d/assets/index-CMqD1znK.css">
+    <script type="module" crossorigin src="/html_canvas_3d/assets/index-BkN2Piai.js"></script>
+    <link rel="stylesheet" crossorigin href="/html_canvas_3d/assets/index-J3KfZzhH.css">
   </head>
   <body>
     <div id="menu">
       <h1>3D Canvas Demos</h1>
+      <label for="show-normals-checkbox">
+        <input type="checkbox" id="show-normals-checkbox" autocomplete="off" />
+        Show normals
+      </label>
+      <label for="show-3d-axes-checkbox">
+        <input type="checkbox" id="show-3d-axes-checkbox" autocomplete="off" />
+        Show 3D axes
+      </label>
+      <label for="enable-auto-rotation-checkbox">
+        <input
+          type="checkbox"
+          id="enable-auto-rotation-checkbox"
+          autocomplete="off"
+        />
+        Enable 3D axes auto rotation
+      </label>
       <button id="demo1">Demo 1 - Falling Cube+Sphere</button>
       <button id="demo2">Demo 2 - Rotating Boxes</button>
       <button id="demo3">Demo 3 - Rubrik Cube</button>
@@ -29,15 +45,7 @@
       <button id="demo16">Demo 16 - Twin Elbow Towers</button>
       <button id="demo17">Demo 17 - Fireworks</button>
       <button id="demo18">Demo 18 - Boxed Elbows</button>
-      <button id="demo19">Demo 19 - Lumen Orbit</button>
-      <label for="render-normals-checkbox">
-        <input
-          type="checkbox"
-          id="render-normals-checkbox"
-          autocomplete="off"
-        />
-        Show normals
-      </label>
+      <button id="demo19">Demo 19 - Lumen Orbit (AI-generated)</button>
     </div>
     <div id="canvas-container">
       <canvas id="animation"></canvas>
