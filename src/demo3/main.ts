@@ -25,6 +25,7 @@ import {
 import { frameCount, createSlider, createToggle } from '../utils.ts'
 import { FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { demo3Form, cubieSize, cubiesPerAxis } from './demo3_form.ts'
+import { autoRotationEnabled } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -79,12 +80,6 @@ const createDemoControls = () => {
       showValue: false,
       container: demoControlPanel,
     }),
-    rotateAroundXAndYAxes: createToggle({
-      label: 'Rotate around X and Y axes?',
-      value: true,
-      showValue: false,
-      container: demoControlPanel,
-    }),
   }
 
   const createRubikCube = () => {
@@ -106,7 +101,7 @@ const draw = () => {
 
   background('lightGray')
 
-  if (demo3Form.toggles?.rotateAroundXAndYAxes.getValue()) {
+  if (autoRotationEnabled) {
     rotateX(sin(millis() / 5000) * 1.5)
     rotateY(-millis() / 2000)
   } else {

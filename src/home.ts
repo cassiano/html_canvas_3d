@@ -1,5 +1,10 @@
 import { timesForEach, timesMap, timesReduce, togglePause } from './utils.ts'
-import { resetZoom, resetPanOffset, setRenderNormals } from './primitives.ts'
+import {
+  resetZoom,
+  resetPanOffset,
+  setshowNormals,
+  setRender3dAxesEnabled,
+} from './primitives.ts'
 import {
   animation,
   addDragRotation,
@@ -8,6 +13,7 @@ import {
   addZoom,
 } from './primitives.ts'
 import { min } from './math_utils.ts'
+import { setAutoRotationCheckboxEnabled } from './primitives.ts'
 
 ///////////////////////
 // AI-generated code //
@@ -151,12 +157,32 @@ timesForEach(DEMO_COUNT, i => {
   demoButtons[i].addEventListener('click', () => switchDemo(demoPaths[i]))
 })
 
-const renderNormalsCheckbox = document.getElementById(
-  'render-normals-checkbox',
+const showNormalsCheckbox = document.getElementById(
+  'show-normals-checkbox',
 ) as HTMLInputElement
 
-renderNormalsCheckbox.addEventListener('change', () => {
-  setRenderNormals(renderNormalsCheckbox.checked)
+const show3dAxesCheckbox = document.getElementById(
+  'show-3d-axes-checkbox',
+) as HTMLInputElement
+
+show3dAxesCheckbox.checked = true
+
+const enableAutoRotationCheckbox = document.getElementById(
+  'enable-auto-rotation-checkbox',
+) as HTMLInputElement
+
+enableAutoRotationCheckbox.checked = true
+
+showNormalsCheckbox.addEventListener('change', () => {
+  setshowNormals(showNormalsCheckbox.checked)
+})
+
+show3dAxesCheckbox.addEventListener('change', () => {
+  setRender3dAxesEnabled(show3dAxesCheckbox.checked)
+})
+
+enableAutoRotationCheckbox.addEventListener('change', () => {
+  setAutoRotationCheckboxEnabled(enableAutoRotationCheckbox.checked)
 })
 
 let isDragging = false

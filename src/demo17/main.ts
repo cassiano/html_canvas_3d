@@ -15,7 +15,7 @@ import {
 import { $v } from '../vector_3d.ts'
 import { Fireworks } from './fireworks.ts'
 import { render3dAxes, animation } from '../primitives.ts'
-import { demo17Form, show3dAxes } from './demo17_form.ts'
+import { demo17Form } from './demo17_form.ts'
 import { createSlider } from '../utils.ts'
 import { launchesPer100Frames as launchesPer100Frames } from './demo17_form.ts'
 
@@ -64,12 +64,6 @@ const createDemoControls = () => {
   }
 
   demo17Form.toggles = {
-    show3dAxes: createToggle({
-      label: 'Show 3D axes?',
-      value: false,
-      showValue: false,
-      container: demoControlPanel,
-    }),
     renderIn3d: createToggle({
       label: '3D version?',
       value: false,
@@ -92,7 +86,7 @@ const draw = () => {
 
   background('black')
 
-  if (show3dAxes()) render3dAxes()
+  render3dAxes()
 
   // Reset the launch count every 100 frames.
   if (frameCount() % 100 === 0) launchCount = 0

@@ -13,14 +13,10 @@ import { max, PI } from './../math_utils.ts'
 import { FPS } from './../constants.ts'
 import { LSystem } from './l_system.ts'
 import { Turtle } from './turtle.ts'
-import {
-  frameCount,
-  createDemoControlPanel,
-  createSlider,
-  createToggle,
-} from '../utils.ts'
+import { frameCount, createDemoControlPanel, createSlider } from '../utils.ts'
 import { FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { radians } from '../math_utils.ts'
+import { autoRotationEnabled } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -87,7 +83,6 @@ type DemoFormType = {
     'smallerCubeScale' | 'generations',
     ReturnType<typeof createSlider>
   >
-  toggles?: Record<'rotateAroundYAxis', ReturnType<typeof createToggle>>
 }
 
 export const demoForm: DemoFormType = {}
@@ -111,15 +106,6 @@ const createDemoControls = () => {
       value: 2,
       length: 80,
       color: 'blue',
-      container: demoControlPanel,
-    }),
-  }
-
-  demoForm.toggles = {
-    rotateAroundYAxis: createToggle({
-      label: 'Rotate around Y axis?',
-      value: true,
-      showValue: false,
       container: demoControlPanel,
     }),
   }
@@ -173,7 +159,7 @@ const draw = () => {
 
   rotateX(PI / 4)
 
-  if (demoForm.toggles?.rotateAroundYAxis.getValue()) rotateY(-millis() / 2000)
+  if (autoRotationEnabled) rotateY(-millis() / 2000)
   else rotateY(PI / 6)
 
   render3dAxes()

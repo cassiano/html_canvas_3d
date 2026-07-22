@@ -33,7 +33,14 @@ import {
   createDemoControlPanel,
   createToggle,
 } from '../utils.ts'
-import { rotateY, rotateZ, rotate, sphere, scale } from '../primitives.ts'
+import {
+  rotateY,
+  rotateZ,
+  rotate,
+  sphere,
+  scale,
+  autoRotationEnabled,
+} from '../primitives.ts'
 import { translate, isolateTransformations } from '../primitives.ts'
 import { AXES } from '../constants.ts'
 import { Tuple } from '../utility_types.ts'
@@ -283,7 +290,7 @@ type Demo15FormType = {
     ReturnType<typeof createSlider>
   >
   toggles?: Record<
-    'applyCentripetalForce' | 'showVirtualSphere' | 'rotateAroundYAxis',
+    'applyCentripetalForce' | 'showVirtualSphere',
     ReturnType<typeof createToggle>
   >
 }
@@ -321,12 +328,6 @@ const createDemoControls = () => {
     showVirtualSphere: createToggle({
       label: 'Show virtual sphere?',
       value: false,
-      showValue: false,
-      container: demoControlPanel,
-    }),
-    rotateAroundYAxis: createToggle({
-      label: 'Rotate around Y axis?',
-      value: true,
       showValue: false,
       container: demoControlPanel,
     }),
@@ -453,8 +454,7 @@ const draw = () => {
 
   rotateX(PI / 4)
 
-  if (demo15Form.toggles?.rotateAroundYAxis.getValue())
-    rotateY(-millis() / 2000)
+  if (autoRotationEnabled) rotateY(-millis() / 2000)
   else rotateY(PI / 6)
 
   render3dAxes()

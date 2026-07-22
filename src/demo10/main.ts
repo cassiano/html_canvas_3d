@@ -16,9 +16,8 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateX, rotateZ } from '../primitives.ts'
+import { rotateX, rotateZ, autoRotationEnabled } from '../primitives.ts'
 import { Terrain } from './terrain.ts'
-import { createToggle } from '../utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -37,7 +36,6 @@ type FormType = {
     'tileSize' | 'smoothiness' | 'depth',
     ReturnType<typeof createSlider>
   >
-  toggles?: Record<'rotateAroundZAxis', ReturnType<typeof createToggle>>
 }
 
 export const demoForm: FormType = {}
@@ -67,15 +65,6 @@ const createDemoControls = () => {
       max: 500,
       value: 160,
       color: 'red',
-      container: demoControlPanel,
-    }),
-  }
-
-  demoForm.toggles = {
-    rotateAroundZAxis: createToggle({
-      label: 'Rotate around Z axis?',
-      value: true,
-      showValue: false,
       container: demoControlPanel,
     }),
   }
@@ -111,7 +100,7 @@ const draw = () => {
 
   rotateX(-PI / 4)
 
-  if (demoForm.toggles?.rotateAroundZAxis.getValue()) rotateZ(-millis() / 2000)
+  if (autoRotationEnabled) rotateZ(-millis() / 2000)
   else rotateZ(PI / 6)
 
   render3dAxes()

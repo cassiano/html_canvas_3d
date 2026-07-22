@@ -20,7 +20,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { cos, sin, HALF_PI, PI } from '../math_utils.ts'
-import { createToggle } from '../utils.ts'
+import { autoRotationEnabled } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -37,7 +37,6 @@ let demoControlPanel: HTMLDivElement | null
 
 type DemoFormType = {
   sliders?: Record<'totalRings', ReturnType<typeof createSlider>>
-  toggles?: Record<'rotateAroundXAndYAxes', ReturnType<typeof createToggle>>
 }
 
 export const demoForm: DemoFormType = {}
@@ -51,15 +50,6 @@ const createDemoControls = () => {
       min: 1,
       max: 100,
       value: DEFAULT_TOTAL_RINGS,
-      container: demoControlPanel,
-    }),
-  }
-
-  demoForm.toggles = {
-    rotateAroundXAndYAxes: createToggle({
-      label: 'Rotate around X and Y axes?',
-      value: true,
-      showValue: false,
       container: demoControlPanel,
     }),
   }
@@ -77,7 +67,7 @@ const draw = () => {
 
   background('lightGray')
 
-  if (demoForm.toggles?.rotateAroundXAndYAxes.getValue()) {
+  if (autoRotationEnabled) {
     rotateX(sin(millis() / 5000) * 1.5)
     rotateY(-millis() / 2000)
   } else {

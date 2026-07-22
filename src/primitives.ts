@@ -45,7 +45,7 @@ export interface ShapeOptions {
   size?: number
   noSplit?: boolean // Used for lines and arrows.
   isDoubleSided?: boolean
-  neverRenderNormals?: boolean
+  nevershowNormals?: boolean
   percentage?: number
 }
 
@@ -58,7 +58,7 @@ export const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
   size: 1,
   noSplit: false,
   isDoubleSided: false,
-  neverRenderNormals: false,
+  nevershowNormals: false,
   percentage: 1.0,
 }
 
@@ -85,10 +85,20 @@ const getScreenCenter = () => $v(animation.width / 2, animation.height / 2, 0)
 
 const getAxisLength = () => min(animation.width, animation.height) * 0.6
 
-export let renderNormals = false
+export let showNormals = false
+export let render3dAxesEnabled = true
+export let autoRotationEnabled = true
 
-export const setRenderNormals = (value: boolean) => {
-  renderNormals = value
+export const setshowNormals = (value: boolean) => {
+  showNormals = value
+}
+
+export const setRender3dAxesEnabled = (value: boolean) => {
+  render3dAxesEnabled = value
+}
+
+export const setAutoRotationCheckboxEnabled = (value: boolean) => {
+  autoRotationEnabled = value
 }
 
 export type transformationMatrix4x4Type = Tuple<Tuple<number, 4>, 4>
@@ -482,7 +492,7 @@ export const arrow = (
 
     cone(tipRadius, tipHeight, {
       ...options,
-      neverRenderNormals: true,
+      nevershowNormals: true,
       circleSegments,
       noStroke: true,
     })
@@ -559,7 +569,7 @@ export const triangle2d = (
     strokeColor,
     lineWidth,
     isDoubleSided,
-    neverRenderNormals,
+    nevershowNormals,
   } = finalOptions
 
   screenA = screenA ?? toScreen(pointA)
@@ -611,8 +621,8 @@ export const triangle2d = (
 
     shapeIsVisible = isShapeFacingCamera(centroid, normal)
 
-    if (renderNormals)
-      if (shapeIsVisible && !neverRenderNormals) {
+    if (showNormals)
+      if (shapeIsVisible && !nevershowNormals) {
         arrow(
           centroid,
           centroid.clone().add(normal.clone().mult(NORMAL_CONFIG.length)),
@@ -970,6 +980,8 @@ export const text2d = (message: string, point: Vector3d) => {
 }
 
 export const render3dAxes = () => {
+  if (!render3dAxesEnabled) return
+
   const halfLength = getAxisLength() / 2
 
   arrow(AXES['-x'].clone().mult(halfLength), AXES.x.clone().mult(halfLength), {

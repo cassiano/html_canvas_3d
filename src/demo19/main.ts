@@ -1,3 +1,7 @@
+///////////////////////
+// AI-generated code //
+///////////////////////
+
 import { FPS, ORIGIN } from '../constants.ts'
 import { createFrameLoop, millis, timesForEach } from '../utils.ts'
 import {
@@ -21,6 +25,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { HALF_PI, PI, cos, sin, TWO_PI } from '../math_utils.ts'
+import { autoRotationEnabled } from '../primitives.ts'
 
 const draw = () => {
   background('#050816')
@@ -30,8 +35,10 @@ const draw = () => {
   const pulse = 0.55 + 0.25 * sin(time * 1.4)
   const shimmer = 0.45 + 0.2 * sin(time * 2.2)
 
-  rotateX(PI / 4 + sin(time * 0.8) * 0.18)
-  rotateY(time * 0.7)
+  if (autoRotationEnabled) {
+    rotateX(PI / 4 + sin(time * 0.8) * 0.18)
+    rotateY(time * 0.7)
+  }
 
   render3dAxes()
 

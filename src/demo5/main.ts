@@ -21,8 +21,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { sphere, rotateX, rotateZ } from '../primitives.ts'
-import { createToggle } from '../utils.ts'
+import { sphere, rotateX, rotateZ, autoRotationEnabled } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -37,7 +36,6 @@ type DemoFormType = {
     'latitudeLines' | 'longitudeLines',
     ReturnType<typeof createSlider>
   >
-  toggles?: Record<'rotateAroundYAndZAxes', ReturnType<typeof createToggle>>
 }
 
 export const demoForm: DemoFormType = {}
@@ -62,15 +60,6 @@ const createDemoControls = () => {
       container: demoControlPanel,
     }),
   }
-
-  demoForm.toggles = {
-    rotateAroundYAndZAxes: createToggle({
-      label: 'Rotate around Y and Z axes?',
-      value: true,
-      showValue: false,
-      container: demoControlPanel,
-    }),
-  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -83,7 +72,7 @@ const draw = () => {
 
   rotateX(PI / 4)
 
-  if (demoForm.toggles?.rotateAroundYAndZAxes.getValue()) {
+  if (autoRotationEnabled) {
     rotateY(-millis() / 2000)
     rotateZ(millis() / 3000)
   }

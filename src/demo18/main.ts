@@ -22,7 +22,7 @@ import {
 import { $v } from '../vector_3d.ts'
 import { elbow } from '../elbow_primitives.ts'
 import { PI } from '../math_utils.ts'
-import { isolateTransformations } from '../primitives.ts'
+import { isolateTransformations, autoRotationEnabled } from '../primitives.ts'
 import { createSlider } from '../utils.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ if (!canvasContainer) throw new Error('canvasContainer not found')
 let demoControlPanel: HTMLDivElement | null
 
 type FormType = {
-  sliders?: Record<'spaceInTheMiddle', ReturnType<typeof createSlider>>
+  sliders?: Record<'spacing', ReturnType<typeof createSlider>>
   toggles?: Record<'rotateAroundYAxis', ReturnType<typeof createToggle>>
 }
 
@@ -48,20 +48,11 @@ const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
   demoForm.sliders = {
-    spaceInTheMiddle: createSlider({
-      label: 'Space in the middle',
+    spacing: createSlider({
+      label: 'Spacing',
       min: 0,
       max: RADIUS / 2,
       value: RADIUS / 4,
-      container: demoControlPanel,
-    }),
-  }
-
-  demoForm.toggles = {
-    rotateAroundYAxis: createToggle({
-      label: 'Rotate around Y axis?',
-      value: true,
-      showValue: false,
       container: demoControlPanel,
     }),
   }
@@ -77,15 +68,15 @@ const draw = () => {
 
   rotateX(PI / 4)
 
-  if (demoForm.toggles?.rotateAroundYAxis.getValue()) rotateY(-millis() / 2000)
+  if (autoRotationEnabled) rotateY(-millis() / 2000)
   else rotateY(-PI / 6)
 
   render3dAxes()
 
-  const spaceInTheMiddle = demoForm.sliders?.spaceInTheMiddle.getValue() ?? 0
+  const spacing = demoForm.sliders?.spacing.getValue() ?? 0
 
   isolateTransformations(() => {
-    translate(-(RADIUS / 2 + spaceInTheMiddle), spaceInTheMiddle, 0)
+    translate(-(RADIUS / 2 + spacing), spacing, 0)
 
     elbow.y.x(RADIUS, { opacity: 0.5 })
 
@@ -97,7 +88,7 @@ const draw = () => {
   })
 
   isolateTransformations(() => {
-    translate(RADIUS / 2 + spaceInTheMiddle, spaceInTheMiddle, 0)
+    translate(RADIUS / 2 + spacing, spacing, 0)
 
     elbow.y['-x'](RADIUS, { opacity: 0.5 })
 
@@ -109,7 +100,7 @@ const draw = () => {
   })
 
   isolateTransformations(() => {
-    translate(-(RADIUS / 2 + spaceInTheMiddle), -spaceInTheMiddle, 0)
+    translate(-(RADIUS / 2 + spacing), -spacing, 0)
 
     elbow['-y'].x(RADIUS, { opacity: 0.5 })
 
@@ -121,7 +112,7 @@ const draw = () => {
   })
 
   isolateTransformations(() => {
-    translate(RADIUS / 2 + spaceInTheMiddle, -spaceInTheMiddle, 0)
+    translate(RADIUS / 2 + spacing, -spacing, 0)
 
     elbow['-y']['-x'](RADIUS, { opacity: 0.5 })
 
