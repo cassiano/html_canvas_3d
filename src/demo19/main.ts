@@ -38,6 +38,9 @@ const draw = () => {
   if (autoRotationEnabled) {
     rotateX(PI / 4 + sin(time * 0.8) * 0.18)
     rotateY(time * 0.7)
+  } else {
+    rotateX(PI / 4)
+    rotateY(PI / 6)
   }
 
   render3dAxes()
