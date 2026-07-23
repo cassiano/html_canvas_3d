@@ -29,7 +29,7 @@ const draw = () => {
   // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
-  background('lightGray')
+  background('black')
 
   rotateX(PI / 20)
   rotateZ(-PI / 3.5)
@@ -39,7 +39,7 @@ const draw = () => {
 
   render3dAxes()
 
-  sphere(RADIUS, { color: 'orange' })
+  sphere(RADIUS, { color: 'lightSalmon' })
 
   isolateTransformations(() => {
     rotateY(millis() / 1000)
@@ -61,7 +61,7 @@ const draw = () => {
     })
 
     saturnRing(RADIUS + 85, RADIUS + 105, 64, {
-      color: 'brown',
+      color: 'lightPink',
       opacity: 0.5,
     })
   })
