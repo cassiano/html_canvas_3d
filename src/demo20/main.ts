@@ -9,7 +9,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { jupiterRing } from '../primitives.ts'
+import { saturnRing } from '../primitives.ts'
 import { isolateTransformations } from '../primitives.ts'
 import {
   autoRotationEnabled,
@@ -44,22 +44,22 @@ const draw = () => {
   isolateTransformations(() => {
     rotateX(PI / 2)
 
-    jupiterRing(RADIUS + 20, RADIUS + 40, 64, {
+    saturnRing(RADIUS + 20, RADIUS + 40, 64, {
       color: 'purple',
       opacity: 0.5,
     })
 
-    jupiterRing(RADIUS + 40, RADIUS + 80, 64, {
+    saturnRing(RADIUS + 40, RADIUS + 80, 64, {
       color: 'lightGreen',
       opacity: 0.5,
     })
 
-    jupiterRing(RADIUS + 80, RADIUS + 85, 64, {
+    saturnRing(RADIUS + 80, RADIUS + 85, 64, {
       color: 'turquoise',
       opacity: 0.5,
     })
 
-    jupiterRing(RADIUS + 85, RADIUS + 105, 64, {
+    saturnRing(RADIUS + 85, RADIUS + 105, 64, {
       color: 'brown',
       opacity: 0.5,
     })

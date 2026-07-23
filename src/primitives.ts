@@ -848,7 +848,7 @@ export const ring = (
 }
 
 // [/doc_img/primitives.ts/2026-07-23-12-29-52.png]
-export const jupiterRing = (
+export const saturnRing = (
   internalRadius: number, // XY-plane
   ringRadius: number, // XY-plane
   torusCircleSegments: number,
