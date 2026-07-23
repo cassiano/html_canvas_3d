@@ -856,11 +856,13 @@ export const saturnRing = (
 ) => {
   const step = TWO_PI / torusCircleSegments
 
-  for (let angle = 0; angle < TWO_PI - step; angle += step) {
-    const p1 = polarToCartesian2d(internalRadius, angle)
-    const p2 = polarToCartesian2d(internalRadius, angle + step)
-    const p3 = polarToCartesian2d(ringRadius, angle)
-    const p4 = polarToCartesian2d(ringRadius, angle + step)
+  for (let i = 0; i < torusCircleSegments; i++) {
+    const theta = i * step
+
+    const p1 = polarToCartesian2d(internalRadius, theta)
+    const p2 = polarToCartesian2d(internalRadius, theta + step)
+    const p3 = polarToCartesian2d(ringRadius, theta)
+    const p4 = polarToCartesian2d(ringRadius, theta + step)
 
     isolateTransformations(() => {
       quad(p1, p2, p4, p3, { ...options, isDoubleSided: true })
@@ -884,7 +886,7 @@ export const sphericalCheeseSlice = (
   const step = TWO_PI / circleSegments
 
   isolateTransformations(() => {
-    for (let i = 0; i < circleSegments; i++) {
+    for (let i = 0; i < circleSegments - 1; i++) {
       const theta = i * step
       const avgX = polarToCartesian2d(radius, theta + step / 2).x
       const z = map(avgX, -radius, radius, depth, 0, true)
