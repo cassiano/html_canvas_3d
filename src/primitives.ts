@@ -886,7 +886,7 @@ export const sphericalCheeseSlice = (
   const step = TWO_PI / circleSegments
 
   isolateTransformations(() => {
-    for (let i = 0; i < circleSegments - 1; i++) {
+    for (let i = 0; i < circleSegments; i++) {
       const theta = i * step
       const avgX = polarToCartesian2d(radius, theta + step / 2).x
       const z = map(avgX, -radius, radius, depth, 0, true)
@@ -912,10 +912,12 @@ export const torus = (
   const p2 = polarToCartesian2d(internalRadius + 2 * tubeRadius, step)
   const tubeRingDepth = p1.dist(p2)
 
-  for (let angle = 0; angle < TWO_PI; angle += step) {
+  for (let i = 0; i < torusCircleSegments; i++) {
+    const theta = i * step
+
     isolateTransformations(() => {
-      translate(polarToCartesian2d(internalRadius + tubeRadius, angle))
-      rotate(HALF_PI, polarToCartesian2d(1, angle))
+      translate(polarToCartesian2d(internalRadius + tubeRadius, theta))
+      rotate(HALF_PI, polarToCartesian2d(1, theta))
 
       ring(tubeRadius, tubeRingDepth, options)
     })
