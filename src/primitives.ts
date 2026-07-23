@@ -856,7 +856,7 @@ export const saturnRing = (
 ) => {
   const step = TWO_PI / torusCircleSegments
 
-  for (let angle = 0; angle < TWO_PI; angle += step) {
+  for (let angle = 0; angle < TWO_PI - step; angle += step) {
     const p1 = polarToCartesian2d(internalRadius, angle)
     const p2 = polarToCartesian2d(internalRadius, angle + step)
     const p3 = polarToCartesian2d(ringRadius, angle)
