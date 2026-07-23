@@ -42,6 +42,7 @@ const draw = () => {
   sphere(RADIUS, { color: 'orange' })
 
   isolateTransformations(() => {
+    rotateY(millis() / 1000)
     rotateX(PI / 2)
 
     saturnRing(RADIUS + 20, RADIUS + 40, 64, {
