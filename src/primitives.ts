@@ -847,6 +847,27 @@ export const ring = (
   })
 }
 
+// [/doc_img/primitives.ts/2026-07-23-12-29-52.png]
+export const jupiterRing = (
+  internalRadius: number, // XY-plane
+  ringRadius: number, // XY-plane
+  torusCircleSegments: number,
+  options: CircularShapeOptions = {},
+) => {
+  const step = TWO_PI / torusCircleSegments
+
+  for (let angle = 0; angle < TWO_PI; angle += step) {
+    const p1 = polarToCartesian2d(internalRadius, angle)
+    const p2 = polarToCartesian2d(internalRadius, angle + step)
+    const p3 = polarToCartesian2d(ringRadius, angle)
+    const p4 = polarToCartesian2d(ringRadius, angle + step)
+
+    isolateTransformations(() => {
+      quad(p1, p2, p4, p3, { ...options, isDoubleSided: true })
+    })
+  }
+}
+
 // [/doc_img/primitives.ts/2026-07-19-15-40-03.png]
 export const sphericalCheeseSlice = (
   radius: number, // XY-plane
