@@ -30,10 +30,13 @@ const SATURN_DATA: SolarSystemBody = {
 const SATURN_RINGS_DATA: Record<string, { width: number; color: string }> = {
   // Width in km.
   a: { width: 14585, color: 'lightPink' },
-  b: { width: 25554, color: 'lightGreen' },
-  c: { width: 17357, color: 'purple' },
-  d: { width: 7594, color: 'black' },
+  cassiniDivision: { width: 4800, color: 'black' },
+  b: { width: 25554, color: 'magenta' },
+  c: { width: 17357, color: 'lightGreen' },
+  d: { width: 7594, color: 'purple' },
 }
+
+const RINGS_DISTANCE_FROM_SATURN_SURFACE = 6632 // In km. The distance from Saturn's surface to the innermost ring (D ring).
 
 // -------------------------------------------------------------------------------------------------
 
@@ -47,7 +50,8 @@ export const renderSaturn = (planet: SolarSystemBody, radiusRatio: number) => {
   })
 
   // [/doc_img/main.ts/2026-07-23-22-58-31.png]
-  let startingRadius = radius * radiusRatio
+  let startingRadius =
+    (radius + RINGS_DISTANCE_FROM_SATURN_SURFACE) * radiusRatio
 
   isolateTransformations(() => {
     rotateZ(millis() / 1500)
@@ -90,6 +94,19 @@ export const renderSaturn = (planet: SolarSystemBody, radiusRatio: number) => {
     )
 
     startingRadius += SATURN_RINGS_DATA.b.width * radiusRatio
+
+    // Cassini Division.
+    saturnRing(
+      startingRadius,
+      startingRadius + SATURN_RINGS_DATA.cassiniDivision.width * radiusRatio,
+      64,
+      {
+        color: SATURN_RINGS_DATA.cassiniDivision.color,
+        opacity: 0.5,
+      },
+    )
+
+    startingRadius += SATURN_RINGS_DATA.cassiniDivision.width * radiusRatio
 
     // A ring.
     saturnRing(
