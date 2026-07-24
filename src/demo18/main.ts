@@ -60,7 +60,6 @@ const createDemoControls = () => {
 // -------------------------------------------------------------------------------------------------
 
 const draw = () => {
-  // console.log({ fps: fps(), millis: millis(), frameCount: frameCount() })
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
   background('lightGray')
