@@ -35,7 +35,7 @@ function resizeCanvas() {
 resizeCanvas()
 self.addEventListener('resize', resizeCanvas)
 
-const DEMO_COUNT = 20
+const DEMO_COUNT = 21
 const DEFAULT_DEMO = 1 // Starting with 1.
 
 // Enable drag rotation and pan on the canvas.
