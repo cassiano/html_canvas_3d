@@ -20,7 +20,7 @@ type SolarSystemBody = {
   color: string
 }
 
-const RADIUS_RATIO = 1 / 380
+const RADIUS_RATIO = 1 / 400
 
 const SATURN_DATA: SolarSystemBody = {
   radius: 58232, // Mean radius in km.
@@ -60,7 +60,6 @@ export const renderSaturn = (planet: SolarSystemBody, radiusRatio: number) => {
     saturnRing(
       startingRadius,
       startingRadius + SATURN_RINGS_DATA.d.width * radiusRatio,
-      64,
       {
         color: SATURN_RINGS_DATA.d.color,
         opacity: 0.5,
@@ -73,7 +72,6 @@ export const renderSaturn = (planet: SolarSystemBody, radiusRatio: number) => {
     saturnRing(
       startingRadius,
       startingRadius + SATURN_RINGS_DATA.c.width * radiusRatio,
-      64,
       {
         color: SATURN_RINGS_DATA.c.color,
         opacity: 0.5,
@@ -86,7 +84,6 @@ export const renderSaturn = (planet: SolarSystemBody, radiusRatio: number) => {
     saturnRing(
       startingRadius,
       startingRadius + SATURN_RINGS_DATA.b.width * radiusRatio,
-      64,
       {
         color: SATURN_RINGS_DATA.b.color,
         opacity: 0.5,
@@ -99,7 +96,6 @@ export const renderSaturn = (planet: SolarSystemBody, radiusRatio: number) => {
     saturnRing(
       startingRadius,
       startingRadius + SATURN_RINGS_DATA.cassiniDivision.width * radiusRatio,
-      64,
       {
         color: SATURN_RINGS_DATA.cassiniDivision.color,
         opacity: 0.5,
@@ -112,7 +108,6 @@ export const renderSaturn = (planet: SolarSystemBody, radiusRatio: number) => {
     saturnRing(
       startingRadius,
       startingRadius + SATURN_RINGS_DATA.a.width * radiusRatio,
-      64,
       {
         color: SATURN_RINGS_DATA.a.color,
         opacity: 0.5,

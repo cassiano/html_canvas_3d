@@ -850,23 +850,27 @@ export const ring = (
 // [/doc_img/primitives.ts/2026-07-23-12-29-52.png]
 export const saturnRing = (
   internalRadius: number, // XY-plane
-  ringRadius: number, // XY-plane
-  torusCircleSegments: number,
+  externalRadius: number, // XY-plane
   options: CircularShapeOptions = {},
 ) => {
-  const step = TWO_PI / torusCircleSegments
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
+    ...options,
+  }
+  const { circleSegments } = finalOptions
 
-  for (let i = 0; i < torusCircleSegments; i++) {
+  const step = TWO_PI / circleSegments
+
+  for (let i = 0; i < circleSegments; i++) {
     const theta = i * step
 
     const p1 = polarToCartesian2d(internalRadius, theta)
     const p2 = polarToCartesian2d(internalRadius, theta + step)
-    const p3 = polarToCartesian2d(ringRadius, theta)
-    const p4 = polarToCartesian2d(ringRadius, theta + step)
+    const p3 = polarToCartesian2d(externalRadius, theta)
+    const p4 = polarToCartesian2d(externalRadius, theta + step)
 
-    isolateTransformations(() => {
-      quad(p1, p2, p4, p3, { ...options, isDoubleSided: true })
-    })
+    quad(p1, p2, p4, p3, { ...options, isDoubleSided: true })
   }
 }
 
@@ -885,20 +889,18 @@ export const sphericalCheeseSlice = (
 
   const step = TWO_PI / circleSegments
 
-  isolateTransformations(() => {
-    for (let i = 0; i < circleSegments; i++) {
-      const theta = i * step
-      const avgX = polarToCartesian2d(radius, theta + step / 2).x
-      const z = map(avgX, -radius, radius, depth, 0, true)
+  for (let i = 0; i < circleSegments; i++) {
+    const theta = i * step
+    const avgX = polarToCartesian2d(radius, theta + step / 2).x
+    const z = map(avgX, -radius, radius, depth, 0, true)
 
-      const p1 = polarToCartesian2d(radius, theta)
-      const p2 = polarToCartesian2d(radius, theta + step)
-      const p3 = p2.clone().setZ(z)
-      const p4 = p1.clone().setZ(z)
+    const p1 = polarToCartesian2d(radius, theta)
+    const p2 = polarToCartesian2d(radius, theta + step)
+    const p3 = p2.clone().setZ(z)
+    const p4 = p1.clone().setZ(z)
 
-      quad(p1, p2, p3, p4, options)
-    }
-  })
+    quad(p1, p2, p3, p4, options)
+  }
 }
 
 export const torus = (
