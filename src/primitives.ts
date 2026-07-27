@@ -1006,10 +1006,10 @@ export const text2d = (message: string, point: Vector3d) => {
   ctx.fillText(message, position.x, position.y)
 }
 
-export const render3dAxes = () => {
+export const render3dAxes = (length?: number) => {
   if (!render3dAxesEnabled) return
 
-  const halfLength = getAxisLength() / 2
+  const halfLength = (length ?? getAxisLength()) / 2
 
   arrow(AXES['-x'].clone().mult(halfLength), AXES.x.clone().mult(halfLength), {
     color: 'red',
