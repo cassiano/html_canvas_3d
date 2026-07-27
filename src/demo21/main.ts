@@ -23,125 +23,121 @@ const EARTH_DAY_IN_SECONDS = 24 * 3600
 const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
 const EARTH_MOON_DISTANCE = 384399 // Mean Earth-Moon distance in km.
 
-const DEFAULT_RADIUS_RATIO = 1 / 5000
-const DEFAULT_DISTANCE_RATIO = 400 / AU / 10 // Scale down distances to fit the canvas.
-const DEFAULT_VELOCITY_RATIO = 20
-
+const DEFAULT_RADIUS_RATIO = 1 / 5e6
+const DEFAULT_DISTANCE_RATIO = 400 / AU / 1e4 // Scale down distances to fit the canvas.
+const DEFAULT_VELOCITY_RATIO = EARTH_YEAR_IN_SECONDS
 type SolarSystemBodyType = {
-  radius: number
+  radius: number // Mean radius in km.
   radiusRatio?: number
-  sunDistance: number
-  density: number
+  sunDistance: number // In AU.
+  density: number // In g/cm³.
   color: string
-  siderealOrbitalPeriod: number
+  orbitalPeriod: number // In (Earth) days, aka sidereal orbital period.
 }
 
 const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   sun: {
-    radius: 695700, // Mean radius in km.
+    radius: 695700,
     radiusRatio: DEFAULT_RADIUS_RATIO / 6, // Scale down the sun's radius to fit the canvas.
-    sunDistance: 0, // In AU.
-    density: 1.408, // In g/cm³.
+    sunDistance: 0,
+    density: 1.408,
     color: 'yellow',
-    siderealOrbitalPeriod: 0, // In (Earth) days.
+    orbitalPeriod: 0,
   },
   mercury: {
-    radius: 2439.7, // Mean radius in km.
+    radius: 2439.7,
     radiusRatio: DEFAULT_RADIUS_RATIO * 3,
-    sunDistance: 0.387098, // In AU.
-    density: 5.427, // In g/cm³.
+    sunDistance: 0.387098,
+    density: 5.427,
     color: 'brown',
-    siderealOrbitalPeriod: 87.9691, // In days.
+    orbitalPeriod: 87.9691,
   },
   venus: {
-    radius: 6051.8, // Mean radius in km.
+    radius: 6051.8,
     radiusRatio: DEFAULT_RADIUS_RATIO * 3,
-    sunDistance: 0.723332, // In AU.
-    density: 5.243, // In g/cm³.
+    sunDistance: 0.723332,
+    density: 5.243,
     color: 'gray',
-    siderealOrbitalPeriod: 224.701, // In days.
+    orbitalPeriod: 224.701,
   },
   earth: {
-    radius: 6371, // Mean radius in km.
+    radius: 6371,
     radiusRatio: DEFAULT_RADIUS_RATIO * 3,
-    sunDistance: 1, // In AU.
-    density: 5.514, // In g/cm³.
+    sunDistance: 1,
+    density: 5.514,
     color: 'blue',
-    siderealOrbitalPeriod: EARTH_YEAR_IN_DAYS, // In days.
+    orbitalPeriod: EARTH_YEAR_IN_DAYS,
   },
   // moon: {
-  //   radius: 1737.4, // In km.
-  //   sunDistance: 1 + EARTH_MOON_DISTANCE / AU, // In AU.
-  //   density: 3.344, // In g/cm³.
+  //   radius: 1737.4,
+  //   sunDistance: 1 + EARTH_MOON_DISTANCE / AU,
+  //   density: 3.344,
   //   color: 'gray',
-  //   siderealOrbitalPeriod: 27.321582, // In days.
+  //   orbitalPeriod: 27.321582,
   // },
   mars: {
-    radius: 3389.5, // Mean radius in km.
+    radius: 3389.5,
     radiusRatio: DEFAULT_RADIUS_RATIO * 3,
-    sunDistance: 1.523679, // In AU.
-    density: 3.934, // In g/cm³.
+    sunDistance: 1.523679,
+    density: 3.934,
     color: 'red',
-    siderealOrbitalPeriod: 686.98, // In days.
+    orbitalPeriod: 686.98,
   },
   jupiter: {
-    radius: 69911, // Mean radius in km.
-    sunDistance: 5.2044, // In AU.
-    density: 1.326, // In g/cm³.
+    radius: 69911,
+    sunDistance: 5.2044,
+    density: 1.326,
     color: 'gray',
-    siderealOrbitalPeriod: 4332.59, // In days.
+    orbitalPeriod: 4332.59,
   },
   saturn: {
-    radius: 58232, // Mean radius in km.
-    sunDistance: 9.5826, // In AU.
-    density: 0.687, // In g/cm³.
+    radius: 58232,
+    sunDistance: 9.5826,
+    density: 0.687,
     color: 'orange',
-    siderealOrbitalPeriod: 10759.22, // In days.
+    orbitalPeriod: 10759.22,
   },
   // uranus: {
-  //   radius: 25362, // Mean radius in km.
-  //   sunDistance: 19.2184, // In AU.
-  //   density: 1.271, // In g/cm³.
+  //   radius: 25362,
+  //   sunDistance: 19.2184,
+  //   density: 1.271,
   //   color: 'cyan',
-  //   siderealOrbitalPeriod: 30688.5, // In days.
+  //   orbitalPeriod: 30688.5,
   // },
   // neptune: {
-  //   radius: 24622, // Mean radius in km.
-  //   sunDistance: 30.11, // In AU.
-  //   density: 1.638, // In g/cm³.
+  //   radius: 24622,
+  //   sunDistance: 30.11,
+  //   density: 1.638,
   //   color: 'blue',
-  //   siderealOrbitalPeriod: 60182, // In days.
+  //   orbitalPeriod: 60182,
   // },
 }
 
 // -------------------------------------------------------------------------------------------------
 
-class SolarSystemBody extends Mover3D {
+class CelestialBody extends Mover3D {
   constructor(
     public name: string,
     public radius: number,
     public sunDistance: number,
     public density: number,
     public color: string,
-    public siderealOrbitalPeriod: number,
+    public orbitalPeriod: number,
     public radiusRatio?: number,
   ) {
-    const volume = (4 / 3) * PI * (radius * 1000) ** 3 // Convert radius from km to m for volume calculation.
-    const mass = volume * ((density * 1) / 1000 / (1 / 100) ** 3) // Density is in g/cm³, so we convert it to kg/m³.
+    const volume = (4 / 3) * PI * radius ** 3
+    const mass = volume * density
 
     super(
       mass,
-      $v(sunDistance * AU * DEFAULT_DISTANCE_RATIO, 0, 0),
-      siderealOrbitalPeriod === 0
+      $v(sunDistance, 0, 0),
+      orbitalPeriod === 0
         ? ZERO_VECTOR.clone()
         : $v(
             0,
             0,
-            ((2 * PI * sunDistance * AU * 1000 * DEFAULT_DISTANCE_RATIO) /
-              siderealOrbitalPeriod /
-              24 /
-              3600) *
-              DEFAULT_VELOCITY_RATIO, // Convert sidereal orbital period from days to seconds.
+            ((2 * PI * sunDistance * DEFAULT_DISTANCE_RATIO) / orbitalPeriod) *
+              DEFAULT_VELOCITY_RATIO,
           ),
     )
   }
@@ -150,7 +146,7 @@ class SolarSystemBody extends Mover3D {
     const radius = this.radius * (this.radiusRatio ?? DEFAULT_RADIUS_RATIO)
 
     isolateTransformations(() => {
-      translate(this.position)
+      translate(this.position.clone().mult(DEFAULT_DISTANCE_RATIO))
 
       sphere(radius, {
         color: this.color,
@@ -163,14 +159,14 @@ class SolarSystemBody extends Mover3D {
     isolateTransformations(() => {
       rotateX(PI / 2)
 
-      circlePerimeter2d(this.sunDistance * AU * DEFAULT_DISTANCE_RATIO, {
+      circlePerimeter2d(this.sunDistance * DEFAULT_DISTANCE_RATIO, {
         color: this.color,
         lineWidth: 0.3,
       })
     })
   }
 
-  attractionForceFrom(other: SolarSystemBody) {
+  attractionForceFrom(other: CelestialBody) {
     const distanceSq = this.position.distSq(other.position)
 
     return other.position
@@ -189,15 +185,15 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
     sunDistance,
     density,
     color,
-    siderealOrbitalPeriod,
+    orbitalPeriod: siderealOrbitalPeriod,
     radiusRatio,
   } = data
 
-  return new SolarSystemBody(
+  return new CelestialBody(
     name,
-    radius,
-    sunDistance,
-    density,
+    radius * 1000, // Convert radius from km to m.
+    sunDistance * AU * 1000, // Convert sunDistance from AU to m.
+    density * (1e-3 / 1e-2 ** 3), // Convert density from g/cm³ to kg/m³.
     color,
     siderealOrbitalPeriod,
     radiusRatio,
@@ -207,6 +203,8 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
 const sun = bodies.find(body => body.name === 'sun')
 
 if (!sun) throw new Error('Sun not found in solar system data.')
+
+// logJson({ sun: { mass: sun.mass, radius: sun.radius, density: sun.density } })
 
 // -------------------------------------------------------------------------------------------------
 
@@ -227,17 +225,23 @@ const draw = () => {
   //   rect2d(550, 550, { color: 'white', opacity: 0.05, isDoubleSided: true })
   // })
 
+  const earth = bodies.find(body => body.name === 'earth')
+  if (!earth) throw new Error('Earth not found in solar system data.')
+  logJson({
+    earth: { velocity: earth.velocity, position: earth.position },
+  })
+
   bodies.forEach(body => {
-    // if (body !== sun) body.applyForce(body.attractionForceFrom(sun))
+    if (body !== sun) body.applyForce(body.attractionForceFrom(sun))
 
     body.update()
     body.render()
 
-    logJson({
-      name: body.name,
-      velocity: body.velocity,
-      position: body.position,
-    })
+    // logJson({
+    //   name: body.name,
+    //   velocity: body.velocity,
+    //   position: body.position,
+    // })
   })
 }
 
