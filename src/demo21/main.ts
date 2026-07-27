@@ -1,5 +1,5 @@
-import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
-import { createFrameLoop, fps, frameCount, millis } from '../utils.ts'
+import { FPS, FPS_LOGGING_FRAME_PERIOD, ZERO_VECTOR } from '../constants.ts'
+import { createFrameLoop, fps, frameCount, millis, logJson } from '../utils.ts'
 import {
   background,
   render3dScene,
@@ -12,6 +12,7 @@ import { PI } from '../math_utils.ts'
 import { translate, circlePerimeter2d } from '../primitives.ts'
 import { isolateTransformations } from '../primitives.ts'
 import { autoRotationEnabled, sphere, rotateY, rotateX } from '../primitives.ts'
+import { Mover3D } from './mover_3d.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -24,6 +25,7 @@ const EARTH_MOON_DISTANCE = 384399 // Mean Earth-Moon distance in km.
 
 const DEFAULT_RADIUS_RATIO = 1 / 5000
 const DEFAULT_DISTANCE_RATIO = 400 / AU / 10 // Scale down distances to fit the canvas.
+const DEFAULT_VELOCITY_RATIO = 20
 
 type SolarSystemBodyType = {
   radius: number
@@ -37,7 +39,7 @@ type SolarSystemBodyType = {
 const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   sun: {
     radius: 695700, // Mean radius in km.
-    radiusRatio: DEFAULT_RADIUS_RATIO / 7.5, // Scale down the sun's radius to fit the canvas.
+    radiusRatio: DEFAULT_RADIUS_RATIO / 6, // Scale down the sun's radius to fit the canvas.
     sunDistance: 0, // In AU.
     density: 1.408, // In g/cm³.
     color: 'yellow',
@@ -45,6 +47,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   mercury: {
     radius: 2439.7, // Mean radius in km.
+    radiusRatio: DEFAULT_RADIUS_RATIO * 3,
     sunDistance: 0.387098, // In AU.
     density: 5.427, // In g/cm³.
     color: 'brown',
@@ -52,6 +55,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   venus: {
     radius: 6051.8, // Mean radius in km.
+    radiusRatio: DEFAULT_RADIUS_RATIO * 3,
     sunDistance: 0.723332, // In AU.
     density: 5.243, // In g/cm³.
     color: 'gray',
@@ -59,20 +63,22 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   earth: {
     radius: 6371, // Mean radius in km.
+    radiusRatio: DEFAULT_RADIUS_RATIO * 3,
     sunDistance: 1, // In AU.
     density: 5.514, // In g/cm³.
     color: 'blue',
     siderealOrbitalPeriod: EARTH_YEAR_IN_DAYS, // In days.
   },
-  moon: {
-    radius: 1737.4, // In km.
-    sunDistance: 1 + EARTH_MOON_DISTANCE / AU, // In AU.
-    density: 3.344, // In g/cm³.
-    color: 'gray',
-    siderealOrbitalPeriod: 27.321582, // In days.
-  },
+  // moon: {
+  //   radius: 1737.4, // In km.
+  //   sunDistance: 1 + EARTH_MOON_DISTANCE / AU, // In AU.
+  //   density: 3.344, // In g/cm³.
+  //   color: 'gray',
+  //   siderealOrbitalPeriod: 27.321582, // In days.
+  // },
   mars: {
     radius: 3389.5, // Mean radius in km.
+    radiusRatio: DEFAULT_RADIUS_RATIO * 3,
     sunDistance: 1.523679, // In AU.
     density: 3.934, // In g/cm³.
     color: 'red',
@@ -110,32 +116,97 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
 
 // -------------------------------------------------------------------------------------------------
 
-const renderSolarSystemBody = (
-  planet: SolarSystemBodyType,
-  radiusRatio: number,
-) => {
-  const radius = planet.radius * (planet.radiusRatio ?? radiusRatio)
+class SolarSystemBody extends Mover3D {
+  constructor(
+    public name: string,
+    public radius: number,
+    public sunDistance: number,
+    public density: number,
+    public color: string,
+    public siderealOrbitalPeriod: number,
+    public radiusRatio?: number,
+  ) {
+    const volume = (4 / 3) * PI * (radius * 1000) ** 3 // Convert radius from km to m for volume calculation.
+    const mass = volume * ((density * 1) / 1000 / (1 / 100) ** 3) // Density is in g/cm³, so we convert it to kg/m³.
 
-  isolateTransformations(() => {
-    translate(planet.sunDistance * AU * DEFAULT_DISTANCE_RATIO, 0, 0)
+    super(
+      mass,
+      $v(sunDistance * AU * DEFAULT_DISTANCE_RATIO, 0, 0),
+      siderealOrbitalPeriod === 0
+        ? ZERO_VECTOR.clone()
+        : $v(
+            0,
+            0,
+            ((2 * PI * sunDistance * AU * 1000 * DEFAULT_DISTANCE_RATIO) /
+              siderealOrbitalPeriod /
+              24 /
+              3600) *
+              DEFAULT_VELOCITY_RATIO, // Convert sidereal orbital period from days to seconds.
+          ),
+    )
+  }
 
-    sphere(radius, {
-      color: planet.color,
-      latitudeLines: 16,
-      longitudeLines: 16,
-      lineWidth: 0.01,
+  render() {
+    const radius = this.radius * (this.radiusRatio ?? DEFAULT_RADIUS_RATIO)
+
+    isolateTransformations(() => {
+      translate(this.position)
+
+      sphere(radius, {
+        color: this.color,
+        latitudeLines: 16,
+        longitudeLines: 16,
+        lineWidth: 0.01,
+      })
     })
-  })
 
-  isolateTransformations(() => {
-    rotateX(PI / 2)
+    isolateTransformations(() => {
+      rotateX(PI / 2)
 
-    circlePerimeter2d(planet.sunDistance * AU * DEFAULT_DISTANCE_RATIO, {
-      color: planet.color,
-      lineWidth: 0.3,
+      circlePerimeter2d(this.sunDistance * AU * DEFAULT_DISTANCE_RATIO, {
+        color: this.color,
+        lineWidth: 0.3,
+      })
     })
-  })
+  }
+
+  attractionForceFrom(other: SolarSystemBody) {
+    const distanceSq = this.position.distSq(other.position)
+
+    return other.position
+      .clone()
+      .sub(this.position)
+      .normalize()
+      .mult((G * this.mass * other.mass) / distanceSq)
+  }
 }
+
+// -------------------------------------------------------------------------------------------------
+
+const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
+  const {
+    radius,
+    sunDistance,
+    density,
+    color,
+    siderealOrbitalPeriod,
+    radiusRatio,
+  } = data
+
+  return new SolarSystemBody(
+    name,
+    radius,
+    sunDistance,
+    density,
+    color,
+    siderealOrbitalPeriod,
+    radiusRatio,
+  )
+})
+
+const sun = bodies.find(body => body.name === 'sun')
+
+if (!sun) throw new Error('Sun not found in solar system data.')
 
 // -------------------------------------------------------------------------------------------------
 
@@ -156,8 +227,17 @@ const draw = () => {
   //   rect2d(550, 550, { color: 'white', opacity: 0.05, isDoubleSided: true })
   // })
 
-  Object.values(SOLAR_SYSTEM_DATA).forEach(planet => {
-    renderSolarSystemBody(planet, DEFAULT_RADIUS_RATIO)
+  bodies.forEach(body => {
+    // if (body !== sun) body.applyForce(body.attractionForceFrom(sun))
+
+    body.update()
+    body.render()
+
+    logJson({
+      name: body.name,
+      velocity: body.velocity,
+      position: body.position,
+    })
   })
 }
 
