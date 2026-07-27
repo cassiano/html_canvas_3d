@@ -6,20 +6,12 @@ import {
   render3dAxes,
   resetTransformationMatrix,
   text2d,
-  rect2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { translate } from '../primitives.ts'
+import { translate, circlePerimeter2d } from '../primitives.ts'
 import { isolateTransformations } from '../primitives.ts'
-import {
-  autoRotationEnabled,
-  sphere,
-  rotateY,
-  rotateX,
-  rotateZ,
-} from '../primitives.ts'
-import { renderSaturn } from '../demo20/main.ts'
+import { autoRotationEnabled, sphere, rotateY, rotateX } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -30,19 +22,22 @@ const EARTH_DAY_IN_SECONDS = 24 * 3600
 const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
 const EARTH_MOON_DISTANCE = 384399 // Mean Earth-Moon distance in km.
 
-const RADIUS_RATIO = 1 / 5000
+const DEFAULT_RADIUS_RATIO = 1 / 5000
+const DEFAULT_DISTANCE_RATIO = 400 / AU / 10 // Scale down distances to fit the canvas.
 
-type SolarSystemBody = {
+type SolarSystemBodyType = {
   radius: number
+  radiusRatio?: number
   sunDistance: number
   density: number
   color: string
   siderealOrbitalPeriod: number
 }
 
-const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBody> = {
+const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   sun: {
     radius: 695700, // Mean radius in km.
+    radiusRatio: DEFAULT_RADIUS_RATIO / 7.5, // Scale down the sun's radius to fit the canvas.
     sunDistance: 0, // In AU.
     density: 1.408, // In g/cm³.
     color: 'yellow',
@@ -97,28 +92,49 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBody> = {
     color: 'orange',
     siderealOrbitalPeriod: 10759.22, // In days.
   },
-  uranus: {
-    radius: 25362, // Mean radius in km.
-    sunDistance: 19.2184, // In AU.
-    density: 1.271, // In g/cm³.
-    color: 'cyan',
-    siderealOrbitalPeriod: 30688.5, // In days.
-  },
-  neptune: {
-    radius: 24622, // Mean radius in km.
-    sunDistance: 30.11, // In AU.
-    density: 1.638, // In g/cm³.
-    color: 'blue',
-    siderealOrbitalPeriod: 60182, // In days.
-  },
+  // uranus: {
+  //   radius: 25362, // Mean radius in km.
+  //   sunDistance: 19.2184, // In AU.
+  //   density: 1.271, // In g/cm³.
+  //   color: 'cyan',
+  //   siderealOrbitalPeriod: 30688.5, // In days.
+  // },
+  // neptune: {
+  //   radius: 24622, // Mean radius in km.
+  //   sunDistance: 30.11, // In AU.
+  //   density: 1.638, // In g/cm³.
+  //   color: 'blue',
+  //   siderealOrbitalPeriod: 60182, // In days.
+  // },
 }
 
 // -------------------------------------------------------------------------------------------------
 
-const renderSun = (planet: SolarSystemBody, radiusRatio: number) => {
-  const radius = planet.radius * radiusRatio
+const renderSolarSystemBody = (
+  planet: SolarSystemBodyType,
+  radiusRatio: number,
+) => {
+  const radius = planet.radius * (planet.radiusRatio ?? radiusRatio)
 
-  sphere(radius, { color: planet.color })
+  isolateTransformations(() => {
+    translate(planet.sunDistance * AU * DEFAULT_DISTANCE_RATIO, 0, 0)
+
+    sphere(radius, {
+      color: planet.color,
+      latitudeLines: 16,
+      longitudeLines: 16,
+      lineWidth: 0.01,
+    })
+  })
+
+  isolateTransformations(() => {
+    rotateX(PI / 2)
+
+    circlePerimeter2d(planet.sunDistance * AU * DEFAULT_DISTANCE_RATIO, {
+      color: planet.color,
+      lineWidth: 0.3,
+    })
+  })
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -129,24 +145,19 @@ const draw = () => {
   background('black')
 
   rotateX(PI / 20)
-  rotateZ(-PI / 3.5)
 
   if (autoRotationEnabled) rotateY(-millis() / 5000)
   else rotateY(PI / 6)
 
   render3dAxes()
 
-  isolateTransformations(() => {
-    rotateX(PI / 2)
-    rect2d(550, 550, { color: 'white', opacity: 0.05, isDoubleSided: true })
-  })
+  // isolateTransformations(() => {
+  //   rotateX(PI / 2)
+  //   rect2d(550, 550, { color: 'white', opacity: 0.05, isDoubleSided: true })
+  // })
 
-  renderSun(SOLAR_SYSTEM_DATA.sun, RADIUS_RATIO)
-
-  isolateTransformations(() => {
-    translate(300, 0, 0)
-
-    renderSaturn(SOLAR_SYSTEM_DATA.saturn, RADIUS_RATIO)
+  Object.values(SOLAR_SYSTEM_DATA).forEach(planet => {
+    renderSolarSystemBody(planet, DEFAULT_RADIUS_RATIO)
   })
 }
 
