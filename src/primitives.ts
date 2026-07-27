@@ -816,6 +816,29 @@ export const circle2d = (
   }
 }
 
+export const circlePerimeter2d = (
+  radius: number, // XY-plane
+  options: CircularShapeOptions = {},
+) => {
+  const finalOptions = {
+    ...DEFAULT_SHAPE_OPTIONS,
+    circleSegments: DEFAULT_CIRCLE_SEGMENTS,
+    ...options,
+  }
+  const { circleSegments } = finalOptions
+
+  const step = TWO_PI / circleSegments
+
+  for (let i = 0; i < circleSegments; i++) {
+    const theta = i * step
+
+    const p1 = polarToCartesian2d(radius, theta)
+    const p2 = polarToCartesian2d(radius, theta + step)
+
+    line(p1, p2, options)
+  }
+}
+
 // [/doc_img/primitives.ts/2026-07-03-11-36-30.png]
 export const ring = (
   radius: number, // XY-plane
