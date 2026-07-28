@@ -1,0 +1,84 @@
+import { PI, TWO_PI } from '../math_utils.ts'
+import {
+  isolateTransformations,
+  rotateX,
+  circlePerimeter2d,
+  translate,
+  sphere,
+} from '../primitives.ts'
+import { $v } from '../vector_3d.ts'
+import { Mover3D } from './mover_3d.ts'
+import { ZERO_VECTOR } from '../constants.ts'
+import {
+  DEFAULT_RADIUS_SCALE,
+  DEFAULT_DISTANCE_SCALE,
+  EARTH_DAY_IN_SECONDS,
+  G,
+} from './main.ts'
+
+export class AstronomicalBody extends Mover3D {
+  constructor(
+    public name: string,
+    public radius: number,
+    public sunDistance: number,
+    public mass: number,
+    public color: string,
+    public orbitalPeriod: number,
+    public radiusCustomScale?: number,
+  ) {
+    super(
+      mass,
+      $v(sunDistance, 0, 0),
+      orbitalPeriod === 0
+        ? ZERO_VECTOR.clone()
+        : $v(
+            0,
+            0,
+            (TWO_PI * sunDistance) / (orbitalPeriod * EARTH_DAY_IN_SECONDS),
+          ),
+    )
+  }
+
+  render() {
+    const radius =
+      this.radius * (this.radiusCustomScale ?? DEFAULT_RADIUS_SCALE)
+
+    isolateTransformations(() => {
+      translate(this.position.clone().mult(DEFAULT_DISTANCE_SCALE))
+
+      sphere(radius, {
+        color: this.color,
+        latitudeLines: 16,
+        longitudeLines: 16,
+        lineWidth: 0.01,
+      })
+    })
+
+    isolateTransformations(() => {
+      rotateX(PI / 2)
+
+      circlePerimeter2d(this.sunDistance * DEFAULT_DISTANCE_SCALE, {
+        color: this.color,
+        lineWidth: 1,
+      })
+    })
+  }
+
+  attractionForceFrom(other: AstronomicalBody) {
+    const distanceSq = this.position.distSq(other.position)
+
+    return other.position
+      .clone()
+      .sub(this.position)
+      .normalize()
+      .mult((G * this.mass * other.mass) / distanceSq)
+  }
+
+  updateWithDelta(dt: number) {
+    // Semi-implicit Euler: update velocity from acceleration, then position from velocity.
+    this.velocity.add(this.acceleration.clone().mult(dt))
+    this.position.add(this.velocity.clone().mult(dt))
+
+    this.acceleration.mult(0)
+  }
+}
