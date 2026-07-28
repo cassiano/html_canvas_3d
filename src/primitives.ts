@@ -1018,9 +1018,13 @@ export const cylinder = (
   }
 }
 
-export const text2d = (message: string, point: Vector3d) => {
+export const text2d = (
+  message: string,
+  point: Vector3d,
+  color = 'rgba(0, 0, 0, 0.3)',
+) => {
   ctx.font = 'bold 60px sans-serif'
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)' // Semi-transparent black
+  ctx.fillStyle = color // Semi-transparent black
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
