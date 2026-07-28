@@ -1,4 +1,4 @@
-import { PI, TWO_PI } from '../math_utils.ts'
+import { map, PI, TWO_PI } from '../math_utils.ts'
 import {
   isolateTransformations,
   rotateX,
@@ -8,12 +8,13 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { Mover3D } from './mover_3d.ts'
-import { ZERO_VECTOR } from '../constants.ts'
+import { ZERO_VECTOR, DEFAULT_CIRCLE_SEGMENTS } from '../constants.ts'
 import {
   DEFAULT_RADIUS_SCALE,
   DEFAULT_DISTANCE_SCALE,
   EARTH_DAY_IN_SECONDS,
   G,
+  AU,
 } from './main.ts'
 
 export class AstronomicalBody extends Mover3D {
@@ -60,6 +61,15 @@ export class AstronomicalBody extends Mover3D {
       circlePerimeter2d(this.sunDistance * DEFAULT_DISTANCE_SCALE, {
         color: this.color,
         lineWidth: 1,
+        // More segments for larger orbits to make them smoother.
+        circleSegments: map(
+          this.sunDistance,
+          0.35 * AU * 1000,
+          1.5 * AU * 1000,
+          DEFAULT_CIRCLE_SEGMENTS,
+          360,
+          true,
+        ),
       })
     })
   }

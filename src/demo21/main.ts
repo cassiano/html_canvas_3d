@@ -4,7 +4,6 @@ import {
   fps,
   frameCount,
   millis,
-  logJson,
   timesForEachN,
 } from '../utils.ts'
 import {
@@ -27,10 +26,11 @@ export const EARTH_YEAR_IN_DAYS = 365.256363004 // Sidereal year.
 export const EARTH_DAY_IN_SECONDS = 24 * 3600
 export const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
 // const EARTH_MOON_DISTANCE = 384399 // Mean Earth-Moon distance in km.
-export const EARTH_ORBIT_DURATION_SECONDS = 20
+export const EARTH_ORBIT_DURATION_SECONDS = 30
 
-export const DEFAULT_RADIUS_SCALE = 1 / 5e6
-export const DEFAULT_DISTANCE_SCALE = 400 / AU / 1e4 // Scale down distances to fit the canvas.
+export const DEFAULT_RADIUS_SCALE = 1 / 5e5
+export const DEFAULT_DISTANCE_SCALE = 3000 / AU / 1e4 // Scale down distances to fit the canvas.
+
 // Simulation seconds advanced per real second so Earth completes one orbit in the target duration.
 export const SIMULATION_SECONDS_PER_REAL_SECOND =
   EARTH_YEAR_IN_SECONDS / EARTH_ORBIT_DURATION_SECONDS
@@ -53,7 +53,7 @@ type SolarSystemBodyType = {
 const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   sun: {
     radius: 695700,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE / 6, // Scale down the sun's radius to fit the canvas.
+    radiusCustomScale: DEFAULT_RADIUS_SCALE / 20, // Scale down the sun's radius to fit the canvas.
     sunDistance: 0,
     mass: 1.9891e30,
     color: 'yellow',
@@ -61,7 +61,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   mercury: {
     radius: 2439.4,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE * 3,
+    radiusCustomScale: DEFAULT_RADIUS_SCALE,
     sunDistance: 0.387098,
     mass: 0.330103e24,
     color: 'brown',
@@ -69,7 +69,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   venus: {
     radius: 6051.8,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE * 4,
+    radiusCustomScale: DEFAULT_RADIUS_SCALE,
     sunDistance: 0.723332,
     mass: 4.86731e24,
     color: 'gray',
@@ -77,7 +77,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   earth: {
     radius: 6371,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE * 4,
+    radiusCustomScale: DEFAULT_RADIUS_SCALE,
     sunDistance: 1,
     mass: 5.97217e24,
     color: 'cyan',
@@ -92,26 +92,26 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   // },
   mars: {
     radius: 3389.5,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE * 4,
+    radiusCustomScale: DEFAULT_RADIUS_SCALE,
     sunDistance: 1.523679,
     mass: 0.641691e24,
     color: 'red',
     orbitalPeriod: 686.98,
   },
-  jupiter: {
-    radius: 69911,
-    sunDistance: 5.2044,
-    mass: 1898.125e24,
-    color: 'gray',
-    orbitalPeriod: 4332.59,
-  },
-  saturn: {
-    radius: 58232,
-    sunDistance: 9.5826,
-    mass: 568.317e24,
-    color: 'orange',
-    orbitalPeriod: 10759.22,
-  },
+  // jupiter: {
+  //   radius: 69911,
+  //   sunDistance: 5.2044,
+  //   mass: 1898.125e24,
+  //   color: 'gray',
+  //   orbitalPeriod: 4332.59,
+  // },
+  // saturn: {
+  //   radius: 58232,
+  //   sunDistance: 9.5826,
+  //   mass: 568.317e24,
+  //   color: 'orange',
+  //   orbitalPeriod: 10759.22,
+  // },
   // uranus: {
   //   radius: 25362,
   //   sunDistance: 19.2184,
@@ -151,17 +151,17 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
   )
 })
 
-const sun = bodies.find(body => body.name === 'sun')
-const earth = bodies.find(body => body.name === 'earth')
+// const sun = bodies.find(body => body.name === 'sun')
+// const earth = bodies.find(body => body.name === 'earth')
 
-if (!sun) throw new Error('Sun not found in solar system data.')
-if (!earth) throw new Error('Earth not found in solar system data.')
+// if (!sun) throw new Error('Sun not found in solar system data.')
+// if (!earth) throw new Error('Earth not found in solar system data.')
 
-logJson({ ORBIT_SPEED_SCALE })
+// logJson({ ORBIT_SPEED_SCALE })
 
 let lastPhysicsMillis: number | null = null
 
-const renderDebugHud = (
+const _renderDebugHud = (
   dtRealSeconds: number,
   simulationDeltaSeconds: number,
 ) => {
@@ -205,10 +205,10 @@ const draw = () => {
   //   rect2d(550, 550, { color: 'white', opacity: 0.05, isDoubleSided: true })
   // })
 
-  if (frameCount() % 500 === 0)
-    logJson({
-      earth: { velocity: earth.velocity, position: earth.position },
-    })
+  // if (frameCount() % 500 === 0)
+  //   logJson({
+  //     earth: { velocity: earth.velocity, position: earth.position },
+  //   })
 
   timesForEachN([bodies.length, bodies.length], (i, j) => {
     if (i !== j) {
