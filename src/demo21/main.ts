@@ -26,18 +26,14 @@ export const EARTH_YEAR_IN_DAYS = 365.256363004 // Sidereal year.
 export const EARTH_DAY_IN_SECONDS = 24 * 3600
 export const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
 // const EARTH_MOON_DISTANCE = 384399 // Mean Earth-Moon distance in km.
-export const EARTH_ORBIT_DURATION_SECONDS = 30
+export const EARTH_ORBIT_DURATION_IN_SECONDS = 30
 
 export const DEFAULT_RADIUS_SCALE = 1 / 5e5
-export const DEFAULT_DISTANCE_SCALE = 3000 / AU / 1e4 // Scale down distances to fit the canvas.
+export const DEFAULT_DISTANCE_SCALE = 3e-1 / AU // Scale down distances to fit the canvas.
 
 // Simulation seconds advanced per real second so Earth completes one orbit in the target duration.
 export const SIMULATION_SECONDS_PER_REAL_SECOND =
-  EARTH_YEAR_IN_SECONDS / EARTH_ORBIT_DURATION_SECONDS
-
-// Kept for debug/logging in "simulated days per real second".
-export const ORBIT_SPEED_SCALE =
-  SIMULATION_SECONDS_PER_REAL_SECOND / EARTH_DAY_IN_SECONDS
+  EARTH_YEAR_IN_SECONDS / EARTH_ORBIT_DURATION_IN_SECONDS
 
 // -------------------------------------------------------------------------------------------------
 
@@ -161,7 +157,7 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
 
 let lastPhysicsMillis: number | null = null
 
-const _renderDebugHud = (
+const renderDebugHud = (
   dtRealSeconds: number,
   simulationDeltaSeconds: number,
 ) => {
@@ -169,9 +165,9 @@ const _renderDebugHud = (
   const simDays = (simulationDeltaSeconds / EARTH_DAY_IN_SECONDS).toFixed(4)
   const currentFps = fps()?.toFixed(1)
 
-  text2d(`dt: ${dtMs} ms`, $v(-420, 320))
-  text2d(`sim dt: ${simDays} days`, $v(-420, 295))
-  text2d(`fps: ${currentFps}`, $v(-420, 270))
+  text2d(`dt: ${dtMs} ms`, $v(-420, 420), 'white')
+  text2d(`Sim. dt: ${simDays} days`, $v(-420, 370), 'white')
+  text2d(`FPS: ${currentFps}`, $v(-420, 320), 'white')
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -183,7 +179,7 @@ const draw = () => {
   const dtRealSeconds =
     lastPhysicsMillis === null
       ? 1 / FPS
-      : Math.min(0.25, Math.max(0, (nowMillis - lastPhysicsMillis) / 1000))
+      : Math.max(0, (nowMillis - lastPhysicsMillis) / 1000)
   lastPhysicsMillis = nowMillis
 
   const simulationDeltaSeconds =
@@ -211,16 +207,11 @@ const draw = () => {
   //   })
 
   timesForEachN([bodies.length, bodies.length], (i, j) => {
-    if (i !== j) {
-      const bodyA = bodies[i]
-      const bodyB = bodies[j]
-
-      bodyA.applyForce(bodyA.attractionForceFrom(bodyB))
-    }
+    if (i !== j) bodies[i].attract(bodies[j])
   })
 
   bodies.forEach(body => {
-    // if (body !== sun) body.applyForce(body.attractionForceFrom(sun))
+    // if (body !== sun) sun.attract(body)
 
     body.updateWithDelta(simulationDeltaSeconds)
     body.render()
