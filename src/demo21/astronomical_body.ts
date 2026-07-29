@@ -27,17 +27,17 @@ export class AstronomicalBody extends Mover3D {
     public orbitalPeriod: number,
     public radiusCustomScale?: number,
   ) {
-    super(
-      mass,
-      $v(sunDistance, 0, 0),
+    const initialPosition = $v(sunDistance, 0, 0)
+    const initialVelocity =
       orbitalPeriod === 0
         ? ZERO_VECTOR.clone()
         : $v(
             0,
             0,
             (TWO_PI * sunDistance) / (orbitalPeriod * EARTH_DAY_IN_SECONDS),
-          ),
-    )
+          )
+
+    super(mass, initialPosition, initialVelocity)
   }
 
   render() {
