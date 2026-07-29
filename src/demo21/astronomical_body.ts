@@ -108,11 +108,11 @@ export class AstronomicalBody extends Mover3D {
     const direction = this.position.clone().sub(other.position)
     const distanceSq = direction.magSq()
 
-    const gravitacionalAttraction = direction
+    const gravitationalAttraction = direction
       .normalize()
       .mult((G * this.mass * other.mass) / distanceSq)
 
-    other.applyForce(gravitacionalAttraction)
+    other.applyForce(gravitationalAttraction)
   }
 
   updateWithDelta(dt: number) {
