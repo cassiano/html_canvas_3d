@@ -65,8 +65,10 @@ export class AstronomicalBody extends Mover3D {
     const radius =
       this.radius * (this.radiusCustomScale ?? DEFAULT_RADIUS_SCALE)
 
+    const isMoon = this.name === 'moon'
+
     isolateTransformations(() => {
-      if (this.name === 'moon') {
+      if (isMoon) {
         assertIsNotUndefined(earth)
 
         const scaledPositionDiff = earth.position.lerp(
@@ -87,7 +89,7 @@ export class AstronomicalBody extends Mover3D {
       })
     })
 
-    if (this.name !== 'moon')
+    if (!isMoon) {
       isolateTransformations(() => {
         rotateX(PI / 2)
 
@@ -105,6 +107,7 @@ export class AstronomicalBody extends Mover3D {
           ),
         })
       })
+    }
   }
 
   attract(other: AstronomicalBody) {

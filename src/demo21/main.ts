@@ -206,8 +206,6 @@ const draw = () => {
   })
 
   bodies.forEach(body => {
-    // if (body !== sun) sun.attract(body)
-
     body.updateWithDelta(simulationDeltaSeconds)
     body.render()
   })
