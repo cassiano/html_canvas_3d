@@ -31,7 +31,7 @@ export const MOON_RADIUS_IN_KM = 1737.4 // Mean Moon radius in km.
 export const MOON_ORBITAL_PERIOD_IN_DAYS = 27.321582 // Sidereal orbital period of the Moon in days.
 export const EARTH_RADIUS_IN_KM = 6371 // Mean Earth radius in km.
 export const EARTH_ORBIT_DURATION_IN_SECONDS = 30
-export const EARTH_MOON_CENTERS_DISTANCE_IN_M =
+export const EARTH_MOON_CENTERS_DISTANCE_IN_METERS =
   (EARTH_RADIUS_IN_KM + EARTH_MOON_DISTANCE_IN_KM + MOON_RADIUS_IN_KM) * 1000 // The distance from the Earth's center to the Moon's center in m.
 
 export const DEFAULT_RADIUS_SCALE = 1 / 5e5

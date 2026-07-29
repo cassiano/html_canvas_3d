@@ -11,7 +11,7 @@ import { Mover3D } from './mover_3d.ts'
 import { ZERO_VECTOR, DEFAULT_CIRCLE_SEGMENTS } from '../constants.ts'
 import {
   EARTH_MOON_DISTANCE_SCALE,
-  EARTH_MOON_CENTERS_DISTANCE_IN_M,
+  EARTH_MOON_CENTERS_DISTANCE_IN_METERS,
 } from './main.ts'
 import { MOON_ORBITAL_PERIOD_IN_DAYS, earth } from './main.ts'
 import {
@@ -45,10 +45,10 @@ export class AstronomicalBody extends Mover3D {
           )
 
     if (name === 'moon') {
-      initialPosition.y = EARTH_MOON_CENTERS_DISTANCE_IN_M
+      initialPosition.y = EARTH_MOON_CENTERS_DISTANCE_IN_METERS
 
       initialVelocity.z +=
-        (TWO_PI * EARTH_MOON_CENTERS_DISTANCE_IN_M) /
+        (TWO_PI * EARTH_MOON_CENTERS_DISTANCE_IN_METERS) /
         (MOON_ORBITAL_PERIOD_IN_DAYS * EARTH_DAY_IN_SECONDS)
     }
 
