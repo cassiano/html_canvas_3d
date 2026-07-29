@@ -49,7 +49,7 @@ type SolarSystemBodyType = {
 const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   sun: {
     radius: 695700,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE / 20, // Scale down the sun's radius to fit the canvas.
+    radiusCustomScale: DEFAULT_RADIUS_SCALE / 15, // Scale down the sun's radius to fit the canvas.
     sunDistance: 0,
     mass: 1.9891e30,
     color: 'yellow',
@@ -57,7 +57,6 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   mercury: {
     radius: 2439.4,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE,
     sunDistance: 0.387098,
     mass: 0.330103e24,
     color: 'brown',
@@ -65,7 +64,6 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   venus: {
     radius: 6051.8,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE,
     sunDistance: 0.723332,
     mass: 4.86731e24,
     color: 'gray',
@@ -73,7 +71,6 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   earth: {
     radius: 6371,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE,
     sunDistance: 1,
     mass: 5.97217e24,
     color: 'cyan',
@@ -88,40 +85,39 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   // },
   mars: {
     radius: 3389.5,
-    radiusCustomScale: DEFAULT_RADIUS_SCALE,
     sunDistance: 1.523679,
     mass: 0.641691e24,
     color: 'red',
     orbitalPeriod: 686.98,
   },
-  // jupiter: {
-  //   radius: 69911,
-  //   sunDistance: 5.2044,
-  //   mass: 1898.125e24,
-  //   color: 'gray',
-  //   orbitalPeriod: 4332.59,
-  // },
-  // saturn: {
-  //   radius: 58232,
-  //   sunDistance: 9.5826,
-  //   mass: 568.317e24,
-  //   color: 'orange',
-  //   orbitalPeriod: 10759.22,
-  // },
-  // uranus: {
-  //   radius: 25362,
-  //   sunDistance: 19.2184,
-  //   mass: 86.8099e24,
-  //   color: 'cyan',
-  //   orbitalPeriod: 30688.5,
-  // },
-  // neptune: {
-  //   radius: 24622,
-  //   sunDistance: 30.11,
-  //   mass: 102.4092e24,
-  //   color: 'blue',
-  //   orbitalPeriod: 60182,
-  // },
+  jupiter: {
+    radius: 69911,
+    sunDistance: 5.2044,
+    mass: 1898.125e24,
+    color: 'green',
+    orbitalPeriod: 4332.59,
+  },
+  saturn: {
+    radius: 58232,
+    sunDistance: 9.5826,
+    mass: 568.317e24,
+    color: 'orange',
+    orbitalPeriod: 10759.22,
+  },
+  uranus: {
+    radius: 25362,
+    sunDistance: 19.2184,
+    mass: 86.8099e24,
+    color: 'red',
+    orbitalPeriod: 30688.5,
+  },
+  neptune: {
+    radius: 24622,
+    sunDistance: 30.11,
+    mass: 102.4092e24,
+    color: 'blue',
+    orbitalPeriod: 60182,
+  },
 }
 
 // -------------------------------------------------------------------------------------------------
