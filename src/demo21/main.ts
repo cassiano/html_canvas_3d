@@ -14,7 +14,7 @@ import {
   text2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI } from '../math_utils.ts'
+import { PI, sqrt } from '../math_utils.ts'
 import { autoRotationEnabled, rotateY, rotateX } from '../primitives.ts'
 import { AstronomicalBody } from './astronomical_body.ts'
 import { assertIsNotUndefined } from '../utils.ts'
@@ -26,11 +26,13 @@ export const AU = 149597870.7 // Astronomical Unit (in km).
 export const EARTH_YEAR_IN_DAYS = 365.256363004 // Sidereal year.
 export const EARTH_DAY_IN_SECONDS = 24 * 3600
 export const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
-export const EARTH_MOON_DISTANCE = 384399 // Mean Earth-Moon distance in km.
-export const MOON_RADIUS = 1737.4 // Mean Moon radius in km.
+export const EARTH_MOON_DISTANCE_IN_KM = 384399 // Mean Earth-Moon distance in km.
+export const MOON_RADIUS_IN_KM = 1737.4 // Mean Moon radius in km.
 export const MOON_ORBITAL_PERIOD_IN_DAYS = 27.321582 // Sidereal orbital period of the Moon in days.
-export const EARTH_RADIUS = 6371 // Mean Earth radius in km.
+export const EARTH_RADIUS_IN_KM = 6371 // Mean Earth radius in km.
 export const EARTH_ORBIT_DURATION_IN_SECONDS = 30
+export const EARTH_MOON_CENTERS_DISTANCE_IN_M =
+  (EARTH_RADIUS_IN_KM + EARTH_MOON_DISTANCE_IN_KM + MOON_RADIUS_IN_KM) * 1000 // The distance from the Earth's center to the Moon's center in m.
 
 export const DEFAULT_RADIUS_SCALE = 1 / 5e5
 export const DEFAULT_DISTANCE_SCALE = 3e-1 / AU // Scale down distances to fit the canvas.
@@ -75,15 +77,17 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     orbitalPeriod: 224.701,
   },
   earth: {
-    radius: EARTH_RADIUS,
+    radius: EARTH_RADIUS_IN_KM,
     distanceFromSun: 1,
     mass: 5.97217e24,
     color: 'cyan',
     orbitalPeriod: EARTH_YEAR_IN_DAYS,
   },
   moon: {
-    radius: MOON_RADIUS,
-    distanceFromSun: 1,
+    radius: MOON_RADIUS_IN_KM,
+    distanceFromSun: sqrt(
+      1 + (EARTH_MOON_CENTERS_DISTANCE_IN_M / (1000 * AU)) ** 2,
+    ),
     mass: 7.348e22,
     color: 'gray',
     orbitalPeriod: EARTH_YEAR_IN_DAYS, // Around the Sun (same as Earth).
@@ -113,7 +117,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     radius: 25362,
     distanceFromSun: 19.2184,
     mass: 86.8099e24,
-    color: 'red',
+    color: 'purple',
     orbitalPeriod: 30688.5,
   },
   neptune: {
