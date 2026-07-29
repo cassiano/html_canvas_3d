@@ -14,7 +14,7 @@ import {
   text2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI, sqrt } from '../math_utils.ts'
+import { PI } from '../math_utils.ts'
 import { autoRotationEnabled, rotateY, rotateX } from '../primitives.ts'
 import { AstronomicalBody } from './astronomical_body.ts'
 import { assertIsNotUndefined } from '../utils.ts'
@@ -85,9 +85,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   },
   moon: {
     radius: MOON_RADIUS_IN_KM,
-    distanceFromSun: sqrt(
-      1 + (EARTH_MOON_CENTERS_DISTANCE_IN_M / (1000 * AU)) ** 2,
-    ),
+    distanceFromSun: 1,
     mass: 7.348e22,
     color: 'gray',
     orbitalPeriod: EARTH_YEAR_IN_DAYS, // Around the Sun (same as Earth).
