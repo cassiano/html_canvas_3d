@@ -24,18 +24,14 @@ import {
 import { assertIsNotUndefined } from '../utils.ts'
 
 export class AstronomicalBody extends Mover3D {
-  radiusCustomScale?: number
-
   constructor(
     public name: string,
     public radius: number,
     public distanceFromSun: number,
-    public mass: number,
+    mass: number,
     public color: string,
     public orbitalPeriod: number,
-    options: {
-      radiusCustomScale?: number
-    } = {},
+    public radiusCustomScale?: number,
   ) {
     const initialPosition = $v(distanceFromSun, 0, 0)
 
@@ -57,8 +53,6 @@ export class AstronomicalBody extends Mover3D {
     }
 
     super(mass, initialPosition, initialVelocity)
-
-    this.radiusCustomScale = options.radiusCustomScale
   }
 
   render() {

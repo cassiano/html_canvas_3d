@@ -146,9 +146,7 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
     mass,
     color,
     orbitalPeriod,
-    {
-      radiusCustomScale,
-    },
+    radiusCustomScale,
   )
 })
 
