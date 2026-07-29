@@ -425,3 +425,28 @@ export const createDemoControlPanel = (canvasContainer: HTMLElement) => {
 
 export const randomColor = (min = 0, max = 255) =>
   `rgb(${random(min, max)}, ${random(min, max)}, ${random(min, max)})`
+
+export function assertIsNotUndefined<T>(
+  val: T | undefined | null,
+): asserts val is NonNullable<T> | null {
+  if (val === undefined)
+    throw new TypeError(
+      `Expected value not to be undefined, but received ${val}`,
+    )
+}
+
+export function assertIsNotNull<T>(
+  val: T | undefined | null,
+): asserts val is NonNullable<T> | undefined {
+  if (val === null)
+    throw new TypeError(`Expected value not to be null, but received ${val}`)
+}
+
+export function assertIsNotUndefinedOrNull<T>(
+  val: T | undefined | null,
+): asserts val is NonNullable<T> {
+  if (val === undefined || val === null)
+    throw new TypeError(
+      `Expected value not to be undefined or null, but received ${val}`,
+    )
+}

@@ -17,6 +17,7 @@ import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import { autoRotationEnabled, rotateY, rotateX } from '../primitives.ts'
 import { AstronomicalBody } from './astronomical_body.ts'
+import { assertIsNotUndefined } from '../utils.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -25,11 +26,15 @@ export const AU = 149597870.7 // Astronomical Unit (in km).
 export const EARTH_YEAR_IN_DAYS = 365.256363004 // Sidereal year.
 export const EARTH_DAY_IN_SECONDS = 24 * 3600
 export const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
-// const EARTH_MOON_DISTANCE = 384399 // Mean Earth-Moon distance in km.
+export const EARTH_MOON_DISTANCE = 384399 // Mean Earth-Moon distance in km.
+export const MOON_RADIUS = 1737.4 // Mean Moon radius in km.
+export const MOON_ORBITAL_PERIOD_IN_DAYS = 27.321582 // Sidereal orbital period of the Moon in days.
+export const EARTH_RADIUS = 6371 // Mean Earth radius in km.
 export const EARTH_ORBIT_DURATION_IN_SECONDS = 30
 
 export const DEFAULT_RADIUS_SCALE = 1 / 5e5
 export const DEFAULT_DISTANCE_SCALE = 3e-1 / AU // Scale down distances to fit the canvas.
+export const EARTH_MOON_DISTANCE_SCALE = 30 // Scale up the Earth-Moon distance so the moon orbits around the Earth in a visually appealing way.
 
 // Simulation seconds advanced per real second so Earth completes one orbit in the target duration.
 export const SIMULATION_SECONDS_PER_REAL_SECOND =
@@ -40,7 +45,7 @@ export const SIMULATION_SECONDS_PER_REAL_SECOND =
 type SolarSystemBodyType = {
   radius: number // Mean radius in km.
   radiusCustomScale?: number
-  sunDistance: number // In AU.
+  distanceFromSun: number // In AU.
   mass: number // In kg
   color: string
   orbitalPeriod: number // In (Earth) days, aka sidereal orbital period.
@@ -50,70 +55,70 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   sun: {
     radius: 695700,
     radiusCustomScale: DEFAULT_RADIUS_SCALE / 15, // Scale down the sun's radius to fit the canvas.
-    sunDistance: 0,
+    distanceFromSun: 0,
     mass: 1.9891e30,
     color: 'yellow',
     orbitalPeriod: 0,
   },
   mercury: {
     radius: 2439.4,
-    sunDistance: 0.387098,
+    distanceFromSun: 0.387098,
     mass: 0.330103e24,
     color: 'brown',
     orbitalPeriod: 87.9691,
   },
   venus: {
     radius: 6051.8,
-    sunDistance: 0.723332,
+    distanceFromSun: 0.723332,
     mass: 4.86731e24,
-    color: 'gray',
+    color: 'white',
     orbitalPeriod: 224.701,
   },
   earth: {
-    radius: 6371,
-    sunDistance: 1,
+    radius: EARTH_RADIUS,
+    distanceFromSun: 1,
     mass: 5.97217e24,
     color: 'cyan',
     orbitalPeriod: EARTH_YEAR_IN_DAYS,
   },
-  // moon: {
-  //   radius: 1737.4,
-  //   sunDistance: 1 + EARTH_MOON_DISTANCE / AU,
-  //   mass: 7.348e22,
-  //   color: 'gray',
-  //   orbitalPeriod: 27.321582,
-  // },
+  moon: {
+    radius: MOON_RADIUS,
+    distanceFromSun: 1,
+    mass: 7.348e22,
+    color: 'gray',
+    orbitalPeriod: EARTH_YEAR_IN_DAYS, // Around the Sun (same as Earth).
+  },
   mars: {
     radius: 3389.5,
-    sunDistance: 1.523679,
+    distanceFromSun: 1.523679,
     mass: 0.641691e24,
     color: 'red',
     orbitalPeriod: 686.98,
   },
   jupiter: {
     radius: 69911,
-    sunDistance: 5.2044,
+    distanceFromSun: 5.2044,
     mass: 1898.125e24,
     color: 'green',
     orbitalPeriod: 4332.59,
   },
   saturn: {
     radius: 58232,
-    sunDistance: 9.5826,
+    distanceFromSun: 9.5826,
     mass: 568.317e24,
     color: 'orange',
     orbitalPeriod: 10759.22,
   },
   uranus: {
     radius: 25362,
-    sunDistance: 19.2184,
+    distanceFromSun: 19.2184,
     mass: 86.8099e24,
     color: 'red',
     orbitalPeriod: 30688.5,
   },
   neptune: {
     radius: 24622,
-    sunDistance: 30.11,
+    distanceFromSun: 30.11,
     mass: 102.4092e24,
     color: 'blue',
     orbitalPeriod: 60182,
@@ -125,31 +130,31 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
 const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
   const {
     radius,
-    sunDistance,
+    distanceFromSun,
     mass,
     color,
-    orbitalPeriod: siderealOrbitalPeriod,
-    radiusCustomScale: radiusRatio,
+    orbitalPeriod,
+    radiusCustomScale,
   } = data
 
   return new AstronomicalBody(
     name,
     radius * 1000, // Convert radius from km to m.
-    sunDistance * AU * 1000, // Convert sunDistance from AU to m.
+    distanceFromSun * AU * 1000, // Convert from AU to m.
     mass,
     color,
-    siderealOrbitalPeriod,
-    radiusRatio,
+    orbitalPeriod,
+    {
+      radiusCustomScale,
+    },
   )
 })
 
 // const sun = bodies.find(body => body.name === 'sun')
-// const earth = bodies.find(body => body.name === 'earth')
+// assertIsNotUndefined(sun)
 
-// if (!sun) throw new Error('Sun not found in solar system data.')
-// if (!earth) throw new Error('Earth not found in solar system data.')
-
-// logJson({ ORBIT_SPEED_SCALE })
+export const earth = bodies.find(body => body.name === 'earth')
+assertIsNotUndefined(earth)
 
 let lastPhysicsMillis: number | null = null
 
@@ -191,16 +196,6 @@ const draw = () => {
   render3dAxes()
 
   // renderDebugHud(dtRealSeconds, simulationDeltaSeconds)
-
-  // isolateTransformations(() => {
-  //   rotateX(PI / 2)
-  //   rect2d(550, 550, { color: 'white', opacity: 0.05, isDoubleSided: true })
-  // })
-
-  // if (frameCount() % 500 === 0)
-  //   logJson({
-  //     earth: { velocity: earth.velocity, position: earth.position },
-  //   })
 
   timesForEachN([bodies.length, bodies.length], (i, j) => {
     if (i !== j) bodies[i].attract(bodies[j])

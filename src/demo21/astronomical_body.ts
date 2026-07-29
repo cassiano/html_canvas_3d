@@ -9,6 +9,14 @@ import {
 import { $v } from '../vector_3d.ts'
 import { Mover3D } from './mover_3d.ts'
 import { ZERO_VECTOR, DEFAULT_CIRCLE_SEGMENTS } from '../constants.ts'
+import { EARTH_MOON_DISTANCE_SCALE } from './main.ts'
+import {
+  EARTH_RADIUS,
+  EARTH_MOON_DISTANCE,
+  MOON_RADIUS,
+  MOON_ORBITAL_PERIOD_IN_DAYS,
+  earth,
+} from './main.ts'
 import {
   DEFAULT_RADIUS_SCALE,
   DEFAULT_DISTANCE_SCALE,
@@ -16,28 +24,47 @@ import {
   G,
   AU,
 } from './main.ts'
+import { assertIsNotUndefined } from '../utils.ts'
 
 export class AstronomicalBody extends Mover3D {
+  radiusCustomScale?: number
+
   constructor(
     public name: string,
     public radius: number,
-    public sunDistance: number,
+    public distanceFromSun: number,
     public mass: number,
     public color: string,
     public orbitalPeriod: number,
-    public radiusCustomScale?: number,
+    options: {
+      radiusCustomScale?: number
+    } = {},
   ) {
-    const initialPosition = $v(sunDistance, 0, 0)
+    const initialPosition = $v(distanceFromSun, 0, 0)
+
     const initialVelocity =
       orbitalPeriod === 0
         ? ZERO_VECTOR.clone()
         : $v(
             0,
             0,
-            (TWO_PI * sunDistance) / (orbitalPeriod * EARTH_DAY_IN_SECONDS),
+            (TWO_PI * distanceFromSun) / (orbitalPeriod * EARTH_DAY_IN_SECONDS),
           )
 
+    if (name === 'moon') {
+      const distanceFromMoonCenterToEarthCenter =
+        (EARTH_RADIUS + EARTH_MOON_DISTANCE + MOON_RADIUS) * 1000 // The distance from the Moon's center to the Earth's center in meters.
+
+      initialPosition.y = distanceFromMoonCenterToEarthCenter
+
+      initialVelocity.z +=
+        (TWO_PI * distanceFromMoonCenterToEarthCenter) /
+        (MOON_ORBITAL_PERIOD_IN_DAYS * EARTH_DAY_IN_SECONDS)
+    }
+
     super(mass, initialPosition, initialVelocity)
+
+    this.radiusCustomScale = options.radiusCustomScale
   }
 
   render() {
@@ -45,7 +72,18 @@ export class AstronomicalBody extends Mover3D {
       this.radius * (this.radiusCustomScale ?? DEFAULT_RADIUS_SCALE)
 
     isolateTransformations(() => {
-      translate(this.position.clone().mult(DEFAULT_DISTANCE_SCALE))
+      if (this.name === 'moon') {
+        assertIsNotUndefined(earth)
+
+        const scaledPositionDiff = earth.position.lerp(
+          this.position,
+          EARTH_MOON_DISTANCE_SCALE,
+        )
+
+        translate(scaledPositionDiff.mult(DEFAULT_DISTANCE_SCALE))
+      } else {
+        translate(this.position.clone().mult(DEFAULT_DISTANCE_SCALE))
+      }
 
       sphere(radius, {
         color: this.color,
@@ -55,23 +93,24 @@ export class AstronomicalBody extends Mover3D {
       })
     })
 
-    isolateTransformations(() => {
-      rotateX(PI / 2)
+    if (this.name !== 'moon')
+      isolateTransformations(() => {
+        rotateX(PI / 2)
 
-      circlePerimeter2d(this.sunDistance * DEFAULT_DISTANCE_SCALE, {
-        color: this.color,
-        lineWidth: 1,
-        // More segments for larger orbits to make them smoother.
-        circleSegments: map(
-          this.sunDistance,
-          0.35 * AU * 1000,
-          1.5 * AU * 1000,
-          DEFAULT_CIRCLE_SEGMENTS,
-          360,
-          true,
-        ),
+        circlePerimeter2d(this.distanceFromSun * DEFAULT_DISTANCE_SCALE, {
+          color: this.color,
+          lineWidth: 1,
+          // More segments for larger orbits to make them smoother.
+          circleSegments: map(
+            this.distanceFromSun,
+            0.35 * AU * 1000,
+            1.5 * AU * 1000,
+            DEFAULT_CIRCLE_SEGMENTS,
+            360,
+            true,
+          ),
+        })
       })
-    })
   }
 
   attract(other: AstronomicalBody) {
