@@ -75,7 +75,14 @@ export class AstronomicalBody extends Mover3D {
   }
 
   attract(other: AstronomicalBody) {
-    other.applyForce(other.attractionForceFrom(this))
+    const direction = this.position.clone().sub(other.position)
+    const distanceSq = direction.magSq()
+
+    const gravitacionalAttraction = direction
+      .normalize()
+      .mult((G * this.mass * other.mass) / distanceSq)
+
+    other.applyForce(gravitacionalAttraction)
   }
 
   updateWithDelta(dt: number) {
@@ -84,15 +91,5 @@ export class AstronomicalBody extends Mover3D {
     this.position.add(this.velocity.clone().mult(dt))
 
     this.acceleration.mult(0)
-  }
-
-  private attractionForceFrom(other: AstronomicalBody) {
-    const distanceSq = this.position.distSq(other.position)
-
-    return other.position
-      .clone()
-      .sub(this.position)
-      .normalize()
-      .mult((G * this.mass * other.mass) / distanceSq)
   }
 }
