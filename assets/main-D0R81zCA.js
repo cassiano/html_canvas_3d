@@ -1,0 +1,1 @@
+import{B as e,F as t,I as n,P as r,at as i,b as a,c as o,nt as s,o as c,q as l,r as u,s as d,x as f,z as p}from"./index-B_VK4YTa.js";var m=()=>{d()%30==0&&console.log({fps:c()}),f(`black`),p(i/20),e(a?-o()/5e3:i/6),r()},{start:h,stop:g}=u(()=>{n(),m(),t()},()=>{l(`PAUSED`,s(0,300))},120);export{h as start,g as stop};
