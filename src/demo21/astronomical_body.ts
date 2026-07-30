@@ -55,12 +55,12 @@ export class AstronomicalBody extends Mover3D {
       if (isMoon) {
         assertIsNotUndefined(earth)
 
-        const scaledPositionDiff = earth.position.lerp(
+        const scaledEarthMoonPositionsDiff = earth.position.lerp(
           this.position,
           EARTH_MOON_DISTANCE_SCALE,
         )
 
-        translate(scaledPositionDiff.mult(DEFAULT_DISTANCE_SCALE))
+        translate(scaledEarthMoonPositionsDiff.mult(DEFAULT_DISTANCE_SCALE))
       } else {
         translate(this.position.clone().mult(DEFAULT_DISTANCE_SCALE))
       }
