@@ -2,15 +2,12 @@ import { Vector3d } from '../vector_3d.ts'
 import { ZERO_VECTOR } from '../constants.ts'
 
 export abstract class Mover3D {
-  acceleration: Vector3d
-
   constructor(
     public mass: number,
     public position: Vector3d,
     public velocity: Vector3d,
-  ) {
-    this.acceleration = ZERO_VECTOR.clone()
-  }
+    public acceleration: Vector3d = ZERO_VECTOR.clone(),
+  ) {}
 
   // [/doc_img/mover_3d.ts/2026-07-30-11-19-15.png]
   update(dt = 1) {
