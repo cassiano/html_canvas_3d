@@ -14,8 +14,8 @@ export abstract class Mover3D {
 
   // [/doc_img/mover_3d.ts/2026-07-30-11-19-15.png]
   update(dt = 1) {
-    this.position.add(this.velocity.clone().mult(dt))
     this.velocity.add(this.acceleration.clone().mult(dt))
+    this.position.add(this.velocity.clone().mult(dt))
 
     this.acceleration.mult(0)
   }
