@@ -25,4 +25,6 @@ export abstract class Mover3D {
   addAcceleration(acceleration: Vector3d) {
     this.acceleration.add(acceleration)
   }
+
+  abstract render(): void
 }

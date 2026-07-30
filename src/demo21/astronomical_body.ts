@@ -45,7 +45,7 @@ export class AstronomicalBody extends Mover3D {
     super(mass, initialPosition, initialVelocity)
   }
 
-  render() {
+  override render() {
     const radius =
       this.radius * (this.radiusCustomScale ?? DEFAULT_RADIUS_SCALE)
 

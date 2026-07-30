@@ -32,7 +32,7 @@ export const MOON_ORBITAL_PERIOD_IN_DAYS = 27.321582 // Sidereal orbital period 
 export const MOON_ORBITAL_PERIOD_IN_SECONDS =
   MOON_ORBITAL_PERIOD_IN_DAYS * EARTH_DAY_IN_SECONDS
 export const EARTH_RADIUS_IN_KM = 6371 // Mean Earth radius in km.
-export const EARTH_ORBIT_DURATION_IN_SECONDS = 30
+export const EARTH_ORBIT_DURATION_IN_SECONDS = 120
 export const EARTH_MOON_CENTERS_DISTANCE_IN_METERS =
   (EARTH_RADIUS_IN_KM + EARTH_MOON_DISTANCE_IN_KM + MOON_RADIUS_IN_KM) * 1000 // The distance from the Earth's center to the Moon's center in m.
 
@@ -85,13 +85,6 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     color: 'cyan',
     orbitalPeriod: EARTH_YEAR_IN_DAYS,
   },
-  moon: {
-    radius: MOON_RADIUS_IN_KM,
-    distanceFromSun: 1,
-    mass: 7.348e22,
-    color: 'gray',
-    orbitalPeriod: EARTH_YEAR_IN_DAYS, // Around the Sun (same as Earth).
-  },
   mars: {
     radius: 3389.5,
     distanceFromSun: 1.523679,
@@ -126,6 +119,13 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     mass: 102.4092e24,
     color: 'blue',
     orbitalPeriod: 60182,
+  },
+  moon: {
+    radius: MOON_RADIUS_IN_KM,
+    distanceFromSun: 1,
+    mass: 7.348e22,
+    color: 'gray',
+    orbitalPeriod: EARTH_YEAR_IN_DAYS, // Around the Sun (same as Earth).
   },
 }
 
