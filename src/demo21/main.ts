@@ -38,7 +38,7 @@ export const EARTH_MOON_CENTERS_DISTANCE_IN_METERS =
 
 export const DEFAULT_RADIUS_SCALE = 1 / 5e5
 export const DEFAULT_DISTANCE_SCALE = 3e-1 / AU // Scale down distances to fit the canvas.
-export const EARTH_MOON_DISTANCE_SCALE = 25 // Scale up the Earth-Moon distance so the moon orbits around the Earth in a visually appealing way.
+export const EARTH_MOON_DISTANCE_SCALE = 25 // Scale up the Earth-Moon distance arbitrarily, so the moon orbits around the Earth in a visually appealing way.
 
 // Simulation seconds advanced per real second so Earth completes one orbit in the target duration.
 export const SIMULATION_SECONDS_PER_REAL_SECOND =
