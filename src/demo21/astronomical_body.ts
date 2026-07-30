@@ -105,12 +105,4 @@ export class AstronomicalBody extends Mover3D {
 
     other.applyForce(gravitationalAttraction)
   }
-
-  updateWithDelta(dt: number) {
-    // Semi-implicit Euler: update velocity from acceleration, then position from velocity.
-    this.velocity.add(this.acceleration.clone().mult(dt))
-    this.position.add(this.velocity.clone().mult(dt))
-
-    this.acceleration.mult(0)
-  }
 }

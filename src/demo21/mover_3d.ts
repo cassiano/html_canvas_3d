@@ -12,14 +12,14 @@ export abstract class Mover3D {
     this.acceleration = ZERO_VECTOR.clone()
   }
 
-  update() {
-    this.position.add(this.velocity)
-    this.velocity.add(this.acceleration)
+  update(dt = 1) {
+    this.position.add(this.velocity.clone().mult(dt))
+    this.velocity.add(this.acceleration.clone().mult(dt))
 
     this.acceleration.mult(0)
   }
 
-  // F = m x a  => a = F / m
+  // F = m * a  => a = F / m
   applyForce(force: Vector3d) {
     this.addAcceleration(force.clone().div(this.mass))
   }
