@@ -29,6 +29,8 @@ export const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
 export const EARTH_MOON_DISTANCE_IN_KM = 384399 // Mean Earth-Moon distance in km.
 export const MOON_RADIUS_IN_KM = 1737.4 // Mean Moon radius in km.
 export const MOON_ORBITAL_PERIOD_IN_DAYS = 27.321582 // Sidereal orbital period of the Moon in days.
+export const MOON_ORBITAL_PERIOD_IN_SECONDS =
+  MOON_ORBITAL_PERIOD_IN_DAYS * EARTH_DAY_IN_SECONDS
 export const EARTH_RADIUS_IN_KM = 6371 // Mean Earth radius in km.
 export const EARTH_ORBIT_DURATION_IN_SECONDS = 30
 export const EARTH_MOON_CENTERS_DISTANCE_IN_METERS =
@@ -50,7 +52,7 @@ type SolarSystemBodyType = {
   distanceFromSun: number // In AU.
   mass: number // In kg
   color: string
-  orbitalPeriod: number // In (Earth) days, aka sidereal orbital period.
+  orbitalPeriod: number // Aka sidereal orbital period, in (Earth) days.
 }
 
 const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
@@ -145,7 +147,7 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
     distanceFromSun * AU * 1000, // Convert from AU to m.
     mass,
     color,
-    orbitalPeriod,
+    orbitalPeriod * EARTH_DAY_IN_SECONDS, // Convert from days to seconds.
     radiusCustomScale,
   )
 })
@@ -156,7 +158,7 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
 export const earth = bodies.find(body => body.name === 'earth')
 assertIsNotUndefined(earth)
 
-let lastPhysicsMillis: number | null = null
+let latestPhysicsMillis: number | null = null
 
 const renderDebugHud = (
   dtRealSeconds: number,
@@ -178,10 +180,10 @@ const draw = () => {
 
   const nowMillis = millis()
   const dtRealSeconds =
-    lastPhysicsMillis === null
+    latestPhysicsMillis === null
       ? 1 / FPS
-      : Math.max(0, (nowMillis - lastPhysicsMillis) / 1000)
-  lastPhysicsMillis = nowMillis
+      : (nowMillis - latestPhysicsMillis) / 1000
+  latestPhysicsMillis = nowMillis
 
   const simulationDeltaSeconds =
     dtRealSeconds * SIMULATION_SECONDS_PER_REAL_SECOND

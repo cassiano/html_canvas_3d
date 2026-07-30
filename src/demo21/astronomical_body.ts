@@ -13,14 +13,8 @@ import {
   EARTH_MOON_DISTANCE_SCALE,
   EARTH_MOON_CENTERS_DISTANCE_IN_METERS,
 } from './main.ts'
-import { MOON_ORBITAL_PERIOD_IN_DAYS, earth } from './main.ts'
-import {
-  DEFAULT_RADIUS_SCALE,
-  DEFAULT_DISTANCE_SCALE,
-  EARTH_DAY_IN_SECONDS,
-  G,
-  AU,
-} from './main.ts'
+import { earth, MOON_ORBITAL_PERIOD_IN_SECONDS } from './main.ts'
+import { DEFAULT_RADIUS_SCALE, DEFAULT_DISTANCE_SCALE, G, AU } from './main.ts'
 import { assertIsNotUndefined } from '../utils.ts'
 
 export class AstronomicalBody extends Mover3D {
@@ -38,18 +32,14 @@ export class AstronomicalBody extends Mover3D {
     const initialVelocity =
       orbitalPeriod === 0
         ? ZERO_VECTOR.clone()
-        : $v(
-            0,
-            0,
-            (TWO_PI * distanceFromSun) / (orbitalPeriod * EARTH_DAY_IN_SECONDS),
-          )
+        : $v(0, 0, (TWO_PI * distanceFromSun) / orbitalPeriod)
 
     if (name === 'moon') {
       initialPosition.y = EARTH_MOON_CENTERS_DISTANCE_IN_METERS
 
       initialVelocity.z +=
         (TWO_PI * EARTH_MOON_CENTERS_DISTANCE_IN_METERS) /
-        (MOON_ORBITAL_PERIOD_IN_DAYS * EARTH_DAY_IN_SECONDS)
+        MOON_ORBITAL_PERIOD_IN_SECONDS
     }
 
     super(mass, initialPosition, initialVelocity)
@@ -109,9 +99,9 @@ export class AstronomicalBody extends Mover3D {
     const distanceSq = direction.magSq()
 
     // [/doc_img/astronomical_body.ts/2026-07-29-18-09-24.png]
-    const gravitationalAttraction = direction
-      .normalize()
-      .mult((G * this.mass * other.mass) / distanceSq)
+    const gravitationalAttraction = direction.setMag(
+      (G * this.mass * other.mass) / distanceSq,
+    )
 
     other.applyForce(gravitationalAttraction)
   }
