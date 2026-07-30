@@ -1,6 +1,5 @@
 import {
   DEFAULT_CIRCLE_SEGMENTS,
-  FOCAL_LENGTH,
   Z_EPSILON,
   AXES,
   MAX_LINE_SEGMENT_SIZE,
@@ -377,17 +376,39 @@ export const background = (color: string) => {
   ctx.fillRect(0, 0, animation.width, animation.height)
 }
 
-export const project3dTo2d = ({ x, y, z }: Vector3d) => {
-  // If z = FOCAL_LENGTH, the point is on the lens.
-  // If z > FOCAL_LENGTH, the point is behind the camera.
-  const divisor = FOCAL_LENGTH - z // Object should be at z=0 or lower.
+// export const project3dTo2d = ({ x, y, z }: Vector3d) => {
+//   // If z = FOCAL_LENGTH, the point is on the lens.
+//   // If z > FOCAL_LENGTH, the point is behind the camera.
+//   const divisor = FOCAL_LENGTH - z // Object should be at z=0 or lower.
 
-  // If the point is behind the camera or exactly on the lens, we return `undefined` so the
-  // renderer knows to skip it.
+//   // If the point is behind the camera or exactly on the lens, we return `undefined` so the
+//   // renderer knows to skip it.
+//   if (divisor <= 0) return
+
+//   // Standard perspective: (coord * FOCAL_LENGTH) / (z + FOCAL_LENGTH).
+//   const perspectiveScale = FOCAL_LENGTH / divisor
+
+//   return $v(x * perspectiveScale, y * perspectiveScale)
+// }
+
+// Define the FOV (π/4 = 45 degrees is considered a standard "natural" look).
+const FOV = PI / 4
+
+// Create a helper to get the consistent focal length.
+const getCurrentFocalLength = () => {
+  const viewDimension = min(animation.width, animation.height)
+
+  return viewDimension / (2 * Math.tan(FOV / 2))
+}
+
+// Updated projection function.
+export const project3dTo2d = ({ x, y, z }: Vector3d) => {
+  const focalLength = getCurrentFocalLength()
+  const divisor = focalLength - z
+
   if (divisor <= 0) return
 
-  // Standard perspective: (coord * FOCAL_LENGTH) / (z + FOCAL_LENGTH).
-  const perspectiveScale = FOCAL_LENGTH / divisor
+  const perspectiveScale = focalLength / divisor
 
   return $v(x * perspectiveScale, y * perspectiveScale)
 }
@@ -649,16 +670,34 @@ export const triangle2d = (
   return { screenA, screenB, screenC }
 }
 
+// const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
+//   const transformed = {
+//     center: transform(center),
+//     normal: transformNormal(normal),
+//   }
+//   const camera = $v(0, 0, FOCAL_LENGTH)
+//   const cameraToCenter = transformed.center.sub(camera)
+
+//   // If the vector from camera to (center of) object and the surface normal point
+//   // in opposite directions (dot < 0), the face is visible.
+//   const pointInSameDirection = cameraToCenter.dot(transformed.normal) >= 0
+
+//   return !pointInSameDirection
+// }
+
 const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
   const transformed = {
     center: transform(center),
     normal: transformNormal(normal),
   }
-  const camera = $v(0, 0, FOCAL_LENGTH)
+
+  // Use the SAME dynamic focal length here!
+  const focalLength = getCurrentFocalLength()
+  const camera = $v(0, 0, focalLength)
+
   const cameraToCenter = transformed.center.sub(camera)
 
-  // If the vector from camera to (center of) object and the surface normal point
-  // in opposite directions (dot < 0), the face is visible.
+  // Dot product logic remains the same.
   const pointInSameDirection = cameraToCenter.dot(transformed.normal) >= 0
 
   return !pointInSameDirection

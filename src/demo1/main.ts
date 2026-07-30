@@ -30,7 +30,7 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(PI / 4)
+  rotateX(PI / 2.75)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)
   else rotateY(PI / 6)
