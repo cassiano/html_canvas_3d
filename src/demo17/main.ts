@@ -14,7 +14,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { Fireworks } from './fireworks.ts'
-import { render3dAxes, animation } from '../primitives.ts'
+import { render3dAxes, animation, scale } from '../primitives.ts'
 import { demo17Form } from './demo17_form.ts'
 import { createSlider } from '../utils.ts'
 import { launchesPer100Frames as launchesPer100Frames } from './demo17_form.ts'
@@ -84,6 +84,8 @@ const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
   background('black')
+
+  scale(1.3)
 
   render3dAxes()
 

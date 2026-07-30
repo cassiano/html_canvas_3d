@@ -16,7 +16,7 @@ import { Turtle } from './turtle.ts'
 import { frameCount, createDemoControlPanel, createSlider } from '../utils.ts'
 import { FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { radians } from '../math_utils.ts'
-import { autoRotationEnabled } from '../primitives.ts'
+import { autoRotationEnabled, scale } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -156,6 +156,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(PI / 4)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)

@@ -9,7 +9,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { saturnRing, rotateZ, rotateY } from '../primitives.ts'
+import { saturnRing, rotateZ, rotateY, scale } from '../primitives.ts'
 import { isolateTransformations } from '../primitives.ts'
 import { autoRotationEnabled, sphere, rotateX } from '../primitives.ts'
 
@@ -123,6 +123,7 @@ const draw = () => {
 
   background('black')
 
+  scale(1.3)
   rotateY(PI / 2.2)
   rotateX(-PI / 3.5)
 

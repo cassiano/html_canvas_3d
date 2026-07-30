@@ -12,6 +12,7 @@ import {
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
 import { ElbowShapeOptions, elbow } from '../elbow_primitives.ts'
+import { scale } from '../primitives.ts'
 import {
   isolateTransformations,
   translate,
@@ -41,6 +42,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(PI / 4)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)

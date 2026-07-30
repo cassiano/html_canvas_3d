@@ -16,7 +16,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { rotateX, rotateZ, autoRotationEnabled } from '../primitives.ts'
+import { rotateX, rotateZ, autoRotationEnabled, scale } from '../primitives.ts'
 import { Terrain } from './terrain.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -97,6 +97,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(-PI / 4)
 
   if (autoRotationEnabled) rotateZ(-millis() / 2000)

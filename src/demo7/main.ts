@@ -9,7 +9,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI, HALF_PI } from '../math_utils.ts'
-import { autoRotationEnabled } from '../primitives.ts'
+import { autoRotationEnabled, scale } from '../primitives.ts'
 import {
   rotateX,
   cone,
@@ -31,6 +31,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(PI / 4)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)

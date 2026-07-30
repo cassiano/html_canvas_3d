@@ -21,7 +21,11 @@ import {
 import { $v } from '../vector_3d.ts'
 import { elbow } from '../elbow_primitives.ts'
 import { PI } from '../math_utils.ts'
-import { isolateTransformations, autoRotationEnabled } from '../primitives.ts'
+import {
+  isolateTransformations,
+  autoRotationEnabled,
+  scale,
+} from '../primitives.ts'
 import { createSlider } from '../utils.ts'
 
 // -------------------------------------------------------------------------------------------------
@@ -64,6 +68,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(PI / 4)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)

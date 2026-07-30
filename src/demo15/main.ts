@@ -451,6 +451,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(PI / 4)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)

@@ -21,7 +21,13 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { sphere, rotateX, rotateZ, autoRotationEnabled } from '../primitives.ts'
+import {
+  sphere,
+  rotateX,
+  rotateZ,
+  autoRotationEnabled,
+  scale,
+} from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -69,6 +75,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(PI / 4)
 
   if (autoRotationEnabled) {

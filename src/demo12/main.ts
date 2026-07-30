@@ -17,6 +17,7 @@ import {
   isolateTransformations,
   rotateX,
   ring,
+  scale,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { cos, sin, HALF_PI, PI } from '../math_utils.ts'
@@ -65,6 +66,8 @@ const draw = () => {
   const { totalRings } = demoForm.sliders
 
   background('lightGray')
+
+  scale(1.3)
 
   if (autoRotationEnabled) {
     rotateX(sin(millis() / 5000) * 1.5)

@@ -6,6 +6,7 @@ import {
   render3dAxes,
   resetTransformationMatrix,
   text2d,
+  scale,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
@@ -18,6 +19,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(PI / 4)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)

@@ -30,6 +30,8 @@ import { autoRotationEnabled } from '../primitives.ts'
 const draw = () => {
   background('#050816')
 
+  scale(1.3)
+
   const time = millis() / 1000
   const orbitAngle = time * 0.9
   const pulse = 0.55 + 0.25 * sin(time * 1.4)

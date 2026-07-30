@@ -15,7 +15,7 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { autoRotationEnabled, rotateY, rotateX } from '../primitives.ts'
+import { autoRotationEnabled, rotateY, rotateX, scale } from '../primitives.ts'
 import { AstronomicalBody } from './astronomical_body.ts'
 import { assertIsNotUndefined } from '../utils.ts'
 
@@ -190,6 +190,7 @@ const draw = () => {
 
   background('black')
 
+  scale(1.3)
   rotateX(PI / 20)
 
   if (autoRotationEnabled) rotateY(-millis() / 5000)

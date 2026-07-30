@@ -15,7 +15,7 @@ import {
 import { $v } from '../vector_3d.ts'
 import { cos, PI, sin, HALF_PI } from '../math_utils.ts'
 import { elbow } from '../elbow_primitives.ts'
-import { rotateY, autoRotationEnabled } from '../primitives.ts'
+import { rotateY, autoRotationEnabled, scale } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -31,6 +31,7 @@ const draw = () => {
 
   background('lightGray')
 
+  scale(1.3)
   rotateX(PI / 4)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)

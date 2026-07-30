@@ -13,7 +13,7 @@ import {
 import { $v } from '../vector_3d.ts'
 import { PI, HALF_PI } from '../math_utils.ts'
 import { CubeSphereMover } from './cube_sphere_mover.ts'
-import { rotateY, square2d, autoRotationEnabled } from '../primitives.ts'
+import { rotateY, square2d, autoRotationEnabled, scale } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -30,7 +30,8 @@ const draw = () => {
 
   background('lightGray')
 
-  rotateX(PI / 2.75)
+  scale(1.3)
+  rotateX(PI / 2.65)
 
   if (autoRotationEnabled) rotateY(-millis() / 2000)
   else rotateY(PI / 6)

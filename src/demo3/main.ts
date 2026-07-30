@@ -13,6 +13,7 @@ import {
   rotateX,
   rotateY,
   text2d,
+  scale,
 } from './../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI, sin } from './../math_utils.ts'
@@ -99,6 +100,8 @@ const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
   background('lightGray')
+
+  scale(1.3)
 
   if (autoRotationEnabled) {
     rotateX(sin(millis() / 5000) * 1.5)
