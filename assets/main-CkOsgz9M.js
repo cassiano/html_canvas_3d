@@ -1,1 +1,0 @@
-import{B as e,F as t,I as n,P as r,U as i,at as a,b as o,c as s,nt as c,o as l,q as u,r as d,s as f,x as p,z as m}from"./index-BxcSKIwq.js";var h=()=>{f()%30==0&&console.log({fps:l()}),p(`black`),i(1.3),m(a/20),e(o?-s()/5e3:a/6),r()},{start:g,stop:_}=d(()=>{n(),h(),t()},()=>{u(`PAUSED`,c(0,300))},120);export{g as start,_ as stop};
