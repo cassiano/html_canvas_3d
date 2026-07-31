@@ -68,21 +68,21 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     radius: 2439.4,
     distanceFromSun: 0.387098,
     mass: 0.330103e24,
-    color: 'brown',
+    color: 'tomato',
     orbitalPeriod: 87.9691,
   },
   venus: {
     radius: 6051.8,
     distanceFromSun: 0.723332,
     mass: 4.86731e24,
-    color: 'white',
+    color: 'yellow',
     orbitalPeriod: 224.701,
   },
   earth: {
     radius: EARTH_RADIUS_IN_KM,
     distanceFromSun: 1,
     mass: 5.97217e24,
-    color: 'cyan',
+    color: 'dodgerBlue',
     orbitalPeriod: EARTH_YEAR_IN_DAYS,
   },
   mars: {
@@ -96,7 +96,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     radius: 69911,
     distanceFromSun: 5.2044,
     mass: 1898.125e24,
-    color: 'green',
+    color: 'mediumSeaGreen',
     orbitalPeriod: 4332.59,
   },
   saturn: {
@@ -117,7 +117,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     radius: 24622,
     distanceFromSun: 30.11,
     mass: 102.4092e24,
-    color: 'blue',
+    color: 'slateBlue',
     orbitalPeriod: 60182,
   },
   moon: {
