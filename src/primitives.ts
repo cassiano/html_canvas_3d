@@ -376,21 +376,6 @@ export const background = (color: string) => {
   ctx.fillRect(0, 0, animation.width, animation.height)
 }
 
-// export const project3dTo2d = ({ x, y, z }: Vector3d) => {
-//   // If z = FOCAL_LENGTH, the point is on the lens.
-//   // If z > FOCAL_LENGTH, the point is behind the camera.
-//   const divisor = FOCAL_LENGTH - z // Object should be at z=0 or lower.
-
-//   // If the point is behind the camera or exactly on the lens, we return `undefined` so the
-//   // renderer knows to skip it.
-//   if (divisor <= 0) return
-
-//   // Standard perspective: (coord * FOCAL_LENGTH) / (z + FOCAL_LENGTH).
-//   const perspectiveScale = FOCAL_LENGTH / divisor
-
-//   return $v(x * perspectiveScale, y * perspectiveScale)
-// }
-
 // Define the FOV (π/4 = 45 degrees is considered a standard "natural" look).
 const FOV = PI / 4
 
@@ -416,24 +401,6 @@ export const project3dTo2d = ({ x, y, z }: Vector3d) => {
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 export const centralize = (point?: Vector3d) =>
   point?.clone().add(getScreenCenter()).add(panOffset)
-
-// Standard version.
-// export const transform = (point: Vector3d, { isNormal = false } = {}) => {
-//   const pointAs4dMatrix = point.to4dMatrix()
-//
-//   if (isNormal) pointAs4dMatrix[3][0] = 0 // Ignore the 4th dimension (used for translations) when transforming normals.
-//
-//   // Notice that a 4x4 matrix multiplied by a 4x1 vector results in another 4x1 vector.
-//   // Also notice that we use Post-multiplication. See https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221k6P5M79qGEqAjs7Wp_-21Jqwgzl8_Z6l%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
-//   const transformedPoint = multiplyMatrices(
-//     transformationMatrix,
-//     pointAs4dMatrix,
-//   ) as transformationMatrix4x4Type
-//
-//   return Vector3d.from4dMatrix(
-//     transformedPoint as unknown as transformationMatrix4x1Type,
-//   )
-// }
 
 // Optimized versions.
 export const transform = (point: Vector3d) =>
@@ -669,21 +636,6 @@ export const triangle2d = (
 
   return { screenA, screenB, screenC }
 }
-
-// const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
-//   const transformed = {
-//     center: transform(center),
-//     normal: transformNormal(normal),
-//   }
-//   const camera = $v(0, 0, FOCAL_LENGTH)
-//   const cameraToCenter = transformed.center.sub(camera)
-
-//   // If the vector from camera to (center of) object and the surface normal point
-//   // in opposite directions (dot < 0), the face is visible.
-//   const pointInSameDirection = cameraToCenter.dot(transformed.normal) >= 0
-
-//   return !pointInSameDirection
-// }
 
 const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
   const transformed = {
