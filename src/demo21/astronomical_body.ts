@@ -1,4 +1,4 @@
-import { floor, map, TWO_PI, HALF_PI } from '../math_utils.ts'
+import { floor, map, TWO_PI, HALF_PI, cos, PI } from '../math_utils.ts'
 import {
   isolateTransformations,
   rotateX,
@@ -38,9 +38,13 @@ export class AstronomicalBody extends Mover3D {
     if (name === 'moon') {
       initialPosition.y = EARTH_MOON_CENTERS_DISTANCE_IN_METERS
 
-      initialVelocity.z +=
-        (TWO_PI * EARTH_MOON_CENTERS_DISTANCE_IN_METERS) /
-        MOON_ORBITAL_PERIOD_IN_SECONDS
+      const initialVelocityValue =
+        ((TWO_PI * EARTH_MOON_CENTERS_DISTANCE_IN_METERS) /
+          MOON_ORBITAL_PERIOD_IN_SECONDS) *
+        cos(PI / 4)
+
+      initialVelocity.x += initialVelocityValue
+      initialVelocity.z += initialVelocityValue
     }
 
     super(mass, initialPosition, initialVelocity)
@@ -76,7 +80,7 @@ export class AstronomicalBody extends Mover3D {
         assertIsNotUndefined(earth)
 
         translate(earth.position.clone().mult(DEFAULT_DISTANCE_SCALE))
-        rotateY(-HALF_PI)
+        rotateY(-PI / 4)
 
         circlePerimeter2d(
           earth.position.dist(this.position) *
@@ -84,7 +88,7 @@ export class AstronomicalBody extends Mover3D {
             DEFAULT_DISTANCE_SCALE,
           {
             color: this.color,
-            lineWidth: 1,
+            lineWidth: 0.75,
           },
         )
       } else {
