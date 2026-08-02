@@ -75,7 +75,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     radius: 6051.8,
     distanceFromSun: 0.723332,
     mass: 4.86731e24,
-    color: 'yellow',
+    color: 'gold',
     orbitalPeriod: 224.701,
   },
   earth: {
