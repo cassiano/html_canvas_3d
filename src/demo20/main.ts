@@ -8,7 +8,7 @@ import {
   text2d,
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
-import { PI } from '../math_utils.ts'
+import { PI, HALF_PI } from '../math_utils.ts'
 import { saturnRing, rotateZ, rotateY, scale } from '../primitives.ts'
 import { isolateTransformations } from '../primitives.ts'
 import { autoRotationEnabled, sphere, rotateX } from '../primitives.ts'
@@ -44,7 +44,7 @@ export const renderSaturn = (planet: SolarSystemBody, radiusRatio: number) => {
   const { radius, color } = planet
 
   isolateTransformations(() => {
-    rotateX(PI / 2)
+    rotateX(HALF_PI)
 
     sphere(radius * radiusRatio, { color })
   })

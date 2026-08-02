@@ -83,7 +83,7 @@ test('Vector - Heading', () => {
 
   assertAlmostEquals(v1.heading(), 0)
   assertAlmostEquals(v2.heading(), PI / 4)
-  assertAlmostEquals(v3.heading(), PI / 2)
+  assertAlmostEquals(v3.heading(), HALF_PI)
   assertAlmostEquals(v4.heading(), (3 * PI) / 4)
   assertAlmostEquals(v5.heading(), PI)
 })
@@ -100,9 +100,9 @@ test('Vector - setHeading', () => {
   assertEquals(v1.mag(), v1Mag)
   assertAlmostEquals(v1.heading(), PI / 4)
 
-  v1.setHeading(PI / 2)
+  v1.setHeading(HALF_PI)
   assertEquals(v1.mag(), v1Mag)
-  assertAlmostEquals(v1.heading(), PI / 2)
+  assertAlmostEquals(v1.heading(), HALF_PI)
 
   v1.setHeading((3 * PI) / 4)
   assertEquals(v1.mag(), v1Mag)
