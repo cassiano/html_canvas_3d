@@ -1,4 +1,4 @@
-import { map, PI, TWO_PI } from '../math_utils.ts'
+import { floor, map, TWO_PI, HALF_PI } from '../math_utils.ts'
 import {
   isolateTransformations,
   rotateX,
@@ -16,6 +16,7 @@ import {
 import { earth, MOON_ORBITAL_PERIOD_IN_SECONDS } from './main.ts'
 import { DEFAULT_RADIUS_SCALE, DEFAULT_DISTANCE_SCALE, G, AU } from './main.ts'
 import { assertIsNotUndefined } from '../utils.ts'
+import { rotateY } from '../primitives.ts'
 
 export class AstronomicalBody extends Mover3D {
   constructor(
@@ -52,46 +53,60 @@ export class AstronomicalBody extends Mover3D {
     const isMoon = this.name === 'moon'
 
     isolateTransformations(() => {
-      if (isMoon) {
-        assertIsNotUndefined(earth)
+      assertIsNotUndefined(earth)
 
-        const scaledEarthMoonPositionsDiff = earth.position.lerp(
-          this.position,
-          EARTH_MOON_DISTANCE_SCALE,
-        )
+      const finalPosition = isMoon
+        ? earth.position.lerp(this.position, EARTH_MOON_DISTANCE_SCALE)
+        : this.position.clone()
 
-        translate(scaledEarthMoonPositionsDiff.mult(DEFAULT_DISTANCE_SCALE))
-      } else {
-        translate(this.position.clone().mult(DEFAULT_DISTANCE_SCALE))
-      }
+      translate(finalPosition.mult(DEFAULT_DISTANCE_SCALE))
+
+      const latLongLines = floor(map(radius, 0, 150, 12, 32, true))
 
       sphere(radius, {
         color: this.color,
-        latitudeLines: 16,
-        longitudeLines: 16,
-        lineWidth: 0.01,
+        latitudeLines: latLongLines,
+        longitudeLines: latLongLines,
+        lineWidth: 0.05,
       })
     })
 
-    if (!isMoon) {
-      isolateTransformations(() => {
-        rotateX(PI / 2)
+    isolateTransformations(() => {
+      if (isMoon) {
+        assertIsNotUndefined(earth)
+
+        translate(earth.position.clone().mult(DEFAULT_DISTANCE_SCALE))
+        rotateY(-HALF_PI)
+
+        circlePerimeter2d(
+          earth.position.dist(this.position) *
+            EARTH_MOON_DISTANCE_SCALE *
+            DEFAULT_DISTANCE_SCALE,
+          {
+            color: this.color,
+            lineWidth: 1,
+          },
+        )
+      } else {
+        rotateX(-HALF_PI)
 
         circlePerimeter2d(this.distanceFromSun * DEFAULT_DISTANCE_SCALE, {
           color: this.color,
           lineWidth: 1,
           // More segments for larger orbits to make them smoother.
-          circleSegments: map(
-            this.distanceFromSun,
-            0.35 * AU * 1000,
-            1.5 * AU * 1000,
-            DEFAULT_CIRCLE_SEGMENTS,
-            360,
-            true,
+          circleSegments: floor(
+            map(
+              this.distanceFromSun,
+              0.35 * AU * 1000,
+              1.5 * AU * 1000,
+              DEFAULT_CIRCLE_SEGMENTS,
+              720,
+              true,
+            ),
           ),
         })
-      })
-    }
+      }
+    })
   }
 
   attract(other: AstronomicalBody) {
