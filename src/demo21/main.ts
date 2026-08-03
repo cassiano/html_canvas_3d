@@ -152,26 +152,10 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
   )
 })
 
-// const sun = bodies.find(body => body.name === 'sun')
-// assertIsNotUndefined(sun)
-
 export const earth = bodies.find(body => body.name === 'earth')
 assertIsNotUndefined(earth)
 
 let latestPhysicsMillis: number | null = null
-
-const renderDebugHud = (
-  dtRealSeconds: number,
-  simulationDeltaSeconds: number,
-) => {
-  const dtMs = (dtRealSeconds * 1000).toFixed(2)
-  const simDays = (simulationDeltaSeconds / EARTH_DAY_IN_SECONDS).toFixed(4)
-  const currentFps = fps()?.toFixed(1)
-
-  text2d(`dt: ${dtMs} ms`, $v(-420, 420), 'white')
-  text2d(`Sim. dt: ${simDays} days`, $v(-420, 370), 'white')
-  text2d(`FPS: ${currentFps}`, $v(-420, 320), 'white')
-}
 
 // -------------------------------------------------------------------------------------------------
 
@@ -197,8 +181,6 @@ const draw = () => {
   else rotateY(PI / 6)
 
   render3dAxes()
-
-  // renderDebugHud(dtRealSeconds, simulationDeltaSeconds)
 
   timesForEachN([bodies.length, bodies.length], (i, j) => {
     if (i !== j) bodies[i].attract(bodies[j])
