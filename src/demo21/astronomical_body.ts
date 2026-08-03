@@ -83,7 +83,7 @@ export class AstronomicalBody extends Mover3D {
         rotateY(-PI / 4)
 
         circlePerimeter2d(
-          earth.position.dist(this.position) *
+          EARTH_MOON_CENTERS_DISTANCE_IN_METERS *
             EARTH_MOON_DISTANCE_SCALE *
             DEFAULT_DISTANCE_SCALE,
           {
