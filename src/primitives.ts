@@ -643,7 +643,6 @@ const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
     normal: transformNormal(normal),
   }
 
-  // Use the SAME dynamic focal length here!
   const focalLength = getCurrentFocalLength()
   const camera = $v(0, 0, focalLength)
 
