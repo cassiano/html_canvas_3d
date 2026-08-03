@@ -28,7 +28,7 @@ export abstract class Mover3D {
     this.acceleration.mult(0)
   }
 
-  // F = m x a  => a = F / m
+  // F = m . a  => a = F / m
   applyForce(force: Vector3d) {
     this.addAcceleration(force.clone().div(this.mass))
   }
