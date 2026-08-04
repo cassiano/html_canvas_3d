@@ -15,9 +15,17 @@ import {
 } from '../primitives.ts'
 import { $v } from '../vector_3d.ts'
 import { PI } from '../math_utils.ts'
-import { autoRotationEnabled, rotateY, rotateX, scale } from '../primitives.ts'
+import {
+  autoRotationEnabled,
+  rotateY,
+  rotateX,
+  scale,
+  isolateTransformations,
+  saturnRing,
+} from '../primitives.ts'
 import { AstronomicalBody } from './astronomical_body.ts'
 import { assertIsNotUndefined } from '../utils.ts'
+import { rotateZ } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
@@ -46,6 +54,90 @@ export const SIMULATION_SECONDS_PER_REAL_SECOND =
 
 // -------------------------------------------------------------------------------------------------
 
+const RINGS_DISTANCE_FROM_SATURN_SURFACE_IN_KM = 6632 // In km. The distance from Saturn's surface to the innermost ring (D ring).
+
+const SATURN_RINGS_DATA: Record<string, { width: number; color: string }> = {
+  // Width in km.
+  a: { width: 14585, color: 'lightPink' },
+  cassiniDivision: { width: 4800, color: 'black' },
+  b: { width: 25554, color: 'magenta' },
+  c: { width: 17357, color: 'lightGreen' },
+  d: { width: 7594, color: 'purple' },
+}
+
+const drawSaturnRings = (radius: number) => {
+  let startingRadius =
+    (radius + RINGS_DISTANCE_FROM_SATURN_SURFACE_IN_KM * 1000) *
+    DEFAULT_RADIUS_SCALE
+
+  isolateTransformations(() => {
+    rotateX(PI / 4)
+    rotateZ(millis() / 1500)
+
+    // D ring.
+    saturnRing(
+      startingRadius,
+      startingRadius + SATURN_RINGS_DATA.d.width * 1000 * DEFAULT_RADIUS_SCALE,
+      {
+        color: SATURN_RINGS_DATA.d.color,
+        opacity: 0.5,
+      },
+    )
+
+    startingRadius += SATURN_RINGS_DATA.d.width * 1000 * DEFAULT_RADIUS_SCALE
+
+    // C ring.
+    saturnRing(
+      startingRadius,
+      startingRadius + SATURN_RINGS_DATA.c.width * 1000 * DEFAULT_RADIUS_SCALE,
+      {
+        color: SATURN_RINGS_DATA.c.color,
+        opacity: 0.5,
+      },
+    )
+
+    startingRadius += SATURN_RINGS_DATA.c.width * 1000 * DEFAULT_RADIUS_SCALE
+
+    // B ring.
+    saturnRing(
+      startingRadius,
+      startingRadius + SATURN_RINGS_DATA.b.width * 1000 * DEFAULT_RADIUS_SCALE,
+      {
+        color: SATURN_RINGS_DATA.b.color,
+        opacity: 0.5,
+      },
+    )
+
+    startingRadius += SATURN_RINGS_DATA.b.width * 1000 * DEFAULT_RADIUS_SCALE
+
+    // Cassini Division.
+    saturnRing(
+      startingRadius,
+      startingRadius +
+        SATURN_RINGS_DATA.cassiniDivision.width * 1000 * DEFAULT_RADIUS_SCALE,
+      {
+        color: SATURN_RINGS_DATA.cassiniDivision.color,
+        opacity: 0.5,
+      },
+    )
+
+    startingRadius +=
+      SATURN_RINGS_DATA.cassiniDivision.width * 1000 * DEFAULT_RADIUS_SCALE
+
+    // A ring.
+    saturnRing(
+      startingRadius,
+      startingRadius + SATURN_RINGS_DATA.a.width * 1000 * DEFAULT_RADIUS_SCALE,
+      {
+        color: SATURN_RINGS_DATA.a.color,
+        opacity: 0.5,
+      },
+    )
+  })
+}
+
+// -------------------------------------------------------------------------------------------------
+
 type SolarSystemBodyType = {
   radius: number // Mean radius in km.
   radiusCustomScale?: number
@@ -53,6 +145,7 @@ type SolarSystemBodyType = {
   mass: number // In kg
   color: string
   orbitalPeriod: number // Aka sidereal orbital period, in (Earth) days.
+  renderRings?: (radius: number) => void
 }
 
 const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
@@ -105,6 +198,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     mass: 568.317e24,
     color: 'orange',
     orbitalPeriod: 10759.22,
+    renderRings: drawSaturnRings,
   },
   uranus: {
     radius: 25362,
@@ -139,6 +233,7 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
     color,
     orbitalPeriod,
     radiusCustomScale,
+    renderRings,
   } = data
 
   return new AstronomicalBody(
@@ -149,6 +244,7 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
     color,
     orbitalPeriod * EARTH_DAY_IN_SECONDS, // Convert from days to seconds.
     radiusCustomScale,
+    renderRings,
   )
 })
 

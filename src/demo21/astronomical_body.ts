@@ -27,6 +27,7 @@ export class AstronomicalBody extends Mover3D {
     public color: string,
     public orbitalPeriod: number,
     public radiusCustomScale?: number,
+    public renderRings?: (radius: number) => void,
   ) {
     const initialPosition = $v(distanceFromSun, 0, 0)
 
@@ -73,6 +74,8 @@ export class AstronomicalBody extends Mover3D {
         longitudeLines: latLongLines,
         lineWidth: 0.05,
       })
+
+      this.renderRings?.(this.radius)
     })
 
     isolateTransformations(() => {
