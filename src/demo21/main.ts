@@ -31,6 +31,7 @@ import { rotateZ } from '../primitives.ts'
 
 export const G = 6.6743e-11 // Universal gravitational constant, in m³ / (kg x s²).
 export const AU = 149597870.7 // Astronomical Unit (in km).
+export const KM_TO_M = 1000 // Conversion factor from km to m.
 export const EARTH_YEAR_IN_DAYS = 365.256363004 // Sidereal year.
 export const EARTH_DAY_IN_SECONDS = 24 * 3600
 export const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
@@ -41,8 +42,8 @@ export const MOON_ORBITAL_PERIOD_IN_SECONDS =
   MOON_ORBITAL_PERIOD_IN_DAYS * EARTH_DAY_IN_SECONDS
 export const EARTH_RADIUS_IN_KM = 6371 // Mean Earth radius in km.
 export const EARTH_ORBIT_DURATION_IN_SECONDS = 120
-export const EARTH_MOON_CENTERS_DISTANCE_IN_METERS =
-  (EARTH_RADIUS_IN_KM + EARTH_MOON_DISTANCE_IN_KM + MOON_RADIUS_IN_KM) * 1000 // The distance from the Earth's center to the Moon's center in m.
+export const EARTH_MOON_CENTERS_DISTANCE_IN_M =
+  (EARTH_RADIUS_IN_KM + EARTH_MOON_DISTANCE_IN_KM + MOON_RADIUS_IN_KM) * KM_TO_M // The distance from the Earth's center to the Moon's center in m.
 
 export const DEFAULT_RADIUS_SCALE = 1 / 5e5
 export const DEFAULT_DISTANCE_SCALE = 3e-1 / AU // Scale down distances to fit the canvas.
@@ -67,7 +68,7 @@ const SATURN_RINGS_DATA: Record<string, { width: number; color: string }> = {
 
 const drawSaturnRings = (radius: number) => {
   let startingRadius =
-    (radius + RINGS_DISTANCE_FROM_SATURN_SURFACE_IN_KM * 1000) *
+    (radius + RINGS_DISTANCE_FROM_SATURN_SURFACE_IN_KM * KM_TO_M) *
     DEFAULT_RADIUS_SCALE
 
   isolateTransformations(() => {
@@ -77,44 +78,49 @@ const drawSaturnRings = (radius: number) => {
     // D ring.
     saturnRing(
       startingRadius,
-      startingRadius + SATURN_RINGS_DATA.d.width * 1000 * DEFAULT_RADIUS_SCALE,
+      startingRadius +
+        SATURN_RINGS_DATA.d.width * KM_TO_M * DEFAULT_RADIUS_SCALE,
       {
         color: SATURN_RINGS_DATA.d.color,
         opacity: 0.5,
       },
     )
 
-    startingRadius += SATURN_RINGS_DATA.d.width * 1000 * DEFAULT_RADIUS_SCALE
+    startingRadius += SATURN_RINGS_DATA.d.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // C ring.
     saturnRing(
       startingRadius,
-      startingRadius + SATURN_RINGS_DATA.c.width * 1000 * DEFAULT_RADIUS_SCALE,
+      startingRadius +
+        SATURN_RINGS_DATA.c.width * KM_TO_M * DEFAULT_RADIUS_SCALE,
       {
         color: SATURN_RINGS_DATA.c.color,
         opacity: 0.5,
       },
     )
 
-    startingRadius += SATURN_RINGS_DATA.c.width * 1000 * DEFAULT_RADIUS_SCALE
+    startingRadius += SATURN_RINGS_DATA.c.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // B ring.
     saturnRing(
       startingRadius,
-      startingRadius + SATURN_RINGS_DATA.b.width * 1000 * DEFAULT_RADIUS_SCALE,
+      startingRadius +
+        SATURN_RINGS_DATA.b.width * KM_TO_M * DEFAULT_RADIUS_SCALE,
       {
         color: SATURN_RINGS_DATA.b.color,
         opacity: 0.5,
       },
     )
 
-    startingRadius += SATURN_RINGS_DATA.b.width * 1000 * DEFAULT_RADIUS_SCALE
+    startingRadius += SATURN_RINGS_DATA.b.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // Cassini Division.
     saturnRing(
       startingRadius,
       startingRadius +
-        SATURN_RINGS_DATA.cassiniDivision.width * 1000 * DEFAULT_RADIUS_SCALE,
+        SATURN_RINGS_DATA.cassiniDivision.width *
+          KM_TO_M *
+          DEFAULT_RADIUS_SCALE,
       {
         color: SATURN_RINGS_DATA.cassiniDivision.color,
         opacity: 0.5,
@@ -122,12 +128,13 @@ const drawSaturnRings = (radius: number) => {
     )
 
     startingRadius +=
-      SATURN_RINGS_DATA.cassiniDivision.width * 1000 * DEFAULT_RADIUS_SCALE
+      SATURN_RINGS_DATA.cassiniDivision.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // A ring.
     saturnRing(
       startingRadius,
-      startingRadius + SATURN_RINGS_DATA.a.width * 1000 * DEFAULT_RADIUS_SCALE,
+      startingRadius +
+        SATURN_RINGS_DATA.a.width * KM_TO_M * DEFAULT_RADIUS_SCALE,
       {
         color: SATURN_RINGS_DATA.a.color,
         opacity: 0.5,
@@ -238,8 +245,8 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
 
   return new AstronomicalBody(
     name,
-    radius * 1000, // Convert radius from km to m.
-    distanceFromSun * AU * 1000, // Convert from AU to m.
+    radius * KM_TO_M, // Convert radius from km to m.
+    distanceFromSun * AU * KM_TO_M, // Convert from AU to m.
     mass,
     color,
     orbitalPeriod * EARTH_DAY_IN_SECONDS, // Convert from days to seconds.

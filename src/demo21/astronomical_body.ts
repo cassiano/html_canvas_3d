@@ -11,9 +11,9 @@ import { Mover3D } from './mover_3d.ts'
 import { ZERO_VECTOR, DEFAULT_CIRCLE_SEGMENTS } from '../constants.ts'
 import {
   EARTH_MOON_DISTANCE_SCALE,
-  EARTH_MOON_CENTERS_DISTANCE_IN_METERS,
+  EARTH_MOON_CENTERS_DISTANCE_IN_M,
 } from './main.ts'
-import { earth, MOON_ORBITAL_PERIOD_IN_SECONDS } from './main.ts'
+import { earth, MOON_ORBITAL_PERIOD_IN_SECONDS, KM_TO_M } from './main.ts'
 import { DEFAULT_RADIUS_SCALE, DEFAULT_DISTANCE_SCALE, G, AU } from './main.ts'
 import { assertIsNotUndefined } from '../utils.ts'
 import { rotateY } from '../primitives.ts'
@@ -37,10 +37,10 @@ export class AstronomicalBody extends Mover3D {
         : $v(0, 0, (TWO_PI * distanceFromSun) / orbitalPeriod)
 
     if (name === 'moon') {
-      initialPosition.y = EARTH_MOON_CENTERS_DISTANCE_IN_METERS
+      initialPosition.y = EARTH_MOON_CENTERS_DISTANCE_IN_M
 
       const initialVelocityValue =
-        ((TWO_PI * EARTH_MOON_CENTERS_DISTANCE_IN_METERS) /
+        ((TWO_PI * EARTH_MOON_CENTERS_DISTANCE_IN_M) /
           MOON_ORBITAL_PERIOD_IN_SECONDS) *
         cos(PI / 4)
 
@@ -86,7 +86,7 @@ export class AstronomicalBody extends Mover3D {
         rotateY(-PI / 4)
 
         circlePerimeter2d(
-          EARTH_MOON_CENTERS_DISTANCE_IN_METERS *
+          EARTH_MOON_CENTERS_DISTANCE_IN_M *
             EARTH_MOON_DISTANCE_SCALE *
             DEFAULT_DISTANCE_SCALE,
           {
@@ -104,8 +104,8 @@ export class AstronomicalBody extends Mover3D {
           circleSegments: floor(
             map(
               this.distanceFromSun,
-              0.35 * AU * 1000,
-              1.5 * AU * 1000,
+              0.35 * AU * KM_TO_M,
+              1.5 * AU * KM_TO_M,
               DEFAULT_CIRCLE_SEGMENTS,
               720,
               true,
