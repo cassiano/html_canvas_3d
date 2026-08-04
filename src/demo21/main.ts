@@ -75,52 +75,51 @@ const drawSaturnRings = (radius: number) => {
     rotateX(PI / 4)
     rotateZ(millis() / 1500)
 
-    let width: number =
-      SATURN_RINGS_DATA.d.width * KM_TO_M * DEFAULT_RADIUS_SCALE
+    let ringWidth = SATURN_RINGS_DATA.d.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // D ring.
-    saturnRing(startingRadius, startingRadius + width, {
+    saturnRing(startingRadius, startingRadius + ringWidth, {
       color: SATURN_RINGS_DATA.d.color,
       opacity: 0.5,
     })
 
-    startingRadius += width
+    startingRadius += ringWidth
 
-    width = SATURN_RINGS_DATA.c.width * KM_TO_M * DEFAULT_RADIUS_SCALE
+    ringWidth = SATURN_RINGS_DATA.c.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // C ring.
-    saturnRing(startingRadius, startingRadius + width, {
+    saturnRing(startingRadius, startingRadius + ringWidth, {
       color: SATURN_RINGS_DATA.c.color,
       opacity: 0.5,
     })
 
-    startingRadius += width
+    startingRadius += ringWidth
 
-    width = SATURN_RINGS_DATA.b.width * KM_TO_M * DEFAULT_RADIUS_SCALE
+    ringWidth = SATURN_RINGS_DATA.b.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // B ring.
-    saturnRing(startingRadius, startingRadius + width, {
+    saturnRing(startingRadius, startingRadius + ringWidth, {
       color: SATURN_RINGS_DATA.b.color,
       opacity: 0.5,
     })
 
-    startingRadius += width
+    startingRadius += ringWidth
 
-    width =
+    ringWidth =
       SATURN_RINGS_DATA.cassiniDivision.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // Cassini Division.
-    saturnRing(startingRadius, startingRadius + width, {
+    saturnRing(startingRadius, startingRadius + ringWidth, {
       color: SATURN_RINGS_DATA.cassiniDivision.color,
       opacity: 0.5,
     })
 
-    startingRadius += width
+    startingRadius += ringWidth
 
-    width = SATURN_RINGS_DATA.a.width * KM_TO_M * DEFAULT_RADIUS_SCALE
+    ringWidth = SATURN_RINGS_DATA.a.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // A ring.
-    saturnRing(startingRadius, startingRadius + width, {
+    saturnRing(startingRadius, startingRadius + ringWidth, {
       color: SATURN_RINGS_DATA.a.color,
       opacity: 0.5,
     })
