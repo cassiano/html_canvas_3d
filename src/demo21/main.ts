@@ -75,71 +75,55 @@ const drawSaturnRings = (radius: number) => {
     rotateX(PI / 4)
     rotateZ(millis() / 1500)
 
-    // D ring.
-    saturnRing(
-      startingRadius,
-      startingRadius +
-        SATURN_RINGS_DATA.d.width * KM_TO_M * DEFAULT_RADIUS_SCALE,
-      {
-        color: SATURN_RINGS_DATA.d.color,
-        opacity: 0.5,
-      },
-    )
+    let width: number =
+      SATURN_RINGS_DATA.d.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
-    startingRadius += SATURN_RINGS_DATA.d.width * KM_TO_M * DEFAULT_RADIUS_SCALE
+    // D ring.
+    saturnRing(startingRadius, startingRadius + width, {
+      color: SATURN_RINGS_DATA.d.color,
+      opacity: 0.5,
+    })
+
+    startingRadius += width
+
+    width = SATURN_RINGS_DATA.c.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // C ring.
-    saturnRing(
-      startingRadius,
-      startingRadius +
-        SATURN_RINGS_DATA.c.width * KM_TO_M * DEFAULT_RADIUS_SCALE,
-      {
-        color: SATURN_RINGS_DATA.c.color,
-        opacity: 0.5,
-      },
-    )
+    saturnRing(startingRadius, startingRadius + width, {
+      color: SATURN_RINGS_DATA.c.color,
+      opacity: 0.5,
+    })
 
-    startingRadius += SATURN_RINGS_DATA.c.width * KM_TO_M * DEFAULT_RADIUS_SCALE
+    startingRadius += width
+
+    width = SATURN_RINGS_DATA.b.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
     // B ring.
-    saturnRing(
-      startingRadius,
-      startingRadius +
-        SATURN_RINGS_DATA.b.width * KM_TO_M * DEFAULT_RADIUS_SCALE,
-      {
-        color: SATURN_RINGS_DATA.b.color,
-        opacity: 0.5,
-      },
-    )
+    saturnRing(startingRadius, startingRadius + width, {
+      color: SATURN_RINGS_DATA.b.color,
+      opacity: 0.5,
+    })
 
-    startingRadius += SATURN_RINGS_DATA.b.width * KM_TO_M * DEFAULT_RADIUS_SCALE
+    startingRadius += width
 
-    // Cassini Division.
-    saturnRing(
-      startingRadius,
-      startingRadius +
-        SATURN_RINGS_DATA.cassiniDivision.width *
-          KM_TO_M *
-          DEFAULT_RADIUS_SCALE,
-      {
-        color: SATURN_RINGS_DATA.cassiniDivision.color,
-        opacity: 0.5,
-      },
-    )
-
-    startingRadius +=
+    width =
       SATURN_RINGS_DATA.cassiniDivision.width * KM_TO_M * DEFAULT_RADIUS_SCALE
 
+    // Cassini Division.
+    saturnRing(startingRadius, startingRadius + width, {
+      color: SATURN_RINGS_DATA.cassiniDivision.color,
+      opacity: 0.5,
+    })
+
+    startingRadius += width
+
+    width = SATURN_RINGS_DATA.a.width * KM_TO_M * DEFAULT_RADIUS_SCALE
+
     // A ring.
-    saturnRing(
-      startingRadius,
-      startingRadius +
-        SATURN_RINGS_DATA.a.width * KM_TO_M * DEFAULT_RADIUS_SCALE,
-      {
-        color: SATURN_RINGS_DATA.a.color,
-        opacity: 0.5,
-      },
-    )
+    saturnRing(startingRadius, startingRadius + width, {
+      color: SATURN_RINGS_DATA.a.color,
+      opacity: 0.5,
+    })
   })
 }
 
