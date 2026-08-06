@@ -580,13 +580,7 @@ const drawPacman = () => {
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
   ctx.beginPath()
-  ctx.arc(
-    -radius * 0.34,
-    -radius * 0.34,
-    radius * 0.17,
-    0,
-    TWO_PI,
-  )
+  ctx.arc(-radius * 0.34, -radius * 0.34, radius * 0.17, 0, TWO_PI)
   ctx.fill()
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.32)'
@@ -734,9 +728,16 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 
   if (
-    ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(
-      key,
-    )
+    [
+      'w',
+      'a',
+      's',
+      'd',
+      'arrowup',
+      'arrowdown',
+      'arrowleft',
+      'arrowright',
+    ].includes(key)
   ) {
     event.preventDefault()
   }
