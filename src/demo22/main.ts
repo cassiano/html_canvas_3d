@@ -38,6 +38,8 @@ const GHOST_RADIUS_RATIO = 0.44
 const BASE_PACMAN_SPEED = 3
 const BASE_GHOST_SPEED = 2
 const POWER_MODE_MS = 7000
+const CHERRY_SCORE = 100
+const CHERRY_EXTRA_SCORE = 150
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
 
@@ -67,7 +69,7 @@ const MAZE_TEMPLATE = [
   '#.....#...#...#...#',
   '#####.###.#.###.###',
   '#...#.#..GHI..#.#.#',
-  '#.#.#.#...#...#.#.#',
+  '#.#.#.#..c#c..#.#.#',
   '....#.....P.....#..',
   '#.#.#.###.#.###.#.#',
   '#...#.....J.....#.#',
@@ -338,6 +340,9 @@ const consumePacmanTile = () => {
     score += 50
     powerModeRemainingMs = POWER_MODE_MS
     ghostCombo = 0
+  } else if (tile === 'c') {
+    setTile(pacman.row, pacman.col, ' ')
+    score += CHERRY_SCORE + CHERRY_EXTRA_SCORE
   }
 
   if (pelletsRemaining <= 0) gameState = 'won'
@@ -466,6 +471,58 @@ const drawMaze = () => {
           pixel.x + TILE_SIZE / 2,
           pixel.y + TILE_SIZE / 2,
           TILE_SIZE * 0.26 * pulse,
+          0,
+          TWO_PI,
+        )
+        ctx.fill()
+      } else if (tile === 'c') {
+        const centerX = pixel.x + TILE_SIZE / 2
+        const centerY = pixel.y + TILE_SIZE / 2
+        const cherryRadius = TILE_SIZE * 0.18
+
+        ctx.strokeStyle = '#66b15b'
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.moveTo(centerX - cherryRadius * 0.4, centerY - cherryRadius * 1.4)
+        ctx.quadraticCurveTo(
+          centerX,
+          centerY - cherryRadius * 2.4,
+          centerX + cherryRadius * 0.5,
+          centerY - cherryRadius * 1.4,
+        )
+        ctx.stroke()
+
+        ctx.fillStyle = '#d3152f'
+        ctx.beginPath()
+        ctx.arc(
+          centerX - cherryRadius * 0.65,
+          centerY + cherryRadius * 0.25,
+          cherryRadius,
+          0,
+          TWO_PI,
+        )
+        ctx.arc(
+          centerX + cherryRadius * 0.65,
+          centerY + cherryRadius * 0.25,
+          cherryRadius,
+          0,
+          TWO_PI,
+        )
+        ctx.fill()
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
+        ctx.beginPath()
+        ctx.arc(
+          centerX - cherryRadius,
+          centerY - cherryRadius * 0.1,
+          cherryRadius * 0.35,
+          0,
+          TWO_PI,
+        )
+        ctx.arc(
+          centerX + cherryRadius * 0.3,
+          centerY - cherryRadius * 0.1,
+          cherryRadius * 0.35,
           0,
           TWO_PI,
         )
