@@ -35,7 +35,7 @@ function resizeCanvas() {
 resizeCanvas()
 self.addEventListener('resize', resizeCanvas)
 
-const DEMO_COUNT = 21
+const DEMO_COUNT = 22
 const DEFAULT_DEMO = 1 // Starting with 1.
 
 // Enable drag rotation and pan on the canvas.
@@ -48,6 +48,7 @@ const ZOOM_SENSITIVITY = 0.005
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2216ycxo8haHnk1SCg2AMhUQFdqJVPgdLF7%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 const demoModules = import.meta.glob('./demo*/main.ts') // Using Vite's glob.
 const demoPaths = timesMap(DEMO_COUNT, i => `./demo${i + 1}/main.ts`)
+const PACMAN_DEMO_PATH = './demo22/main.ts'
 
 const demoButtons: HTMLButtonElement[] = timesMap(
   DEMO_COUNT,
@@ -98,6 +99,13 @@ function navigateDemo(delta: number) {
 }
 
 function handleKeydown(event: KeyboardEvent) {
+  if (
+    currentDemoPath === PACMAN_DEMO_PATH &&
+    ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)
+  ) {
+    return
+  }
+
   if (['ArrowUp', 'ArrowLeft'].includes(event.key)) {
     event.preventDefault()
 
