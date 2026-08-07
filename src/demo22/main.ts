@@ -27,6 +27,7 @@ type Actor = {
 }
 
 type Ghost = Actor & {
+  id: number
   color: string
 }
 
@@ -44,17 +45,26 @@ const CHERRY_COUNT = 2
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
+const POWER_SIREN_LOOP_MS = 900
+
+const GHOST_CHASE_OFFSETS = [
+  { row: 0, col: 0 },
+  { row: -2, col: 2 },
+  { row: 2, col: -2 },
+  { row: 0, col: -4 },
+] as const
 
 let audioContext: AudioContext | null = null
 let masterGain: GainNode | null = null
 let noiseBuffer: AudioBuffer | null = null
 let lastWakaMillis = -Infinity
 let wakaHighTone = false
+let powerSirenTimer: number | null = null
 
 const ensureAudio = () => {
   if (audioContext && masterGain) return true
 
-  const AudioContextClass = window.AudioContext
+  const AudioContextClass = self.AudioContext
 
   if (!AudioContextClass) return false
 
@@ -182,55 +192,64 @@ const playPowerPellet = () => {
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
-  const duration = 0.78
-  const stepDuration = 0.075
+  const duration = 1.08
+  const stepDuration = 0.056
   const stepCount = floor(duration / stepDuration)
 
   const carrier = audioContext.createOscillator()
+  const carrierDetuned = audioContext.createOscillator()
   const harmonic = audioContext.createOscillator()
   const subCarrier = audioContext.createOscillator()
   const tremolo = audioContext.createOscillator()
   const tremoloGain = audioContext.createGain()
   const vibrato = audioContext.createOscillator()
   const vibratoGain = audioContext.createGain()
+  const postDrive = audioContext.createGain()
   const bandpass = audioContext.createBiquadFilter()
   const lowpass = audioContext.createBiquadFilter()
   const envelope = audioContext.createGain()
 
   carrier.type = 'sawtooth'
+  carrierDetuned.type = 'sawtooth'
   harmonic.type = 'square'
   subCarrier.type = 'triangle'
 
+  carrierDetuned.detune.setValueAtTime(-12, now)
+
   for (let i = 0; i <= stepCount; i++) {
     const t = now + i * stepDuration
-    const risingBias = i * 16
-    const tone = i % 2 === 0 ? 720 + risingBias : 980 + risingBias
+    const risingBias = i * 22
+    const tone = i % 2 === 0 ? 660 + risingBias : 1040 + risingBias
 
     carrier.frequency.setValueAtTime(tone, t)
+    carrierDetuned.frequency.setValueAtTime(tone * 0.995, t)
     harmonic.frequency.setValueAtTime(tone * 1.98, t)
-    subCarrier.frequency.setValueAtTime(tone * 0.5, t)
+    subCarrier.frequency.setValueAtTime(tone * 0.46, t)
   }
 
   tremolo.type = 'square'
-  tremolo.frequency.setValueAtTime(11.5, now)
-  tremoloGain.gain.setValueAtTime(0.05, now)
+  tremolo.frequency.setValueAtTime(15.5, now)
+  tremoloGain.gain.setValueAtTime(0.07, now)
 
   vibrato.type = 'sine'
-  vibrato.frequency.setValueAtTime(7.8, now)
-  vibratoGain.gain.setValueAtTime(26, now)
+  vibrato.frequency.setValueAtTime(9.8, now)
+  vibratoGain.gain.setValueAtTime(34, now)
 
   bandpass.type = 'bandpass'
-  bandpass.frequency.setValueAtTime(1450, now)
-  bandpass.frequency.linearRampToValueAtTime(1950, now + duration)
-  bandpass.Q.value = 4.5
+  bandpass.frequency.setValueAtTime(1600, now)
+  bandpass.frequency.linearRampToValueAtTime(2300, now + duration)
+  bandpass.Q.value = 5.5
 
   lowpass.type = 'lowpass'
-  lowpass.frequency.setValueAtTime(2600, now)
-  lowpass.frequency.linearRampToValueAtTime(1750, now + duration)
-  lowpass.Q.value = 0.8
+  lowpass.frequency.setValueAtTime(3200, now)
+  lowpass.frequency.linearRampToValueAtTime(1850, now + duration)
+  lowpass.Q.value = 1.1
+
+  postDrive.gain.setValueAtTime(1.15, now)
 
   envelope.gain.setValueAtTime(0.0001, now)
-  envelope.gain.linearRampToValueAtTime(0.19, now + 0.018)
+  envelope.gain.linearRampToValueAtTime(0.23, now + 0.012)
+  envelope.gain.linearRampToValueAtTime(0.16, now + duration * 0.7)
   envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration)
 
   tremolo.connect(tremoloGain)
@@ -238,34 +257,127 @@ const playPowerPellet = () => {
 
   vibrato.connect(vibratoGain)
   vibratoGain.connect(carrier.frequency)
+  vibratoGain.connect(carrierDetuned.frequency)
 
   carrier.connect(bandpass)
+  carrierDetuned.connect(bandpass)
   harmonic.connect(bandpass)
   subCarrier.connect(bandpass)
   bandpass.connect(lowpass)
-  lowpass.connect(envelope)
+  lowpass.connect(postDrive)
+  postDrive.connect(envelope)
   envelope.connect(masterGain)
 
   carrier.start(now)
+  carrierDetuned.start(now)
   harmonic.start(now)
   subCarrier.start(now)
   tremolo.start(now)
   vibrato.start(now)
 
   carrier.stop(now + duration + 0.03)
+  carrierDetuned.stop(now + duration + 0.03)
   harmonic.stop(now + duration + 0.03)
   subCarrier.stop(now + duration + 0.03)
   tremolo.stop(now + duration + 0.03)
   vibrato.stop(now + duration + 0.03)
 
-  // Add aggressive attack and tail texture to heighten tension.
-  playNoiseBurst(0.05, 0.03)
-  playNoiseBurst(0.08, 0.022)
+  // Extra attack/transient layers to sell the emergency siren feel.
+  playNoiseBurst(0.06, 0.032)
+  playNoiseBurst(0.1, 0.024)
+  playNoiseBurst(0.14, 0.018)
 }
 
 const playCherryPickup = () => {
-  playTone(1040, 0.08, { type: 'triangle', gain: 0.16 })
-  playTone(1310, 0.1, { type: 'triangle', gain: 0.13 })
+  if (!ensureAudio() || !audioContext || !masterGain) return
+
+  const now = audioContext.currentTime
+  const duration = 0.34
+
+  const lead = audioContext.createOscillator()
+  const body = audioContext.createOscillator()
+  const sparkle = audioContext.createOscillator()
+  const shimmer = audioContext.createOscillator()
+  const preGain = audioContext.createGain()
+  const filter = audioContext.createBiquadFilter()
+  const wetFilter = audioContext.createBiquadFilter()
+  const delay = audioContext.createDelay(0.5)
+  const feedback = audioContext.createGain()
+  const wetGain = audioContext.createGain()
+  const envelope = audioContext.createGain()
+
+  lead.type = 'triangle'
+  body.type = 'sawtooth'
+  sparkle.type = 'sine'
+  shimmer.type = 'square'
+
+  body.detune.setValueAtTime(-7, now)
+  shimmer.detune.setValueAtTime(4, now)
+
+  lead.frequency.setValueAtTime(720, now)
+  lead.frequency.exponentialRampToValueAtTime(1080, now + 0.09)
+  lead.frequency.exponentialRampToValueAtTime(1640, now + 0.19)
+  lead.frequency.exponentialRampToValueAtTime(1320, now + duration)
+
+  body.frequency.setValueAtTime(360, now)
+  body.frequency.exponentialRampToValueAtTime(660, now + 0.11)
+  body.frequency.exponentialRampToValueAtTime(520, now + duration)
+
+  sparkle.frequency.setValueAtTime(1440, now)
+  sparkle.frequency.exponentialRampToValueAtTime(2280, now + 0.12)
+  sparkle.frequency.exponentialRampToValueAtTime(1860, now + duration)
+
+  shimmer.frequency.setValueAtTime(1780, now)
+  shimmer.frequency.exponentialRampToValueAtTime(2560, now + 0.13)
+  shimmer.frequency.exponentialRampToValueAtTime(1920, now + duration)
+
+  preGain.gain.setValueAtTime(0.8, now)
+
+  filter.type = 'bandpass'
+  filter.frequency.setValueAtTime(1750, now)
+  filter.frequency.linearRampToValueAtTime(2100, now + duration)
+  filter.Q.value = 3.9
+
+  wetFilter.type = 'lowpass'
+  wetFilter.frequency.setValueAtTime(2200, now)
+
+  delay.delayTime.setValueAtTime(0.085, now)
+  feedback.gain.setValueAtTime(0.28, now)
+  wetGain.gain.setValueAtTime(0.26, now)
+
+  envelope.gain.setValueAtTime(0.0001, now)
+  envelope.gain.linearRampToValueAtTime(0.2, now + 0.012)
+  envelope.gain.linearRampToValueAtTime(0.14, now + 0.16)
+  envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+
+  lead.connect(preGain)
+  body.connect(preGain)
+  sparkle.connect(preGain)
+  shimmer.connect(preGain)
+
+  preGain.connect(filter)
+  filter.connect(envelope)
+
+  filter.connect(wetFilter)
+  wetFilter.connect(delay)
+  delay.connect(feedback)
+  feedback.connect(delay)
+  delay.connect(wetGain)
+  wetGain.connect(envelope)
+
+  envelope.connect(masterGain)
+
+  lead.start(now)
+  body.start(now)
+  sparkle.start(now)
+  shimmer.start(now)
+
+  lead.stop(now + duration + 0.03)
+  body.stop(now + duration + 0.03)
+  sparkle.stop(now + duration + 0.03)
+  shimmer.stop(now + duration + 0.03)
+
+  playNoiseBurst(0.05, 0.014)
 }
 
 const playGhostEaten = () => {
@@ -282,6 +394,24 @@ const playWin = () => {
   playTone(660, 0.09, { type: 'triangle', gain: 0.15 })
   playTone(880, 0.09, { type: 'triangle', gain: 0.15 })
   playTone(1320, 0.18, { type: 'triangle', gain: 0.15 })
+}
+
+const stopPowerSirenLoop = () => {
+  if (powerSirenTimer === null) return
+
+  self.clearInterval(powerSirenTimer)
+  powerSirenTimer = null
+}
+
+const startPowerSirenLoop = () => {
+  if (powerSirenTimer !== null) return
+
+  playPowerPellet()
+
+  powerSirenTimer = self.setInterval(() => {
+    if (powerModeRemainingMs > 0 && gameState === 'playing') playPowerPellet()
+    else stopPowerSirenLoop()
+  }, POWER_SIREN_LOOP_MS)
 }
 
 const DIRECTIONS: Record<DirectionName, DirectionVector> = {
@@ -382,6 +512,7 @@ const pacman = createActor(pacmanStart.row, pacmanStart.col, BASE_PACMAN_SPEED)
 
 const ghosts: Ghost[] = ghostStarts.map((start, index) => ({
   ...createActor(start.row, start.col, BASE_GHOST_SPEED),
+  id: index,
   dir: index % 2 === 0 ? 'left' : 'right',
   nextDir: index % 2 === 0 ? 'left' : 'right',
   color: ['#ff4d4d', '#ffb84d', '#33d1ff', '#ff70ff'][index],
@@ -501,6 +632,7 @@ const resetRound = () => {
   })
 
   powerModeRemainingMs = 0
+  stopPowerSirenLoop()
   ghostCombo = 0
   roundDelayRemainingMs = ROUND_START_DELAY_MS
 }
@@ -533,17 +665,54 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   if (directions.length === 0) return 'none'
 
   if (powerModeRemainingMs > 0) {
-    return directions[floor(Math.random() * directions.length)]
+    return directions[(ghost.id + floor(millis() / 100)) % directions.length]
   }
+
+  const overlappingGhosts = ghosts.filter(
+    other =>
+      other.id !== ghost.id &&
+      other.progress === 0 &&
+      ghost.progress === 0 &&
+      other.row === ghost.row &&
+      other.col === ghost.col,
+  )
+
+  if (overlappingGhosts.length > 0) {
+    const occupiedDirections = new Set(
+      overlappingGhosts.map(other =>
+        other.nextDir !== 'none' ? other.nextDir : other.dir,
+      ),
+    )
+
+    const freeDirections = directions.filter(
+      dir => !occupiedDirections.has(dir),
+    )
+
+    if (freeDirections.length > 0) {
+      const rotateIndex =
+        (ghost.id + floor(millis() / 120)) % freeDirections.length
+
+      return freeDirections[rotateIndex]
+    }
+
+    const rotateIndex = (ghost.id + floor(millis() / 120)) % directions.length
+
+    return directions[rotateIndex]
+  }
+
+  const chaseOffset = GHOST_CHASE_OFFSETS[ghost.id % GHOST_CHASE_OFFSETS.length]
+  const targetRow = pacman.row + chaseOffset.row
+  const targetCol = pacman.col + chaseOffset.col
 
   let bestDirection = directions[0]
   let bestDistance = Number.POSITIVE_INFINITY
 
   directions.forEach(dir => {
     const target = nextCell(ghost.row, ghost.col, dir)
-    const dr = target.row - pacman.row
-    const dc = target.col - pacman.col
-    const distance = abs(dr) + abs(dc)
+    const dr = target.row - targetRow
+    const dc = target.col - targetCol
+    const tieBreaker = ((ghost.id + dir.charCodeAt(0)) % 7) * 0.0001
+    const distance = abs(dr) + abs(dc) + tieBreaker
 
     if (distance < bestDistance) {
       bestDistance = distance
@@ -615,7 +784,7 @@ const consumePacmanTile = () => {
     score += 50
     powerModeRemainingMs = POWER_MODE_MS
     ghostCombo = 0
-    playPowerPellet()
+    startPowerSirenLoop()
   } else if (tile === 'c') {
     setTile(pacman.row, pacman.col, ' ')
     score += CHERRY_SCORE + CHERRY_EXTRA_SCORE
@@ -624,6 +793,7 @@ const consumePacmanTile = () => {
 
   if (pelletsRemaining <= 0) {
     gameState = 'won'
+    stopPowerSirenLoop()
     playWin()
   }
 }
@@ -661,6 +831,7 @@ const checkGhostCollisions = () => {
 
     if (lives <= 0) {
       gameState = 'gameover'
+      stopPowerSirenLoop()
       playDeath()
 
       return
@@ -679,7 +850,11 @@ const updateGame = (deltaSeconds: number) => {
     return
   }
 
+  const hadPowerMode = powerModeRemainingMs > 0
+
   powerModeRemainingMs = Math.max(0, powerModeRemainingMs - deltaSeconds * 1000)
+
+  if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
 
   if (
     canMove(pacman.row, pacman.col, pacman.nextDir) &&
@@ -1054,6 +1229,7 @@ const handleKeydown = (event: KeyboardEvent) => {
     lives = 3
     gameState = 'playing'
     powerModeRemainingMs = 0
+    stopPowerSirenLoop()
     ghostCombo = 0
 
     for (let row = 0; row < ROW_COUNT; row++) {
@@ -1118,11 +1294,13 @@ const { start: startLoop, stop: stopLoop } = createFrameLoop(
 export const start = () => {
   lastTickMillis = null
   lastWakaMillis = -Infinity
+  stopPowerSirenLoop()
   document.addEventListener('keydown', handleKeydown)
   startLoop()
 }
 
 export const stop = () => {
+  stopPowerSirenLoop()
   document.removeEventListener('keydown', handleKeydown)
   stopLoop()
   background('black')
