@@ -1,5 +1,5 @@
-import { FPS } from '../constants.ts'
-import { createFrameLoop, millis } from '../utils.ts'
+import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
+import { createFrameLoop, millis, frameCount, fps } from '../utils.ts'
 import {
   animation,
   background,
@@ -1334,6 +1334,8 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 const draw = () => {
+  if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
+
   const now = millis()
   const deltaSeconds =
     lastTickMillis === null
@@ -1350,7 +1352,7 @@ const draw = () => {
 const onPaused = () => {
   text2d(
     'PAUSED',
-    toWorldPoint(animation.width / 2, animation.height / 2 - 400),
+    toWorldPoint(animation.width / 2, animation.height / 2 - 300),
   )
 }
 
