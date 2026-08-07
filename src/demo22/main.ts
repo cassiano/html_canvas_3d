@@ -40,6 +40,7 @@ const BASE_GHOST_SPEED = 2
 const POWER_MODE_MS = 7000
 const CHERRY_SCORE = 100
 const CHERRY_EXTRA_SCORE = 150
+const CHERRY_COUNT = 2
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
 
@@ -69,7 +70,7 @@ const MAZE_TEMPLATE = [
   '#.....#...#...#...#',
   '#####.###.#.###.###',
   '#...#.#..GHI..#.#.#',
-  '#.#.#.#..c#c..#.#.#',
+  '#.#.#.#...#...#.#.#',
   '....#.....P.....#..',
   '#.#.#.###.#.###.#.#',
   '#...#.....J.....#.#',
@@ -151,6 +152,39 @@ const getTile = (row: number, col: number): string => maze[row][col] ?? '#'
 const setTile = (row: number, col: number, value: string) => {
   maze[row][col] = value
 }
+
+const isStartCell = (row: number, col: number): boolean => {
+  if (row === pacmanStart.row && col === pacmanStart.col) return true
+
+  return ghostStarts.some(start => start.row === row && start.col === col)
+}
+
+const placeRandomCherries = (count = CHERRY_COUNT) => {
+  const candidates: { row: number; col: number }[] = []
+
+  for (let row = 0; row < ROW_COUNT; row++) {
+    for (let col = 0; col < COLUMN_COUNT; col++) {
+      if (isStartCell(row, col)) continue
+
+      const tile = getTile(row, col)
+
+      if (tile === '.') candidates.push({ row, col })
+    }
+  }
+
+  let cherriesToPlace = min(count, candidates.length)
+
+  while (cherriesToPlace > 0) {
+    const randomIndex = floor(Math.random() * candidates.length)
+    const selectedCell = candidates.splice(randomIndex, 1)[0]
+
+    setTile(selectedCell.row, selectedCell.col, 'c')
+
+    cherriesToPlace--
+  }
+}
+
+placeRandomCherries()
 
 const isWall = (row: number, col: number): boolean => getTile(row, col) === '#'
 
@@ -780,6 +814,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 
     findAndClearMarker('P')
     findAndClearGhostMarkers()
+    placeRandomCherries()
     pelletsRemaining = countRemainingPellets()
     resetRound()
   }
