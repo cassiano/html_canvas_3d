@@ -675,7 +675,50 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   if (directions.length === 0) return 'none'
 
   if (powerModeRemainingMs > 0) {
-    return directions[(ghost.id + floor(millis() / 100)) % directions.length]
+    const powerRatio = Math.max(
+      0,
+      Math.min(1, powerModeRemainingMs / POWER_MODE_MS),
+    )
+    const fleeWeight = 0.55 + powerRatio * 1.25
+    const spacingWeight = 0.05 + powerRatio * 0.17
+    const uncertaintyWeight = (1 - powerRatio) * 1.1
+    const pacmanPos = actorPositionInTiles(pacman)
+    let fleeDirection = directions[0]
+    let bestFleeScore = Number.NEGATIVE_INFINITY
+
+    directions.forEach(dir => {
+      const target = nextCell(ghost.row, ghost.col, dir)
+      const dr = target.row - pacmanPos.y
+      const dc = target.col - pacmanPos.x
+      const fleeDistance = abs(dr) + abs(dc)
+
+      // Slightly spread frightened ghosts so they don't bunch up while fleeing.
+      const spacingBonus = ghosts
+        .filter(other => other.id !== ghost.id)
+        .reduce((bonus, other) => {
+          const otherPos = actorPositionInTiles(other)
+          const dist = abs(target.row - otherPos.y) + abs(target.col - otherPos.x)
+
+          return bonus + dist
+        }, 0)
+
+      const tieBreaker = ((ghost.id + dir.charCodeAt(0)) % 7) * 0.0001
+      const decayJitter =
+        (((ghost.id + floor(millis() / 120) + dir.charCodeAt(0)) % 11) / 10) *
+        uncertaintyWeight
+      const fleeScore =
+        fleeDistance * fleeWeight +
+        spacingBonus * spacingWeight -
+        decayJitter +
+        tieBreaker
+
+      if (fleeScore > bestFleeScore) {
+        bestFleeScore = fleeScore
+        fleeDirection = dir
+      }
+    })
+
+    return fleeDirection
   }
 
   const overlappingGhosts = ghosts.filter(
