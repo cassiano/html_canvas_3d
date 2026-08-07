@@ -1010,11 +1010,28 @@ export const cylinder = (
   }
 }
 
-export const text2d = (message: string, point: Vector3d, color = 'red') => {
-  ctx.font = 'bold 60px sans-serif'
-  ctx.fillStyle = color // Semi-transparent black
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
+export const text2d = (
+  message: string,
+  point: Vector3d,
+  color = 'red',
+  {
+    fontSize = 60,
+    fontFamily = 'sans-serif',
+    fontWeight = 'bold',
+    textAlign = 'center',
+    textBaseline = 'middle',
+  }: {
+    fontSize?: number
+    fontFamily?: string
+    fontWeight?: string
+    textAlign?: CanvasTextAlign
+    textBaseline?: CanvasTextBaseline
+  } = {},
+) => {
+  ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`
+  ctx.fillStyle = color
+  ctx.textAlign = textAlign
+  ctx.textBaseline = textBaseline
 
   const position = transform(point).clone().add(getScreenCenter())
 

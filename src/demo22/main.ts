@@ -3,10 +3,20 @@ import { createFrameLoop, millis } from '../utils.ts'
 import {
   animation,
   background,
-  ctx,
   resetTransformationMatrix,
 } from '../primitives.ts'
-import { TWO_PI, abs, floor, min, sin } from '../math_utils.ts'
+import { abs, floor, min, sin } from '../math_utils.ts'
+import { $v } from '../vector_3d.ts'
+import {
+  line,
+  isolateTransformations,
+  translate,
+  rect2d,
+  circle2d,
+  triangle2d,
+  text2d,
+  render3dScene,
+} from '../primitives.ts'
 
 type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
 
@@ -705,17 +715,30 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   const targetCol = pacman.col + chaseOffset.col
 
   let bestDirection = directions[0]
-  let bestDistance = Number.POSITIVE_INFINITY
+  let bestScore = Number.POSITIVE_INFINITY
 
   directions.forEach(dir => {
     const target = nextCell(ghost.row, ghost.col, dir)
     const dr = target.row - targetRow
     const dc = target.col - targetCol
-    const tieBreaker = ((ghost.id + dir.charCodeAt(0)) % 7) * 0.0001
-    const distance = abs(dr) + abs(dc) + tieBreaker
+    const chaseDistance = abs(dr) + abs(dc)
 
-    if (distance < bestDistance) {
-      bestDistance = distance
+    // Penalize candidate directions that keep ghosts clustered.
+    const crowdPenalty = ghosts
+      .filter(other => other.id !== ghost.id)
+      .reduce((penalty, other) => {
+        const otherPos = actorPositionInTiles(other)
+        const dist = abs(target.row - otherPos.y) + abs(target.col - otherPos.x)
+        const sameTilePenalty = dist < 0.35 ? 7 : 0
+
+        return penalty + 1 / (dist + 0.45) + sameTilePenalty
+      }, 0)
+
+    const tieBreaker = ((ghost.id + dir.charCodeAt(0)) % 7) * 0.0001
+    const score = chaseDistance + crowdPenalty * 0.9 + tieBreaker
+
+    if (score < bestScore) {
+      bestScore = score
       bestDirection = dir
     }
   })
@@ -891,6 +914,83 @@ const tileToPixel = (
   }
 }
 
+const toWorldPoint = (x: number, y: number) =>
+  $v(x - animation.width / 2, animation.height / 2 - y, 0)
+
+const drawLinePixel = (
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  color: string,
+  lineWidth = 1,
+) => {
+  line(toWorldPoint(x1, y1), toWorldPoint(x2, y2), {
+    color,
+    lineWidth,
+    noSplit: true,
+  })
+}
+
+const drawFilledRectPixel = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: string,
+  opacity = 1,
+) => {
+  isolateTransformations(() => {
+    translate(toWorldPoint(x + width / 2, y + height / 2))
+    rect2d(width, height, { color, noStroke: true, opacity })
+  })
+}
+
+const drawCirclePixel = (
+  x: number,
+  y: number,
+  radius: number,
+  {
+    color,
+    strokeColor,
+    lineWidth = 1,
+    noStroke = true,
+    opacity = 1,
+  }: {
+    color: string
+    strokeColor?: string
+    lineWidth?: number
+    noStroke?: boolean
+    opacity?: number
+  },
+) => {
+  isolateTransformations(() => {
+    translate(toWorldPoint(x, y))
+    circle2d(radius, {
+      color,
+      strokeColor: strokeColor ?? color,
+      lineWidth,
+      noStroke,
+      opacity,
+      circleSegments: 28,
+    })
+  })
+}
+
+const drawStrokeRectPixel = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: string,
+  lineWidth = 1,
+) => {
+  drawLinePixel(x, y, x + width, y, color, lineWidth)
+  drawLinePixel(x + width, y, x + width, y + height, color, lineWidth)
+  drawLinePixel(x + width, y + height, x, y + height, color, lineWidth)
+  drawLinePixel(x, y + height, x, y, color, lineWidth)
+}
+
 const drawMaze = () => {
   for (let row = 0; row < ROW_COUNT; row++) {
     for (let col = 0; col < COLUMN_COUNT; col++) {
@@ -898,92 +998,71 @@ const drawMaze = () => {
       const pixel = tileToPixel(col, row)
 
       if (tile === '#') {
-        ctx.fillStyle = '#001243'
-        ctx.fillRect(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE)
-        ctx.strokeStyle = '#2f7bff'
-        ctx.lineWidth = 1
-        ctx.strokeRect(
-          pixel.x + 0.5,
-          pixel.y + 0.5,
-          TILE_SIZE - 1,
-          TILE_SIZE - 1,
-        )
+        drawFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
+        drawStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
       } else if (tile === '.') {
-        ctx.fillStyle = '#ffd7a8'
-        ctx.beginPath()
-        ctx.arc(
+        drawCirclePixel(
           pixel.x + TILE_SIZE / 2,
           pixel.y + TILE_SIZE / 2,
           TILE_SIZE * 0.12,
-          0,
-          TWO_PI,
+          { color: '#ffd7a8' },
         )
-        ctx.fill()
       } else if (tile === 'o') {
         const pulse = 0.75 + 0.25 * sin(millis() / 120)
 
-        ctx.fillStyle = '#fff2df'
-        ctx.beginPath()
-        ctx.arc(
+        drawCirclePixel(
           pixel.x + TILE_SIZE / 2,
           pixel.y + TILE_SIZE / 2,
           TILE_SIZE * 0.26 * pulse,
-          0,
-          TWO_PI,
+          { color: '#fff2df' },
         )
-        ctx.fill()
       } else if (tile === 'c') {
         const centerX = pixel.x + TILE_SIZE / 2
         const centerY = pixel.y + TILE_SIZE / 2
         const cherryRadius = TILE_SIZE * 0.18
 
-        ctx.strokeStyle = '#66b15b'
-        ctx.lineWidth = 2
-        ctx.beginPath()
-        ctx.moveTo(centerX - cherryRadius * 0.4, centerY - cherryRadius * 1.4)
-        ctx.quadraticCurveTo(
+        drawLinePixel(
+          centerX - cherryRadius * 0.45,
+          centerY - cherryRadius * 1.45,
           centerX,
-          centerY - cherryRadius * 2.4,
-          centerX + cherryRadius * 0.5,
-          centerY - cherryRadius * 1.4,
+          centerY - cherryRadius * 2.25,
+          '#66b15b',
+          2,
         )
-        ctx.stroke()
+        drawLinePixel(
+          centerX,
+          centerY - cherryRadius * 2.25,
+          centerX + cherryRadius * 0.55,
+          centerY - cherryRadius * 1.45,
+          '#66b15b',
+          2,
+        )
 
-        ctx.fillStyle = '#d3152f'
-        ctx.beginPath()
-        ctx.arc(
+        drawCirclePixel(
           centerX - cherryRadius * 0.65,
           centerY + cherryRadius * 0.25,
           cherryRadius,
-          0,
-          TWO_PI,
+          { color: '#d3152f' },
         )
-        ctx.arc(
+        drawCirclePixel(
           centerX + cherryRadius * 0.65,
           centerY + cherryRadius * 0.25,
           cherryRadius,
-          0,
-          TWO_PI,
+          { color: '#d3152f' },
         )
-        ctx.fill()
 
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
-        ctx.beginPath()
-        ctx.arc(
+        drawCirclePixel(
           centerX - cherryRadius,
           centerY - cherryRadius * 0.1,
           cherryRadius * 0.35,
-          0,
-          TWO_PI,
+          { color: 'rgba(255, 255, 255, 0.55)' },
         )
-        ctx.arc(
+        drawCirclePixel(
           centerX + cherryRadius * 0.3,
           centerY - cherryRadius * 0.1,
           cherryRadius * 0.35,
-          0,
-          TWO_PI,
+          { color: 'rgba(255, 255, 255, 0.55)' },
         )
-        ctx.fill()
       }
     }
   }
@@ -1015,95 +1094,47 @@ const drawPacman = () => {
   const angle = directionToAngle(facingDirection)
   const look = DIRECTIONS[facingDirection]
   const bob = moving ? sin(millis() / 140) * radius * 0.05 : 0
-  const squash = moving ? 1 - chompPhase * 0.07 : 1
-  const stretch = moving ? 1 + chompPhase * 0.07 : 1
+  const centerX = pixel.x
+  const centerY = pixel.y + bob
 
-  ctx.save()
-  ctx.translate(pixel.x, pixel.y + bob)
+  drawCirclePixel(centerX, centerY + radius * 0.95, radius * 0.28, {
+    color: 'rgba(0, 0, 0, 0.22)',
+    noStroke: true,
+  })
 
-  // Grounded contact shadow for extra depth.
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.22)'
-  ctx.beginPath()
-  ctx.ellipse(0, radius * 0.95, radius * 0.8, radius * 0.24, 0, 0, TWO_PI)
-  ctx.fill()
+  drawCirclePixel(centerX, centerY, radius, {
+    color: '#ffd847',
+    strokeColor: '#cf9300',
+    lineWidth: 1.4,
+    noStroke: false,
+  })
 
-  ctx.save()
-  ctx.scale(stretch, squash)
+  const mouthA = {
+    x: centerX + radius * 1.1 * Math.cos(angle + mouth),
+    y: centerY + radius * 1.1 * Math.sin(angle + mouth),
+  }
+  const mouthB = {
+    x: centerX + radius * 1.1 * Math.cos(angle - mouth),
+    y: centerY + radius * 1.1 * Math.sin(angle - mouth),
+  }
 
-  const bodyGradient = ctx.createRadialGradient(
-    -radius * 0.42,
-    -radius * 0.46,
-    radius * 0.18,
-    0,
-    0,
-    radius * 1.05,
+  triangle2d(
+    toWorldPoint(centerX, centerY),
+    toWorldPoint(mouthA.x, mouthA.y),
+    toWorldPoint(mouthB.x, mouthB.y),
+    { color: 'black', noStroke: true },
   )
-  bodyGradient.addColorStop(0, '#fff7b2')
-  bodyGradient.addColorStop(0.58, '#ffd847')
-  bodyGradient.addColorStop(1, '#eeae00')
 
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.35)'
-  ctx.shadowBlur = 9
-  ctx.shadowOffsetY = 2
+  const eyeX = centerX + look.dc * radius * 0.22 - look.dr * radius * 0.24
+  const eyeY = centerY + look.dr * radius * 0.22 + look.dc * radius * 0.24
 
-  ctx.fillStyle = bodyGradient
-  ctx.beginPath()
-  ctx.arc(0, 0, radius, 0, TWO_PI)
-  ctx.fill()
-
-  // Carve the mouth from a full disk for a cleaner edge than direct wedge fills.
-  ctx.globalCompositeOperation = 'destination-out'
-  ctx.beginPath()
-  ctx.moveTo(0, 0)
-  ctx.arc(0, 0, radius * 1.1, angle + mouth, angle - mouth, true)
-  ctx.closePath()
-  ctx.fill()
-
-  ctx.globalCompositeOperation = 'source-over'
-  ctx.shadowColor = 'transparent'
-  ctx.strokeStyle = '#cf9300'
-  ctx.lineWidth = 1.35
-  ctx.beginPath()
-  ctx.arc(0, 0, radius, 0, TWO_PI)
-  ctx.stroke()
-
-  ctx.strokeStyle = 'rgba(64, 34, 0, 0.55)'
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.arc(0, 0, radius * 0.96, angle + mouth, angle - mouth, true)
-  ctx.stroke()
-
-  const eyeX = look.dc * radius * 0.22 - look.dr * radius * 0.24
-  const eyeY = look.dr * radius * 0.22 + look.dc * radius * 0.24
-
-  ctx.fillStyle = '#f9fcff'
-  ctx.beginPath()
-  ctx.arc(eyeX, eyeY, radius * 0.12, 0, TWO_PI)
-  ctx.fill()
-
-  ctx.fillStyle = '#16223a'
-  ctx.beginPath()
-  ctx.arc(
+  drawCirclePixel(eyeX, eyeY, radius * 0.12, { color: '#f9fcff' })
+  drawCirclePixel(
     eyeX + look.dc * radius * 0.03,
     eyeY + look.dr * radius * 0.03,
     radius * 0.065,
-    0,
-    TWO_PI,
+    { color: '#16223a' },
   )
-  ctx.fill()
-
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
-  ctx.beginPath()
-  ctx.arc(-radius * 0.34, -radius * 0.34, radius * 0.17, 0, TWO_PI)
-  ctx.fill()
-
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.32)'
-  ctx.beginPath()
-  ctx.arc(-radius * 0.08, -radius * 0.5, radius * 0.08, 0, TWO_PI)
-  ctx.fill()
-
-  ctx.restore()
-  ctx.restore()
 }
 
 const drawGhost = (ghost: Ghost) => {
@@ -1120,89 +1151,130 @@ const drawGhost = (ghost: Ghost) => {
   const pupilRadius = radius * 0.09
   const lookDirection = DIRECTIONS[ghost.dir]
   const frightened = powerModeRemainingMs > 0
+  const bodyColor = frightened ? '#2f6eff' : ghost.color
 
-  ctx.fillStyle = frightened ? '#2f6eff' : ghost.color
-  ctx.beginPath()
-  ctx.moveTo(left, bottom)
-  ctx.arc(pixel.x, top + radius, radius, Math.PI, 0)
-  ctx.lineTo(right, bottom)
+  drawCirclePixel(pixel.x, top + radius, radius, {
+    color: bodyColor,
+    noStroke: true,
+  })
 
-  const waveCount = 4
-  const waveWidth = (right - left) / waveCount
+  drawFilledRectPixel(left, pixel.y, radius * 2, radius, bodyColor)
 
-  for (let i = waveCount - 1; i >= 0; i--) {
-    const x = left + i * waveWidth
-    const controlX = x + waveWidth / 2
-    const controlY = i % 2 === 0 ? bottom - radius * 0.35 : bottom
+  drawCirclePixel(left + radius * 0.35, bottom, radius * 0.22, {
+    color: bodyColor,
+  })
+  drawCirclePixel(pixel.x, bottom, radius * 0.22, {
+    color: bodyColor,
+  })
+  drawCirclePixel(right - radius * 0.35, bottom, radius * 0.22, {
+    color: bodyColor,
+  })
 
-    ctx.quadraticCurveTo(controlX, controlY, x, bottom)
-  }
+  drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+    color: 'white',
+  })
+  drawCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+    color: 'white',
+  })
 
-  ctx.closePath()
-  ctx.fill()
-
-  ctx.fillStyle = 'white'
-  ctx.beginPath()
-  ctx.arc(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, 0, TWO_PI)
-  ctx.arc(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, 0, TWO_PI)
-  ctx.fill()
-
-  ctx.fillStyle = '#111'
-  ctx.beginPath()
-  ctx.arc(
+  drawCirclePixel(
     pixel.x - eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
     pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
     pupilRadius,
-    0,
-    TWO_PI,
+    { color: '#111' },
   )
-  ctx.arc(
+  drawCirclePixel(
     pixel.x + eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
     pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
     pupilRadius,
-    0,
-    TWO_PI,
+    { color: '#111' },
   )
-  ctx.fill()
 }
 
 const drawHud = () => {
-  ctx.fillStyle = '#f4f4f4'
-  ctx.font = '18px monospace'
-  ctx.textAlign = 'left'
-  ctx.fillText(`Score: ${score}`, 20, 30)
-  ctx.fillText(`Lives: ${lives}`, 20, 54)
-  ctx.fillText('Move: Arrow Keys / WASD', 20, animation.height - 24)
+  text2d(`Score: ${score}`, toWorldPoint(20, 30), '#f4f4f4', {
+    fontSize: 18,
+    fontFamily: 'monospace',
+    fontWeight: 'bold',
+    textAlign: 'left',
+    textBaseline: 'middle',
+  })
+  text2d(`Lives: ${lives}`, toWorldPoint(20, 54), '#f4f4f4', {
+    fontSize: 18,
+    fontFamily: 'monospace',
+    fontWeight: 'bold',
+    textAlign: 'left',
+    textBaseline: 'middle',
+  })
+  text2d(
+    'Move: Arrow Keys / WASD',
+    toWorldPoint(20, animation.height - 24),
+    '#f4f4f4',
+    {
+      fontSize: 18,
+      fontFamily: 'monospace',
+      fontWeight: 'bold',
+      textAlign: 'left',
+      textBaseline: 'middle',
+    },
+  )
 }
 
 const drawStateOverlay = () => {
   if (roundDelayRemainingMs > 0 && gameState === 'playing') {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)'
-    ctx.fillRect(0, 0, animation.width, animation.height)
-    ctx.fillStyle = '#ffde59'
-    ctx.font = 'bold 26px monospace'
-    ctx.textAlign = 'center'
-    ctx.fillText('READY!', animation.width / 2, 70)
+    drawFilledRectPixel(
+      0,
+      0,
+      animation.width,
+      animation.height,
+      'rgba(0, 0, 0, 0.45)',
+    )
+    text2d('READY!', toWorldPoint(animation.width / 2, 70), '#ffde59', {
+      fontSize: 26,
+      fontFamily: 'monospace',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      textBaseline: 'middle',
+    })
 
     return
   }
 
   if (gameState === 'playing') return
 
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'
-  ctx.fillRect(0, 0, animation.width, animation.height)
-  ctx.fillStyle = '#ffffff'
-  ctx.font = 'bold 36px monospace'
-  ctx.textAlign = 'center'
+  drawFilledRectPixel(
+    0,
+    0,
+    animation.width,
+    animation.height,
+    'rgba(0, 0, 0, 0.6)',
+  )
 
   const message = gameState === 'won' ? 'YOU WIN' : 'GAME OVER'
 
-  ctx.fillText(message, animation.width / 2, animation.height / 2)
-  ctx.font = '20px monospace'
-  ctx.fillText(
+  text2d(
+    message,
+    toWorldPoint(animation.width / 2, animation.height / 2),
+    '#ffffff',
+    {
+      fontSize: 36,
+      fontFamily: 'monospace',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      textBaseline: 'middle',
+    },
+  )
+  text2d(
     'Press Enter to restart',
-    animation.width / 2,
-    animation.height / 2 + 36,
+    toWorldPoint(animation.width / 2, animation.height / 2 + 36),
+    '#ffffff',
+    {
+      fontSize: 20,
+      fontFamily: 'monospace',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      textBaseline: 'middle',
+    },
   )
 }
 
@@ -1261,47 +1333,36 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
-const onPaused = () => {
-  drawScene()
+const draw = () => {
+  const now = millis()
+  const deltaSeconds =
+    lastTickMillis === null
+      ? 1 / FPS
+      : Math.min((now - lastTickMillis) / 1000, 0.05)
 
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)'
-  ctx.fillRect(0, 0, animation.width, animation.height)
-  ctx.fillStyle = '#ffffff'
-  ctx.textAlign = 'center'
-  ctx.font = 'bold 34px monospace'
-  ctx.fillText('PAUSED', animation.width / 2, animation.height / 2)
+  lastTickMillis = now
+
+  updateGame(deltaSeconds)
+  drawScene()
+  render3dScene()
 }
 
-const { start: startLoop, stop: stopLoop } = createFrameLoop(
+const onPaused = () => {
+  text2d(
+    'PAUSED',
+    toWorldPoint(animation.width / 2, animation.height / 2 - 400),
+  )
+}
+
+const { start, stop } = createFrameLoop(
   () => {
+    document.addEventListener('keydown', handleKeydown)
     resetTransformationMatrix()
-
-    const now = millis()
-    const deltaSeconds =
-      lastTickMillis === null
-        ? 1 / FPS
-        : Math.min((now - lastTickMillis) / 1000, 0.05)
-
-    lastTickMillis = now
-
-    updateGame(deltaSeconds)
-    drawScene()
+    draw()
+    render3dScene()
   },
   onPaused,
-  60,
+  FPS,
 )
 
-export const start = () => {
-  lastTickMillis = null
-  lastWakaMillis = -Infinity
-  stopPowerSirenLoop()
-  document.addEventListener('keydown', handleKeydown)
-  startLoop()
-}
-
-export const stop = () => {
-  stopPowerSirenLoop()
-  document.removeEventListener('keydown', handleKeydown)
-  stopLoop()
-  background('black')
-}
+export { start, stop }
