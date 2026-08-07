@@ -56,6 +56,7 @@ const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
 const POWER_SIREN_LOOP_MS = 900
+const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
 
 const GHOST_CHASE_OFFSETS = [
   { row: 0, col: 0 },
@@ -617,12 +618,48 @@ const countRemainingPellets = (): number => {
 
 let lastTickMillis: number | null = null
 let score = 0
+let highScore = 0
 let lives = 3
 let gameState: GameState = 'playing'
 let pelletsRemaining = countRemainingPellets()
 let powerModeRemainingMs = 0
 let ghostCombo = 0
 let roundDelayRemainingMs = ROUND_START_DELAY_MS
+
+const loadHighScore = (): number => {
+  try {
+    const stored = self.localStorage.getItem(HIGH_SCORE_STORAGE_KEY)
+
+    if (stored === null) return 0
+
+    const parsed = Number(stored)
+
+    if (!Number.isFinite(parsed) || parsed < 0) return 0
+
+    return floor(parsed)
+  } catch {
+    return 0
+  }
+}
+
+const saveHighScore = (value: number) => {
+  try {
+    self.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(value))
+  } catch {
+    // Ignore storage write failures to keep gameplay uninterrupted.
+  }
+}
+
+const addScore = (points: number) => {
+  score += points
+
+  if (score > highScore) {
+    highScore = score
+    saveHighScore(highScore)
+  }
+}
+
+highScore = loadHighScore()
 
 const resetActor = (actor: Actor) => {
   actor.row = actor.startRow
@@ -697,7 +734,8 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
         .filter(other => other.id !== ghost.id)
         .reduce((bonus, other) => {
           const otherPos = actorPositionInTiles(other)
-          const dist = abs(target.row - otherPos.y) + abs(target.col - otherPos.x)
+          const dist =
+            abs(target.row - otherPos.y) + abs(target.col - otherPos.x)
 
           return bonus + dist
         }, 0)
@@ -842,18 +880,18 @@ const consumePacmanTile = () => {
   if (tile === '.') {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
-    score += 10
+    addScore(10)
     playWaka()
   } else if (tile === 'o') {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
-    score += 50
+    addScore(50)
     powerModeRemainingMs = POWER_MODE_MS
     ghostCombo = 0
     startPowerSirenLoop()
   } else if (tile === 'c') {
     setTile(pacman.row, pacman.col, ' ')
-    score += CHERRY_SCORE + CHERRY_EXTRA_SCORE
+    addScore(CHERRY_SCORE + CHERRY_EXTRA_SCORE)
     playCherryPickup()
   }
 
@@ -886,7 +924,7 @@ const checkGhostCollisions = () => {
 
     if (powerModeRemainingMs > 0) {
       resetGhost(ghost)
-      score += 200 * 2 ** ghostCombo
+      addScore(200 * 2 ** ghostCombo)
       ghostCombo++
       playGhostEaten()
 
@@ -1243,6 +1281,13 @@ const drawHud = () => {
     textBaseline: 'middle',
   })
   text2d(`Lives: ${lives}`, toWorldPoint(20, 54), '#f4f4f4', {
+    fontSize: 18,
+    fontFamily: 'monospace',
+    fontWeight: 'bold',
+    textAlign: 'left',
+    textBaseline: 'middle',
+  })
+  text2d(`Highest Score: ${highScore}`, toWorldPoint(20, 78), '#f4f4f4', {
     fontSize: 18,
     fontFamily: 'monospace',
     fontWeight: 'bold',
