@@ -43,6 +43,246 @@ const CHERRY_EXTRA_SCORE = 150
 const CHERRY_COUNT = 2
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
+const WAKA_INTERVAL_MS = 95
+
+let audioContext: AudioContext | null = null
+let masterGain: GainNode | null = null
+let noiseBuffer: AudioBuffer | null = null
+let lastWakaMillis = -Infinity
+let wakaHighTone = false
+
+const ensureAudio = () => {
+  if (audioContext && masterGain) return true
+
+  const AudioContextClass = window.AudioContext
+
+  if (!AudioContextClass) return false
+
+  audioContext = new AudioContextClass()
+  masterGain = audioContext.createGain()
+  masterGain.gain.value = 0.2
+  masterGain.connect(audioContext.destination)
+
+  const sampleRate = audioContext.sampleRate
+  const bufferSize = sampleRate
+  noiseBuffer = audioContext.createBuffer(1, bufferSize, sampleRate)
+  const data = noiseBuffer.getChannelData(0)
+
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
+
+  return true
+}
+
+const resumeAudio = () => {
+  if (!ensureAudio() || !audioContext) return
+  if (audioContext.state === 'suspended') audioContext.resume()
+}
+
+const playTone = (
+  frequency: number,
+  duration = 0.08,
+  {
+    type = 'square',
+    gain = 0.25,
+  }: {
+    type?: OscillatorType
+    gain?: number
+  } = {},
+) => {
+  if (!ensureAudio() || !audioContext || !masterGain) return
+
+  const now = audioContext.currentTime
+  const oscillator = audioContext.createOscillator()
+  const envelope = audioContext.createGain()
+
+  oscillator.type = type
+  oscillator.frequency.setValueAtTime(frequency, now)
+
+  envelope.gain.setValueAtTime(0.0001, now)
+  envelope.gain.linearRampToValueAtTime(gain, now + 0.01)
+  envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+
+  oscillator.connect(envelope)
+  envelope.connect(masterGain)
+  oscillator.start(now)
+  oscillator.stop(now + duration + 0.02)
+}
+
+const playSweep = (
+  startFrequency: number,
+  endFrequency: number,
+  duration: number,
+  {
+    type = 'triangle',
+    gain = 0.2,
+  }: {
+    type?: OscillatorType
+    gain?: number
+  } = {},
+) => {
+  if (!ensureAudio() || !audioContext || !masterGain) return
+
+  const now = audioContext.currentTime
+  const oscillator = audioContext.createOscillator()
+  const envelope = audioContext.createGain()
+
+  oscillator.type = type
+  oscillator.frequency.setValueAtTime(startFrequency, now)
+  oscillator.frequency.exponentialRampToValueAtTime(
+    endFrequency,
+    now + duration,
+  )
+
+  envelope.gain.setValueAtTime(0.0001, now)
+  envelope.gain.linearRampToValueAtTime(gain, now + 0.015)
+  envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+
+  oscillator.connect(envelope)
+  envelope.connect(masterGain)
+  oscillator.start(now)
+  oscillator.stop(now + duration + 0.03)
+}
+
+const playNoiseBurst = (duration = 0.12, gain = 0.08) => {
+  if (!ensureAudio() || !audioContext || !masterGain || !noiseBuffer) return
+
+  const now = audioContext.currentTime
+  const source = audioContext.createBufferSource()
+  const filter = audioContext.createBiquadFilter()
+  const envelope = audioContext.createGain()
+
+  source.buffer = noiseBuffer
+  filter.type = 'bandpass'
+  filter.frequency.setValueAtTime(1200, now)
+  filter.Q.value = 6
+
+  envelope.gain.setValueAtTime(0.0001, now)
+  envelope.gain.linearRampToValueAtTime(gain, now + 0.01)
+  envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+
+  source.connect(filter)
+  filter.connect(envelope)
+  envelope.connect(masterGain)
+  source.start(now)
+  source.stop(now + duration + 0.02)
+}
+
+const playWaka = () => {
+  const nowMillis = millis()
+
+  if (nowMillis - lastWakaMillis < WAKA_INTERVAL_MS) return
+
+  lastWakaMillis = nowMillis
+  wakaHighTone = !wakaHighTone
+
+  playTone(wakaHighTone ? 780 : 620, 0.055, { type: 'square', gain: 0.18 })
+}
+
+const playPowerPellet = () => {
+  if (!ensureAudio() || !audioContext || !masterGain) return
+
+  const now = audioContext.currentTime
+  const duration = 0.78
+  const stepDuration = 0.075
+  const stepCount = floor(duration / stepDuration)
+
+  const carrier = audioContext.createOscillator()
+  const harmonic = audioContext.createOscillator()
+  const subCarrier = audioContext.createOscillator()
+  const tremolo = audioContext.createOscillator()
+  const tremoloGain = audioContext.createGain()
+  const vibrato = audioContext.createOscillator()
+  const vibratoGain = audioContext.createGain()
+  const bandpass = audioContext.createBiquadFilter()
+  const lowpass = audioContext.createBiquadFilter()
+  const envelope = audioContext.createGain()
+
+  carrier.type = 'sawtooth'
+  harmonic.type = 'square'
+  subCarrier.type = 'triangle'
+
+  for (let i = 0; i <= stepCount; i++) {
+    const t = now + i * stepDuration
+    const risingBias = i * 16
+    const tone = i % 2 === 0 ? 720 + risingBias : 980 + risingBias
+
+    carrier.frequency.setValueAtTime(tone, t)
+    harmonic.frequency.setValueAtTime(tone * 1.98, t)
+    subCarrier.frequency.setValueAtTime(tone * 0.5, t)
+  }
+
+  tremolo.type = 'square'
+  tremolo.frequency.setValueAtTime(11.5, now)
+  tremoloGain.gain.setValueAtTime(0.05, now)
+
+  vibrato.type = 'sine'
+  vibrato.frequency.setValueAtTime(7.8, now)
+  vibratoGain.gain.setValueAtTime(26, now)
+
+  bandpass.type = 'bandpass'
+  bandpass.frequency.setValueAtTime(1450, now)
+  bandpass.frequency.linearRampToValueAtTime(1950, now + duration)
+  bandpass.Q.value = 4.5
+
+  lowpass.type = 'lowpass'
+  lowpass.frequency.setValueAtTime(2600, now)
+  lowpass.frequency.linearRampToValueAtTime(1750, now + duration)
+  lowpass.Q.value = 0.8
+
+  envelope.gain.setValueAtTime(0.0001, now)
+  envelope.gain.linearRampToValueAtTime(0.19, now + 0.018)
+  envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+
+  tremolo.connect(tremoloGain)
+  tremoloGain.connect(envelope.gain)
+
+  vibrato.connect(vibratoGain)
+  vibratoGain.connect(carrier.frequency)
+
+  carrier.connect(bandpass)
+  harmonic.connect(bandpass)
+  subCarrier.connect(bandpass)
+  bandpass.connect(lowpass)
+  lowpass.connect(envelope)
+  envelope.connect(masterGain)
+
+  carrier.start(now)
+  harmonic.start(now)
+  subCarrier.start(now)
+  tremolo.start(now)
+  vibrato.start(now)
+
+  carrier.stop(now + duration + 0.03)
+  harmonic.stop(now + duration + 0.03)
+  subCarrier.stop(now + duration + 0.03)
+  tremolo.stop(now + duration + 0.03)
+  vibrato.stop(now + duration + 0.03)
+
+  // Add aggressive attack and tail texture to heighten tension.
+  playNoiseBurst(0.05, 0.03)
+  playNoiseBurst(0.08, 0.022)
+}
+
+const playCherryPickup = () => {
+  playTone(1040, 0.08, { type: 'triangle', gain: 0.16 })
+  playTone(1310, 0.1, { type: 'triangle', gain: 0.13 })
+}
+
+const playGhostEaten = () => {
+  playSweep(920, 310, 0.16, { type: 'sawtooth', gain: 0.15 })
+  playNoiseBurst(0.1, 0.07)
+}
+
+const playDeath = () => {
+  playSweep(620, 90, 0.55, { type: 'sawtooth', gain: 0.2 })
+  playNoiseBurst(0.24, 0.09)
+}
+
+const playWin = () => {
+  playTone(660, 0.09, { type: 'triangle', gain: 0.15 })
+  playTone(880, 0.09, { type: 'triangle', gain: 0.15 })
+  playTone(1320, 0.18, { type: 'triangle', gain: 0.15 })
+}
 
 const DIRECTIONS: Record<DirectionName, DirectionVector> = {
   up: { dr: -1, dc: 0 },
@@ -368,18 +608,24 @@ const consumePacmanTile = () => {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
     score += 10
+    playWaka()
   } else if (tile === 'o') {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
     score += 50
     powerModeRemainingMs = POWER_MODE_MS
     ghostCombo = 0
+    playPowerPellet()
   } else if (tile === 'c') {
     setTile(pacman.row, pacman.col, ' ')
     score += CHERRY_SCORE + CHERRY_EXTRA_SCORE
+    playCherryPickup()
   }
 
-  if (pelletsRemaining <= 0) gameState = 'won'
+  if (pelletsRemaining <= 0) {
+    gameState = 'won'
+    playWin()
+  }
 }
 
 const actorPositionInTiles = (actor: Actor): { x: number; y: number } => {
@@ -406,6 +652,7 @@ const checkGhostCollisions = () => {
       resetGhost(ghost)
       score += 200 * 2 ** ghostCombo
       ghostCombo++
+      playGhostEaten()
 
       return
     }
@@ -414,6 +661,7 @@ const checkGhostCollisions = () => {
 
     if (lives <= 0) {
       gameState = 'gameover'
+      playDeath()
 
       return
     }
@@ -793,6 +1041,8 @@ const drawScene = () => {
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
+  resumeAudio()
+
   const key = event.key.toLowerCase()
 
   if (key === 'w' || key === 'arrowup') pacman.nextDir = 'up'
@@ -867,6 +1117,7 @@ const { start: startLoop, stop: stopLoop } = createFrameLoop(
 
 export const start = () => {
   lastTickMillis = null
+  lastWakaMillis = -Infinity
   document.addEventListener('keydown', handleKeydown)
   startLoop()
 }
