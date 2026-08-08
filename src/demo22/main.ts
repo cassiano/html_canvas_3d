@@ -41,7 +41,7 @@ type Ghost = Actor & {
   color: string
 }
 
-type GameState = 'playing' | 'won' | 'gameover'
+type GameState = 'playing' | 'won' | 'gameOver'
 
 const TILE_SIZE = 24
 const PACMAN_RADIUS_RATIO = 0.5
@@ -51,7 +51,7 @@ const BASE_GHOST_SPEED = 2
 const POWER_MODE_MS = 7000
 const CHERRY_SCORE = 100
 const CHERRY_EXTRA_SCORE = 150
-const CHERRY_COUNT = 2
+const CHERRY_COUNT = 4
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
@@ -934,7 +934,7 @@ const checkGhostCollisions = () => {
     lives--
 
     if (lives <= 0) {
-      gameState = 'gameover'
+      gameState = 'gameOver'
       stopPowerSirenLoop()
       playDeath()
 
@@ -1228,8 +1228,8 @@ const drawGhost = (ghost: Ghost) => {
   const bottom = pixel.y + radius
   const eyeOffsetX = radius * 0.35
   const eyeOffsetY = radius * 0.2
-  const eyeRadius = radius * 0.22
-  const pupilRadius = radius * 0.09
+  const eyeRadius = radius * 0.33
+  const pupilRadius = radius * 0.15
   const lookDirection = DIRECTIONS[ghost.dir]
   const frightened = powerModeRemainingMs > 0
   const bodyColor = frightened ? '#2f6eff' : ghost.color
@@ -1287,7 +1287,7 @@ const drawHud = () => {
     textAlign: 'left',
     textBaseline: 'middle',
   })
-  text2d(`Highest Score: ${highScore}`, toWorldPoint(20, 78), '#f4f4f4', {
+  text2d(`Hi Score: ${highScore}`, toWorldPoint(20, 78), '#f4f4f4', {
     fontSize: 18,
     fontFamily: 'monospace',
     fontWeight: 'bold',
@@ -1340,21 +1340,16 @@ const drawStateOverlay = () => {
 
   const message = gameState === 'won' ? 'YOU WIN' : 'GAME OVER'
 
-  text2d(
-    message,
-    toWorldPoint(animation.width / 2, animation.height / 2),
-    '#ffffff',
-    {
-      fontSize: 36,
-      fontFamily: 'monospace',
-      fontWeight: 'bold',
-      textAlign: 'center',
-      textBaseline: 'middle',
-    },
-  )
+  text2d(message, toWorldPoint(animation.width / 2, 70), '#ffffff', {
+    fontSize: 36,
+    fontFamily: 'monospace',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    textBaseline: 'middle',
+  })
   text2d(
     'Press Enter to restart',
-    toWorldPoint(animation.width / 2, animation.height / 2 + 36),
+    toWorldPoint(animation.width / 2, 70 + 36),
     '#ffffff',
     {
       fontSize: 20,
