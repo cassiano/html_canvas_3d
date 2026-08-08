@@ -65,6 +65,7 @@ const POWER_SIREN_LOOP_MS = 900
 const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
 
 // `P` is reserved for Pac-Man only. Pinky uses `H` and Clyde uses `C` to avoid marker ambiguity.
+// [/doc_img/main.ts/2026-08-08-12-04-06.png]
 const PACMAN_MARKER = 'P'
 const GHOST_MARKER_SPECS: {
   marker: GhostMarker
@@ -77,12 +78,11 @@ const GHOST_MARKER_SPECS: {
   { marker: 'C', name: 'Clyde', color: '#ffb84d' },
 ]
 
-const GHOST_CHASE_OFFSETS = [
-  { row: 0, col: 0 },
-  { row: -2, col: 2 },
-  { row: 2, col: -2 },
-  { row: 0, col: -4 },
-] as const
+const PINKY_LOOKAHEAD_TILES = 4
+const INKY_LOOKAHEAD_TILES = 2
+const CLYDE_SHY_DISTANCE_TILES = 8
+
+const getClydeScatterTarget = () => ({ row: ROW_COUNT - 2, col: 1 })
 
 let audioContext: AudioContext | null = null
 let masterGain: GainNode | null = null
@@ -719,6 +719,56 @@ const resetGhost = (ghost: Ghost) => {
   ghost.nextDir = 'left'
 }
 
+const getPacmanFacing = (): DirectionName =>
+  pacman.dir !== 'none' ? pacman.dir : pacman.nextDir
+
+const getGhostChaseTarget = (
+  ghost: Ghost,
+  pacmanPos: { x: number; y: number },
+): { row: number; col: number } => {
+  if (ghost.name === 'Blinky') {
+    return { row: pacmanPos.y, col: pacmanPos.x }
+  }
+
+  if (ghost.name === 'Pinky') {
+    const facing = DIRECTIONS[getPacmanFacing()]
+
+    return {
+      row: pacmanPos.y + facing.dr * PINKY_LOOKAHEAD_TILES,
+      col: pacmanPos.x + facing.dc * PINKY_LOOKAHEAD_TILES,
+    }
+  }
+
+  if (ghost.name === 'Inky') {
+    const facing = DIRECTIONS[getPacmanFacing()]
+    const pivot = {
+      row: pacmanPos.y + facing.dr * INKY_LOOKAHEAD_TILES,
+      col: pacmanPos.x + facing.dc * INKY_LOOKAHEAD_TILES,
+    }
+    const blinky = ghosts.find(candidate => candidate.name === 'Blinky')
+
+    if (!blinky) return pivot
+
+    const blinkyPos = actorPositionInTiles(blinky)
+
+    return {
+      row: pivot.row + (pivot.row - blinkyPos.y),
+      col: pivot.col + (pivot.col - blinkyPos.x),
+    }
+  }
+
+  // Clyde alternates between chase and scatter depending on distance to Pac-Man.
+  const dr = pacmanPos.y - ghost.row
+  const dc = pacmanPos.x - ghost.col
+  const manhattanDistance = abs(dr) + abs(dc)
+
+  if (manhattanDistance <= CLYDE_SHY_DISTANCE_TILES) {
+    return getClydeScatterTarget()
+  }
+
+  return { row: pacmanPos.y, col: pacmanPos.x }
+}
+
 const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
     dir => {
@@ -818,17 +868,16 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     return directions[rotateIndex]
   }
 
-  const chaseOffset = GHOST_CHASE_OFFSETS[ghost.id % GHOST_CHASE_OFFSETS.length]
-  const targetRow = pacman.row + chaseOffset.row
-  const targetCol = pacman.col + chaseOffset.col
+  const pacmanPos = actorPositionInTiles(pacman)
+  const chaseTarget = getGhostChaseTarget(ghost, pacmanPos)
 
   let bestDirection = directions[0]
   let bestScore = Number.POSITIVE_INFINITY
 
   directions.forEach(dir => {
     const target = nextCell(ghost.row, ghost.col, dir)
-    const dr = target.row - targetRow
-    const dc = target.col - targetCol
+    const dr = target.row - chaseTarget.row
+    const dc = target.col - chaseTarget.col
     const chaseDistance = abs(dr) + abs(dc)
 
     // Penalize candidate directions that keep ghosts clustered.
