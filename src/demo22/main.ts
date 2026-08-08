@@ -442,6 +442,7 @@ const OPPOSITE_DIRECTION: Record<DirectionName, DirectionName> = {
   none: 'none',
 }
 
+// [/doc_img/main.ts/2026-08-08-11-41-03.png]
 const MAZE_TEMPLATE = [
   '###################',
   '#........#........#',
