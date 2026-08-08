@@ -39,6 +39,7 @@ type Actor = {
 type Ghost = Actor & {
   id: number
   color: string
+  lastEatenPowerModeId: number
 }
 
 type GameState = 'playing' | 'won' | 'gameOver'
@@ -527,6 +528,7 @@ const ghosts: Ghost[] = ghostStarts.map((start, index) => ({
   dir: index % 2 === 0 ? 'left' : 'right',
   nextDir: index % 2 === 0 ? 'left' : 'right',
   color: ['#ff4d4d', '#ffb84d', '#33d1ff', '#ff70ff'][index],
+  lastEatenPowerModeId: -1,
 }))
 
 const getTile = (row: number, col: number): string => maze[row][col] ?? '#'
@@ -625,6 +627,7 @@ let pelletsRemaining = countRemainingPellets()
 let powerModeRemainingMs = 0
 let ghostCombo = 0
 let roundDelayRemainingMs = ROUND_START_DELAY_MS
+let currentPowerModeId = 0
 
 const loadHighScore = (): number => {
   try {
@@ -886,6 +889,7 @@ const consumePacmanTile = () => {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
     addScore(50)
+    currentPowerModeId++
     powerModeRemainingMs = POWER_MODE_MS
     ghostCombo = 0
     startPowerSirenLoop()
@@ -923,6 +927,9 @@ const checkGhostCollisions = () => {
     if (distance > COLLISION_DISTANCE_TILES) return
 
     if (powerModeRemainingMs > 0) {
+      if (ghost.lastEatenPowerModeId === currentPowerModeId) return
+
+      ghost.lastEatenPowerModeId = currentPowerModeId
       resetGhost(ghost)
       addScore(200 * 2 ** ghostCombo)
       ghostCombo++
