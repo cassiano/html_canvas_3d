@@ -36,8 +36,13 @@ type Actor = {
   speedTilesPerSecond: number
 }
 
+type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
+type GhostMarker = 'B' | 'H' | 'I' | 'C'
+
 type Ghost = Actor & {
   id: number
+  name: GhostName
+  marker: GhostMarker
   color: string
   lastEatenPowerModeId: number
 }
@@ -58,6 +63,19 @@ const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
 const POWER_SIREN_LOOP_MS = 900
 const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
+
+// `P` is reserved for Pac-Man only. Pinky uses `H` and Clyde uses `C` to avoid marker ambiguity.
+const PACMAN_MARKER = 'P'
+const GHOST_MARKER_SPECS: {
+  marker: GhostMarker
+  name: GhostName
+  color: string
+}[] = [
+  { marker: 'B', name: 'Blinky', color: '#ff4d4d' },
+  { marker: 'H', name: 'Pinky', color: '#ff70ff' },
+  { marker: 'I', name: 'Inky', color: '#33d1ff' },
+  { marker: 'C', name: 'Clyde', color: '#ffb84d' },
+]
 
 const GHOST_CHASE_OFFSETS = [
   { row: 0, col: 0 },
@@ -452,11 +470,11 @@ const MAZE_TEMPLATE = [
   '#.###.#.#####.#.###',
   '#.....#...#...#...#',
   '#####.###.#.###.###',
-  '#...#.#..GHI..#.#.#',
+  '#...#.#..BHI..#.#.#',
   '#.#.#.#...#...#.#.#',
   '....#.....P.....#..',
   '#.#.#.###.#.###.#.#',
-  '#...#.....J.....#.#',
+  '#...#.....C.....#.#',
   '###.#.#.#####.#.#.#',
   '#........#........#',
   '#.###.##.#.##.###.#',
@@ -492,18 +510,21 @@ const findAndClearMarker = (marker: string): { row: number; col: number } => {
   throw new Error(`Marker not found: ${marker}`)
 }
 
-const findAndClearGhostMarkers = (): { row: number; col: number }[] => {
-  const markers = ['G', 'H', 'I', 'J']
-  const starts: { row: number; col: number }[] = []
+const findAndClearGhostMarkers = (): {
+  row: number
+  col: number
+  marker: GhostMarker
+  name: GhostName
+  color: string
+}[] =>
+  GHOST_MARKER_SPECS.map(spec => ({
+    ...findAndClearMarker(spec.marker),
+    marker: spec.marker,
+    name: spec.name,
+    color: spec.color,
+  }))
 
-  markers.forEach(marker => {
-    starts.push(findAndClearMarker(marker))
-  })
-
-  return starts
-}
-
-const pacmanStart = findAndClearMarker('P')
+const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
 
 const createActor = (
@@ -526,9 +547,11 @@ const pacman = createActor(pacmanStart.row, pacmanStart.col, BASE_PACMAN_SPEED)
 const ghosts: Ghost[] = ghostStarts.map((start, index) => ({
   ...createActor(start.row, start.col, BASE_GHOST_SPEED),
   id: index,
+  name: start.name,
+  marker: start.marker,
   dir: index % 2 === 0 ? 'left' : 'right',
   nextDir: index % 2 === 0 ? 'left' : 'right',
-  color: ['#ff4d4d', '#ffb84d', '#33d1ff', '#ff70ff'][index],
+  color: start.color,
   lastEatenPowerModeId: -1,
 }))
 
@@ -1401,7 +1424,7 @@ const handleKeydown = (event: KeyboardEvent) => {
       }
     }
 
-    findAndClearMarker('P')
+    findAndClearMarker(PACMAN_MARKER)
     findAndClearGhostMarkers()
     placeRandomCherries()
     pelletsRemaining = countRemainingPellets()
