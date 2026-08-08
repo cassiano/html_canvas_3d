@@ -1,5 +1,11 @@
 import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
-import { createFrameLoop, millis, frameCount, fps } from '../utils.ts'
+import {
+  createFrameLoop,
+  millis,
+  frameCount,
+  fps,
+  timesForEachN,
+} from '../utils.ts'
 import {
   animation,
   background,
@@ -55,16 +61,16 @@ const GHOST_RADIUS_RATIO = 0.44
 const BASE_PACMAN_SPEED = 3
 const BASE_GHOST_SPEED = 2
 const POWER_MODE_MS = 7000
-const CHERRY_SCORE = 100
+const CHERRY_SCORE = 200
 const CHERRY_EXTRA_SCORE = 150
-const CHERRY_COUNT = 4
+const CHERRY_COUNT = 2
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
 const POWER_SIREN_LOOP_MS = 900
 const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
 
-// `P` is reserved for Pac-Man only. Pinky uses `H` and Clyde uses `C` to avoid marker ambiguity.
+// `P` is reserved for Pac-Man only. Pinky uses `H` to avoid marker ambiguity.
 // [/doc_img/main.ts/2026-08-08-12-04-06.png]
 const PACMAN_MARKER = 'P'
 const GHOST_MARKER_SPECS: {
@@ -469,19 +475,19 @@ const MAZE_TEMPLATE = [
   '#.................#',
   '#.###.#.#####.#.###',
   '#.....#...#...#...#',
-  '#####.###.#.###.###',
-  '#...#.#..BHI..#.#.#',
-  '#.#.#.#...#...#.#.#',
+  '#####.###.#.###.#.#',
+  '#...#.#.#BHI#.#.#.#',
+  '#.#.#.#...#.#.#.#.#',
   '....#.....P.....#..',
   '#.#.#.###.#.###.#.#',
   '#...#.....C.....#.#',
   '###.#.#.#####.#.#.#',
   '#........#........#',
   '#.###.##.#.##.###.#',
-  '#o..#........#..o.#',
+  '#o..............o.#',
   '##.#.#.#####.#.#.##',
   '#..#.#...#...#.#..#',
-  '#.................#',
+  '#......#...#......#',
   '###################',
 ] as const
 
@@ -1103,6 +1109,7 @@ const drawFilledRectPixel = (
 ) => {
   isolateTransformations(() => {
     translate(toWorldPoint(x + width / 2, y + height / 2))
+
     rect2d(width, height, { color, noStroke: true, opacity })
   })
 }
@@ -1127,13 +1134,14 @@ const drawCirclePixel = (
 ) => {
   isolateTransformations(() => {
     translate(toWorldPoint(x, y))
+
     circle2d(radius, {
       color,
       strokeColor: strokeColor ?? color,
       lineWidth,
       noStroke,
       opacity,
-      circleSegments: 28,
+      circleSegments: 14,
     })
   })
 }
@@ -1153,80 +1161,82 @@ const drawStrokeRectPixel = (
 }
 
 const drawMaze = () => {
-  for (let row = 0; row < ROW_COUNT; row++) {
-    for (let col = 0; col < COLUMN_COUNT; col++) {
-      const tile = getTile(row, col)
-      const pixel = tileToPixel(col, row)
+  timesForEachN([ROW_COUNT, COLUMN_COUNT], (row, col) => {
+    const tile = getTile(row, col)
+    const pixel = tileToPixel(col, row)
 
-      if (tile === '#') {
-        drawFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
-        drawStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
-      } else if (tile === '.') {
-        drawCirclePixel(
-          pixel.x + TILE_SIZE / 2,
-          pixel.y + TILE_SIZE / 2,
-          TILE_SIZE * 0.12,
-          { color: '#ffd7a8' },
-        )
-      } else if (tile === 'o') {
-        const pulse = 0.75 + 0.25 * sin(millis() / 120)
+    if (tile === '#') {
+      // Draw a wall tile.
+      drawFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
+      drawStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
+    } else if (tile === '.') {
+      // Draw a small pellet.
+      drawCirclePixel(
+        pixel.x + TILE_SIZE / 2,
+        pixel.y + TILE_SIZE / 2,
+        TILE_SIZE * 0.12,
+        { color: '#ffd7a8' },
+      )
+    } else if (tile === 'o') {
+      // Draw a power pellet with a pulsing effect.
+      const pulse = 0.75 + 0.25 * sin(millis() / 120)
 
-        drawCirclePixel(
-          pixel.x + TILE_SIZE / 2,
-          pixel.y + TILE_SIZE / 2,
-          TILE_SIZE * 0.26 * pulse,
-          { color: '#fff2df' },
-        )
-      } else if (tile === 'c') {
-        const centerX = pixel.x + TILE_SIZE / 2
-        const centerY = pixel.y + TILE_SIZE / 2
-        const cherryRadius = TILE_SIZE * 0.18
+      drawCirclePixel(
+        pixel.x + TILE_SIZE / 2,
+        pixel.y + TILE_SIZE / 2,
+        TILE_SIZE * 0.26 * pulse,
+        { color: '#fff2df' },
+      )
+    } else if (tile === 'c') {
+      // Draw a cherry with a stem and two leaves.
+      const centerX = pixel.x + TILE_SIZE / 2
+      const centerY = pixel.y + TILE_SIZE / 2
+      const cherryRadius = TILE_SIZE * 0.18
 
-        drawLinePixel(
-          centerX - cherryRadius * 0.45,
-          centerY - cherryRadius * 1.45,
-          centerX,
-          centerY - cherryRadius * 2.25,
-          '#66b15b',
-          2,
-        )
-        drawLinePixel(
-          centerX,
-          centerY - cherryRadius * 2.25,
-          centerX + cherryRadius * 0.55,
-          centerY - cherryRadius * 1.45,
-          '#66b15b',
-          2,
-        )
+      drawLinePixel(
+        centerX - cherryRadius * 0.45,
+        centerY - cherryRadius * 1.45,
+        centerX,
+        centerY - cherryRadius * 2.25,
+        '#66b15b',
+        2,
+      )
+      drawLinePixel(
+        centerX,
+        centerY - cherryRadius * 2.25,
+        centerX + cherryRadius * 0.55,
+        centerY - cherryRadius * 1.45,
+        '#66b15b',
+        2,
+      )
 
-        drawCirclePixel(
-          centerX - cherryRadius * 0.65,
-          centerY + cherryRadius * 0.25,
-          cherryRadius,
-          { color: '#d3152f' },
-        )
-        drawCirclePixel(
-          centerX + cherryRadius * 0.65,
-          centerY + cherryRadius * 0.25,
-          cherryRadius,
-          { color: '#d3152f' },
-        )
+      drawCirclePixel(
+        centerX - cherryRadius * 0.65,
+        centerY + cherryRadius * 0.25,
+        cherryRadius,
+        { color: '#d3152f' },
+      )
+      drawCirclePixel(
+        centerX + cherryRadius * 0.65,
+        centerY + cherryRadius * 0.25,
+        cherryRadius,
+        { color: '#d3152f' },
+      )
 
-        drawCirclePixel(
-          centerX - cherryRadius,
-          centerY - cherryRadius * 0.1,
-          cherryRadius * 0.35,
-          { color: 'rgba(255, 255, 255, 0.55)' },
-        )
-        drawCirclePixel(
-          centerX + cherryRadius * 0.3,
-          centerY - cherryRadius * 0.1,
-          cherryRadius * 0.35,
-          { color: 'rgba(255, 255, 255, 0.55)' },
-        )
-      }
+      drawCirclePixel(
+        centerX - cherryRadius,
+        centerY - cherryRadius * 0.1,
+        cherryRadius * 0.35,
+        { color: 'rgba(255, 255, 255, 0.55)' },
+      )
+      drawCirclePixel(
+        centerX + cherryRadius * 0.3,
+        centerY - cherryRadius * 0.1,
+        cherryRadius * 0.35,
+        { color: 'rgba(255, 255, 255, 0.55)' },
+      )
     }
-  }
+  })
 }
 
 const directionToAngle = (direction: DirectionName): number => {
@@ -1442,7 +1452,6 @@ const drawStateOverlay = () => {
 }
 
 const drawScene = () => {
-  background('black')
   drawMaze()
   drawPacman()
   ghosts.forEach(drawGhost)
@@ -1499,6 +1508,8 @@ const handleKeydown = (event: KeyboardEvent) => {
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
+  background('black')
+
   const now = millis()
   const deltaSeconds =
     lastTickMillis === null
@@ -1509,7 +1520,6 @@ const draw = () => {
 
   updateGame(deltaSeconds)
   drawScene()
-  render3dScene()
 }
 
 const onPaused = () => {
