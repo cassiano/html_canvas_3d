@@ -241,22 +241,21 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
 export const earth = bodies.find(body => body.name === 'earth')
 assertIsNotUndefined(earth)
 
-let latestPhysicsMillis: number | null = null
+let lastTickMillis: number | null = null
 
 // -------------------------------------------------------------------------------------------------
 
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
-  const nowMillis = millis()
-  const dtRealSeconds =
-    latestPhysicsMillis === null
-      ? 1 / FPS
-      : (nowMillis - latestPhysicsMillis) / 1000
-  latestPhysicsMillis = nowMillis
+  const now = millis()
+  const deltaSeconds =
+    lastTickMillis === null ? 1 / FPS : (now - lastTickMillis) / 1000
+
+  lastTickMillis = now
 
   const simulationDeltaSeconds =
-    dtRealSeconds * SIMULATION_SECONDS_PER_REAL_SECOND
+    deltaSeconds * SIMULATION_SECONDS_PER_REAL_SECOND
 
   background('black')
 
