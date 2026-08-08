@@ -11,7 +11,17 @@ import {
   background,
   resetTransformationMatrix,
 } from '../primitives.ts'
-import { abs, floor, min, sin } from '../math_utils.ts'
+import {
+  abs,
+  cos,
+  floor,
+  max,
+  min,
+  PI,
+  random,
+  sin,
+  hypot,
+} from '../math_utils.ts'
 import { $v } from '../vector_3d.ts'
 import {
   line,
@@ -114,7 +124,7 @@ const ensureAudio = () => {
   noiseBuffer = audioContext.createBuffer(1, bufferSize, sampleRate)
   const data = noiseBuffer.getChannelData(0)
 
-  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
+  for (let i = 0; i < bufferSize; i++) data[i] = random() * 2 - 1
 
   return true
 }
@@ -589,7 +599,7 @@ const placeRandomCherries = (count = CHERRY_COUNT) => {
   let cherriesToPlace = min(count, candidates.length)
 
   while (cherriesToPlace > 0) {
-    const randomIndex = floor(Math.random() * candidates.length)
+    const randomIndex = floor(random() * candidates.length)
     const selectedCell = candidates.splice(randomIndex, 1)[0]
 
     setTile(selectedCell.row, selectedCell.col, 'c')
@@ -795,10 +805,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   if (directions.length === 0) return 'none'
 
   if (powerModeRemainingMs > 0) {
-    const powerRatio = Math.max(
-      0,
-      Math.min(1, powerModeRemainingMs / POWER_MODE_MS),
-    )
+    const powerRatio = max(0, min(1, powerModeRemainingMs / POWER_MODE_MS))
     const fleeWeight = 0.55 + powerRatio * 1.25
     const spacingWeight = 0.05 + powerRatio * 0.17
     const uncertaintyWeight = (1 - powerRatio) * 1.1
@@ -1001,7 +1008,7 @@ const checkGhostCollisions = () => {
     const ghostPos = actorPositionInTiles(ghost)
     const dx = ghostPos.x - pacmanPos.x
     const dy = ghostPos.y - pacmanPos.y
-    const distance = Math.hypot(dx, dy)
+    const distance = hypot(dx, dy)
 
     if (distance > COLLISION_DISTANCE_TILES) return
 
@@ -1042,7 +1049,7 @@ const updateGame = (deltaSeconds: number) => {
 
   const hadPowerMode = powerModeRemainingMs > 0
 
-  powerModeRemainingMs = Math.max(0, powerModeRemainingMs - deltaSeconds * 1000)
+  powerModeRemainingMs = max(0, powerModeRemainingMs - deltaSeconds * 1000)
 
   if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
 
@@ -1244,11 +1251,11 @@ const directionToAngle = (direction: DirectionName): number => {
     case 'right':
       return 0
     case 'left':
-      return Math.PI
+      return PI
     case 'up':
-      return -Math.PI / 2
+      return -PI / 2
     case 'down':
-      return Math.PI / 2
+      return PI / 2
     default:
       return 0
   }
@@ -1281,12 +1288,12 @@ const drawPacman = () => {
   })
 
   const mouthA = {
-    x: centerX + radius * 1.1 * Math.cos(angle + mouth),
-    y: centerY + radius * 1.1 * Math.sin(angle + mouth),
+    x: centerX + radius * 1.1 * cos(angle + mouth),
+    y: centerY + radius * 1.1 * sin(angle + mouth),
   }
   const mouthB = {
-    x: centerX + radius * 1.1 * Math.cos(angle - mouth),
-    y: centerY + radius * 1.1 * Math.sin(angle - mouth),
+    x: centerX + radius * 1.1 * cos(angle - mouth),
+    y: centerY + radius * 1.1 * sin(angle - mouth),
   }
 
   triangle2d(
@@ -1512,9 +1519,7 @@ const draw = () => {
 
   const now = millis()
   const deltaSeconds =
-    lastTickMillis === null
-      ? 1 / FPS
-      : Math.min((now - lastTickMillis) / 1000, 0.05)
+    lastTickMillis === null ? 1 / FPS : min((now - lastTickMillis) / 1000, 0.05)
 
   lastTickMillis = now
 

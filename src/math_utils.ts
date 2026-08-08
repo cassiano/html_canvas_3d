@@ -6,6 +6,7 @@ export const {
   sin,
   cos,
   tan,
+  hypot,
   min,
   max,
   sqrt,
