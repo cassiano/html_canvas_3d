@@ -1141,7 +1141,7 @@ const drawCirclePixel = (
       lineWidth,
       noStroke,
       opacity,
-      circleSegments: 14,
+      circleSegments: 28,
     })
   })
 }
