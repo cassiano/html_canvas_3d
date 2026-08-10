@@ -1061,7 +1061,7 @@ const consumePacmanTile = (isDemoMode = false) => {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
     if (!isDemoMode) addScore(10)
-    playWaka()
+    if (!isDemoMode) playWaka()
   } else if (tile === POWER_PELLET_MARKER) {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
@@ -1069,11 +1069,11 @@ const consumePacmanTile = (isDemoMode = false) => {
     currentPowerModeId++
     powerModeRemainingMs = POWER_MODE_MS
     ghostCombo = 0
-    startPowerSirenLoop()
+    if (!isDemoMode) startPowerSirenLoop()
   } else if (tile === 'c') {
     setTile(pacman.row, pacman.col, ' ')
     if (!isDemoMode) addScore(CHERRY_SCORE + CHERRY_EXTRA_SCORE)
-    playCherryPickup()
+    if (!isDemoMode) playCherryPickup()
   }
 
   if (pelletsRemaining <= 0) {
@@ -1115,7 +1115,7 @@ const checkGhostCollisions = (isDemoMode = false) => {
       resetGhost(ghost)
       if (!isDemoMode) addScore(GHOST_EATEN_BASE_SCORE * 2 ** ghostCombo)
       ghostCombo++
-      playGhostEaten()
+      if (!isDemoMode) playGhostEaten()
 
       return
     }
