@@ -479,30 +479,30 @@ const OPPOSITE_DIRECTION: Record<DirectionName, DirectionName> = {
 
 // [/doc_img/main.ts/2026-08-10-09-50-36.png]
 const MAZE_TEMPLATE = [
-  '#######################',
-  '#..........#..........#',
-  '#.###.####.#.####.###.#',
-  '#o###.####.#.####.###o#',
-  '#.....................#',
-  '#.###.#.#######.#.###.#',
-  '#.....#....#....#.....#',
-  '#####.#### # ####.#####',
-  '#   #.#         #.#   #',
-  '#   #.# ### ### #.#   #',
-  '#####.# #  B  # #.#####',
+  '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
+  '◻..........◻..........◻',
+  '◻.◻◻◻.◻◻◻◻.◻.◻◻◻◻.◻◻◻.◻',
+  '◻⏺◻◻◻.◻◻◻◻.◻.◻◻◻◻.◻◻◻⏺◻',
+  '◻.....................◻',
+  '◻.◻◻◻.◻.◻◻◻◻◻◻◻.◻.◻◻◻.◻',
+  '◻.....◻....◻....◻.....◻',
+  '◻◻◻◻◻.◻◻◻◻ ◻ ◻◻◻◻.◻◻◻◻◻',
+  '◻   ◻.◻         ◻.◻   ◻',
+  '◻   ◻.◻ ◻◻◻ ◻◻◻ ◻.◻   ◻',
+  '◻◻◻◻◻.◻ ◻  B  ◻ ◻.◻◻◻◻◻',
   '     .    IHC    .     ',
-  '#####.# #     # #.#####',
-  '#   #.# ### ### #.#   #',
-  '#   #.#         #.#   #',
-  '#####.# ####### #.#####',
-  '#..........#..........#',
-  '#.###.####.#.####.###.#',
-  '#o..#......P......#..o#',
-  '###.#.#.#######.#.#.###',
-  '#.....#....#....#.....#',
-  '#.########.#.########.#',
-  '#.....................#',
-  '#######################',
+  '◻◻◻◻◻.◻ ◻     ◻ ◻.◻◻◻◻◻',
+  '◻   ◻.◻ ◻◻◻ ◻◻◻ ◻.◻   ◻',
+  '◻   ◻.◻         ◻.◻   ◻',
+  '◻◻◻◻◻.◻ ◻◻◻◻◻◻◻ ◻.◻◻◻◻◻',
+  '◻..........◻..........◻',
+  '◻.◻◻◻.◻◻◻◻.◻.◻◻◻◻.◻◻◻.◻',
+  '◻⏺..◻......P......◻..⏺◻',
+  '◻◻◻.◻.◻.◻◻◻◻◻◻◻.◻.◻.◻◻◻',
+  '◻.....◻....◻....◻.....◻',
+  '◻.◻◻◻◻◻◻◻◻.◻.◻◻◻◻◻◻◻◻.◻',
+  '◻.....................◻',
+  '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
 ] as const
 
 const ROW_COUNT = MAZE_TEMPLATE.length
@@ -575,7 +575,7 @@ const ghosts: Ghost[] = ghostStarts.map((start, index) => ({
   lastEatenPowerModeId: -1,
 }))
 
-const getTile = (row: number, col: number): string => maze[row][col] ?? '#'
+const getTile = (row: number, col: number): string => maze[row][col] ?? '◻'
 
 const setTile = (row: number, col: number, value: string) => {
   maze[row][col] = value
@@ -614,7 +614,7 @@ const placeRandomCherries = (count = CHERRY_COUNT) => {
 
 placeRandomCherries()
 
-const isWall = (row: number, col: number): boolean => getTile(row, col) === '#'
+const isWall = (row: number, col: number): boolean => getTile(row, col) === '◻'
 
 const wrapCol = (col: number): number => {
   if (col < 0) return COLUMN_COUNT - 1
@@ -655,7 +655,7 @@ const countRemainingPellets = (): number => {
     for (let col = 0; col < COLUMN_COUNT; col++) {
       const tile = getTile(row, col)
 
-      if (tile === '.' || tile === 'o') count++
+      if (tile === '.' || tile === '⏺') count++
     }
   }
 
@@ -975,7 +975,7 @@ const consumePacmanTile = () => {
     pelletsRemaining--
     addScore(10)
     playWaka()
-  } else if (tile === 'o') {
+  } else if (tile === '⏺') {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
     addScore(50)
@@ -1182,7 +1182,7 @@ const drawMaze = () => {
     const tile = getTile(row, col)
     const pixel = tileToPixel(col, row)
 
-    if (tile === '#') {
+    if (tile === '◻') {
       // Draw a wall tile.
       drawFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
       drawStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
@@ -1194,7 +1194,7 @@ const drawMaze = () => {
         TILE_SIZE * 0.12,
         { color: '#ffd7a8' },
       )
-    } else if (tile === 'o') {
+    } else if (tile === '⏺') {
       // Draw a power pellet with a pulsing effect.
       const pulse = 0.75 + 0.25 * sin(millis() / 120)
 
