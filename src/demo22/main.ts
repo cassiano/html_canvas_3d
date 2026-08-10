@@ -974,37 +974,52 @@ const chooseDemoPacmanDirection = (): DirectionName => {
 
   if (directions.length === 0) return 'none'
 
-  let bestDirection = directions[0]
-  let bestScore = Number.POSITIVE_INFINITY
+  const scoredDirections = directions
+    .map(dir => {
+      const next = nextCell(pacman.row, pacman.col, dir)
+      const nextTile = getTile(next.row, next.col)
+      const collectibleDistance = getClosestCollectibleDistance(
+        next.row,
+        next.col,
+      )
+      const collectibleBonus =
+        nextTile === POWER_PELLET_MARKER ? -50 : nextTile === '.' ? -25 : 0
+      const ghostThreat = ghosts.reduce((threat, ghost) => {
+        const ghostPos = actorPositionInTiles(ghost)
+        const distance = abs(next.row - ghostPos.y) + abs(next.col - ghostPos.x)
 
-  directions.forEach(dir => {
-    const next = nextCell(pacman.row, pacman.col, dir)
-    const nextTile = getTile(next.row, next.col)
-    const collectibleDistance = getClosestCollectibleDistance(
-      next.row,
-      next.col,
+        if (powerModeRemainingMs > 0) return threat
+
+        return threat + 1 / (distance + 0.4)
+      }, 0)
+      const tieBreaker =
+        ((dir.charCodeAt(0) + floor(millis() / 220)) % 7) * 0.001
+      const randomJitter = random() * 0.6
+      const score =
+        collectibleDistance +
+        ghostThreat * 7 +
+        collectibleBonus +
+        tieBreaker +
+        randomJitter
+
+      return { dir, score }
+    })
+    .sort((a, b) => a.score - b.score)
+
+  // In demo mode, occasionally take an alternate good route so the attract loop varies.
+  const alternateRouteChance = powerModeRemainingMs > 0 ? 0.3 : 0.18
+
+  if (scoredDirections.length > 1 && random() < alternateRouteChance) {
+    const furthestIndex = min(
+      scoredDirections.length - 1,
+      powerModeRemainingMs > 0 ? 2 : 1,
     )
-    const collectibleBonus =
-      nextTile === POWER_PELLET_MARKER ? -50 : nextTile === '.' ? -25 : 0
-    const ghostThreat = ghosts.reduce((threat, ghost) => {
-      const ghostPos = actorPositionInTiles(ghost)
-      const distance = abs(next.row - ghostPos.y) + abs(next.col - ghostPos.x)
+    const alternateIndex = 1 + floor(random() * furthestIndex)
 
-      if (powerModeRemainingMs > 0) return threat
+    return scoredDirections[alternateIndex].dir
+  }
 
-      return threat + 1 / (distance + 0.4)
-    }, 0)
-    const tieBreaker = ((dir.charCodeAt(0) + floor(millis() / 220)) % 7) * 0.001
-    const score =
-      collectibleDistance + ghostThreat * 7 + collectibleBonus + tieBreaker
-
-    if (score < bestScore) {
-      bestScore = score
-      bestDirection = dir
-    }
-  })
-
-  return bestDirection
+  return scoredDirections[0].dir
 }
 
 const moveActor = (
