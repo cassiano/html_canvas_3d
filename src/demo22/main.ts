@@ -80,6 +80,7 @@ const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
 const POWER_SIREN_LOOP_MS = 900
 const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
+const POWER_PELLET_MARKER = '⏺'
 
 // `P` is reserved for Pac-Man only. Pinky uses `H` to avoid marker ambiguity.
 // [/doc_img/main.ts/2026-08-08-12-04-06.png]
@@ -581,6 +582,19 @@ const setTile = (row: number, col: number, value: string) => {
   maze[row][col] = value
 }
 
+const resetMazeFromTemplate = () => {
+  for (let row = 0; row < ROW_COUNT; row++) {
+    for (let col = 0; col < COLUMN_COUNT; col++) {
+      maze[row][col] = MAZE_TEMPLATE[row][col]
+    }
+  }
+
+  findAndClearMarker(PACMAN_MARKER)
+  findAndClearGhostMarkers()
+  placeRandomCherries()
+  pelletsRemaining = countRemainingPellets()
+}
+
 const isStartCell = (row: number, col: number): boolean => {
   if (row === pacmanStart.row && col === pacmanStart.col) return true
 
@@ -655,7 +669,7 @@ const countRemainingPellets = (): number => {
     for (let col = 0; col < COLUMN_COUNT; col++) {
       const tile = getTile(row, col)
 
-      if (tile === '.' || tile === '⏺') count++
+      if (tile === '.' || tile === POWER_PELLET_MARKER) count++
     }
   }
 
@@ -666,12 +680,13 @@ let lastTickMillis: number | null = null
 let score = 0
 let highScore = 0
 let lives = 3
-let gameState: GameState = 'playing'
+let gameState: GameState = 'gameOver'
 let pelletsRemaining = countRemainingPellets()
 let powerModeRemainingMs = 0
 let ghostCombo = 0
-let roundDelayRemainingMs = ROUND_START_DELAY_MS
+let roundDelayRemainingMs = 0
 let currentPowerModeId = 0
+let hasStartedGame = false
 
 const loadHighScore = (): number => {
   try {
@@ -920,6 +935,78 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   return bestDirection
 }
 
+const getClosestCollectibleDistance = (row: number, col: number): number => {
+  let bestDistance = Number.POSITIVE_INFINITY
+
+  for (let targetRow = 0; targetRow < ROW_COUNT; targetRow++) {
+    for (let targetCol = 0; targetCol < COLUMN_COUNT; targetCol++) {
+      const tile = getTile(targetRow, targetCol)
+
+      if (tile !== '.' && tile !== POWER_PELLET_MARKER && tile !== 'c') {
+        continue
+      }
+
+      const distance = abs(row - targetRow) + abs(col - targetCol)
+
+      if (distance < bestDistance) bestDistance = distance
+    }
+  }
+
+  return bestDistance
+}
+
+const chooseDemoPacmanDirection = (): DirectionName => {
+  const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
+    dir => {
+      if (dir === 'none') return false
+      if (!canMove(pacman.row, pacman.col, dir)) return false
+
+      return dir !== OPPOSITE_DIRECTION[pacman.dir]
+    },
+  )
+
+  const directions =
+    candidates.length > 0
+      ? candidates
+      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
+          dir => dir !== 'none' && canMove(pacman.row, pacman.col, dir),
+        )
+
+  if (directions.length === 0) return 'none'
+
+  let bestDirection = directions[0]
+  let bestScore = Number.POSITIVE_INFINITY
+
+  directions.forEach(dir => {
+    const next = nextCell(pacman.row, pacman.col, dir)
+    const nextTile = getTile(next.row, next.col)
+    const collectibleDistance = getClosestCollectibleDistance(
+      next.row,
+      next.col,
+    )
+    const collectibleBonus =
+      nextTile === POWER_PELLET_MARKER ? -50 : nextTile === '.' ? -25 : 0
+    const ghostThreat = ghosts.reduce((threat, ghost) => {
+      const ghostPos = actorPositionInTiles(ghost)
+      const distance = abs(next.row - ghostPos.y) + abs(next.col - ghostPos.x)
+
+      if (powerModeRemainingMs > 0) return threat
+
+      return threat + 1 / (distance + 0.4)
+    }, 0)
+    const tieBreaker = ((dir.charCodeAt(0) + floor(millis() / 220)) % 7) * 0.001
+    const score =
+      collectibleDistance + ghostThreat * 7 + collectibleBonus + tieBreaker
+
+    if (score < bestScore) {
+      bestScore = score
+      bestDirection = dir
+    }
+  })
+
+  return bestDirection
+}
+
 const moveActor = (
   actor: Actor,
   deltaSeconds: number,
@@ -967,32 +1054,37 @@ const moveActor = (
   }
 }
 
-const consumePacmanTile = () => {
+const consumePacmanTile = (isDemoMode = false) => {
   const tile = getTile(pacman.row, pacman.col)
 
   if (tile === '.') {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
-    addScore(10)
+    if (!isDemoMode) addScore(10)
     playWaka()
-  } else if (tile === '⏺') {
+  } else if (tile === POWER_PELLET_MARKER) {
     setTile(pacman.row, pacman.col, ' ')
     pelletsRemaining--
-    addScore(50)
+    if (!isDemoMode) addScore(50)
     currentPowerModeId++
     powerModeRemainingMs = POWER_MODE_MS
     ghostCombo = 0
     startPowerSirenLoop()
   } else if (tile === 'c') {
     setTile(pacman.row, pacman.col, ' ')
-    addScore(CHERRY_SCORE + CHERRY_EXTRA_SCORE)
+    if (!isDemoMode) addScore(CHERRY_SCORE + CHERRY_EXTRA_SCORE)
     playCherryPickup()
   }
 
   if (pelletsRemaining <= 0) {
-    gameState = 'won'
-    stopPowerSirenLoop()
-    playWin()
+    if (isDemoMode) {
+      resetMazeFromTemplate()
+      resetRound()
+    } else {
+      gameState = 'won'
+      stopPowerSirenLoop()
+      playWin()
+    }
   }
 }
 
@@ -1005,7 +1097,7 @@ const actorPositionInTiles = (actor: Actor): { x: number; y: number } => {
   }
 }
 
-const checkGhostCollisions = () => {
+const checkGhostCollisions = (isDemoMode = false) => {
   const pacmanPos = actorPositionInTiles(pacman)
 
   ghosts.forEach(ghost => {
@@ -1021,9 +1113,15 @@ const checkGhostCollisions = () => {
 
       ghost.lastEatenPowerModeId = currentPowerModeId
       resetGhost(ghost)
-      addScore(GHOST_EATEN_BASE_SCORE * 2 ** ghostCombo)
+      if (!isDemoMode) addScore(GHOST_EATEN_BASE_SCORE * 2 ** ghostCombo)
       ghostCombo++
       playGhostEaten()
+
+      return
+    }
+
+    if (isDemoMode) {
+      resetRound()
 
       return
     }
@@ -1043,7 +1141,33 @@ const checkGhostCollisions = () => {
 }
 
 const updateGame = (deltaSeconds: number) => {
-  if (gameState !== 'playing') return
+  if (gameState !== 'playing') {
+    if (roundDelayRemainingMs > 0) {
+      roundDelayRemainingMs -= deltaSeconds * 1000
+
+      return
+    }
+
+    const hadPowerMode = powerModeRemainingMs > 0
+
+    powerModeRemainingMs = max(0, powerModeRemainingMs - deltaSeconds * 1000)
+
+    if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
+
+    moveActor(pacman, deltaSeconds, () => chooseDemoPacmanDirection())
+
+    consumePacmanTile(true)
+
+    ghosts.forEach(ghost =>
+      moveActor(ghost, deltaSeconds, actor =>
+        chooseGhostDirection(actor as Ghost),
+      ),
+    )
+
+    checkGhostCollisions(true)
+
+    return
+  }
 
   if (roundDelayRemainingMs > 0) {
     roundDelayRemainingMs -= deltaSeconds * 1000
@@ -1416,6 +1540,38 @@ const drawHud = () => {
 }
 
 const drawStateOverlay = () => {
+  if (!hasStartedGame) {
+    drawFilledRectPixel(
+      0,
+      0,
+      animation.width,
+      animation.height,
+      'rgba(0, 0, 0, 0.55)',
+    )
+
+    text2d('DEMO MODE', toWorldPoint(animation.width / 2, 70), '#ffde59', {
+      fontSize: 34,
+      fontFamily: 'monospace',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      textBaseline: 'middle',
+    })
+    text2d(
+      'Press Enter to play',
+      toWorldPoint(animation.width / 2, 70 + 40),
+      '#ffffff',
+      {
+        fontSize: 20,
+        fontFamily: 'monospace',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        textBaseline: 'middle',
+      },
+    )
+
+    return
+  }
+
   if (roundDelayRemainingMs > 0 && gameState === 'playing') {
     drawFilledRectPixel(
       0,
@@ -1455,7 +1611,7 @@ const drawStateOverlay = () => {
     textBaseline: 'middle',
   })
   text2d(
-    'Press Enter to restart',
+    'Press Enter to play again',
     toWorldPoint(animation.width / 2, 70 + 40),
     '#ffffff',
     {
@@ -1481,11 +1637,13 @@ const handleKeydown = (event: KeyboardEvent) => {
 
   const key = event.key.toLowerCase()
 
-  if (key === 'w' || key === 'arrowup') pacman.nextDir = 'up'
-  else if (key === 's' || key === 'arrowdown') pacman.nextDir = 'down'
-  else if (key === 'a' || key === 'arrowleft') pacman.nextDir = 'left'
-  else if (key === 'd' || key === 'arrowright') pacman.nextDir = 'right'
-  else if (key === 'enter' && gameState !== 'playing') {
+  if (gameState === 'playing') {
+    if (key === 'w' || key === 'arrowup') pacman.nextDir = 'up'
+    else if (key === 's' || key === 'arrowdown') pacman.nextDir = 'down'
+    else if (key === 'a' || key === 'arrowleft') pacman.nextDir = 'left'
+    else if (key === 'd' || key === 'arrowright') pacman.nextDir = 'right'
+  } else if (key === 'enter') {
+    hasStartedGame = true
     score = 0
     lives = 3
     gameState = 'playing'
@@ -1493,16 +1651,7 @@ const handleKeydown = (event: KeyboardEvent) => {
     stopPowerSirenLoop()
     ghostCombo = 0
 
-    for (let row = 0; row < ROW_COUNT; row++) {
-      for (let col = 0; col < COLUMN_COUNT; col++) {
-        maze[row][col] = MAZE_TEMPLATE[row][col]
-      }
-    }
-
-    findAndClearMarker(PACMAN_MARKER)
-    findAndClearGhostMarkers()
-    placeRandomCherries()
-    pelletsRemaining = countRemainingPellets()
+    resetMazeFromTemplate()
     resetRound()
   }
 
