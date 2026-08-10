@@ -68,11 +68,12 @@ type GameState = 'playing' | 'won' | 'gameOver'
 const TILE_SIZE = 24
 const PACMAN_RADIUS_RATIO = 0.5
 const GHOST_RADIUS_RATIO = 0.44
-const BASE_PACMAN_SPEED = 3.3
+const BASE_PACMAN_SPEED = 3.5
 const BASE_GHOST_SPEED = 3
 const POWER_MODE_MS = 7000
 const CHERRY_SCORE = 200
 const CHERRY_EXTRA_SCORE = 150
+const GHOST_EATEN_BASE_SCORE = 200
 const CHERRY_COUNT = 2
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
@@ -1020,7 +1021,7 @@ const checkGhostCollisions = () => {
 
       ghost.lastEatenPowerModeId = currentPowerModeId
       resetGhost(ghost)
-      addScore(200 * 2 ** ghostCombo)
+      addScore(GHOST_EATEN_BASE_SCORE * 2 ** ghostCombo)
       ghostCombo++
       playGhostEaten()
 
@@ -1120,7 +1121,12 @@ const drawFilledRectPixel = (
   isolateTransformations(() => {
     translate(toWorldPoint(x + width / 2, y + height / 2))
 
-    rect2d(width, height, { color, noStroke: true, opacity })
+    rect2d(width, height, {
+      color,
+      noStroke: true,
+      opacity,
+      isDoubleSided: true,
+    })
   })
 }
 
@@ -1152,6 +1158,7 @@ const drawCirclePixel = (
       noStroke,
       opacity,
       circleSegments: 28,
+      isDoubleSided: true,
     })
   })
 }
