@@ -68,8 +68,8 @@ type GameState = 'playing' | 'won' | 'gameOver'
 const TILE_SIZE = 24
 const PACMAN_RADIUS_RATIO = 0.5
 const GHOST_RADIUS_RATIO = 0.44
-const BASE_PACMAN_SPEED = 3
-const BASE_GHOST_SPEED = 2
+const BASE_PACMAN_SPEED = 3.3
+const BASE_GHOST_SPEED = 3
 const POWER_MODE_MS = 7000
 const CHERRY_SCORE = 200
 const CHERRY_EXTRA_SCORE = 150
@@ -478,27 +478,30 @@ const OPPOSITE_DIRECTION: Record<DirectionName, DirectionName> = {
 
 // [/doc_img/main.ts/2026-08-08-11-41-03.png]
 const MAZE_TEMPLATE = [
-  '###################',
-  '#........#........#',
-  '#.###.##.#.##.###.#',
-  '#o###.##.#.##.###o#',
-  '#.................#',
-  '#.###.#.#####.#.###',
-  '#.....#...#...#...#',
-  '#####.###.#.###.#.#',
-  '#...#.#.#BHI#.#.#.#',
-  '#.#.#.#...#.#.#.#.#',
-  '....#.....P.....#..',
-  '#.#.#.###.#.###.#.#',
-  '#...#.....C.....#.#',
-  '###.#.#.#####.#.#.#',
-  '#........#........#',
-  '#.###.##.#.##.###.#',
-  '#o..............o.#',
-  '##.#.#.#####.#.#.##',
-  '#..#.#...#...#.#..#',
-  '#......#...#......#',
-  '###################',
+  '#######################',
+  '#..........#..........#',
+  '#.###.####.#.####.###.#',
+  '#o###.####.#.####.###o#',
+  '#.....................#',
+  '#.###.#.#######.#.###.#',
+  '#.....#....#....#.....#',
+  '#####.#### # ####.#####',
+  '    #.#         #.#    ',
+  '    #.# ### ### #.#    ',
+  '#####.# #  B  # #.#####',
+  '     .    IHC    .     ',
+  '#####.# #     # #.#####',
+  '    #.# ### ### #.#    ',
+  '    #.#         #.#    ',
+  '#####.# ####### #.#####',
+  '#..........#..........#',
+  '#.###.####.#.####.###.#',
+  '#o..#......P......#..o#',
+  '###.#.#.#######.#.#.###',
+  '#.....#....#....#.....#',
+  '#.########.#.########.#',
+  '#.....................#',
+  '#######################',
 ] as const
 
 const ROW_COUNT = MAZE_TEMPLATE.length
@@ -1446,7 +1449,7 @@ const drawStateOverlay = () => {
   })
   text2d(
     'Press Enter to restart',
-    toWorldPoint(animation.width / 2, 70 + 36),
+    toWorldPoint(animation.width / 2, 70 + 40),
     '#ffffff',
     {
       fontSize: 20,
@@ -1530,7 +1533,7 @@ const draw = () => {
 const onPaused = () => {
   text2d(
     'PAUSED',
-    toWorldPoint(animation.width / 2, animation.height / 2 - 300),
+    toWorldPoint(animation.width / 2, animation.height / 2 - 330),
   )
 }
 
