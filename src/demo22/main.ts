@@ -1562,6 +1562,7 @@ const drawStateOverlay = () => {
       animation.width,
       animation.height,
       'rgba(0, 0, 0, 0.55)',
+      0.75,
     )
 
     text2d('DEMO MODE', toWorldPoint(animation.width / 2, 70), '#ffde59', {
