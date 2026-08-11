@@ -780,31 +780,12 @@ const ghosts: Ghost[] = ghostStarts.map(
     ),
 )
 
-const toTilePosition = (rowOrPosition: number | Vector3d, col?: number) =>
-  typeof rowOrPosition === 'number' ? $v(col!, rowOrPosition) : rowOrPosition
-
-function getTile(position: Vector3d): string
-function getTile(row: number, col: number): string
-function getTile(rowOrPosition: number | Vector3d, col?: number): string {
-  const position = toTilePosition(rowOrPosition, col)
-
+function getTile(position: Vector3d): string {
   return maze[position.y][position.x] ?? '◻'
 }
 
-function setTile(position: Vector3d, value: string): void
-function setTile(row: number, col: number, value: string): void
-function setTile(
-  rowOrPosition: number | Vector3d,
-  colOrValue: number | string,
-  valueMaybe?: string,
-) {
-  if (typeof rowOrPosition === 'number') {
-    maze[rowOrPosition][colOrValue as number] = valueMaybe!
-
-    return
-  }
-
-  maze[rowOrPosition.y][rowOrPosition.x] = colOrValue as string
+function setTile(position: Vector3d, value: string): void {
+  maze[position.y][position.x] = value
 }
 
 const resetMazeFromTemplate = () => {
@@ -1087,7 +1068,7 @@ const getClosestCollectibleDistance = (position: Vector3d): number => {
 
   for (let targetRow = 0; targetRow < ROW_COUNT; targetRow++) {
     for (let targetCol = 0; targetCol < COLUMN_COUNT; targetCol++) {
-      const tile = getTile(targetRow, targetCol)
+      const tile = getTile($v(targetCol, targetRow))
 
       if (tile !== '.' && tile !== POWER_PELLET_MARKER && tile !== 'c') {
         continue
@@ -1124,7 +1105,7 @@ const chooseDemoPacmanDirection = (): DirectionName => {
   const scoredDirections = directions
     .map(dir => {
       const next = Actor.nextCell(pacman.position, dir)
-      const nextTile = getTile(next.y, next.x)
+      const nextTile = getTile(next)
       const collectibleDistance = getClosestCollectibleDistance(next)
       const collectibleBonus =
         nextTile === POWER_PELLET_MARKER ? -50 : nextTile === '.' ? -25 : 0
@@ -1399,7 +1380,7 @@ const drawStrokeRectPixel = (
 
 const drawMaze = () => {
   timesForEachN([ROW_COUNT, COLUMN_COUNT], (row, col) => {
-    const tile = getTile(row, col)
+    const tile = getTile($v(col, row))
     const pixel = tileToPixel(col, row)
 
     if (tile === '◻') {
