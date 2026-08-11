@@ -87,6 +87,31 @@ class Actor {
     }
   }
 
+  static nextCell(
+    row: number,
+    col: number,
+    direction: DirectionName,
+  ): { row: number; col: number } {
+    const vector = DIRECTIONS[direction]
+
+    return {
+      row: row + vector.dr,
+      col: wrapCol(col + vector.dc),
+    }
+  }
+
+  static canMove(row: number, col: number, direction: DirectionName): boolean {
+    if (direction === 'none') return false
+
+    const target = Actor.nextCell(row, col, direction)
+
+    return !isWall(target.row, target.col)
+  }
+
+  canMoveTo(direction: DirectionName): boolean {
+    return Actor.canMove(this.row, this.col, direction)
+  }
+
   move(
     deltaSeconds: number,
     chooseDirectionAtCenter?: (actor: Actor) => DirectionName,
@@ -101,16 +126,16 @@ class Actor {
           if (selectedDirection !== 'none') this.nextDir = selectedDirection
         }
 
-        if (canMove(this.row, this.col, this.nextDir)) {
+        if (this.canMoveTo(this.nextDir)) {
           this.dir = this.nextDir
-        } else if (!canMove(this.row, this.col, this.dir)) {
+        } else if (!this.canMoveTo(this.dir)) {
           this.dir = 'none'
         }
       }
 
       if (this.dir === 'none') return
 
-      if (!canMove(this.row, this.col, this.dir)) {
+      if (!this.canMoveTo(this.dir)) {
         this.progress = 0
         this.dir = 'none'
 
@@ -124,7 +149,7 @@ class Actor {
       travel -= step
 
       if (this.progress >= 1) {
-        const target = nextCell(this.row, this.col, this.dir)
+        const target = Actor.nextCell(this.row, this.col, this.dir)
 
         this.row = target.row
         this.col = target.col
@@ -747,31 +772,6 @@ const wrapCol = (col: number): number => {
   return col
 }
 
-const nextCell = (
-  row: number,
-  col: number,
-  direction: DirectionName,
-): { row: number; col: number } => {
-  const vector = DIRECTIONS[direction]
-
-  return {
-    row: row + vector.dr,
-    col: wrapCol(col + vector.dc),
-  }
-}
-
-const canMove = (
-  row: number,
-  col: number,
-  direction: DirectionName,
-): boolean => {
-  if (direction === 'none') return false
-
-  const target = nextCell(row, col, direction)
-
-  return !isWall(target.row, target.col)
-}
-
 const countRemainingPellets = (): number => {
   let count = 0
 
@@ -935,7 +935,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
       ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
         if (dir === 'none') return
 
-        const next = nextCell(current.row, current.col, dir)
+        const next = Actor.nextCell(current.row, current.col, dir)
         const key = `${next.row},${next.col}`
 
         if (visited.has(key) || isWall(next.row, next.col)) return
@@ -965,7 +965,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
     dir => {
       if (dir === 'none') return false
-      if (!canMove(ghost.row, ghost.col, dir)) return false
+      if (!Actor.canMove(ghost.row, ghost.col, dir)) return false
 
       return dir !== OPPOSITE_DIRECTION[ghost.dir]
     },
@@ -975,7 +975,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     candidates.length > 0
       ? candidates
       : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-          dir => dir !== 'none' && canMove(ghost.row, ghost.col, dir),
+          dir => dir !== 'none' && Actor.canMove(ghost.row, ghost.col, dir),
         )
 
   if (directions.length === 0) return 'none'
@@ -990,7 +990,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     let bestFleeScore = Number.NEGATIVE_INFINITY
 
     directions.forEach(dir => {
-      const target = nextCell(ghost.row, ghost.col, dir)
+      const target = Actor.nextCell(ghost.row, ghost.col, dir)
       const dr = target.row - pacmanPos.y
       const dc = target.col - pacmanPos.x
       const fleeDistance = abs(dr) + abs(dc)
@@ -1064,7 +1064,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   let bestScore = Number.POSITIVE_INFINITY
 
   directions.forEach(dir => {
-    const target = nextCell(ghost.row, ghost.col, dir)
+    const target = Actor.nextCell(ghost.row, ghost.col, dir)
     const dr = target.row - chaseTarget.row
     const dc = target.col - chaseTarget.col
     const chaseDistance = abs(dr) + abs(dc)
@@ -1116,7 +1116,7 @@ const chooseDemoPacmanDirection = (): DirectionName => {
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
     dir => {
       if (dir === 'none') return false
-      if (!canMove(pacman.row, pacman.col, dir)) return false
+      if (!Actor.canMove(pacman.row, pacman.col, dir)) return false
 
       return dir !== OPPOSITE_DIRECTION[pacman.dir]
     },
@@ -1126,14 +1126,14 @@ const chooseDemoPacmanDirection = (): DirectionName => {
     candidates.length > 0
       ? candidates
       : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-          dir => dir !== 'none' && canMove(pacman.row, pacman.col, dir),
+          dir => dir !== 'none' && Actor.canMove(pacman.row, pacman.col, dir),
         )
 
   if (directions.length === 0) return 'none'
 
   const scoredDirections = directions
     .map(dir => {
-      const next = nextCell(pacman.row, pacman.col, dir)
+      const next = Actor.nextCell(pacman.row, pacman.col, dir)
       const nextTile = getTile(next.row, next.col)
       const collectibleDistance = getClosestCollectibleDistance(
         next.row,
@@ -1298,7 +1298,7 @@ const updateGame = (deltaSeconds: number) => {
   if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
 
   if (
-    canMove(pacman.row, pacman.col, pacman.nextDir) &&
+    pacman.canMoveTo(pacman.nextDir) &&
     pacman.progress === 0
   ) {
     pacman.dir = pacman.nextDir
