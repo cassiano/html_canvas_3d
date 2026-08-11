@@ -45,29 +45,23 @@ type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
 type GhostMarker = 'B' | 'H' | 'I' | 'C'
 
 class Actor {
-  row: number
-  col: number
   startRow: number
   startCol: number
   dir: DirectionName
   nextDir: DirectionName
   progress: number
-  speedTilesPerSecond: number
 
   constructor(
-    row: number,
-    col: number,
-    speedTilesPerSecond: number,
+    public row: number,
+    public col: number,
+    public speedTilesPerSecond: number,
     initialDirection: DirectionName = 'left',
   ) {
-    this.row = row
-    this.col = col
     this.startRow = row
     this.startCol = col
     this.dir = initialDirection
     this.nextDir = initialDirection
     this.progress = 0
-    this.speedTilesPerSecond = speedTilesPerSecond
   }
 
   reset(direction: DirectionName = 'left') {
@@ -187,6 +181,7 @@ class Ghost extends Actor {
     initialDirection: DirectionName
   }) {
     super(row, col, speedTilesPerSecond, initialDirection)
+
     this.id = id
     this.name = name
     this.marker = marker
