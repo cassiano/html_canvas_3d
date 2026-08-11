@@ -154,40 +154,20 @@ class Actor {
 }
 
 class Ghost extends Actor {
-  id: number
-  name: GhostName
-  marker: GhostMarker
-  color: string
-  lastEatenPowerModeId: number
-  isEaten: boolean
+  lastEatenPowerModeId: number = -1
+  isEaten: boolean = false
 
-  constructor({
-    id,
-    row,
-    col,
-    name,
-    marker,
-    color,
-    speedTilesPerSecond,
-    initialDirection,
-  }: {
-    id: number
-    row: number
-    col: number
-    name: GhostName
-    marker: GhostMarker
-    color: string
-    speedTilesPerSecond: number
-    initialDirection: DirectionName
-  }) {
+  constructor(
+    row: number,
+    col: number,
+    speedTilesPerSecond: number,
+    initialDirection: DirectionName,
+    public id: number,
+    public name: GhostName,
+    public marker: GhostMarker,
+    public color: string,
+  ) {
     super(row, col, speedTilesPerSecond, initialDirection)
-
-    this.id = id
-    this.name = name
-    this.marker = marker
-    this.color = color
-    this.lastEatenPowerModeId = -1
-    this.isEaten = false
   }
 
   markEaten(baseSpeed: number, speedMultiplier = 1.6) {
@@ -810,16 +790,16 @@ const pacman = new Actor(pacmanStart.row, pacmanStart.col, BASE_PACMAN_SPEED)
 
 const ghosts: Ghost[] = ghostStarts.map(
   (start, index) =>
-    new Ghost({
-      id: index,
-      row: start.row,
-      col: start.col,
-      name: start.name,
-      marker: start.marker,
-      color: start.color,
-      speedTilesPerSecond: BASE_GHOST_SPEED,
-      initialDirection: index % 2 === 0 ? 'left' : 'right',
-    }),
+    new Ghost(
+      start.row,
+      start.col,
+      BASE_GHOST_SPEED,
+      index % 2 === 0 ? 'left' : 'right',
+      index,
+      start.name,
+      start.marker,
+      start.color,
+    ),
 )
 
 const getTile = (row: number, col: number): string => maze[row][col] ?? '◻'
