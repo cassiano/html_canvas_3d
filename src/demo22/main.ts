@@ -41,7 +41,10 @@ type DirectionVector = {
   dc: number
 }
 
-type Actor = {
+type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
+type GhostMarker = 'B' | 'H' | 'I' | 'C'
+
+class Actor {
   row: number
   col: number
   startRow: number
@@ -50,18 +53,122 @@ type Actor = {
   nextDir: DirectionName
   progress: number
   speedTilesPerSecond: number
+
+  constructor(
+    row: number,
+    col: number,
+    speedTilesPerSecond: number,
+    initialDirection: DirectionName = 'left',
+  ) {
+    this.row = row
+    this.col = col
+    this.startRow = row
+    this.startCol = col
+    this.dir = initialDirection
+    this.nextDir = initialDirection
+    this.progress = 0
+    this.speedTilesPerSecond = speedTilesPerSecond
+  }
+
+  reset(direction: DirectionName = 'left') {
+    this.row = this.startRow
+    this.col = this.startCol
+    this.progress = 0
+    this.dir = direction
+    this.nextDir = direction
+  }
+
+  positionInTiles(): { x: number; y: number } {
+    const vector = DIRECTIONS[this.dir]
+
+    return {
+      x: this.col + vector.dc * this.progress,
+      y: this.row + vector.dr * this.progress,
+    }
+  }
+
+  move(
+    deltaSeconds: number,
+    chooseDirectionAtCenter?: (actor: Actor) => DirectionName,
+  ) {
+    let travel = this.speedTilesPerSecond * deltaSeconds
+
+    while (travel > 0) {
+      if (this.progress === 0) {
+        if (chooseDirectionAtCenter) {
+          const selectedDirection = chooseDirectionAtCenter(this)
+
+          if (selectedDirection !== 'none') this.nextDir = selectedDirection
+        }
+
+        if (canMove(this.row, this.col, this.nextDir)) {
+          this.dir = this.nextDir
+        } else if (!canMove(this.row, this.col, this.dir)) {
+          this.dir = 'none'
+        }
+      }
+
+      if (this.dir === 'none') return
+
+      if (!canMove(this.row, this.col, this.dir)) {
+        this.progress = 0
+        this.dir = 'none'
+
+        return
+      }
+
+      const remainingToNextTile = 1 - this.progress
+      const step = min(remainingToNextTile, travel)
+
+      this.progress += step
+      travel -= step
+
+      if (this.progress >= 1) {
+        const target = nextCell(this.row, this.col, this.dir)
+
+        this.row = target.row
+        this.col = target.col
+        this.progress = 0
+      }
+    }
+  }
 }
 
-type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
-type GhostMarker = 'B' | 'H' | 'I' | 'C'
-
-type Ghost = Actor & {
+class Ghost extends Actor {
   id: number
   name: GhostName
   marker: GhostMarker
   color: string
   lastEatenPowerModeId: number
   isEaten: boolean
+
+  constructor({
+    id,
+    row,
+    col,
+    name,
+    marker,
+    color,
+    speedTilesPerSecond,
+    initialDirection,
+  }: {
+    id: number
+    row: number
+    col: number
+    name: GhostName
+    marker: GhostMarker
+    color: string
+    speedTilesPerSecond: number
+    initialDirection: DirectionName
+  }) {
+    super(row, col, speedTilesPerSecond, initialDirection)
+    this.id = id
+    this.name = name
+    this.marker = marker
+    this.color = color
+    this.lastEatenPowerModeId = -1
+    this.isEaten = false
+  }
 }
 
 type GameState = 'playing' | 'won' | 'gameOver'
@@ -563,34 +670,21 @@ const findAndClearGhostMarkers = (): {
 const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
 
-const createActor = (
-  row: number,
-  col: number,
-  speedTilesPerSecond: number,
-): Actor => ({
-  row,
-  col,
-  startRow: row,
-  startCol: col,
-  dir: 'left',
-  nextDir: 'left',
-  progress: 0,
-  speedTilesPerSecond,
-})
+const pacman = new Actor(pacmanStart.row, pacmanStart.col, BASE_PACMAN_SPEED)
 
-const pacman = createActor(pacmanStart.row, pacmanStart.col, BASE_PACMAN_SPEED)
-
-const ghosts: Ghost[] = ghostStarts.map((start, index) => ({
-  ...createActor(start.row, start.col, BASE_GHOST_SPEED),
-  id: index,
-  name: start.name,
-  marker: start.marker,
-  dir: index % 2 === 0 ? 'left' : 'right',
-  nextDir: index % 2 === 0 ? 'left' : 'right',
-  color: start.color,
-  lastEatenPowerModeId: -1,
-  isEaten: false,
-}))
+const ghosts: Ghost[] = ghostStarts.map(
+  (start, index) =>
+    new Ghost({
+      id: index,
+      row: start.row,
+      col: start.col,
+      name: start.name,
+      marker: start.marker,
+      color: start.color,
+      speedTilesPerSecond: BASE_GHOST_SPEED,
+      initialDirection: index % 2 === 0 ? 'left' : 'right',
+    }),
+)
 
 const getTile = (row: number, col: number): string => maze[row][col] ?? '◻'
 
@@ -739,22 +833,11 @@ const addScore = (points: number) => {
 
 highScore = loadHighScore()
 
-const resetActor = (actor: Actor) => {
-  actor.row = actor.startRow
-  actor.col = actor.startCol
-  actor.progress = 0
-  actor.dir = 'left'
-  actor.nextDir = 'left'
-}
-
 const resetRound = () => {
-  resetActor(pacman)
+  pacman.reset('left')
 
   ghosts.forEach((ghost, index) => {
-    resetActor(ghost)
-
-    ghost.dir = index % 2 === 0 ? 'left' : 'right'
-    ghost.nextDir = ghost.dir
+    ghost.reset(index % 2 === 0 ? 'left' : 'right')
     ghost.speedTilesPerSecond = BASE_GHOST_SPEED
     ghost.isEaten = false
   })
@@ -803,7 +886,7 @@ const getGhostChaseTarget = (
 
     if (!blinky) return pivot
 
-    const blinkyPos = actorPositionInTiles(blinky)
+    const blinkyPos = blinky.positionInTiles()
 
     return {
       row: pivot.row + (pivot.row - blinkyPos.y),
@@ -902,7 +985,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     const fleeWeight = 0.55 + powerRatio * 1.25
     const spacingWeight = 0.05 + powerRatio * 0.17
     const uncertaintyWeight = (1 - powerRatio) * 1.1
-    const pacmanPos = actorPositionInTiles(pacman)
+    const pacmanPos = pacman.positionInTiles()
     let fleeDirection = directions[0]
     let bestFleeScore = Number.NEGATIVE_INFINITY
 
@@ -916,7 +999,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
       const spacingBonus = ghosts
         .filter(other => other.id !== ghost.id)
         .reduce((bonus, other) => {
-          const otherPos = actorPositionInTiles(other)
+          const otherPos = other.positionInTiles()
           const dist =
             abs(target.row - otherPos.y) + abs(target.col - otherPos.x)
 
@@ -974,7 +1057,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     return directions[rotateIndex]
   }
 
-  const pacmanPos = actorPositionInTiles(pacman)
+  const pacmanPos = pacman.positionInTiles()
   const chaseTarget = getGhostChaseTarget(ghost, pacmanPos)
 
   let bestDirection = directions[0]
@@ -990,7 +1073,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     const crowdPenalty = ghosts
       .filter(other => other.id !== ghost.id)
       .reduce((penalty, other) => {
-        const otherPos = actorPositionInTiles(other)
+        const otherPos = other.positionInTiles()
         const dist = abs(target.row - otherPos.y) + abs(target.col - otherPos.x)
         const sameTilePenalty = dist < 0.35 ? 7 : 0
 
@@ -1059,7 +1142,7 @@ const chooseDemoPacmanDirection = (): DirectionName => {
       const collectibleBonus =
         nextTile === POWER_PELLET_MARKER ? -50 : nextTile === '.' ? -25 : 0
       const ghostThreat = ghosts.reduce((threat, ghost) => {
-        const ghostPos = actorPositionInTiles(ghost)
+        const ghostPos = ghost.positionInTiles()
         const distance = abs(next.row - ghostPos.y) + abs(next.col - ghostPos.x)
 
         if (powerModeRemainingMs > 0) return threat
@@ -1096,53 +1179,6 @@ const chooseDemoPacmanDirection = (): DirectionName => {
   return scoredDirections[0].dir
 }
 
-const moveActor = (
-  actor: Actor,
-  deltaSeconds: number,
-  chooseDirectionAtCenter?: (actor: Actor) => DirectionName,
-) => {
-  let travel = actor.speedTilesPerSecond * deltaSeconds
-
-  while (travel > 0) {
-    if (actor.progress === 0) {
-      if (chooseDirectionAtCenter) {
-        const selectedDirection = chooseDirectionAtCenter(actor)
-
-        if (selectedDirection !== 'none') actor.nextDir = selectedDirection
-      }
-
-      if (canMove(actor.row, actor.col, actor.nextDir)) {
-        actor.dir = actor.nextDir
-      } else if (!canMove(actor.row, actor.col, actor.dir)) {
-        actor.dir = 'none'
-      }
-    }
-
-    if (actor.dir === 'none') return
-
-    if (!canMove(actor.row, actor.col, actor.dir)) {
-      actor.progress = 0
-      actor.dir = 'none'
-
-      return
-    }
-
-    const remainingToNextTile = 1 - actor.progress
-    const step = min(remainingToNextTile, travel)
-
-    actor.progress += step
-    travel -= step
-
-    if (actor.progress >= 1) {
-      const target = nextCell(actor.row, actor.col, actor.dir)
-
-      actor.row = target.row
-      actor.col = target.col
-      actor.progress = 0
-    }
-  }
-}
-
 const consumePacmanTile = (isDemoMode = false) => {
   const tile = getTile(pacman.row, pacman.col)
 
@@ -1177,22 +1213,13 @@ const consumePacmanTile = (isDemoMode = false) => {
   }
 }
 
-const actorPositionInTiles = (actor: Actor): { x: number; y: number } => {
-  const vector = DIRECTIONS[actor.dir]
-
-  return {
-    x: actor.col + vector.dc * actor.progress,
-    y: actor.row + vector.dr * actor.progress,
-  }
-}
-
 const checkGhostCollisions = (isDemoMode = false) => {
-  const pacmanPos = actorPositionInTiles(pacman)
+  const pacmanPos = pacman.positionInTiles()
 
   ghosts.forEach(ghost => {
     if (ghost.isEaten) return
 
-    const ghostPos = actorPositionInTiles(ghost)
+    const ghostPos = ghost.positionInTiles()
     const dx = ghostPos.x - pacmanPos.x
     const dy = ghostPos.y - pacmanPos.y
     const distance = hypot(dx, dy)
@@ -1245,14 +1272,12 @@ const updateGame = (deltaSeconds: number) => {
 
     if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
 
-    moveActor(pacman, deltaSeconds, chooseDemoPacmanDirection)
+    pacman.move(deltaSeconds, chooseDemoPacmanDirection)
 
     consumePacmanTile(true)
 
     ghosts.forEach(ghost =>
-      moveActor(ghost, deltaSeconds, actor =>
-        chooseGhostDirection(actor as Ghost),
-      ),
+      ghost.move(deltaSeconds, actor => chooseGhostDirection(actor as Ghost)),
     )
 
     checkGhostCollisions(true)
@@ -1279,14 +1304,12 @@ const updateGame = (deltaSeconds: number) => {
     pacman.dir = pacman.nextDir
   }
 
-  moveActor(pacman, deltaSeconds)
+  pacman.move(deltaSeconds)
 
   consumePacmanTile()
 
   ghosts.forEach(ghost =>
-    moveActor(ghost, deltaSeconds, actor =>
-      chooseGhostDirection(actor as Ghost),
-    ),
+    ghost.move(deltaSeconds, actor => chooseGhostDirection(actor as Ghost)),
   )
 
   checkGhostCollisions()
@@ -1487,7 +1510,7 @@ const directionToAngle = (direction: DirectionName): number => {
 }
 
 const drawPacman = () => {
-  const position = actorPositionInTiles(pacman)
+  const position = pacman.positionInTiles()
   const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
   const radius = TILE_SIZE * PACMAN_RADIUS_RATIO
   const moving = pacman.dir !== 'none' && roundDelayRemainingMs <= 0
@@ -1541,7 +1564,7 @@ const drawPacman = () => {
 }
 
 const drawGhost = (ghost: Ghost) => {
-  const position = actorPositionInTiles(ghost)
+  const position = ghost.positionInTiles()
   const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
   const radius = TILE_SIZE * GHOST_RADIUS_RATIO
   const left = pixel.x - radius
