@@ -752,6 +752,7 @@ const resetRound = () => {
 
   ghosts.forEach((ghost, index) => {
     resetActor(ghost)
+
     ghost.dir = index % 2 === 0 ? 'left' : 'right'
     ghost.nextDir = ghost.dir
     ghost.speedTilesPerSecond = BASE_GHOST_SPEED
@@ -1244,7 +1245,7 @@ const updateGame = (deltaSeconds: number) => {
 
     if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
 
-    moveActor(pacman, deltaSeconds, () => chooseDemoPacmanDirection())
+    moveActor(pacman, deltaSeconds, chooseDemoPacmanDirection)
 
     consumePacmanTile(true)
 
