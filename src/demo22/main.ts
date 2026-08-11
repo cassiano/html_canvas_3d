@@ -265,6 +265,51 @@ class Ghost extends Actor {
       stepKey = `${step.row},${step.col}`
     }
   }
+
+  getChaseTarget(
+    pacmanPos: { x: number; y: number },
+    pacmanFacing: DirectionVector,
+    ghosts: Ghost[],
+  ): { row: number; col: number } {
+    if (this.name === 'Blinky') {
+      return { row: pacmanPos.y, col: pacmanPos.x }
+    }
+
+    if (this.name === 'Pinky') {
+      return {
+        row: pacmanPos.y + pacmanFacing.dr * PINKY_LOOKAHEAD_TILES,
+        col: pacmanPos.x + pacmanFacing.dc * PINKY_LOOKAHEAD_TILES,
+      }
+    }
+
+    if (this.name === 'Inky') {
+      const pivot = {
+        row: pacmanPos.y + pacmanFacing.dr * INKY_LOOKAHEAD_TILES,
+        col: pacmanPos.x + pacmanFacing.dc * INKY_LOOKAHEAD_TILES,
+      }
+      const blinky = ghosts.find(candidate => candidate.name === 'Blinky')
+
+      if (!blinky) return pivot
+
+      const blinkyPos = blinky.positionInTiles()
+
+      return {
+        row: pivot.row + (pivot.row - blinkyPos.y),
+        col: pivot.col + (pivot.col - blinkyPos.x),
+      }
+    }
+
+    // Clyde alternates between chase and scatter depending on distance to Pac-Man.
+    const dr = pacmanPos.y - this.row
+    const dc = pacmanPos.x - this.col
+    const manhattanDistance = abs(dr) + abs(dc)
+
+    if (manhattanDistance <= CLYDE_SHY_DISTANCE_TILES) {
+      return getClydeScatterTarget()
+    }
+
+    return { row: pacmanPos.y, col: pacmanPos.x }
+  }
 }
 
 type GameState = 'playing' | 'won' | 'gameOver'
@@ -922,53 +967,6 @@ const resetRound = () => {
 const getPacmanFacing = (): DirectionName =>
   pacman.dir !== 'none' ? pacman.dir : pacman.nextDir
 
-const getGhostChaseTarget = (
-  ghost: Ghost,
-  pacmanPos: { x: number; y: number },
-): { row: number; col: number } => {
-  if (ghost.name === 'Blinky') {
-    return { row: pacmanPos.y, col: pacmanPos.x }
-  }
-
-  if (ghost.name === 'Pinky') {
-    const facing = DIRECTIONS[getPacmanFacing()]
-
-    return {
-      row: pacmanPos.y + facing.dr * PINKY_LOOKAHEAD_TILES,
-      col: pacmanPos.x + facing.dc * PINKY_LOOKAHEAD_TILES,
-    }
-  }
-
-  if (ghost.name === 'Inky') {
-    const facing = DIRECTIONS[getPacmanFacing()]
-    const pivot = {
-      row: pacmanPos.y + facing.dr * INKY_LOOKAHEAD_TILES,
-      col: pacmanPos.x + facing.dc * INKY_LOOKAHEAD_TILES,
-    }
-    const blinky = ghosts.find(candidate => candidate.name === 'Blinky')
-
-    if (!blinky) return pivot
-
-    const blinkyPos = blinky.positionInTiles()
-
-    return {
-      row: pivot.row + (pivot.row - blinkyPos.y),
-      col: pivot.col + (pivot.col - blinkyPos.x),
-    }
-  }
-
-  // Clyde alternates between chase and scatter depending on distance to Pac-Man.
-  const dr = pacmanPos.y - ghost.row
-  const dc = pacmanPos.x - ghost.col
-  const manhattanDistance = abs(dr) + abs(dc)
-
-  if (manhattanDistance <= CLYDE_SHY_DISTANCE_TILES) {
-    return getClydeScatterTarget()
-  }
-
-  return { row: pacmanPos.y, col: pacmanPos.x }
-}
-
 const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   if (ghost.isEaten) {
     const target = getGhostHouseCenterTarget()
@@ -1074,7 +1072,11 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   }
 
   const pacmanPos = pacman.positionInTiles()
-  const chaseTarget = getGhostChaseTarget(ghost, pacmanPos)
+  const chaseTarget = ghost.getChaseTarget(
+    pacmanPos,
+    DIRECTIONS[getPacmanFacing()],
+    ghosts,
+  )
 
   let bestDirection = directions[0]
   let bestScore = Number.POSITIVE_INFINITY
