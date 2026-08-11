@@ -1528,13 +1528,13 @@ const drawPacman = () => {
   )
 
   const eyeX = centerX + look.dc * radius * 0.22 - look.dr * radius * 0.24
-  const eyeY = centerY + look.dr * radius * 0.22 + look.dc * radius * 0.24
+  const eyeY = centerY + look.dr * radius * 0.42 + look.dc * radius * 0.44
 
   drawCirclePixel(eyeX, eyeY, radius * 0.12, { color: '#f9fcff' })
   drawCirclePixel(
     eyeX + look.dc * radius * 0.03,
     eyeY + look.dr * radius * 0.03,
-    radius * 0.065,
+    radius * 0.09,
     { color: '#16223a' },
   )
 }
