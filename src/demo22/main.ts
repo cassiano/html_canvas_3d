@@ -1634,7 +1634,7 @@ const drawHud = () => {
     textAlign: 'left',
     textBaseline: 'middle',
   })
-  text2d(`Hi Score: ${highScore}`, toWorldPoint(20, 78), '#f4f4f4', {
+  text2d(`High Score: ${highScore}`, toWorldPoint(20, 78), '#f4f4f4', {
     fontSize: 18,
     fontFamily: 'monospace',
     fontWeight: 'bold',
