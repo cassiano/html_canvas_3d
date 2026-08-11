@@ -22,7 +22,7 @@ import {
   sin,
   hypot,
 } from '../math_utils.ts'
-import { $v } from '../vector_3d.ts'
+import { $v, Vector3d } from '../vector_3d.ts'
 import {
   line,
   isolateTransformations,
@@ -72,26 +72,23 @@ class Actor {
     this.nextDir = direction
   }
 
-  positionInTiles(): { x: number; y: number } {
+  positionInTiles(): Vector3d {
     const vector = DIRECTIONS[this.dir]
 
-    return {
-      x: this.col + vector.dc * this.progress,
-      y: this.row + vector.dr * this.progress,
-    }
+    return $v(
+      this.col + vector.dc * this.progress,
+      this.row + vector.dr * this.progress,
+    )
   }
 
   static nextCell(
     row: number,
     col: number,
     direction: DirectionName,
-  ): { row: number; col: number } {
+  ): Vector3d {
     const vector = DIRECTIONS[direction]
 
-    return {
-      row: row + vector.dr,
-      col: wrapCol(col + vector.dc),
-    }
+    return $v(wrapCol(col + vector.dc), row + vector.dr)
   }
 
   static canMove(row: number, col: number, direction: DirectionName): boolean {
@@ -99,7 +96,7 @@ class Actor {
 
     const target = Actor.nextCell(row, col, direction)
 
-    return !isWall(target.row, target.col)
+    return !isWall(target.y, target.x)
   }
 
   canMoveTo(direction: DirectionName): boolean {
@@ -145,8 +142,8 @@ class Actor {
       if (this.progress >= 1) {
         const target = Actor.nextCell(this.row, this.col, this.dir)
 
-        this.row = target.row
-        this.col = target.col
+        this.row = target.y
+        this.col = target.x
         this.progress = 0
       }
     }
@@ -186,18 +183,18 @@ class Ghost extends Actor {
   }
 
   tryReviveAt(
-    target: { row: number; col: number },
+    target: Vector3d,
     direction: DirectionName = 'left',
     speed = BASE_GHOST_SPEED,
   ): boolean {
-    if (this.row !== target.row || this.col !== target.col) return false
+    if (this.row !== target.y || this.col !== target.x) return false
 
     this.revive(direction, speed)
 
     return true
   }
 
-  nextDirectionToTarget(target: { row: number; col: number }): DirectionName {
+  nextDirectionToTarget(target: Vector3d): DirectionName {
     const queue: { row: number; col: number }[] = [
       { row: this.row, col: this.col },
     ]
@@ -210,22 +207,22 @@ class Ghost extends Actor {
     while (queue.length > 0) {
       const current = queue.shift()!
 
-      if (current.row === target.row && current.col === target.col) break
+      if (current.row === target.y && current.col === target.x) break
       ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
         if (dir === 'none') return
 
         const next = Actor.nextCell(current.row, current.col, dir)
-        const key = `${next.row},${next.col}`
+        const key = `${next.y},${next.x}`
 
-        if (visited.has(key) || isWall(next.row, next.col)) return
+        if (visited.has(key) || isWall(next.y, next.x)) return
 
         visited.add(key)
         previous.set(key, { row: current.row, col: current.col, dir })
-        queue.push(next)
+        queue.push({ row: next.y, col: next.x })
       })
     }
 
-    const targetKey = `${target.row},${target.col}`
+    const targetKey = `${target.y},${target.x}`
 
     if (!previous.has(targetKey)) return 'none'
 
@@ -242,36 +239,36 @@ class Ghost extends Actor {
   }
 
   getChaseTarget(
-    pacmanPos: { x: number; y: number },
+    pacmanPos: Vector3d,
     pacmanFacing: DirectionVector,
     ghosts: Ghost[],
-  ): { row: number; col: number } {
+  ): Vector3d {
     if (this.name === 'Blinky') {
-      return { row: pacmanPos.y, col: pacmanPos.x }
+      return $v(pacmanPos.x, pacmanPos.y)
     }
 
     if (this.name === 'Pinky') {
-      return {
-        row: pacmanPos.y + pacmanFacing.dr * PINKY_LOOKAHEAD_TILES,
-        col: pacmanPos.x + pacmanFacing.dc * PINKY_LOOKAHEAD_TILES,
-      }
+      return $v(
+        pacmanPos.x + pacmanFacing.dc * PINKY_LOOKAHEAD_TILES,
+        pacmanPos.y + pacmanFacing.dr * PINKY_LOOKAHEAD_TILES,
+      )
     }
 
     if (this.name === 'Inky') {
-      const pivot = {
-        row: pacmanPos.y + pacmanFacing.dr * INKY_LOOKAHEAD_TILES,
-        col: pacmanPos.x + pacmanFacing.dc * INKY_LOOKAHEAD_TILES,
-      }
+      const pivot = $v(
+        pacmanPos.x + pacmanFacing.dc * INKY_LOOKAHEAD_TILES,
+        pacmanPos.y + pacmanFacing.dr * INKY_LOOKAHEAD_TILES,
+      )
       const blinky = ghosts.find(candidate => candidate.name === 'Blinky')
 
       if (!blinky) return pivot
 
       const blinkyPos = blinky.positionInTiles()
 
-      return {
-        row: pivot.row + (pivot.row - blinkyPos.y),
-        col: pivot.col + (pivot.col - blinkyPos.x),
-      }
+      return $v(
+        pivot.x + (pivot.x - blinkyPos.x),
+        pivot.y + (pivot.y - blinkyPos.y),
+      )
     }
 
     // Clyde alternates between chase and scatter depending on distance to Pac-Man.
@@ -283,7 +280,7 @@ class Ghost extends Actor {
       return getClydeScatterTarget()
     }
 
-    return { row: pacmanPos.y, col: pacmanPos.x }
+    return $v(pacmanPos.x, pacmanPos.y)
   }
 }
 
@@ -324,21 +321,20 @@ const PINKY_LOOKAHEAD_TILES = 4
 const INKY_LOOKAHEAD_TILES = 2
 const CLYDE_SHY_DISTANCE_TILES = 8
 
-const getClydeScatterTarget = () => ({ row: ROW_COUNT - 2, col: 1 })
-const getGhostHouseCenterTarget = () => ({
-  row:
-    ghostStarts.find(ghost => ghost.name === 'Pinky')?.row ??
-    floor(
-      ghostStarts.reduce((sum, ghost) => sum + ghost.row, 0) /
-        ghostStarts.length,
-    ),
-  col:
+const getClydeScatterTarget = (): Vector3d => $v(1, ROW_COUNT - 2)
+const getGhostHouseCenterTarget = (): Vector3d =>
+  $v(
     ghostStarts.find(ghost => ghost.name === 'Pinky')?.col ??
-    floor(
-      ghostStarts.reduce((sum, ghost) => sum + ghost.col, 0) /
-        ghostStarts.length,
-    ),
-})
+      floor(
+        ghostStarts.reduce((sum, ghost) => sum + ghost.col, 0) /
+          ghostStarts.length,
+      ),
+    ghostStarts.find(ghost => ghost.name === 'Pinky')?.row ??
+      floor(
+        ghostStarts.reduce((sum, ghost) => sum + ghost.row, 0) /
+          ghostStarts.length,
+      ),
+  )
 
 let audioContext: AudioContext | null = null
 let masterGain: GainNode | null = null
@@ -980,8 +976,8 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
 
     directions.forEach(dir => {
       const target = Actor.nextCell(ghost.row, ghost.col, dir)
-      const dr = target.row - pacmanPos.y
-      const dc = target.col - pacmanPos.x
+      const dr = target.y - pacmanPos.y
+      const dc = target.x - pacmanPos.x
       const fleeDistance = abs(dr) + abs(dc)
 
       // Slightly spread frightened ghosts so they don't bunch up while fleeing.
@@ -989,8 +985,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
         .filter(other => other.id !== ghost.id)
         .reduce((bonus, other) => {
           const otherPos = other.positionInTiles()
-          const dist =
-            abs(target.row - otherPos.y) + abs(target.col - otherPos.x)
+          const dist = abs(target.y - otherPos.y) + abs(target.x - otherPos.x)
 
           return bonus + dist
         }, 0)
@@ -1058,8 +1053,8 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
 
   directions.forEach(dir => {
     const target = Actor.nextCell(ghost.row, ghost.col, dir)
-    const dr = target.row - chaseTarget.row
-    const dc = target.col - chaseTarget.col
+    const dr = target.y - chaseTarget.y
+    const dc = target.x - chaseTarget.x
     const chaseDistance = abs(dr) + abs(dc)
 
     // Penalize candidate directions that keep ghosts clustered.
@@ -1067,7 +1062,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
       .filter(other => other.id !== ghost.id)
       .reduce((penalty, other) => {
         const otherPos = other.positionInTiles()
-        const dist = abs(target.row - otherPos.y) + abs(target.col - otherPos.x)
+        const dist = abs(target.y - otherPos.y) + abs(target.x - otherPos.x)
         const sameTilePenalty = dist < 0.35 ? 7 : 0
 
         return penalty + 1 / (dist + 0.45) + sameTilePenalty
@@ -1127,16 +1122,13 @@ const chooseDemoPacmanDirection = (): DirectionName => {
   const scoredDirections = directions
     .map(dir => {
       const next = Actor.nextCell(pacman.row, pacman.col, dir)
-      const nextTile = getTile(next.row, next.col)
-      const collectibleDistance = getClosestCollectibleDistance(
-        next.row,
-        next.col,
-      )
+      const nextTile = getTile(next.y, next.x)
+      const collectibleDistance = getClosestCollectibleDistance(next.y, next.x)
       const collectibleBonus =
         nextTile === POWER_PELLET_MARKER ? -50 : nextTile === '.' ? -25 : 0
       const ghostThreat = ghosts.reduce((threat, ghost) => {
         const ghostPos = ghost.positionInTiles()
-        const distance = abs(next.row - ghostPos.y) + abs(next.col - ghostPos.x)
+        const distance = abs(next.y - ghostPos.y) + abs(next.x - ghostPos.x)
 
         if (powerModeRemainingMs > 0) return threat
 
@@ -1321,7 +1313,7 @@ const tileToPixel = (
 }
 
 const toWorldPoint = (x: number, y: number) =>
-  $v(x - animation.width / 2, animation.height / 2 - y, 0)
+  $v(x - animation.width / 2, animation.height / 2 - y)
 
 const drawLinePixel = (
   x1: number,
