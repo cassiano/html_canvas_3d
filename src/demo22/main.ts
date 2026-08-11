@@ -1449,7 +1449,7 @@ const drawPacman = () => {
     toWorldPoint(centerX, centerY),
     toWorldPoint(mouthA.x, mouthA.y),
     toWorldPoint(mouthB.x, mouthB.y),
-    { color: 'black', noStroke: true },
+    { color: 'black', noStroke: true, isDoubleSided: true },
   )
 
   const eyeX = centerX + look.dc * radius * 0.22 - look.dr * radius * 0.24
