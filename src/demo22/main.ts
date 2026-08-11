@@ -103,12 +103,18 @@ const CLYDE_SHY_DISTANCE_TILES = 8
 
 const getClydeScatterTarget = () => ({ row: ROW_COUNT - 2, col: 1 })
 const getGhostHouseCenterTarget = () => ({
-  row: floor(
-    ghostStarts.reduce((sum, ghost) => sum + ghost.row, 0) / ghostStarts.length,
-  ),
-  col: floor(
-    ghostStarts.reduce((sum, ghost) => sum + ghost.col, 0) / ghostStarts.length,
-  ),
+  row:
+    ghostStarts.find(ghost => ghost.name === 'Pinky')?.row ??
+    floor(
+      ghostStarts.reduce((sum, ghost) => sum + ghost.row, 0) /
+        ghostStarts.length,
+    ),
+  col:
+    ghostStarts.find(ghost => ghost.name === 'Pinky')?.col ??
+    floor(
+      ghostStarts.reduce((sum, ghost) => sum + ghost.col, 0) /
+        ghostStarts.length,
+    ),
 })
 
 let audioContext: AudioContext | null = null
@@ -1546,7 +1552,9 @@ const drawGhost = (ghost: Ghost) => {
   const eyeRadius = radius * 0.33
   const pupilRadius = radius * 0.15
   const lookDirection = DIRECTIONS[ghost.dir]
-  const frightened = powerModeRemainingMs > 0
+  const frightened =
+    powerModeRemainingMs > 0 &&
+    ghost.lastEatenPowerModeId !== currentPowerModeId
   const bodyColor = frightened ? '#2f6eff' : ghost.color
 
   if (ghost.isEaten) {
