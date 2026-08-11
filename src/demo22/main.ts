@@ -209,6 +209,62 @@ class Ghost extends Actor {
     this.dir = direction
     this.nextDir = direction
   }
+
+  tryReviveAt(
+    target: { row: number; col: number },
+    direction: DirectionName = 'left',
+    speed = BASE_GHOST_SPEED,
+  ): boolean {
+    if (this.row !== target.row || this.col !== target.col) return false
+
+    this.revive(direction, speed)
+
+    return true
+  }
+
+  nextDirectionToTarget(target: { row: number; col: number }): DirectionName {
+    const queue: { row: number; col: number }[] = [
+      { row: this.row, col: this.col },
+    ]
+    const visited = new Set<string>([`${this.row},${this.col}`])
+    const previous = new Map<
+      string,
+      { row: number; col: number; dir: DirectionName }
+    >()
+
+    while (queue.length > 0) {
+      const current = queue.shift()!
+
+      if (current.row === target.row && current.col === target.col) break
+      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
+        if (dir === 'none') return
+
+        const next = Actor.nextCell(current.row, current.col, dir)
+        const key = `${next.row},${next.col}`
+
+        if (visited.has(key) || isWall(next.row, next.col)) return
+
+        visited.add(key)
+        previous.set(key, { row: current.row, col: current.col, dir })
+        queue.push(next)
+      })
+    }
+
+    const targetKey = `${target.row},${target.col}`
+
+    if (!previous.has(targetKey)) return 'none'
+
+    let stepKey = targetKey
+
+    while (true) {
+      const step = previous.get(stepKey)
+
+      if (!step) return 'none'
+      if (step.row === this.row && step.col === this.col) return step.dir
+
+      stepKey = `${step.row},${step.col}`
+    }
+  }
 }
 
 type GameState = 'playing' | 'won' | 'gameOver'
@@ -917,53 +973,9 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   if (ghost.isEaten) {
     const target = getGhostHouseCenterTarget()
 
-    if (ghost.row === target.row && ghost.col === target.col) {
-      ghost.revive('left', BASE_GHOST_SPEED)
+    if (ghost.tryReviveAt(target, 'left', BASE_GHOST_SPEED)) return 'none'
 
-      return 'none'
-    }
-
-    const queue: { row: number; col: number }[] = [
-      { row: ghost.row, col: ghost.col },
-    ]
-    const visited = new Set<string>([`${ghost.row},${ghost.col}`])
-    const previous = new Map<
-      string,
-      { row: number; col: number; dir: DirectionName }
-    >()
-
-    while (queue.length > 0) {
-      const current = queue.shift()!
-
-      if (current.row === target.row && current.col === target.col) break
-      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
-        if (dir === 'none') return
-
-        const next = Actor.nextCell(current.row, current.col, dir)
-        const key = `${next.row},${next.col}`
-
-        if (visited.has(key) || isWall(next.row, next.col)) return
-
-        visited.add(key)
-        previous.set(key, { row: current.row, col: current.col, dir })
-        queue.push(next)
-      })
-    }
-
-    const targetKey = `${target.row},${target.col}`
-
-    if (!previous.has(targetKey)) return 'none'
-
-    let stepKey = targetKey
-
-    while (true) {
-      const step = previous.get(stepKey)
-
-      if (!step) return 'none'
-      if (step.row === ghost.row && step.col === ghost.col) return step.dir
-
-      stepKey = `${step.row},${step.col}`
-    }
+    return ghost.nextDirectionToTarget(target)
   }
 
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
