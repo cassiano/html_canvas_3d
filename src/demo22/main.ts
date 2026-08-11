@@ -61,6 +61,7 @@ type Ghost = Actor & {
   marker: GhostMarker
   color: string
   lastEatenPowerModeId: number
+  isEaten: boolean
 }
 
 type GameState = 'playing' | 'won' | 'gameOver'
@@ -101,6 +102,14 @@ const INKY_LOOKAHEAD_TILES = 2
 const CLYDE_SHY_DISTANCE_TILES = 8
 
 const getClydeScatterTarget = () => ({ row: ROW_COUNT - 2, col: 1 })
+const getGhostHouseCenterTarget = () => ({
+  row: floor(
+    ghostStarts.reduce((sum, ghost) => sum + ghost.row, 0) / ghostStarts.length,
+  ),
+  col: floor(
+    ghostStarts.reduce((sum, ghost) => sum + ghost.col, 0) / ghostStarts.length,
+  ),
+})
 
 let audioContext: AudioContext | null = null
 let masterGain: GainNode | null = null
@@ -574,6 +583,7 @@ const ghosts: Ghost[] = ghostStarts.map((start, index) => ({
   nextDir: index % 2 === 0 ? 'left' : 'right',
   color: start.color,
   lastEatenPowerModeId: -1,
+  isEaten: false,
 }))
 
 const getTile = (row: number, col: number): string => maze[row][col] ?? '◻'
@@ -738,6 +748,8 @@ const resetRound = () => {
     resetActor(ghost)
     ghost.dir = index % 2 === 0 ? 'left' : 'right'
     ghost.nextDir = ghost.dir
+    ghost.speedTilesPerSecond = BASE_GHOST_SPEED
+    ghost.isEaten = false
   })
 
   powerModeRemainingMs = 0
@@ -747,11 +759,11 @@ const resetRound = () => {
 }
 
 const resetGhost = (ghost: Ghost) => {
-  ghost.row = ghost.startRow
-  ghost.col = ghost.startCol
   ghost.progress = 0
-  ghost.dir = 'left'
-  ghost.nextDir = 'left'
+  ghost.dir = 'none'
+  ghost.nextDir = 'none'
+  ghost.speedTilesPerSecond = BASE_GHOST_SPEED * 1.6
+  ghost.isEaten = true
 }
 
 const getPacmanFacing = (): DirectionName =>
@@ -805,6 +817,61 @@ const getGhostChaseTarget = (
 }
 
 const chooseGhostDirection = (ghost: Ghost): DirectionName => {
+  if (ghost.isEaten) {
+    const target = getGhostHouseCenterTarget()
+
+    if (ghost.row === target.row && ghost.col === target.col) {
+      ghost.isEaten = false
+      ghost.speedTilesPerSecond = BASE_GHOST_SPEED
+      ghost.dir = 'left'
+      ghost.nextDir = 'left'
+
+      return 'none'
+    }
+
+    const queue: { row: number; col: number }[] = [
+      { row: ghost.row, col: ghost.col },
+    ]
+    const visited = new Set<string>([`${ghost.row},${ghost.col}`])
+    const previous = new Map<
+      string,
+      { row: number; col: number; dir: DirectionName }
+    >()
+
+    while (queue.length > 0) {
+      const current = queue.shift()!
+
+      if (current.row === target.row && current.col === target.col) break
+      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
+        if (dir === 'none') return
+
+        const next = nextCell(current.row, current.col, dir)
+        const key = `${next.row},${next.col}`
+
+        if (visited.has(key) || isWall(next.row, next.col)) return
+
+        visited.add(key)
+        previous.set(key, { row: current.row, col: current.col, dir })
+        queue.push(next)
+      })
+    }
+
+    const targetKey = `${target.row},${target.col}`
+
+    if (!previous.has(targetKey)) return 'none'
+
+    let stepKey = targetKey
+
+    while (true) {
+      const step = previous.get(stepKey)
+
+      if (!step) return 'none'
+      if (step.row === ghost.row && step.col === ghost.col) return step.dir
+
+      stepKey = `${step.row},${step.col}`
+    }
+  }
+
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
     dir => {
       if (dir === 'none') return false
@@ -1116,6 +1183,8 @@ const checkGhostCollisions = (isDemoMode = false) => {
   const pacmanPos = actorPositionInTiles(pacman)
 
   ghosts.forEach(ghost => {
+    if (ghost.isEaten) return
+
     const ghostPos = actorPositionInTiles(ghost)
     const dx = ghostPos.x - pacmanPos.x
     const dy = ghostPos.y - pacmanPos.y
@@ -1479,6 +1548,30 @@ const drawGhost = (ghost: Ghost) => {
   const lookDirection = DIRECTIONS[ghost.dir]
   const frightened = powerModeRemainingMs > 0
   const bodyColor = frightened ? '#2f6eff' : ghost.color
+
+  if (ghost.isEaten) {
+    drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+      color: 'white',
+    })
+    drawCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+      color: 'white',
+    })
+
+    drawCirclePixel(
+      pixel.x - eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
+      pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+      pupilRadius,
+      { color: '#111' },
+    )
+    drawCirclePixel(
+      pixel.x + eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
+      pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+      pupilRadius,
+      { color: '#111' },
+    )
+
+    return
+  }
 
   drawCirclePixel(pixel.x, top + radius, radius, {
     color: bodyColor,
