@@ -194,6 +194,21 @@ class Ghost extends Actor {
     this.lastEatenPowerModeId = -1
     this.isEaten = false
   }
+
+  markEaten(baseSpeed: number, speedMultiplier = 1.6) {
+    this.progress = 0
+    this.dir = 'none'
+    this.nextDir = 'none'
+    this.speedTilesPerSecond = baseSpeed * speedMultiplier
+    this.isEaten = true
+  }
+
+  revive(direction: DirectionName = 'left', speed = BASE_GHOST_SPEED) {
+    this.isEaten = false
+    this.speedTilesPerSecond = speed
+    this.dir = direction
+    this.nextDir = direction
+  }
 }
 
 type GameState = 'playing' | 'won' | 'gameOver'
@@ -848,14 +863,6 @@ const resetRound = () => {
   roundDelayRemainingMs = ROUND_START_DELAY_MS
 }
 
-const resetGhost = (ghost: Ghost) => {
-  ghost.progress = 0
-  ghost.dir = 'none'
-  ghost.nextDir = 'none'
-  ghost.speedTilesPerSecond = BASE_GHOST_SPEED * 1.6
-  ghost.isEaten = true
-}
-
 const getPacmanFacing = (): DirectionName =>
   pacman.dir !== 'none' ? pacman.dir : pacman.nextDir
 
@@ -911,10 +918,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     const target = getGhostHouseCenterTarget()
 
     if (ghost.row === target.row && ghost.col === target.col) {
-      ghost.isEaten = false
-      ghost.speedTilesPerSecond = BASE_GHOST_SPEED
-      ghost.dir = 'left'
-      ghost.nextDir = 'left'
+      ghost.revive('left', BASE_GHOST_SPEED)
 
       return 'none'
     }
@@ -1230,7 +1234,7 @@ const checkGhostCollisions = (isDemoMode = false) => {
       if (ghost.lastEatenPowerModeId === currentPowerModeId) return
 
       ghost.lastEatenPowerModeId = currentPowerModeId
-      resetGhost(ghost)
+      ghost.markEaten(BASE_GHOST_SPEED)
       if (!isDemoMode) addScore(GHOST_EATEN_BASE_SCORE * 2 ** ghostCombo)
       ghostCombo++
       if (!isDemoMode) playGhostEaten()
@@ -1297,10 +1301,7 @@ const updateGame = (deltaSeconds: number) => {
 
   if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
 
-  if (
-    pacman.canMoveTo(pacman.nextDir) &&
-    pacman.progress === 0
-  ) {
+  if (pacman.canMoveTo(pacman.nextDir) && pacman.progress === 0) {
     pacman.dir = pacman.nextDir
   }
 
