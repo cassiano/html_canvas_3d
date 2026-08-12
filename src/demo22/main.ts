@@ -1026,11 +1026,9 @@ function setTile(position: Vector3d, value: string): void {
 }
 
 const resetMazeFromTemplate = () => {
-  for (let row = 0; row < ROW_COUNT; row++) {
-    for (let col = 0; col < COLUMN_COUNT; col++) {
-      maze[row][col] = MAZE_TEMPLATE[row][col]
-    }
-  }
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
+    maze[row][col] = MAZE_TEMPLATE[row][col]
+  })
 
   findAndClearMarker(PACMAN_MARKER)
   findAndClearGhostMarkers()
@@ -1102,13 +1100,11 @@ const wrapCol = (col: number): number => {
 const countRemainingPellets = (): number => {
   let count = 0
 
-  for (let row = 0; row < ROW_COUNT; row++) {
-    for (let col = 0; col < COLUMN_COUNT; col++) {
-      const tile = getTile($v(col, row))
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
+    const tile = getTile($v(col, row))
 
-      if (tile === PELLET_MARKER || tile === POWER_PELLET_MARKER) count++
-    }
-  }
+    if (tile === PELLET_MARKER || tile === POWER_PELLET_MARKER) count++
+  })
 
   return count
 }
@@ -1335,23 +1331,20 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
 const getClosestCollectibleDistance = (position: Vector3d): number => {
   let bestDistance = Number.POSITIVE_INFINITY
 
-  for (let targetRow = 0; targetRow < ROW_COUNT; targetRow++) {
-    for (let targetCol = 0; targetCol < COLUMN_COUNT; targetCol++) {
-      const tile = getTile($v(targetCol, targetRow))
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], (targetCol, targetRow) => {
+    const tile = getTile($v(targetCol, targetRow))
 
-      if (
-        tile !== PELLET_MARKER &&
-        tile !== POWER_PELLET_MARKER &&
-        tile !== CHERRY_MARKER
-      ) {
-        continue
-      }
+    if (
+      tile !== PELLET_MARKER &&
+      tile !== POWER_PELLET_MARKER &&
+      tile !== CHERRY_MARKER
+    )
+      return
 
-      const distance = abs(position.y - targetRow) + abs(position.x - targetCol)
+    const distance = abs(position.y - targetRow) + abs(position.x - targetCol)
 
-      if (distance < bestDistance) bestDistance = distance
-    }
-  }
+    if (distance < bestDistance) bestDistance = distance
+  })
 
   return bestDistance
 }
@@ -1668,7 +1661,7 @@ const drawStrokeRectPixel = (
 }
 
 const drawMaze = () => {
-  timesForEachN([ROW_COUNT, COLUMN_COUNT], (row, col) => {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
     const tile = getTile($v(col, row))
     const pixel = tileToPixel(col, row)
 
