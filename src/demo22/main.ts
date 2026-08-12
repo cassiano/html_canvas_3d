@@ -34,7 +34,7 @@ type DirectionVector = {
 type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
 type GhostMarker = 'B' | 'H' | 'I' | 'C'
 
-class Actor {
+abstract class Actor {
   startPosition: Vector3d
   dir: DirectionName
   nextDir: DirectionName
@@ -128,6 +128,64 @@ class Actor {
         this.progress = 0
       }
     }
+  }
+
+  abstract draw(): void
+}
+
+class Pacman extends Actor {
+  draw() {
+    const position = this.positionInTiles()
+    const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
+    const radius = TILE_SIZE * PACMAN_RADIUS_RATIO
+    const moving = this.dir !== 'none' && roundDelayRemainingMs <= 0
+    const facingDirection = this.dir !== 'none' ? this.dir : this.nextDir
+    const chompPhase = abs(sin(millis() / 88))
+    const mouth = moving ? 0.1 + 0.28 * chompPhase : 0.04
+    const angle = directionToAngle(facingDirection)
+    const look = DIRECTIONS[facingDirection]
+    const bob = moving ? sin(millis() / 140) * radius * 0.05 : 0
+    const centerX = pixel.x
+    const centerY = pixel.y + bob
+
+    drawCirclePixel(centerX, centerY + radius * 0.95, radius * 0.28, {
+      color: 'rgba(0, 0, 0, 0.22)',
+      noStroke: true,
+    })
+
+    drawCirclePixel(centerX, centerY, radius, {
+      color: '#ffd847',
+      strokeColor: '#cf9300',
+      lineWidth: 1.4,
+      noStroke: false,
+    })
+
+    const mouthA = {
+      x: centerX + radius * 1.1 * cos(angle + mouth),
+      y: centerY + radius * 1.1 * sin(angle + mouth),
+    }
+    const mouthB = {
+      x: centerX + radius * 1.1 * cos(angle - mouth),
+      y: centerY + radius * 1.1 * sin(angle - mouth),
+    }
+
+    triangle2d(
+      toWorldPoint(centerX, centerY),
+      toWorldPoint(mouthA.x, mouthA.y),
+      toWorldPoint(mouthB.x, mouthB.y),
+      { color: 'black', noStroke: true, isDoubleSided: true },
+    )
+
+    const eyeX = centerX + look.dc * radius * 0.22 - look.dr * radius * 0.24
+    const eyeY = centerY + look.dr * radius * 0.42 + look.dc * radius * 0.44
+
+    drawCirclePixel(eyeX, eyeY, radius * 0.12, { color: '#f9fcff' })
+    drawCirclePixel(
+      eyeX + look.dc * radius * 0.03,
+      eyeY + look.dr * radius * 0.03,
+      radius * 0.09,
+      { color: '#16223a' },
+    )
   }
 }
 
@@ -261,6 +319,86 @@ class Ghost extends Actor {
     }
 
     return $v(pacmanPos.x, pacmanPos.y)
+  }
+
+  draw() {
+    const position = this.positionInTiles()
+    const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
+    const radius = TILE_SIZE * GHOST_RADIUS_RATIO
+    const left = pixel.x - radius
+    const top = pixel.y - radius
+    const right = pixel.x + radius
+    const bottom = pixel.y + radius
+    const eyeOffsetX = radius * 0.35
+    const eyeOffsetY = radius * 0.2
+    const eyeRadius = radius * 0.33
+    const pupilRadius = radius * 0.15
+    const lookDirection = DIRECTIONS[this.dir]
+    const frightened =
+      powerModeRemainingMs > 0 &&
+      this.lastEatenPowerModeId !== currentPowerModeId
+    const bodyColor = frightened ? '#2f6eff' : this.color
+
+    if (this.isEaten) {
+      drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+        color: 'white',
+      })
+      drawCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+        color: 'white',
+      })
+
+      drawCirclePixel(
+        pixel.x - eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
+        pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+        pupilRadius,
+        { color: '#111' },
+      )
+      drawCirclePixel(
+        pixel.x + eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
+        pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+        pupilRadius,
+        { color: '#111' },
+      )
+
+      return
+    }
+
+    drawCirclePixel(pixel.x, top + radius, radius, {
+      color: bodyColor,
+      noStroke: true,
+    })
+
+    drawFilledRectPixel(left, pixel.y, radius * 2, radius, bodyColor)
+
+    drawCirclePixel(left + radius * 0.35, bottom, radius * 0.22, {
+      color: bodyColor,
+    })
+    drawCirclePixel(pixel.x, bottom, radius * 0.22, {
+      color: bodyColor,
+    })
+    drawCirclePixel(right - radius * 0.35, bottom, radius * 0.22, {
+      color: bodyColor,
+    })
+
+    drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+      color: 'white',
+    })
+    drawCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+      color: 'white',
+    })
+
+    drawCirclePixel(
+      pixel.x - eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
+      pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+      pupilRadius,
+      { color: '#111' },
+    )
+    drawCirclePixel(
+      pixel.x + eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
+      pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+      pupilRadius,
+      { color: '#111' },
+    )
   }
 }
 
@@ -765,7 +903,7 @@ const findAndClearGhostMarkers = (): {
 const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
 
-const pacman = new Actor(pacmanStart, BASE_PACMAN_SPEED)
+const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED)
 
 const ghosts: Ghost[] = ghostStarts.map(
   (start, index) =>
@@ -1472,140 +1610,6 @@ const directionToAngle = (direction: DirectionName): number => {
   }
 }
 
-const drawPacman = () => {
-  const position = pacman.positionInTiles()
-  const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
-  const radius = TILE_SIZE * PACMAN_RADIUS_RATIO
-  const moving = pacman.dir !== 'none' && roundDelayRemainingMs <= 0
-  const facingDirection = pacman.dir !== 'none' ? pacman.dir : pacman.nextDir
-  const chompPhase = abs(sin(millis() / 88))
-  const mouth = moving ? 0.1 + 0.28 * chompPhase : 0.04
-  const angle = directionToAngle(facingDirection)
-  const look = DIRECTIONS[facingDirection]
-  const bob = moving ? sin(millis() / 140) * radius * 0.05 : 0
-  const centerX = pixel.x
-  const centerY = pixel.y + bob
-
-  drawCirclePixel(centerX, centerY + radius * 0.95, radius * 0.28, {
-    color: 'rgba(0, 0, 0, 0.22)',
-    noStroke: true,
-  })
-
-  drawCirclePixel(centerX, centerY, radius, {
-    color: '#ffd847',
-    strokeColor: '#cf9300',
-    lineWidth: 1.4,
-    noStroke: false,
-  })
-
-  const mouthA = {
-    x: centerX + radius * 1.1 * cos(angle + mouth),
-    y: centerY + radius * 1.1 * sin(angle + mouth),
-  }
-  const mouthB = {
-    x: centerX + radius * 1.1 * cos(angle - mouth),
-    y: centerY + radius * 1.1 * sin(angle - mouth),
-  }
-
-  triangle2d(
-    toWorldPoint(centerX, centerY),
-    toWorldPoint(mouthA.x, mouthA.y),
-    toWorldPoint(mouthB.x, mouthB.y),
-    { color: 'black', noStroke: true, isDoubleSided: true },
-  )
-
-  const eyeX = centerX + look.dc * radius * 0.22 - look.dr * radius * 0.24
-  const eyeY = centerY + look.dr * radius * 0.42 + look.dc * radius * 0.44
-
-  drawCirclePixel(eyeX, eyeY, radius * 0.12, { color: '#f9fcff' })
-  drawCirclePixel(
-    eyeX + look.dc * radius * 0.03,
-    eyeY + look.dr * radius * 0.03,
-    radius * 0.09,
-    { color: '#16223a' },
-  )
-}
-
-const drawGhost = (ghost: Ghost) => {
-  const position = ghost.positionInTiles()
-  const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
-  const radius = TILE_SIZE * GHOST_RADIUS_RATIO
-  const left = pixel.x - radius
-  const top = pixel.y - radius
-  const right = pixel.x + radius
-  const bottom = pixel.y + radius
-  const eyeOffsetX = radius * 0.35
-  const eyeOffsetY = radius * 0.2
-  const eyeRadius = radius * 0.33
-  const pupilRadius = radius * 0.15
-  const lookDirection = DIRECTIONS[ghost.dir]
-  const frightened =
-    powerModeRemainingMs > 0 &&
-    ghost.lastEatenPowerModeId !== currentPowerModeId
-  const bodyColor = frightened ? '#2f6eff' : ghost.color
-
-  if (ghost.isEaten) {
-    drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
-      color: 'white',
-    })
-    drawCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
-      color: 'white',
-    })
-
-    drawCirclePixel(
-      pixel.x - eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
-      pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
-      pupilRadius,
-      { color: '#111' },
-    )
-    drawCirclePixel(
-      pixel.x + eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
-      pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
-      pupilRadius,
-      { color: '#111' },
-    )
-
-    return
-  }
-
-  drawCirclePixel(pixel.x, top + radius, radius, {
-    color: bodyColor,
-    noStroke: true,
-  })
-
-  drawFilledRectPixel(left, pixel.y, radius * 2, radius, bodyColor)
-
-  drawCirclePixel(left + radius * 0.35, bottom, radius * 0.22, {
-    color: bodyColor,
-  })
-  drawCirclePixel(pixel.x, bottom, radius * 0.22, {
-    color: bodyColor,
-  })
-  drawCirclePixel(right - radius * 0.35, bottom, radius * 0.22, {
-    color: bodyColor,
-  })
-
-  drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
-    color: 'white',
-  })
-  drawCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
-    color: 'white',
-  })
-
-  drawCirclePixel(
-    pixel.x - eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
-    pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
-    pupilRadius,
-    { color: '#111' },
-  )
-  drawCirclePixel(
-    pixel.x + eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
-    pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
-    pupilRadius,
-    { color: '#111' },
-  )
-}
-
 const drawHud = () => {
   text2d(`Score: ${score}`, toWorldPoint(20, 30), '#f4f4f4', {
     fontSize: 18,
@@ -1730,8 +1734,8 @@ const drawStateOverlay = () => {
 
 const drawScene = () => {
   drawMaze()
-  drawPacman()
-  ghosts.forEach(drawGhost)
+  pacman.draw()
+  ghosts.forEach(ghost => ghost.draw())
   drawHud()
   drawStateOverlay()
 }
