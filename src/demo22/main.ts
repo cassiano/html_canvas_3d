@@ -413,8 +413,10 @@ const POWER_WARNING_FLASH_MS = 1800
 const POWER_WARNING_FLASH_INTERVAL_MS = 140
 const CHERRY_SCORE = 200
 const CHERRY_EXTRA_SCORE = 150
+const CHERRY_VISIBLE_MS = 7000
+const CHERRY_RESPAWN_MIN_MS = 9000
+const CHERRY_RESPAWN_MAX_MS = 18000
 const GHOST_EATEN_BASE_SCORE = 200
-const CHERRY_COUNT = 2
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
@@ -845,7 +847,7 @@ const MAZE_TEMPLATE = [
   '◻◻◻◻.◻ ◻◻B◻◻ ◻.◻◻◻◻',
   '    .  ◻IHC◻  .    ',
   '◻◻◻◻.◻ ◻◻◻◻◻ ◻.◻◻◻◻',
-  '   ◻.◻       ◻.◻   ',
+  '   ◻.◻   c   ◻.◻   ',
   '◻◻◻◻.◻ ◻◻◻◻◻ ◻.◻◻◻◻',
   '◻........◻........◻',
   '◻.◻◻.◻◻◻.◻.◻◻◻.◻◻.◻',
@@ -899,8 +901,24 @@ const findAndClearGhostMarkers = (): {
     }
   })
 
+const findAndClearAllMarkers = (marker: string): Vector3d[] => {
+  const positions: Vector3d[] = []
+
+  for (let row = 0; row < ROW_COUNT; row++) {
+    for (let col = 0; col < COLUMN_COUNT; col++) {
+      if (maze[row][col] !== marker) continue
+
+      maze[row][col] = ' '
+      positions.push($v(col, row))
+    }
+  }
+
+  return positions
+}
+
 const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
+const cherrySpawnPositions = findAndClearAllMarkers('c')
 
 const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED)
 
@@ -934,7 +952,8 @@ const resetMazeFromTemplate = () => {
 
   findAndClearMarker(PACMAN_MARKER)
   findAndClearGhostMarkers()
-  placeRandomCherries()
+  findAndClearAllMarkers('c')
+  resetCherryCycle()
   pelletsRemaining = countRemainingPellets()
 }
 
@@ -944,34 +963,54 @@ const isStartCell = (position: Vector3d): boolean => {
   return ghostStarts.some(start => start.position.equals(position))
 }
 
-const placeRandomCherries = (count = CHERRY_COUNT) => {
-  const candidates: Vector3d[] = []
+const randomCherryRespawnDelayMs = () =>
+  CHERRY_RESPAWN_MIN_MS +
+  random() * (CHERRY_RESPAWN_MAX_MS - CHERRY_RESPAWN_MIN_MS)
 
-  for (let row = 0; row < ROW_COUNT; row++) {
-    for (let col = 0; col < COLUMN_COUNT; col++) {
-      const position = $v(col, row)
+let cherryVisibleRemainingMs = 0
+let cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
 
-      if (isStartCell(position)) continue
-
-      const tile = getTile(position)
-
-      if (tile === '.') candidates.push(position)
-    }
-  }
-
-  let cherriesToPlace = min(count, candidates.length)
-
-  while (cherriesToPlace > 0) {
-    const randomIndex = floor(random() * candidates.length)
-    const selectedCell = candidates.splice(randomIndex, 1)[0]
-
-    setTile(selectedCell, 'c')
-
-    cherriesToPlace--
-  }
+const hideCherry = () => {
+  cherrySpawnPositions.forEach(position => {
+    if (getTile(position) === 'c') setTile(position, ' ')
+  })
 }
 
-placeRandomCherries()
+const showCherry = () => {
+  cherrySpawnPositions.forEach(position => {
+    setTile(position, 'c')
+  })
+}
+
+const resetCherryCycle = () => {
+  hideCherry()
+  cherryVisibleRemainingMs = 0
+  cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
+}
+
+const updateCherryCycle = (deltaSeconds: number) => {
+  if (cherrySpawnPositions.length === 0) return
+
+  const deltaMs = deltaSeconds * 1000
+
+  if (cherryVisibleRemainingMs > 0) {
+    cherryVisibleRemainingMs = max(0, cherryVisibleRemainingMs - deltaMs)
+
+    if (cherryVisibleRemainingMs <= 0) {
+      hideCherry()
+      cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
+    }
+
+    return
+  }
+
+  cherryRespawnRemainingMs = max(0, cherryRespawnRemainingMs - deltaMs)
+
+  if (cherryRespawnRemainingMs <= 0) {
+    showCherry()
+    cherryVisibleRemainingMs = CHERRY_VISIBLE_MS
+  }
+}
 
 const isWall = (position: Vector3d): boolean => getTile(position) === '◻'
 
@@ -1070,6 +1109,7 @@ const resetRound = () => {
   ghostCombo = 0
   roundDelayRemainingMs = ROUND_START_DELAY_MS
   syncGhostSpeedsForPowerMode()
+  resetCherryCycle()
 }
 
 const getPacmanFacing = (): DirectionName =>
@@ -1317,6 +1357,9 @@ const consumePacmanTile = (isDemoMode = false) => {
     if (!isDemoMode) startPowerSirenLoop()
   } else if (tile === 'c') {
     setTile(pacman.position, ' ')
+    hideCherry()
+    cherryVisibleRemainingMs = 0
+    cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
     if (!isDemoMode) addScore(CHERRY_SCORE + CHERRY_EXTRA_SCORE)
     if (!isDemoMode) playCherryPickup()
   }
@@ -1420,6 +1463,8 @@ const updateGame = (deltaSeconds: number) => {
     stopPowerSirenLoop()
     syncGhostSpeedsForPowerMode()
   }
+
+  updateCherryCycle(deltaSeconds)
 
   if (pacman.canMoveTo(pacman.nextDir) && pacman.progress === 0) {
     pacman.dir = pacman.nextDir
