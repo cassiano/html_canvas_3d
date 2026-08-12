@@ -147,8 +147,8 @@ class Pacman extends Actor {
     })
 
     drawCirclePixel(centerX, centerY, radius, {
-      color: '#ffd847',
-      strokeColor: '#cf9300',
+      color: '#FFFF00',
+      strokeColor: '#FFFF00',
       lineWidth: 1.4,
       noStroke: false,
     })
@@ -419,10 +419,10 @@ const GHOST_MARKER_SPECS: {
   name: GhostName
   color: string
 }[] = [
-  { marker: 'B', name: 'Blinky', color: '#ff4d4d' },
-  { marker: 'H', name: 'Pinky', color: '#ff70ff' },
-  { marker: 'I', name: 'Inky', color: '#33d1ff' },
-  { marker: 'C', name: 'Clyde', color: '#ffb84d' },
+  { marker: 'B', name: 'Blinky', color: '#FF0000' },
+  { marker: 'H', name: 'Pinky', color: '#FFB8DE' },
+  { marker: 'I', name: 'Inky', color: '#46BFEE' },
+  { marker: 'C', name: 'Clyde', color: '#FFB847' },
 ]
 
 const PINKY_LOOKAHEAD_TILES = 4
