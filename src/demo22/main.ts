@@ -327,7 +327,15 @@ class Ghost extends Actor {
     const frightened =
       powerModeRemainingMs > 0 &&
       this.lastEatenPowerModeId !== currentPowerModeId
-    const bodyColor = frightened ? '#2f6eff' : this.color
+    const shouldFlashWarning =
+      frightened &&
+      powerModeRemainingMs <= POWER_WARNING_FLASH_MS &&
+      floor(millis() / POWER_WARNING_FLASH_INTERVAL_MS) % 2 === 0
+    const bodyColor = frightened
+      ? shouldFlashWarning
+        ? '#f5f5f5'
+        : '#2f6eff'
+      : this.color
 
     if (this.isEaten) {
       drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
@@ -399,7 +407,10 @@ const PACMAN_RADIUS_RATIO = 0.5
 const GHOST_RADIUS_RATIO = 0.44
 const BASE_PACMAN_SPEED = 3.5
 const BASE_GHOST_SPEED = 3
+const POWER_MODE_GHOST_SPEED_FACTOR = 0.72
 const POWER_MODE_MS = 7000
+const POWER_WARNING_FLASH_MS = 1800
+const POWER_WARNING_FLASH_INTERVAL_MS = 140
 const CHERRY_SCORE = 200
 const CHERRY_EXTRA_SCORE = 150
 const GHOST_EATEN_BASE_SCORE = 200
@@ -997,6 +1008,19 @@ let roundDelayRemainingMs = 0
 let currentPowerModeId = 0
 let hasStartedGame = false
 
+const syncGhostSpeedsForPowerMode = () => {
+  const ghostSpeed =
+    powerModeRemainingMs > 0
+      ? BASE_GHOST_SPEED * POWER_MODE_GHOST_SPEED_FACTOR
+      : BASE_GHOST_SPEED
+
+  ghosts.forEach(ghost => {
+    if (ghost.isEaten) return
+
+    ghost.speedTilesPerSecond = ghostSpeed
+  })
+}
+
 const loadHighScore = (): number => {
   try {
     const stored = self.localStorage.getItem(HIGH_SCORE_STORAGE_KEY)
@@ -1045,6 +1069,7 @@ const resetRound = () => {
   stopPowerSirenLoop()
   ghostCombo = 0
   roundDelayRemainingMs = ROUND_START_DELAY_MS
+  syncGhostSpeedsForPowerMode()
 }
 
 const getPacmanFacing = (): DirectionName =>
@@ -1288,6 +1313,7 @@ const consumePacmanTile = (isDemoMode = false) => {
     currentPowerModeId++
     powerModeRemainingMs = POWER_MODE_MS
     ghostCombo = 0
+    syncGhostSpeedsForPowerMode()
     if (!isDemoMode) startPowerSirenLoop()
   } else if (tile === 'c') {
     setTile(pacman.position, ' ')
@@ -1362,7 +1388,10 @@ const updateGame = (deltaSeconds: number) => {
 
     powerModeRemainingMs = max(0, powerModeRemainingMs - deltaSeconds * 1000)
 
-    if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
+    if (hadPowerMode && powerModeRemainingMs <= 0) {
+      stopPowerSirenLoop()
+      syncGhostSpeedsForPowerMode()
+    }
 
     pacman.move(deltaSeconds, chooseDemoPacmanDirection)
 
@@ -1387,7 +1416,10 @@ const updateGame = (deltaSeconds: number) => {
 
   powerModeRemainingMs = max(0, powerModeRemainingMs - deltaSeconds * 1000)
 
-  if (hadPowerMode && powerModeRemainingMs <= 0) stopPowerSirenLoop()
+  if (hadPowerMode && powerModeRemainingMs <= 0) {
+    stopPowerSirenLoop()
+    syncGhostSpeedsForPowerMode()
+  }
 
   if (pacman.canMoveTo(pacman.nextDir) && pacman.progress === 0) {
     pacman.dir = pacman.nextDir
