@@ -34,10 +34,39 @@ import {
   render3dScene,
 } from '../primitives.ts'
 
+const WALL_MARKER = '◻'
+const EMPTY_MARKER = ' '
+const PELLET_MARKER = '.'
+const POWER_PELLET_MARKER = '⏺'
+const CHERRY_MARKER = 'c'
+
+// `P` is reserved for Pac-Man only. Pinky uses `H` to avoid marker ambiguity.
+// [/doc_img/main.ts/2026-08-08-12-04-06.png]
+const PACMAN_MARKER = 'P'
+const GHOST_MARKER_SPECS: {
+  marker: 'B' | 'H' | 'I' | 'C'
+  name: 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
+  color: string
+}[] = [
+  { marker: 'B', name: 'Blinky', color: '#FF0000' },
+  { marker: 'H', name: 'Pinky', color: '#FFB8DE' },
+  { marker: 'I', name: 'Inky', color: '#46BFEE' },
+  { marker: 'C', name: 'Clyde', color: '#FFB847' },
+]
+
 type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
 
-type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
-type GhostMarker = 'B' | 'H' | 'I' | 'C'
+type GhostName = (typeof GHOST_MARKER_SPECS)[number]['name']
+type GhostMarker = (typeof GHOST_MARKER_SPECS)[number]['marker']
+
+type Tile =
+  | typeof WALL_MARKER
+  | typeof EMPTY_MARKER
+  | typeof PELLET_MARKER
+  | typeof POWER_PELLET_MARKER
+  | typeof CHERRY_MARKER
+  | typeof PACMAN_MARKER
+  | GhostMarker
 
 abstract class Actor {
   startPosition: Vector3d
@@ -440,11 +469,6 @@ const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
 const POWER_SIREN_LOOP_MS = 900
 const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
-const WALL_MARKER = '◻'
-const EMPTY_MARKER = ' '
-const PELLET_MARKER = '.'
-const POWER_PELLET_MARKER = '⏺'
-const CHERRY_MARKER = 'c'
 
 // Draws a power pellet with a pulsing effect.
 function drawPowerPellet(pixel: { x: number; y: number }) {
@@ -521,20 +545,6 @@ function drawCherry(pixel: { x: number; y: number }) {
     { color: 'rgba(255, 255, 255, 0.55)' },
   )
 }
-
-// `P` is reserved for Pac-Man only. Pinky uses `H` to avoid marker ambiguity.
-// [/doc_img/main.ts/2026-08-08-12-04-06.png]
-const PACMAN_MARKER = 'P'
-const GHOST_MARKER_SPECS: {
-  marker: GhostMarker
-  name: GhostName
-  color: string
-}[] = [
-  { marker: 'B', name: 'Blinky', color: '#FF0000' },
-  { marker: 'H', name: 'Pinky', color: '#FFB8DE' },
-  { marker: 'I', name: 'Inky', color: '#46BFEE' },
-  { marker: 'C', name: 'Clyde', color: '#FFB847' },
-]
 
 const PINKY_LOOKAHEAD_TILES = 4
 const INKY_LOOKAHEAD_TILES = 2
@@ -967,13 +977,13 @@ MAZE_TEMPLATE.forEach((line, row) => {
   }
 })
 
-const maze: string[][] = MAZE_TEMPLATE.map(line => line.split(''))
+const maze: Tile[][] = MAZE_TEMPLATE.map(line => line.split('') as Tile[])
 
-const findAndClearMarker = (marker: string): Vector3d => {
+const findAndClearMarker = (marker: Tile): Vector3d => {
   for (let row = 0; row < ROW_COUNT; row++) {
     for (let col = 0; col < COLUMN_COUNT; col++) {
       if (maze[row][col] === marker) {
-        maze[row][col] = ' '
+        maze[row][col] = EMPTY_MARKER
 
         return $v(col, row)
       }
@@ -1017,17 +1027,17 @@ const ghosts: Ghost[] = ghostStarts.map(
     ),
 )
 
-function getTile(position: Vector3d): string {
+function getTile(position: Vector3d): Tile {
   return maze[position.y][position.x] ?? WALL_MARKER
 }
 
-function setTile(position: Vector3d, value: string): void {
+function setTile(position: Vector3d, value: Tile): void {
   maze[position.y][position.x] = value
 }
 
 const resetMazeFromTemplate = () => {
   timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
-    maze[row][col] = MAZE_TEMPLATE[row][col]
+    maze[row][col] = MAZE_TEMPLATE[row][col] as Tile
   })
 
   findAndClearMarker(PACMAN_MARKER)
