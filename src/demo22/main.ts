@@ -434,7 +434,11 @@ const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
 const POWER_SIREN_LOOP_MS = 900
 const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
-const POWER_PELLET_MARKER = '⏺'
+const WALL_TILE = '◻'
+const EMPTY_TILE = ' '
+const PELLET_TILE = '.'
+const POWER_PELLET_TILE = '⏺'
+const CHERRY_TILE = 'c'
 
 // Draws a power pellet with a pulsing effect.
 function drawPowerPellet(pixel: { x: number; y: number }) {
@@ -457,7 +461,7 @@ function drawPellet(pixel: { x: number; y: number }) {
   )
 }
 
-function drawWallTile(pixel: { x: number; y: number }) {
+function drawWall(pixel: { x: number; y: number }) {
   drawFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
   drawStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
 }
@@ -1006,7 +1010,7 @@ const findAndClearAllMarkers = (marker: string): Vector3d[] => {
 
 const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
-const cherrySpawnPosition = findAndClearMarker('c')
+const cherrySpawnPosition = findAndClearMarker(CHERRY_TILE)
 
 const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED)
 
@@ -1024,7 +1028,7 @@ const ghosts: Ghost[] = ghostStarts.map(
 )
 
 function getTile(position: Vector3d): string {
-  return maze[position.y][position.x] ?? '◻'
+  return maze[position.y][position.x] ?? WALL_TILE
 }
 
 function setTile(position: Vector3d, value: string): void {
@@ -1040,7 +1044,7 @@ const resetMazeFromTemplate = () => {
 
   findAndClearMarker(PACMAN_MARKER)
   findAndClearGhostMarkers()
-  findAndClearAllMarkers('c')
+  findAndClearAllMarkers(CHERRY_TILE)
   resetCherryCycle()
   pelletsRemaining = countRemainingPellets()
 }
@@ -1053,11 +1057,13 @@ let cherryVisibleRemainingMs = 0
 let cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
 
 const hideCherry = () => {
-  if (getTile(cherrySpawnPosition) === 'c') setTile(cherrySpawnPosition, ' ')
+  if (getTile(cherrySpawnPosition) === CHERRY_TILE) {
+    setTile(cherrySpawnPosition, EMPTY_TILE)
+  }
 }
 
 const showCherry = () => {
-  setTile(cherrySpawnPosition, 'c')
+  setTile(cherrySpawnPosition, CHERRY_TILE)
 }
 
 const resetCherryCycle = () => {
@@ -1091,7 +1097,7 @@ const updateCherryCycle = (deltaSeconds: number) => {
   }
 }
 
-const isWall = (position: Vector3d): boolean => getTile(position) === '◻'
+const isWall = (position: Vector3d): boolean => getTile(position) === WALL_TILE
 
 const wrapCol = (col: number): number => {
   if (col < 0) return COLUMN_COUNT - 1
@@ -1107,7 +1113,7 @@ const countRemainingPellets = (): number => {
     for (let col = 0; col < COLUMN_COUNT; col++) {
       const tile = getTile($v(col, row))
 
-      if (tile === '.' || tile === POWER_PELLET_MARKER) count++
+      if (tile === PELLET_TILE || tile === POWER_PELLET_TILE) count++
     }
   }
 
@@ -1340,7 +1346,11 @@ const getClosestCollectibleDistance = (position: Vector3d): number => {
     for (let targetCol = 0; targetCol < COLUMN_COUNT; targetCol++) {
       const tile = getTile($v(targetCol, targetRow))
 
-      if (tile !== '.' && tile !== POWER_PELLET_MARKER && tile !== 'c') {
+      if (
+        tile !== PELLET_TILE &&
+        tile !== POWER_PELLET_TILE &&
+        tile !== CHERRY_TILE
+      ) {
         continue
       }
 
@@ -1378,7 +1388,11 @@ const chooseDemoPacmanDirection = (): DirectionName => {
       const nextTile = getTile(next)
       const collectibleDistance = getClosestCollectibleDistance(next)
       const collectibleBonus =
-        nextTile === POWER_PELLET_MARKER ? -50 : nextTile === '.' ? -25 : 0
+        nextTile === POWER_PELLET_TILE
+          ? -50
+          : nextTile === PELLET_TILE
+            ? -25
+            : 0
       const ghostThreat = ghosts.reduce((threat, ghost) => {
         const ghostPos = ghost.positionInTiles()
         const distance = abs(next.y - ghostPos.y) + abs(next.x - ghostPos.x)
@@ -1420,13 +1434,13 @@ const chooseDemoPacmanDirection = (): DirectionName => {
 const consumePacmanTile = (isDemoMode = false) => {
   const tile = getTile(pacman.position)
 
-  if (tile === '.') {
-    setTile(pacman.position, ' ')
+  if (tile === PELLET_TILE) {
+    setTile(pacman.position, EMPTY_TILE)
     pelletsRemaining--
     if (!isDemoMode) addScore(10)
     if (!isDemoMode) playWaka()
-  } else if (tile === POWER_PELLET_MARKER) {
-    setTile(pacman.position, ' ')
+  } else if (tile === POWER_PELLET_TILE) {
+    setTile(pacman.position, EMPTY_TILE)
     pelletsRemaining--
     if (!isDemoMode) addScore(50)
     currentPowerModeId++
@@ -1434,8 +1448,8 @@ const consumePacmanTile = (isDemoMode = false) => {
     ghostCombo = 0
     syncGhostSpeedsForPowerMode()
     if (!isDemoMode) startPowerSirenLoop()
-  } else if (tile === 'c') {
-    setTile(pacman.position, ' ')
+  } else if (tile === CHERRY_TILE) {
+    setTile(pacman.position, EMPTY_TILE)
     hideCherry()
     cherryVisibleRemainingMs = 0
     cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
@@ -1666,16 +1680,16 @@ const drawMaze = () => {
     const pixel = tileToPixel(col, row)
 
     switch (tile) {
-      case '◻':
-        drawWallTile(pixel)
+      case WALL_TILE:
+        drawWall(pixel)
         break
-      case '.':
+      case PELLET_TILE:
         drawPellet(pixel)
         break
-      case '⏺':
+      case POWER_PELLET_TILE:
         drawPowerPellet(pixel)
         break
-      case 'c':
+      case CHERRY_TILE:
         drawCherry(pixel)
         break
     }
