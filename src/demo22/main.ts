@@ -993,27 +993,10 @@ const findAndClearGhostMarkers = (): {
     const position = findAndClearMarker(spec.marker)
 
     return {
+      ...spec,
       position,
-      marker: spec.marker,
-      name: spec.name,
-      color: spec.color,
     }
   })
-
-const findAndClearAllMarkers = (marker: string): Vector3d[] => {
-  const positions: Vector3d[] = []
-
-  for (let row = 0; row < ROW_COUNT; row++) {
-    for (let col = 0; col < COLUMN_COUNT; col++) {
-      if (maze[row][col] !== marker) continue
-
-      maze[row][col] = ' '
-      positions.push($v(col, row))
-    }
-  }
-
-  return positions
-}
 
 const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
@@ -1051,8 +1034,10 @@ const resetMazeFromTemplate = () => {
 
   findAndClearMarker(PACMAN_MARKER)
   findAndClearGhostMarkers()
-  findAndClearAllMarkers(CHERRY_MARKER)
+
+  findAndClearMarker(CHERRY_MARKER)
   resetCherryCycle()
+
   pelletsRemaining = countRemainingPellets()
 }
 
