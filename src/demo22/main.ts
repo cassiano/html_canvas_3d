@@ -64,9 +64,11 @@ abstract class Actor {
   }
 
   positionInTiles(): Vector3d {
-    const vector = DIRECTIONS[this.dir]
+    const directionVector = DIRECTIONS[this.dir]
 
-    return this.position.clone().add(vector.clone().mult(this.progress))
+    return this.position
+      .clone()
+      .add(directionVector.clone().mult(this.progress))
   }
 
   static nextCell(position: Vector3d, direction: DirectionName): Vector3d {
