@@ -1631,21 +1631,21 @@ const directionToAngle = (direction: DirectionName): number => {
 }
 
 const drawHud = () => {
-  text2d(`Score: ${score}`, toWorldPoint(20, 30), '#f4f4f4', {
+  text2d(`Score: ${score}`, toWorldPoint(20, 60), '#f4f4f4', {
     fontSize: 18,
     fontFamily: 'monospace',
     fontWeight: 'bold',
     textAlign: 'left',
     textBaseline: 'middle',
   })
-  text2d(`Lives: ${lives}`, toWorldPoint(20, 54), '#f4f4f4', {
+  text2d(`Lives: ${lives}`, toWorldPoint(20, 84), '#f4f4f4', {
     fontSize: 18,
     fontFamily: 'monospace',
     fontWeight: 'bold',
     textAlign: 'left',
     textBaseline: 'middle',
   })
-  text2d(`High Score: ${highScore}`, toWorldPoint(20, 78), '#f4f4f4', {
+  text2d(`High Score: ${highScore}`, toWorldPoint(20, 108), '#f4f4f4', {
     fontSize: 18,
     fontFamily: 'monospace',
     fontWeight: 'bold',
