@@ -26,11 +26,6 @@ import {
 
 type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
 
-type DirectionVector = {
-  dr: number
-  dc: number
-}
-
 type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
 type GhostMarker = 'B' | 'H' | 'I' | 'C'
 
@@ -61,18 +56,16 @@ abstract class Actor {
   positionInTiles(): Vector3d {
     const vector = DIRECTIONS[this.dir]
 
-    return this.position
-      .clone()
-      .add($v(vector.dc, vector.dr).mult(this.progress))
+    return this.position.clone().add(vector.clone().mult(this.progress))
   }
 
   static nextCell(position: Vector3d, direction: DirectionName): Vector3d {
-    const vector = DIRECTIONS[direction]
+    const directionVector = DIRECTIONS[direction]
 
     return position
       .clone()
-      .add($v(vector.dc, vector.dr))
-      .setX(wrapCol(position.x + vector.dc))
+      .add(directionVector)
+      .setX(wrapCol(position.x + directionVector.x))
   }
 
   static canMove(position: Vector3d, direction: DirectionName): boolean {
@@ -176,13 +169,13 @@ class Pacman extends Actor {
       { color: 'black', noStroke: true, isDoubleSided: true },
     )
 
-    const eyeX = centerX + look.dc * radius * 0.22 - look.dr * radius * 0.24
-    const eyeY = centerY + look.dr * radius * 0.42 + look.dc * radius * 0.44
+    const eyeX = centerX + look.x * radius * 0.22 - look.y * radius * 0.24
+    const eyeY = centerY + look.y * radius * 0.42 + look.x * radius * 0.44
 
     drawCirclePixel(eyeX, eyeY, radius * 0.12, { color: '#f9fcff' })
     drawCirclePixel(
-      eyeX + look.dc * radius * 0.03,
-      eyeY + look.dr * radius * 0.03,
+      eyeX + look.x * radius * 0.03,
+      eyeY + look.y * radius * 0.03,
       radius * 0.09,
       { color: '#16223a' },
     )
@@ -278,7 +271,7 @@ class Ghost extends Actor {
 
   getChaseTarget(
     pacmanPos: Vector3d,
-    pacmanFacing: DirectionVector,
+    pacmanFacing: Vector3d,
     ghosts: Ghost[],
   ): Vector3d {
     if (this.name === 'Blinky') {
@@ -286,17 +279,15 @@ class Ghost extends Actor {
     }
 
     if (this.name === 'Pinky') {
-      return $v(
-        pacmanPos.x + pacmanFacing.dc * PINKY_LOOKAHEAD_TILES,
-        pacmanPos.y + pacmanFacing.dr * PINKY_LOOKAHEAD_TILES,
-      )
+      return pacmanPos
+        .clone()
+        .add(pacmanFacing.clone().mult(PINKY_LOOKAHEAD_TILES))
     }
 
     if (this.name === 'Inky') {
-      const pivot = $v(
-        pacmanPos.x + pacmanFacing.dc * INKY_LOOKAHEAD_TILES,
-        pacmanPos.y + pacmanFacing.dr * INKY_LOOKAHEAD_TILES,
-      )
+      const pivot = pacmanPos
+        .clone()
+        .add(pacmanFacing.clone().mult(INKY_LOOKAHEAD_TILES))
       const blinky = ghosts.find(candidate => candidate.name === 'Blinky')
 
       if (!blinky) return pivot
@@ -310,9 +301,8 @@ class Ghost extends Actor {
     }
 
     // Clyde alternates between chase and scatter depending on distance to Pac-Man.
-    const dr = pacmanPos.y - this.position.y
-    const dc = pacmanPos.x - this.position.x
-    const manhattanDistance = abs(dr) + abs(dc)
+    const deltaToPacman = pacmanPos.clone().sub(this.position)
+    const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
     if (manhattanDistance <= CLYDE_SHY_DISTANCE_TILES) {
       return getClydeScatterTarget()
@@ -348,14 +338,14 @@ class Ghost extends Actor {
       })
 
       drawCirclePixel(
-        pixel.x - eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
-        pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+        pixel.x - eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
+        pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
         pupilRadius,
         { color: '#111' },
       )
       drawCirclePixel(
-        pixel.x + eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
-        pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+        pixel.x + eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
+        pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
         pupilRadius,
         { color: '#111' },
       )
@@ -388,14 +378,14 @@ class Ghost extends Actor {
     })
 
     drawCirclePixel(
-      pixel.x - eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
-      pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+      pixel.x - eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
+      pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
       pupilRadius,
       { color: '#111' },
     )
     drawCirclePixel(
-      pixel.x + eyeOffsetX + lookDirection.dc * eyeRadius * 0.45,
-      pixel.y - eyeOffsetY + lookDirection.dr * eyeRadius * 0.45,
+      pixel.x + eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
+      pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
       pupilRadius,
       { color: '#111' },
     )
@@ -814,12 +804,12 @@ const startPowerSirenLoop = () => {
   }, POWER_SIREN_LOOP_MS)
 }
 
-const DIRECTIONS: Record<DirectionName, DirectionVector> = {
-  up: { dr: -1, dc: 0 },
-  down: { dr: 1, dc: 0 },
-  left: { dr: 0, dc: -1 },
-  right: { dr: 0, dc: 1 },
-  none: { dr: 0, dc: 0 },
+const DIRECTIONS: Record<DirectionName, Vector3d> = {
+  up: $v(0, -1),
+  down: $v(0, 1),
+  left: $v(-1, 0),
+  right: $v(1, 0),
+  none: $v(0, 0),
 }
 
 const OPPOSITE_DIRECTION: Record<DirectionName, DirectionName> = {
@@ -1734,8 +1724,10 @@ const drawStateOverlay = () => {
 
 const drawScene = () => {
   drawMaze()
+
   pacman.draw()
   ghosts.forEach(ghost => ghost.draw())
+
   drawHud()
   drawStateOverlay()
 }
