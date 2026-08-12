@@ -11,7 +11,17 @@ import {
   background,
   resetTransformationMatrix,
 } from '../primitives.ts'
-import { abs, cos, floor, max, min, PI, random, sin } from '../math_utils.ts'
+import {
+  abs,
+  cos,
+  floor,
+  HALF_PI,
+  max,
+  min,
+  PI,
+  random,
+  sin,
+} from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import {
   line,
@@ -994,7 +1004,7 @@ const findAndClearAllMarkers = (marker: string): Vector3d[] => {
 
 const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
-const cherrySpawnPositions = findAndClearAllMarkers('c')
+const cherrySpawnPosition = findAndClearMarker('c')
 
 const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED)
 
@@ -1033,12 +1043,6 @@ const resetMazeFromTemplate = () => {
   pelletsRemaining = countRemainingPellets()
 }
 
-const isStartCell = (position: Vector3d): boolean => {
-  if (position.equals(pacmanStart)) return true
-
-  return ghostStarts.some(start => start.position.equals(position))
-}
-
 const randomCherryRespawnDelayMs = () =>
   CHERRY_RESPAWN_MIN_MS +
   random() * (CHERRY_RESPAWN_MAX_MS - CHERRY_RESPAWN_MIN_MS)
@@ -1047,25 +1051,22 @@ let cherryVisibleRemainingMs = 0
 let cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
 
 const hideCherry = () => {
-  cherrySpawnPositions.forEach(position => {
-    if (getTile(position) === 'c') setTile(position, ' ')
-  })
+  if (getTile(cherrySpawnPosition) === 'c') setTile(cherrySpawnPosition, ' ')
 }
 
 const showCherry = () => {
-  cherrySpawnPositions.forEach(position => {
-    setTile(position, 'c')
-  })
+  setTile(cherrySpawnPosition, 'c')
 }
 
 const resetCherryCycle = () => {
   hideCherry()
+
   cherryVisibleRemainingMs = 0
   cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
 }
 
 const updateCherryCycle = (deltaSeconds: number) => {
-  if (cherrySpawnPositions.length === 0) return
+  if (!cherrySpawnPosition) return
 
   const deltaMs = deltaSeconds * 1000
 
@@ -1686,9 +1687,9 @@ const directionToAngle = (direction: DirectionName): number => {
     case 'left':
       return PI
     case 'up':
-      return -PI / 2
+      return -HALF_PI
     case 'down':
-      return PI / 2
+      return HALF_PI
     default:
       return 0
   }
