@@ -424,6 +424,82 @@ const POWER_SIREN_LOOP_MS = 900
 const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
 const POWER_PELLET_MARKER = '⏺'
 
+// Draws a power pellet with a pulsing effect.
+function drawPowerPellet(pixel: { x: number; y: number }) {
+  const pulse = 0.75 + 0.25 * sin(millis() / 120)
+
+  drawCirclePixel(
+    pixel.x + TILE_SIZE / 2,
+    pixel.y + TILE_SIZE / 2,
+    TILE_SIZE * 0.26 * pulse,
+    { color: '#fff2df' },
+  )
+}
+
+function drawPellet(pixel: { x: number; y: number }) {
+  drawCirclePixel(
+    pixel.x + TILE_SIZE / 2,
+    pixel.y + TILE_SIZE / 2,
+    TILE_SIZE * 0.12,
+    { color: '#ffd7a8' },
+  )
+}
+
+function drawWallTile(pixel: { x: number; y: number }) {
+  drawFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
+  drawStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
+}
+
+// Draws a cherry with a stem and two leaves.
+function drawCherry(pixel: { x: number; y: number }) {
+  const centerX = pixel.x + TILE_SIZE / 2
+  const centerY = pixel.y + TILE_SIZE / 2
+  const cherryRadius = TILE_SIZE * 0.18
+
+  drawLinePixel(
+    centerX - cherryRadius * 0.45,
+    centerY - cherryRadius * 1.45,
+    centerX,
+    centerY - cherryRadius * 2.25,
+    '#66b15b',
+    2,
+  )
+  drawLinePixel(
+    centerX,
+    centerY - cherryRadius * 2.25,
+    centerX + cherryRadius * 0.55,
+    centerY - cherryRadius * 1.45,
+    '#66b15b',
+    2,
+  )
+
+  drawCirclePixel(
+    centerX - cherryRadius * 0.65,
+    centerY + cherryRadius * 0.25,
+    cherryRadius,
+    { color: '#d3152f' },
+  )
+  drawCirclePixel(
+    centerX + cherryRadius * 0.65,
+    centerY + cherryRadius * 0.25,
+    cherryRadius,
+    { color: '#d3152f' },
+  )
+
+  drawCirclePixel(
+    centerX - cherryRadius,
+    centerY - cherryRadius * 0.1,
+    cherryRadius * 0.35,
+    { color: 'rgba(255, 255, 255, 0.55)' },
+  )
+  drawCirclePixel(
+    centerX + cherryRadius * 0.3,
+    centerY - cherryRadius * 0.1,
+    cherryRadius * 0.35,
+    { color: 'rgba(255, 255, 255, 0.55)' },
+  )
+}
+
 // `P` is reserved for Pac-Man only. Pinky uses `H` to avoid marker ambiguity.
 // [/doc_img/main.ts/2026-08-08-12-04-06.png]
 const PACMAN_MARKER = 'P'
@@ -1586,76 +1662,19 @@ const drawMaze = () => {
     const tile = getTile($v(col, row))
     const pixel = tileToPixel(col, row)
 
-    if (tile === '◻') {
-      // Draw a wall tile.
-      drawFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
-      drawStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
-    } else if (tile === '.') {
-      // Draw a small pellet.
-      drawCirclePixel(
-        pixel.x + TILE_SIZE / 2,
-        pixel.y + TILE_SIZE / 2,
-        TILE_SIZE * 0.12,
-        { color: '#ffd7a8' },
-      )
-    } else if (tile === '⏺') {
-      // Draw a power pellet with a pulsing effect.
-      const pulse = 0.75 + 0.25 * sin(millis() / 120)
-
-      drawCirclePixel(
-        pixel.x + TILE_SIZE / 2,
-        pixel.y + TILE_SIZE / 2,
-        TILE_SIZE * 0.26 * pulse,
-        { color: '#fff2df' },
-      )
-    } else if (tile === 'c') {
-      // Draw a cherry with a stem and two leaves.
-      const centerX = pixel.x + TILE_SIZE / 2
-      const centerY = pixel.y + TILE_SIZE / 2
-      const cherryRadius = TILE_SIZE * 0.18
-
-      drawLinePixel(
-        centerX - cherryRadius * 0.45,
-        centerY - cherryRadius * 1.45,
-        centerX,
-        centerY - cherryRadius * 2.25,
-        '#66b15b',
-        2,
-      )
-      drawLinePixel(
-        centerX,
-        centerY - cherryRadius * 2.25,
-        centerX + cherryRadius * 0.55,
-        centerY - cherryRadius * 1.45,
-        '#66b15b',
-        2,
-      )
-
-      drawCirclePixel(
-        centerX - cherryRadius * 0.65,
-        centerY + cherryRadius * 0.25,
-        cherryRadius,
-        { color: '#d3152f' },
-      )
-      drawCirclePixel(
-        centerX + cherryRadius * 0.65,
-        centerY + cherryRadius * 0.25,
-        cherryRadius,
-        { color: '#d3152f' },
-      )
-
-      drawCirclePixel(
-        centerX - cherryRadius,
-        centerY - cherryRadius * 0.1,
-        cherryRadius * 0.35,
-        { color: 'rgba(255, 255, 255, 0.55)' },
-      )
-      drawCirclePixel(
-        centerX + cherryRadius * 0.3,
-        centerY - cherryRadius * 0.1,
-        cherryRadius * 0.35,
-        { color: 'rgba(255, 255, 255, 0.55)' },
-      )
+    switch (tile) {
+      case '◻':
+        drawWallTile(pixel)
+        break
+      case '.':
+        drawPellet(pixel)
+        break
+      case '⏺':
+        drawPowerPellet(pixel)
+        break
+      case 'c':
+        drawCherry(pixel)
+        break
     }
   })
 }
