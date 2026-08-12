@@ -195,8 +195,8 @@ class Pacman extends Actor {
 }
 
 class Ghost extends Actor {
-  lastEatenPowerModeId: number = -1
-  isEaten: boolean = false
+  lastEatenPowerModeId = -1
+  isEaten = false
 
   constructor(
     position: Vector3d,
@@ -286,41 +286,47 @@ class Ghost extends Actor {
     pacmanFacing: Vector3d,
     ghosts: Ghost[],
   ): Vector3d {
-    if (this.name === 'Blinky') {
-      return $v(pacmanPos.x, pacmanPos.y)
+    switch (this.name) {
+      case 'Blinky':
+        return $v(pacmanPos.x, pacmanPos.y)
+
+      case 'Pinky':
+        return pacmanPos
+          .clone()
+          .add(pacmanFacing.clone().mult(PINKY_LOOKAHEAD_TILES))
+
+      case 'Inky': {
+        const pivot = pacmanPos
+          .clone()
+          .add(pacmanFacing.clone().mult(INKY_LOOKAHEAD_TILES))
+        const blinky = ghosts.find(candidate => candidate.name === 'Blinky')
+
+        if (!blinky) return pivot
+
+        const blinkyPos = blinky.positionInTiles()
+
+        return $v(
+          pivot.x + (pivot.x - blinkyPos.x),
+          pivot.y + (pivot.y - blinkyPos.y),
+        )
+      }
+
+      case 'Clyde': {
+        // Clyde alternates between chase and scatter depending on distance to Pac-Man.
+        const deltaToPacman = pacmanPos.clone().sub(this.position)
+        const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
+
+        if (manhattanDistance <= CLYDE_SHY_DISTANCE_TILES)
+          return getClydeScatterTarget()
+
+        return $v(pacmanPos.x, pacmanPos.y)
+      }
+
+      default: {
+        const exhaustiveCheck: never = this.name
+        return exhaustiveCheck
+      }
     }
-
-    if (this.name === 'Pinky') {
-      return pacmanPos
-        .clone()
-        .add(pacmanFacing.clone().mult(PINKY_LOOKAHEAD_TILES))
-    }
-
-    if (this.name === 'Inky') {
-      const pivot = pacmanPos
-        .clone()
-        .add(pacmanFacing.clone().mult(INKY_LOOKAHEAD_TILES))
-      const blinky = ghosts.find(candidate => candidate.name === 'Blinky')
-
-      if (!blinky) return pivot
-
-      const blinkyPos = blinky.positionInTiles()
-
-      return $v(
-        pivot.x + (pivot.x - blinkyPos.x),
-        pivot.y + (pivot.y - blinkyPos.y),
-      )
-    }
-
-    // Clyde alternates between chase and scatter depending on distance to Pac-Man.
-    const deltaToPacman = pacmanPos.clone().sub(this.position)
-    const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
-
-    if (manhattanDistance <= CLYDE_SHY_DISTANCE_TILES) {
-      return getClydeScatterTarget()
-    }
-
-    return $v(pacmanPos.x, pacmanPos.y)
   }
 
   draw() {
@@ -434,11 +440,11 @@ const ROUND_START_DELAY_MS = 900
 const WAKA_INTERVAL_MS = 95
 const POWER_SIREN_LOOP_MS = 900
 const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
-const WALL_TILE = '◻'
-const EMPTY_TILE = ' '
-const PELLET_TILE = '.'
-const POWER_PELLET_TILE = '⏺'
-const CHERRY_TILE = 'c'
+const WALL_MARKER = '◻'
+const EMPTY_MARKER = ' '
+const PELLET_MARKER = '.'
+const POWER_PELLET_MARKER = '⏺'
+const CHERRY_MARKER = 'c'
 
 // Draws a power pellet with a pulsing effect.
 function drawPowerPellet(pixel: { x: number; y: number }) {
@@ -535,6 +541,7 @@ const INKY_LOOKAHEAD_TILES = 2
 const CLYDE_SHY_DISTANCE_TILES = 8
 
 const getClydeScatterTarget = (): Vector3d => $v(1, ROW_COUNT - 2)
+
 const getGhostHouseCenterTarget = (): Vector3d =>
   $v(
     ghostStarts.find(ghost => ghost.name === 'Pinky')?.position.x ??
@@ -1010,7 +1017,7 @@ const findAndClearAllMarkers = (marker: string): Vector3d[] => {
 
 const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
-const cherrySpawnPosition = findAndClearMarker(CHERRY_TILE)
+const cherrySpawnPosition = findAndClearMarker(CHERRY_MARKER)
 
 const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED)
 
@@ -1028,7 +1035,7 @@ const ghosts: Ghost[] = ghostStarts.map(
 )
 
 function getTile(position: Vector3d): string {
-  return maze[position.y][position.x] ?? WALL_TILE
+  return maze[position.y][position.x] ?? WALL_MARKER
 }
 
 function setTile(position: Vector3d, value: string): void {
@@ -1044,7 +1051,7 @@ const resetMazeFromTemplate = () => {
 
   findAndClearMarker(PACMAN_MARKER)
   findAndClearGhostMarkers()
-  findAndClearAllMarkers(CHERRY_TILE)
+  findAndClearAllMarkers(CHERRY_MARKER)
   resetCherryCycle()
   pelletsRemaining = countRemainingPellets()
 }
@@ -1057,13 +1064,13 @@ let cherryVisibleRemainingMs = 0
 let cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
 
 const hideCherry = () => {
-  if (getTile(cherrySpawnPosition) === CHERRY_TILE) {
-    setTile(cherrySpawnPosition, EMPTY_TILE)
+  if (getTile(cherrySpawnPosition) === CHERRY_MARKER) {
+    setTile(cherrySpawnPosition, EMPTY_MARKER)
   }
 }
 
 const showCherry = () => {
-  setTile(cherrySpawnPosition, CHERRY_TILE)
+  setTile(cherrySpawnPosition, CHERRY_MARKER)
 }
 
 const resetCherryCycle = () => {
@@ -1097,7 +1104,8 @@ const updateCherryCycle = (deltaSeconds: number) => {
   }
 }
 
-const isWall = (position: Vector3d): boolean => getTile(position) === WALL_TILE
+const isWall = (position: Vector3d): boolean =>
+  getTile(position) === WALL_MARKER
 
 const wrapCol = (col: number): number => {
   if (col < 0) return COLUMN_COUNT - 1
@@ -1113,7 +1121,7 @@ const countRemainingPellets = (): number => {
     for (let col = 0; col < COLUMN_COUNT; col++) {
       const tile = getTile($v(col, row))
 
-      if (tile === PELLET_TILE || tile === POWER_PELLET_TILE) count++
+      if (tile === PELLET_MARKER || tile === POWER_PELLET_MARKER) count++
     }
   }
 
@@ -1347,9 +1355,9 @@ const getClosestCollectibleDistance = (position: Vector3d): number => {
       const tile = getTile($v(targetCol, targetRow))
 
       if (
-        tile !== PELLET_TILE &&
-        tile !== POWER_PELLET_TILE &&
-        tile !== CHERRY_TILE
+        tile !== PELLET_MARKER &&
+        tile !== POWER_PELLET_MARKER &&
+        tile !== CHERRY_MARKER
       ) {
         continue
       }
@@ -1388,9 +1396,9 @@ const chooseDemoPacmanDirection = (): DirectionName => {
       const nextTile = getTile(next)
       const collectibleDistance = getClosestCollectibleDistance(next)
       const collectibleBonus =
-        nextTile === POWER_PELLET_TILE
+        nextTile === POWER_PELLET_MARKER
           ? -50
-          : nextTile === PELLET_TILE
+          : nextTile === PELLET_MARKER
             ? -25
             : 0
       const ghostThreat = ghosts.reduce((threat, ghost) => {
@@ -1434,13 +1442,13 @@ const chooseDemoPacmanDirection = (): DirectionName => {
 const consumePacmanTile = (isDemoMode = false) => {
   const tile = getTile(pacman.position)
 
-  if (tile === PELLET_TILE) {
-    setTile(pacman.position, EMPTY_TILE)
+  if (tile === PELLET_MARKER) {
+    setTile(pacman.position, EMPTY_MARKER)
     pelletsRemaining--
     if (!isDemoMode) addScore(10)
     if (!isDemoMode) playWaka()
-  } else if (tile === POWER_PELLET_TILE) {
-    setTile(pacman.position, EMPTY_TILE)
+  } else if (tile === POWER_PELLET_MARKER) {
+    setTile(pacman.position, EMPTY_MARKER)
     pelletsRemaining--
     if (!isDemoMode) addScore(50)
     currentPowerModeId++
@@ -1448,8 +1456,8 @@ const consumePacmanTile = (isDemoMode = false) => {
     ghostCombo = 0
     syncGhostSpeedsForPowerMode()
     if (!isDemoMode) startPowerSirenLoop()
-  } else if (tile === CHERRY_TILE) {
-    setTile(pacman.position, EMPTY_TILE)
+  } else if (tile === CHERRY_MARKER) {
+    setTile(pacman.position, EMPTY_MARKER)
     hideCherry()
     cherryVisibleRemainingMs = 0
     cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
@@ -1680,16 +1688,16 @@ const drawMaze = () => {
     const pixel = tileToPixel(col, row)
 
     switch (tile) {
-      case WALL_TILE:
+      case WALL_MARKER:
         drawWall(pixel)
         break
-      case PELLET_TILE:
+      case PELLET_MARKER:
         drawPellet(pixel)
         break
-      case POWER_PELLET_TILE:
+      case POWER_PELLET_MARKER:
         drawPowerPellet(pixel)
         break
-      case CHERRY_TILE:
+      case CHERRY_MARKER:
         drawCherry(pixel)
         break
     }
