@@ -64,7 +64,6 @@ const POWER_PELLET_MARKER = '⏺'
 const CHERRY_MARKER = 'c' // 🍒
 
 // `P` is reserved for Pac-Man only. Pinky uses `H` to avoid marker ambiguity.
-// [/doc_img/main.ts/2026-08-08-12-04-06.png]
 const PACMAN_MARKER = 'P'
 const BLINKY_MARKER = 'B'
 const PINKY_MARKER = 'H'
@@ -76,6 +75,7 @@ const PINKY_NAME = 'Pinky'
 const INKY_NAME = 'Inky'
 const CLYDE_NAME = 'Clyde'
 
+// [/doc_img/main.ts/2026-08-08-12-04-06.png]
 const GHOST_MARKER_SPECS: {
   marker:
     | typeof BLINKY_MARKER
