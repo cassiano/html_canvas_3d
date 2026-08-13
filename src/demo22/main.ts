@@ -117,7 +117,7 @@ const DIRECTIONS: Record<DirectionName, Vector3d> = {
   none: $v(0, 0),
 }
 
-const OPPOSITE_DIRECTION: Record<DirectionName, DirectionName> = {
+const OPPOSITE_DIRECTIONS: Record<DirectionName, DirectionName> = {
   up: 'down',
   down: 'up',
   left: 'right',
@@ -154,9 +154,9 @@ const MAZE_TEMPLATE = [
 const ROW_COUNT = MAZE_TEMPLATE.length
 const COLUMN_COUNT = MAZE_TEMPLATE[0].length
 
-MAZE_TEMPLATE.forEach((line, row) => {
-  if (line.length !== COLUMN_COUNT)
-    throw new Error(`Invalid maze width at row ${row}`)
+MAZE_TEMPLATE.forEach((row, index) => {
+  if (row.length !== COLUMN_COUNT)
+    throw new Error(`Invalid maze width at row ${index}`)
 })
 
 abstract class Actor {
@@ -184,20 +184,20 @@ abstract class Actor {
   }
 
   positionInTiles(): Vector3d {
-    const directionVector = DIRECTIONS[this.dir]
+    const currentDirection = DIRECTIONS[this.dir]
 
     return this.position
       .clone()
-      .add(directionVector.clone().mult(this.progress))
+      .add(currentDirection.clone().mult(this.progress))
   }
 
   static nextCell(position: Vector3d, direction: DirectionName): Vector3d {
-    const directionVector = DIRECTIONS[direction]
+    const currentDirection = DIRECTIONS[direction]
 
     return position
       .clone()
-      .add(directionVector)
-      .setX(wrapCol(position.x + directionVector.x))
+      .add(currentDirection)
+      .setX(wrapCol(position.x + currentDirection.x))
   }
 
   static canMove(position: Vector3d, direction: DirectionName): boolean {
@@ -1223,7 +1223,7 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
       if (dir === 'none') return false
       if (!Actor.canMove(ghost.position, dir)) return false
 
-      return dir !== OPPOSITE_DIRECTION[ghost.dir]
+      return dir !== OPPOSITE_DIRECTIONS[ghost.dir]
     },
   )
 
@@ -1375,7 +1375,7 @@ const chooseDemoPacmanDirection = (): DirectionName => {
       if (dir === 'none') return false
       if (!Actor.canMove(pacman.position, dir)) return false
 
-      return dir !== OPPOSITE_DIRECTION[pacman.dir]
+      return dir !== OPPOSITE_DIRECTIONS[pacman.dir]
     },
   )
 
