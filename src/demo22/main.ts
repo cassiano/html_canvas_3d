@@ -155,9 +155,8 @@ const ROW_COUNT = MAZE_TEMPLATE.length
 const COLUMN_COUNT = MAZE_TEMPLATE[0].length
 
 MAZE_TEMPLATE.forEach((line, row) => {
-  if (line.length !== COLUMN_COUNT) {
+  if (line.length !== COLUMN_COUNT)
     throw new Error(`Invalid maze width at row ${row}`)
-  }
 })
 
 abstract class Actor {
@@ -227,11 +226,8 @@ abstract class Actor {
           if (selectedDirection !== 'none') this.nextDir = selectedDirection
         }
 
-        if (this.canMoveTo(this.nextDir)) {
-          this.dir = this.nextDir
-        } else if (!this.canMoveTo(this.dir)) {
-          this.dir = 'none'
-        }
+        if (this.canMoveTo(this.nextDir)) this.dir = this.nextDir
+        else if (!this.canMoveTo(this.dir)) this.dir = 'none'
       }
 
       if (this.dir === 'none') return
@@ -394,9 +390,7 @@ class Ghost extends Actor {
       const step = previous.get(stepKey)
 
       if (!step) return 'none'
-      if (step.position.equals(this.position)) {
-        return step.dir
-      }
+      if (step.position.equals(this.position)) return step.dir
 
       stepKey = `${step.position.y},${step.position.x}`
     }
@@ -1075,9 +1069,8 @@ let cherryVisibleRemainingMs = 0
 let cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
 
 const hideCherry = () => {
-  if (getTile(cherrySpawnPosition) === CHERRY_MARKER) {
+  if (getTile(cherrySpawnPosition) === CHERRY_MARKER)
     setTile(cherrySpawnPosition, EMPTY_MARKER)
-  }
 }
 
 const showCherry = () => {
@@ -1573,9 +1566,8 @@ const updateGame = (deltaSeconds: number) => {
 
   updateCherryCycle(deltaSeconds)
 
-  if (pacman.canMoveTo(pacman.nextDir) && pacman.progress === 0) {
+  if (pacman.canMoveTo(pacman.nextDir) && pacman.progress === 0)
     pacman.dir = pacman.nextDir
-  }
 
   pacman.move(deltaSeconds)
 
