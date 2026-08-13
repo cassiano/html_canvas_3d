@@ -66,15 +66,33 @@ const CHERRY_MARKER = 'c'
 // `P` is reserved for Pac-Man only. Pinky uses `H` to avoid marker ambiguity.
 // [/doc_img/main.ts/2026-08-08-12-04-06.png]
 const PACMAN_MARKER = 'P'
+const BLINKY_MARKER = 'B'
+const PINKY_MARKER = 'H'
+const INKY_MARKER = 'I'
+const CLYDE_MARKER = 'C'
+
+const BLINKY_NAME = 'Blinky'
+const PINKY_NAME = 'Pinky'
+const INKY_NAME = 'Inky'
+const CLYDE_NAME = 'Clyde'
+
 const GHOST_MARKER_SPECS: {
-  marker: 'B' | 'H' | 'I' | 'C'
-  name: 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
+  marker:
+    | typeof BLINKY_MARKER
+    | typeof PINKY_MARKER
+    | typeof INKY_MARKER
+    | typeof CLYDE_MARKER
+  name:
+    | typeof BLINKY_NAME
+    | typeof PINKY_NAME
+    | typeof INKY_NAME
+    | typeof CLYDE_NAME
   color: string
 }[] = [
-  { marker: 'B', name: 'Blinky', color: '#FF0000' },
-  { marker: 'H', name: 'Pinky', color: '#FFB8DE' },
-  { marker: 'I', name: 'Inky', color: '#46BFEE' },
-  { marker: 'C', name: 'Clyde', color: '#FFB847' },
+  { marker: BLINKY_MARKER, name: BLINKY_NAME, color: '#FF0000' },
+  { marker: PINKY_MARKER, name: PINKY_NAME, color: '#FFB8DE' },
+  { marker: INKY_MARKER, name: INKY_NAME, color: '#46BFEE' },
+  { marker: CLYDE_MARKER, name: CLYDE_NAME, color: '#FFB847' },
 ]
 
 type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
