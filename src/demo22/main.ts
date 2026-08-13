@@ -238,11 +238,11 @@ abstract class Actor {
     }
   }
 
-  abstract draw(): void
+  abstract render(): void
 }
 
 class Pacman extends Actor {
-  draw() {
+  render() {
     const position = this.positionInTiles()
     const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
     const radius = TILE_SIZE * PACMAN_RADIUS_RATIO
@@ -256,12 +256,12 @@ class Pacman extends Actor {
     const centerX = pixel.x
     const centerY = pixel.y + bob
 
-    drawCirclePixel(centerX, centerY + radius * 0.95, radius * 0.28, {
+    renderCirclePixel(centerX, centerY + radius * 0.95, radius * 0.28, {
       color: 'rgba(0, 0, 0, 0.22)',
       noStroke: true,
     })
 
-    drawCirclePixel(centerX, centerY, radius, {
+    renderCirclePixel(centerX, centerY, radius, {
       color: '#FFFF00',
       strokeColor: '#FFFF00',
       lineWidth: 1.4,
@@ -287,8 +287,8 @@ class Pacman extends Actor {
     const eyeX = centerX + look.x * radius * 0.22 - look.y * radius * 0.24
     const eyeY = centerY + look.y * radius * 0.42 + look.x * radius * 0.44
 
-    drawCirclePixel(eyeX, eyeY, radius * 0.12, { color: '#f9fcff' })
-    drawCirclePixel(
+    renderCirclePixel(eyeX, eyeY, radius * 0.12, { color: '#f9fcff' })
+    renderCirclePixel(
       eyeX + look.x * radius * 0.03,
       eyeY + look.y * radius * 0.03,
       radius * 0.09,
@@ -432,7 +432,7 @@ class Ghost extends Actor {
     }
   }
 
-  draw() {
+  render() {
     const position = this.positionInTiles()
     const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
     const radius = TILE_SIZE * GHOST_RADIUS_RATIO
@@ -459,20 +459,20 @@ class Ghost extends Actor {
       : this.color
 
     if (this.isEaten) {
-      drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+      renderCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
         color: 'white',
       })
-      drawCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+      renderCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
         color: 'white',
       })
 
-      drawCirclePixel(
+      renderCirclePixel(
         pixel.x - eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
         pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
         pupilRadius,
         { color: '#111' },
       )
-      drawCirclePixel(
+      renderCirclePixel(
         pixel.x + eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
         pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
         pupilRadius,
@@ -482,37 +482,37 @@ class Ghost extends Actor {
       return
     }
 
-    drawCirclePixel(pixel.x, top + radius, radius, {
+    renderCirclePixel(pixel.x, top + radius, radius, {
       color: bodyColor,
       noStroke: true,
     })
 
-    drawFilledRectPixel(left, pixel.y, radius * 2, radius, bodyColor)
+    renderFilledRectPixel(left, pixel.y, radius * 2, radius, bodyColor)
 
-    drawCirclePixel(left + radius * 0.35, bottom, radius * 0.22, {
+    renderCirclePixel(left + radius * 0.35, bottom, radius * 0.22, {
       color: bodyColor,
     })
-    drawCirclePixel(pixel.x, bottom, radius * 0.22, {
+    renderCirclePixel(pixel.x, bottom, radius * 0.22, {
       color: bodyColor,
     })
-    drawCirclePixel(right - radius * 0.35, bottom, radius * 0.22, {
+    renderCirclePixel(right - radius * 0.35, bottom, radius * 0.22, {
       color: bodyColor,
     })
 
-    drawCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+    renderCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
       color: 'white',
     })
-    drawCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
+    renderCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
       color: 'white',
     })
 
-    drawCirclePixel(
+    renderCirclePixel(
       pixel.x - eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
       pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
       pupilRadius,
       { color: '#111' },
     )
-    drawCirclePixel(
+    renderCirclePixel(
       pixel.x + eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
       pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
       pupilRadius,
@@ -521,11 +521,11 @@ class Ghost extends Actor {
   }
 }
 
-// Draws a power pellet with a pulsing effect.
-function drawPowerPellet(pixel: { x: number; y: number }) {
+// renders a power pellet with a pulsing effect.
+const renderPowerPellet = (pixel: { x: number; y: number }) => {
   const pulse = 0.75 + 0.25 * sin(millis() / 120)
 
-  drawCirclePixel(
+  renderCirclePixel(
     pixel.x + TILE_SIZE / 2,
     pixel.y + TILE_SIZE / 2,
     TILE_SIZE * 0.26 * pulse,
@@ -533,8 +533,8 @@ function drawPowerPellet(pixel: { x: number; y: number }) {
   )
 }
 
-function drawPellet(pixel: { x: number; y: number }) {
-  drawCirclePixel(
+const renderPellet = (pixel: { x: number; y: number }) => {
+  renderCirclePixel(
     pixel.x + TILE_SIZE / 2,
     pixel.y + TILE_SIZE / 2,
     TILE_SIZE * 0.12,
@@ -542,18 +542,18 @@ function drawPellet(pixel: { x: number; y: number }) {
   )
 }
 
-function drawWall(pixel: { x: number; y: number }) {
-  drawFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
-  drawStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
+const renderWall = (pixel: { x: number; y: number }) => {
+  renderFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
+  renderStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
 }
 
-// Draws a cherry with a stem and two leaves.
-function drawCherry(pixel: { x: number; y: number }) {
+// renders a cherry with a stem and two leaves.
+const renderCherry = (pixel: { x: number; y: number }) => {
   const centerX = pixel.x + TILE_SIZE / 2
   const centerY = pixel.y + TILE_SIZE / 2
   const cherryRadius = TILE_SIZE * 0.18
 
-  drawLinePixel(
+  renderLinePixel(
     centerX - cherryRadius * 0.45,
     centerY - cherryRadius * 1.45,
     centerX,
@@ -561,7 +561,7 @@ function drawCherry(pixel: { x: number; y: number }) {
     '#66b15b',
     2,
   )
-  drawLinePixel(
+  renderLinePixel(
     centerX,
     centerY - cherryRadius * 2.25,
     centerX + cherryRadius * 0.55,
@@ -570,26 +570,26 @@ function drawCherry(pixel: { x: number; y: number }) {
     2,
   )
 
-  drawCirclePixel(
+  renderCirclePixel(
     centerX - cherryRadius * 0.65,
     centerY + cherryRadius * 0.25,
     cherryRadius,
     { color: '#d3152f' },
   )
-  drawCirclePixel(
+  renderCirclePixel(
     centerX + cherryRadius * 0.65,
     centerY + cherryRadius * 0.25,
     cherryRadius,
     { color: '#d3152f' },
   )
 
-  drawCirclePixel(
+  renderCirclePixel(
     centerX - cherryRadius,
     centerY - cherryRadius * 0.1,
     cherryRadius * 0.35,
     { color: 'rgba(255, 255, 255, 0.55)' },
   )
-  drawCirclePixel(
+  renderCirclePixel(
     centerX + cherryRadius * 0.3,
     centerY - cherryRadius * 0.1,
     cherryRadius * 0.35,
@@ -1027,11 +1027,11 @@ const ghosts: Ghost[] = ghostStarts.map(
     ),
 )
 
-function getTile(position: Vector3d): Tile {
+const getTile = (position: Vector3d): Tile => {
   return maze[position.y][position.x] ?? WALL_MARKER
 }
 
-function setTile(position: Vector3d, value: Tile): void {
+const setTile = (position: Vector3d, value: Tile): void => {
   maze[position.y][position.x] = value
 }
 
@@ -1588,7 +1588,7 @@ const tileToPixel = (
 const toWorldPoint = (x: number, y: number) =>
   $v(x - animation.width / 2, animation.height / 2 - y)
 
-const drawLinePixel = (
+const renderLinePixel = (
   x1: number,
   y1: number,
   x2: number,
@@ -1603,7 +1603,7 @@ const drawLinePixel = (
   })
 }
 
-const drawFilledRectPixel = (
+const renderFilledRectPixel = (
   x: number,
   y: number,
   width: number,
@@ -1623,7 +1623,7 @@ const drawFilledRectPixel = (
   })
 }
 
-const drawCirclePixel = (
+const renderCirclePixel = (
   x: number,
   y: number,
   radius: number,
@@ -1656,7 +1656,7 @@ const drawCirclePixel = (
   })
 }
 
-const drawStrokeRectPixel = (
+const renderStrokeRectPixel = (
   x: number,
   y: number,
   width: number,
@@ -1664,29 +1664,29 @@ const drawStrokeRectPixel = (
   color: string,
   lineWidth = 1,
 ) => {
-  drawLinePixel(x, y, x + width, y, color, lineWidth)
-  drawLinePixel(x + width, y, x + width, y + height, color, lineWidth)
-  drawLinePixel(x + width, y + height, x, y + height, color, lineWidth)
-  drawLinePixel(x, y + height, x, y, color, lineWidth)
+  renderLinePixel(x, y, x + width, y, color, lineWidth)
+  renderLinePixel(x + width, y, x + width, y + height, color, lineWidth)
+  renderLinePixel(x + width, y + height, x, y + height, color, lineWidth)
+  renderLinePixel(x, y + height, x, y, color, lineWidth)
 }
 
-const drawMaze = () => {
+const renderMaze = () => {
   timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
     const tile = getTile($v(col, row))
     const pixel = tileToPixel(col, row)
 
     switch (tile) {
       case WALL_MARKER:
-        drawWall(pixel)
+        renderWall(pixel)
         break
       case PELLET_MARKER:
-        drawPellet(pixel)
+        renderPellet(pixel)
         break
       case POWER_PELLET_MARKER:
-        drawPowerPellet(pixel)
+        renderPowerPellet(pixel)
         break
       case CHERRY_MARKER:
-        drawCherry(pixel)
+        renderCherry(pixel)
         break
     }
   })
@@ -1707,7 +1707,7 @@ const directionToAngle = (direction: DirectionName): number => {
   }
 }
 
-const drawHud = () => {
+const renderHud = () => {
   text2d(`Score: ${score}`, toWorldPoint(20, 60), '#f4f4f4', {
     fontSize: 18,
     fontFamily: 'monospace',
@@ -1743,9 +1743,9 @@ const drawHud = () => {
   )
 }
 
-const drawStateOverlay = () => {
+const renderStateOverlay = () => {
   if (!hasStartedGame) {
-    drawFilledRectPixel(
+    renderFilledRectPixel(
       0,
       0,
       animation.width,
@@ -1778,7 +1778,7 @@ const drawStateOverlay = () => {
   }
 
   if (roundDelayRemainingMs > 0 && gameState === 'playing') {
-    drawFilledRectPixel(
+    renderFilledRectPixel(
       0,
       0,
       animation.width,
@@ -1798,7 +1798,7 @@ const drawStateOverlay = () => {
 
   if (gameState === 'playing') return
 
-  drawFilledRectPixel(
+  renderFilledRectPixel(
     0,
     0,
     animation.width,
@@ -1829,14 +1829,14 @@ const drawStateOverlay = () => {
   )
 }
 
-const drawScene = () => {
-  drawMaze()
+const renderScene = () => {
+  renderMaze()
 
-  pacman.draw()
-  ghosts.forEach(ghost => ghost.draw())
+  pacman.render()
+  ghosts.forEach(ghost => ghost.render())
 
-  drawHud()
-  drawStateOverlay()
+  renderHud()
+  renderStateOverlay()
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
@@ -1890,7 +1890,7 @@ const draw = () => {
   lastTickMillis = now
 
   updateGame(deltaSeconds)
-  drawScene()
+  renderScene()
 }
 
 const onPaused = () => {
