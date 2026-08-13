@@ -75,18 +75,21 @@ const PINKY_NAME = 'Pinky'
 const INKY_NAME = 'Inky'
 const CLYDE_NAME = 'Clyde'
 
+type GhostMarker =
+  | typeof BLINKY_MARKER
+  | typeof PINKY_MARKER
+  | typeof INKY_MARKER
+  | typeof CLYDE_MARKER
+type GhostName =
+  | typeof BLINKY_NAME
+  | typeof PINKY_NAME
+  | typeof INKY_NAME
+  | typeof CLYDE_NAME
+
 // [/doc_img/main.ts/2026-08-08-12-04-06.png]
 const GHOST_MARKER_SPECS: {
-  marker:
-    | typeof BLINKY_MARKER
-    | typeof PINKY_MARKER
-    | typeof INKY_MARKER
-    | typeof CLYDE_MARKER
-  name:
-    | typeof BLINKY_NAME
-    | typeof PINKY_NAME
-    | typeof INKY_NAME
-    | typeof CLYDE_NAME
+  marker: GhostMarker
+  name: GhostName
   color: string
 }[] = [
   { marker: BLINKY_MARKER, name: BLINKY_NAME, color: '#FF0000' },
@@ -96,9 +99,6 @@ const GHOST_MARKER_SPECS: {
 ]
 
 type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
-
-type GhostName = (typeof GHOST_MARKER_SPECS)[number]['name']
-type GhostMarker = (typeof GHOST_MARKER_SPECS)[number]['marker']
 
 type Tile =
   | typeof WALL_MARKER
