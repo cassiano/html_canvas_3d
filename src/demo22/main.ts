@@ -34,6 +34,29 @@ import {
   render3dScene,
 } from '../primitives.ts'
 
+type GameState = 'playing' | 'won' | 'gameOver'
+
+const TILE_SIZE = 24
+const PACMAN_RADIUS_RATIO = 0.5
+const GHOST_RADIUS_RATIO = 0.44
+const BASE_PACMAN_SPEED = 3.5
+const BASE_GHOST_SPEED = 3
+const POWER_MODE_GHOST_SPEED_FACTOR = 0.72
+const POWER_MODE_MS = 7000
+const POWER_WARNING_FLASH_MS = 1800
+const POWER_WARNING_FLASH_INTERVAL_MS = 140
+const CHERRY_SCORE = 200
+const CHERRY_EXTRA_SCORE = 150
+const CHERRY_VISIBLE_MS = 7000
+const CHERRY_RESPAWN_MIN_MS = 9000
+const CHERRY_RESPAWN_MAX_MS = 18000
+const GHOST_EATEN_BASE_SCORE = 200
+const COLLISION_DISTANCE_TILES = 0.5
+const ROUND_START_DELAY_MS = 900
+const WAKA_INTERVAL_MS = 95
+const POWER_SIREN_LOOP_MS = 900
+const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
+
 const WALL_MARKER = '◻'
 const EMPTY_MARKER = ' '
 const PELLET_MARKER = '.'
@@ -67,6 +90,57 @@ type Tile =
   | typeof CHERRY_MARKER
   | typeof PACMAN_MARKER
   | GhostMarker
+
+const DIRECTIONS: Record<DirectionName, Vector3d> = {
+  up: $v(0, -1),
+  down: $v(0, 1),
+  left: $v(-1, 0),
+  right: $v(1, 0),
+  none: $v(0, 0),
+}
+
+const OPPOSITE_DIRECTION: Record<DirectionName, DirectionName> = {
+  up: 'down',
+  down: 'up',
+  left: 'right',
+  right: 'left',
+  none: 'none',
+}
+
+// [/doc_img/main.ts/2026-08-10-09-50-36.png]
+const MAZE_TEMPLATE = [
+  '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
+  '◻........◻........◻',
+  '◻.◻◻.◻◻◻.◻.◻◻◻.◻◻.◻',
+  '◻⏺◻◻.◻◻◻.◻.◻◻◻.◻◻⏺◻',
+  '◻.................◻',
+  '◻.◻◻.◻.◻◻◻◻◻.◻.◻◻.◻',
+  '◻....◻...◻...◻....◻',
+  '◻◻◻◻.◻◻◻ ◻ ◻◻◻.◻◻◻◻',
+  '   ◻.◻       ◻.◻   ',
+  '◻◻◻◻.◻ ◻◻B◻◻ ◻.◻◻◻◻',
+  '    .  ◻IHC◻  .    ',
+  '◻◻◻◻.◻ ◻◻◻◻◻ ◻.◻◻◻◻',
+  '   ◻.◻   c   ◻.◻   ',
+  '◻◻◻◻.◻ ◻◻◻◻◻ ◻.◻◻◻◻',
+  '◻........◻........◻',
+  '◻.◻◻.◻◻◻.◻.◻◻◻.◻◻.◻',
+  '◻⏺.◻.....P.....◻.⏺◻',
+  '◻◻.◻.◻.◻◻◻◻◻.◻.◻.◻◻',
+  '◻....◻...◻...◻....◻',
+  '◻.◻◻◻◻◻◻.◻.◻◻◻◻◻◻.◻',
+  '◻.................◻',
+  '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
+] as const
+
+const ROW_COUNT = MAZE_TEMPLATE.length
+const COLUMN_COUNT = MAZE_TEMPLATE[0].length
+
+MAZE_TEMPLATE.forEach((line, row) => {
+  if (line.length !== COLUMN_COUNT) {
+    throw new Error(`Invalid maze width at row ${row}`)
+  }
+})
 
 abstract class Actor {
   startPosition: Vector3d
@@ -446,29 +520,6 @@ class Ghost extends Actor {
     )
   }
 }
-
-type GameState = 'playing' | 'won' | 'gameOver'
-
-const TILE_SIZE = 24
-const PACMAN_RADIUS_RATIO = 0.5
-const GHOST_RADIUS_RATIO = 0.44
-const BASE_PACMAN_SPEED = 3.5
-const BASE_GHOST_SPEED = 3
-const POWER_MODE_GHOST_SPEED_FACTOR = 0.72
-const POWER_MODE_MS = 7000
-const POWER_WARNING_FLASH_MS = 1800
-const POWER_WARNING_FLASH_INTERVAL_MS = 140
-const CHERRY_SCORE = 200
-const CHERRY_EXTRA_SCORE = 150
-const CHERRY_VISIBLE_MS = 7000
-const CHERRY_RESPAWN_MIN_MS = 9000
-const CHERRY_RESPAWN_MAX_MS = 18000
-const GHOST_EATEN_BASE_SCORE = 200
-const COLLISION_DISTANCE_TILES = 0.5
-const ROUND_START_DELAY_MS = 900
-const WAKA_INTERVAL_MS = 95
-const POWER_SIREN_LOOP_MS = 900
-const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
 
 // Draws a power pellet with a pulsing effect.
 function drawPowerPellet(pixel: { x: number; y: number }) {
@@ -925,57 +976,6 @@ const startPowerSirenLoop = () => {
     else stopPowerSirenLoop()
   }, POWER_SIREN_LOOP_MS)
 }
-
-const DIRECTIONS: Record<DirectionName, Vector3d> = {
-  up: $v(0, -1),
-  down: $v(0, 1),
-  left: $v(-1, 0),
-  right: $v(1, 0),
-  none: $v(0, 0),
-}
-
-const OPPOSITE_DIRECTION: Record<DirectionName, DirectionName> = {
-  up: 'down',
-  down: 'up',
-  left: 'right',
-  right: 'left',
-  none: 'none',
-}
-
-// [/doc_img/main.ts/2026-08-10-09-50-36.png]
-const MAZE_TEMPLATE = [
-  '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
-  '◻........◻........◻',
-  '◻.◻◻.◻◻◻.◻.◻◻◻.◻◻.◻',
-  '◻⏺◻◻.◻◻◻.◻.◻◻◻.◻◻⏺◻',
-  '◻.................◻',
-  '◻.◻◻.◻.◻◻◻◻◻.◻.◻◻.◻',
-  '◻....◻...◻...◻....◻',
-  '◻◻◻◻.◻◻◻ ◻ ◻◻◻.◻◻◻◻',
-  '   ◻.◻       ◻.◻   ',
-  '◻◻◻◻.◻ ◻◻B◻◻ ◻.◻◻◻◻',
-  '    .  ◻IHC◻  .    ',
-  '◻◻◻◻.◻ ◻◻◻◻◻ ◻.◻◻◻◻',
-  '   ◻.◻   c   ◻.◻   ',
-  '◻◻◻◻.◻ ◻◻◻◻◻ ◻.◻◻◻◻',
-  '◻........◻........◻',
-  '◻.◻◻.◻◻◻.◻.◻◻◻.◻◻.◻',
-  '◻⏺.◻.....P.....◻.⏺◻',
-  '◻◻.◻.◻.◻◻◻◻◻.◻.◻.◻◻',
-  '◻....◻...◻...◻....◻',
-  '◻.◻◻◻◻◻◻.◻.◻◻◻◻◻◻.◻',
-  '◻.................◻',
-  '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
-] as const
-
-const ROW_COUNT = MAZE_TEMPLATE.length
-const COLUMN_COUNT = MAZE_TEMPLATE[0].length
-
-MAZE_TEMPLATE.forEach((line, row) => {
-  if (line.length !== COLUMN_COUNT) {
-    throw new Error(`Invalid maze width at row ${row}`)
-  }
-})
 
 const maze: Tile[][] = MAZE_TEMPLATE.map(line => line.split('') as Tile[])
 
