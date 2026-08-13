@@ -1039,9 +1039,8 @@ const ghosts: Ghost[] = ghostStarts.map(
     ),
 )
 
-const getTile = (position: Vector3d): Tile => {
-  return maze[position.y][position.x] ?? WALL_MARKER
-}
+const getTile = (position: Vector3d): Tile =>
+  maze[position.y][position.x] ?? WALL_MARKER
 
 const setTile = (position: Vector3d, value: Tile): void => {
   maze[position.y][position.x] = value
