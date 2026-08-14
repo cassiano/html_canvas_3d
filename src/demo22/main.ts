@@ -11,27 +11,9 @@ import {
   background,
   resetTransformationMatrix,
 } from '../primitives.ts'
-import {
-  abs,
-  floor,
-  HALF_PI,
-  max,
-  min,
-  PI,
-  random,
-  sin,
-} from '../math_utils.ts'
+import { abs, floor, max, min, random } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
-import {
-  line,
-  isolateTransformations,
-  translate,
-  rect2d,
-  circle2d,
-  triangle2d,
-  text2d,
-  render3dScene,
-} from '../primitives.ts'
+import { text2d, render3dScene } from '../primitives.ts'
 import {
   playCherryPickup,
   playDeath,
@@ -44,57 +26,75 @@ import {
 import { ActorEnvironment, canMove, DirectionName, nextCell } from './actor.ts'
 import { Ghost } from './ghost.ts'
 import { Pacman } from './pacman.ts'
+import {
+  directionToAngle,
+  renderCherry,
+  renderCirclePixel,
+  renderFilledRectPixel,
+  renderPellet,
+  renderPowerPellet,
+  renderWall,
+  tileToPixel,
+  toWorldPoint,
+  triangle2d,
+} from './render.ts'
+import {
+  BASE_GHOST_SPEED,
+  BASE_PACMAN_SPEED,
+  BLINKY_MARKER,
+  BLINKY_NAME,
+  CHERRY_EXTRA_SCORE,
+  CHERRY_MARKER,
+  CHERRY_RESPAWN_DECREASE_PER_PHASE,
+  CHERRY_RESPAWN_MAX_MS,
+  CHERRY_RESPAWN_MIN_MS,
+  CHERRY_SCORE,
+  CHERRY_VISIBLE_MS,
+  CLYDE_MARKER,
+  CLYDE_NAME,
+  CLYDE_SHY_DISTANCE_TILES,
+  COLLISION_DISTANCE_TILES,
+  COLUMN_COUNT,
+  DIRECTIONS,
+  EMPTY_MARKER,
+  GHOST_EATEN_BASE_SCORE,
+  GHOST_MARKER_SPECS,
+  GHOST_RADIUS_RATIO,
+  GHOST_SPEED_INCREASE_PER_PHASE,
+  HIGH_SCORE_STORAGE_KEY,
+  INKY_LOOKAHEAD_TILES,
+  INKY_MARKER,
+  INKY_NAME,
+  MAZE_TEMPLATE,
+  MIN_CHERRY_RESPAWN_MAX_MS,
+  MIN_CHERRY_RESPAWN_MIN_MS,
+  MIN_POWER_MODE_MS,
+  OPPOSITE_DIRECTIONS,
+  PACMAN_MARKER,
+  PACMAN_RADIUS_RATIO,
+  PINKY_LOOKAHEAD_TILES,
+  PINKY_MARKER,
+  PINKY_NAME,
+  PELLET_MARKER,
+  POWER_MODE_GHOST_SPEED_FACTOR,
+  POWER_MODE_MS,
+  POWER_MODE_MS_DECREASE_PER_PHASE,
+  POWER_PELLET_MARKER,
+  POWER_WARNING_FLASH_INTERVAL_MS,
+  POWER_WARNING_FLASH_MS,
+  ROUND_START_DELAY_MS,
+  ROW_COUNT,
+  TILE_SIZE,
+  WALL_MARKER,
+} from './constants.ts'
 
 type GameState = 'playing' | 'won' | 'gameOver'
 
-const TILE_SIZE = 24
-const PACMAN_RADIUS_RATIO = 0.5
-const GHOST_RADIUS_RATIO = 0.44
-const BASE_PACMAN_SPEED = 4
-const BASE_GHOST_SPEED = 3
-const GHOST_SPEED_INCREASE_PER_PHASE = 0.12
-const POWER_MODE_GHOST_SPEED_FACTOR = 0.72
-const POWER_MODE_MS = 7000
-const POWER_MODE_MS_DECREASE_PER_PHASE = 350
-const MIN_POWER_MODE_MS = 2800
-const POWER_WARNING_FLASH_MS = 1800
-const POWER_WARNING_FLASH_INTERVAL_MS = 140
-const CHERRY_SCORE = 200
-const CHERRY_EXTRA_SCORE = 150
-const CHERRY_VISIBLE_MS = 7000
-const CHERRY_RESPAWN_MIN_MS = 9000
-const CHERRY_RESPAWN_MAX_MS = 18000
-const CHERRY_RESPAWN_DECREASE_PER_PHASE = 450
-const MIN_CHERRY_RESPAWN_MIN_MS = 2500
-const MIN_CHERRY_RESPAWN_MAX_MS = 5000
-const GHOST_EATEN_BASE_SCORE = 200
-const COLLISION_DISTANCE_TILES = 0.5
-const ROUND_START_DELAY_MS = 900
-const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
-
-const WALL_MARKER = '◻'
-const EMPTY_MARKER = ' '
-const PELLET_MARKER = '·'
-const POWER_PELLET_MARKER = '⏺'
-const CHERRY_MARKER = 'c' // 🍒
-
-// `P` is reserved for Pac-Man only. Pinky uses `H` to avoid marker ambiguity.
-const PACMAN_MARKER = 'P'
-const BLINKY_MARKER = 'B'
-const PINKY_MARKER = 'H'
-const INKY_MARKER = 'I'
-const CLYDE_MARKER = 'C'
-
-const BLINKY_NAME = 'Blinky'
-const PINKY_NAME = 'Pinky'
-const INKY_NAME = 'Inky'
-const CLYDE_NAME = 'Clyde'
-
 type GhostMarker =
-  | typeof BLINKY_MARKER
-  | typeof PINKY_MARKER
-  | typeof INKY_MARKER
   | typeof CLYDE_MARKER
+  | typeof INKY_MARKER
+  | typeof PINKY_MARKER
+  | typeof BLINKY_MARKER
 type GhostName =
   | typeof BLINKY_NAME
   | typeof PINKY_NAME
@@ -102,21 +102,6 @@ type GhostName =
   | typeof CLYDE_NAME
 
 // [/doc_img/main.ts/2026-08-08-12-04-06.png]
-const GHOST_MARKER_SPECS: {
-  marker: GhostMarker
-  name: GhostName
-  color: string
-}[] = [
-  { marker: BLINKY_MARKER, name: BLINKY_NAME, color: '#FF0000' },
-  { marker: PINKY_MARKER, name: PINKY_NAME, color: '#FFB8DE' },
-  { marker: INKY_MARKER, name: INKY_NAME, color: '#46BFEE' },
-  { marker: CLYDE_MARKER, name: CLYDE_NAME, color: '#FFB847' },
-]
-
-const PINKY_LOOKAHEAD_TILES = 4
-const INKY_LOOKAHEAD_TILES = 2
-const CLYDE_SHY_DISTANCE_TILES = 8
-
 type Tile =
   | typeof WALL_MARKER
   | typeof EMPTY_MARKER
@@ -133,248 +118,10 @@ type GhostStart = {
   color: string
 }
 
-const DIRECTIONS: Record<DirectionName, Vector3d> = {
-  up: $v(0, -1),
-  down: $v(0, 1),
-  left: $v(-1, 0),
-  right: $v(1, 0),
-  none: $v(0, 0),
-}
-
-const OPPOSITE_DIRECTIONS: Record<DirectionName, DirectionName> = {
-  up: 'down',
-  down: 'up',
-  left: 'right',
-  right: 'left',
-  none: 'none',
-}
-
-// [/doc_img/main.ts/2026-08-10-09-50-36.png]
-const MAZE_TEMPLATE = [
-  '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
-  '◻········◻········◻',
-  '◻·◻◻·◻◻◻·◻·◻◻◻·◻◻·◻',
-  '◻⏺◻◻·◻◻◻·◻·◻◻◻·◻◻⏺◻',
-  '◻·················◻',
-  '◻·◻◻·◻·◻◻◻◻◻·◻·◻◻·◻',
-  '◻····◻···◻···◻····◻',
-  '◻◻◻◻·◻◻◻ ◻ ◻◻◻·◻◻◻◻',
-  '   ◻·◻       ◻·◻   ',
-  '◻◻◻◻·◻ ◻◻B◻◻ ◻·◻◻◻◻',
-  '    ·  ◻IHC◻  ·    ',
-  '◻◻◻◻·◻ ◻◻◻◻◻ ◻·◻◻◻◻',
-  '   ◻·◻   c   ◻·◻   ',
-  '◻◻◻◻·◻ ◻◻◻◻◻ ◻·◻◻◻◻',
-  '◻········◻········◻',
-  '◻·◻◻·◻◻◻·◻·◻◻◻·◻◻·◻',
-  '◻⏺·◻·····P·····◻·⏺◻',
-  '◻◻·◻·◻·◻◻◻◻◻·◻·◻·◻◻',
-  '◻····◻···◻···◻····◻',
-  '◻·◻◻◻◻◻◻·◻·◻◻◻◻◻◻·◻',
-  '◻·················◻',
-  '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
-] as const
-
-const ROW_COUNT = MAZE_TEMPLATE.length
-const COLUMN_COUNT = MAZE_TEMPLATE[0].length
-
 MAZE_TEMPLATE.forEach((row, index) => {
   if (row.length !== COLUMN_COUNT)
     throw new Error(`Invalid maze width at row ${index}`)
 })
-
-function tileToPixel(tileX: number, tileY: number): { x: number; y: number } {
-  const boardWidth = COLUMN_COUNT * TILE_SIZE
-  const boardHeight = ROW_COUNT * TILE_SIZE
-  const offsetX = (animation.width - boardWidth) / 2
-  const offsetY = (animation.height - boardHeight) / 2
-
-  return {
-    x: offsetX + tileX * TILE_SIZE,
-    y: offsetY + tileY * TILE_SIZE,
-  }
-}
-
-function toWorldPoint(x: number, y: number) {
-  return $v(x - animation.width / 2, animation.height / 2 - y)
-}
-
-function renderLinePixel(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  color: string,
-  lineWidth = 1,
-) {
-  line(toWorldPoint(x1, y1), toWorldPoint(x2, y2), {
-    color,
-    lineWidth,
-    noSplit: true,
-  })
-}
-
-function renderFilledRectPixel(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  color: string,
-  opacity = 1,
-) {
-  isolateTransformations(() => {
-    translate(toWorldPoint(x + width / 2, y + height / 2))
-
-    rect2d(width, height, {
-      color,
-      noStroke: true,
-      opacity,
-      isDoubleSided: true,
-    })
-  })
-}
-
-function renderCirclePixel(
-  x: number,
-  y: number,
-  radius: number,
-  {
-    color,
-    strokeColor,
-    lineWidth = 1,
-    noStroke = true,
-    opacity = 1,
-  }: {
-    color: string
-    strokeColor?: string
-    lineWidth?: number
-    noStroke?: boolean
-    opacity?: number
-  },
-) {
-  isolateTransformations(() => {
-    translate(toWorldPoint(x, y))
-
-    circle2d(radius, {
-      color,
-      strokeColor: strokeColor ?? color,
-      lineWidth,
-      noStroke,
-      opacity,
-      circleSegments: 28,
-      isDoubleSided: true,
-    })
-  })
-}
-
-function renderStrokeRectPixel(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  color: string,
-  lineWidth = 1,
-) {
-  renderLinePixel(x, y, x + width, y, color, lineWidth)
-  renderLinePixel(x + width, y, x + width, y + height, color, lineWidth)
-  renderLinePixel(x + width, y + height, x, y + height, color, lineWidth)
-  renderLinePixel(x, y + height, x, y, color, lineWidth)
-}
-
-function directionToAngle(direction: DirectionName): number {
-  switch (direction) {
-    case 'right':
-      return 0
-    case 'left':
-      return PI
-    case 'up':
-      return -HALF_PI
-    case 'down':
-      return HALF_PI
-    case 'none':
-      return 0
-    default: {
-      const exhaustiveCheck: never = direction
-      return exhaustiveCheck
-    }
-  }
-}
-
-// renders a power pellet with a pulsing effect.
-function renderPowerPellet(pixel: { x: number; y: number }) {
-  const pulse = 0.75 + 0.25 * sin(millis() / 120)
-
-  renderCirclePixel(
-    pixel.x + TILE_SIZE / 2,
-    pixel.y + TILE_SIZE / 2,
-    TILE_SIZE * 0.26 * pulse,
-    { color: '#fff2df' },
-  )
-}
-
-function renderPellet(pixel: { x: number; y: number }) {
-  renderCirclePixel(
-    pixel.x + TILE_SIZE / 2,
-    pixel.y + TILE_SIZE / 2,
-    TILE_SIZE * 0.12,
-    { color: '#ffd7a8' },
-  )
-}
-
-function renderWall(pixel: { x: number; y: number }) {
-  renderFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
-  renderStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
-}
-
-// renders a cherry with a stem and two leaves.
-function renderCherry(pixel: { x: number; y: number }) {
-  const centerX = pixel.x + TILE_SIZE / 2
-  const centerY = pixel.y + TILE_SIZE / 2
-  const cherryRadius = TILE_SIZE * 0.18
-
-  renderLinePixel(
-    centerX - cherryRadius * 0.45,
-    centerY - cherryRadius * 1.45,
-    centerX,
-    centerY - cherryRadius * 2.25,
-    '#66b15b',
-    2,
-  )
-  renderLinePixel(
-    centerX,
-    centerY - cherryRadius * 2.25,
-    centerX + cherryRadius * 0.55,
-    centerY - cherryRadius * 1.45,
-    '#66b15b',
-    2,
-  )
-
-  renderCirclePixel(
-    centerX - cherryRadius * 0.65,
-    centerY + cherryRadius * 0.25,
-    cherryRadius,
-    { color: '#d3152f' },
-  )
-  renderCirclePixel(
-    centerX + cherryRadius * 0.65,
-    centerY + cherryRadius * 0.25,
-    cherryRadius,
-    { color: '#d3152f' },
-  )
-
-  renderCirclePixel(
-    centerX - cherryRadius,
-    centerY - cherryRadius * 0.1,
-    cherryRadius * 0.35,
-    { color: 'rgba(255, 255, 255, 0.55)' },
-  )
-  renderCirclePixel(
-    centerX + cherryRadius * 0.3,
-    centerY - cherryRadius * 0.1,
-    cherryRadius * 0.35,
-    { color: 'rgba(255, 255, 255, 0.55)' },
-  )
-}
 
 function getClydeScatterTarget(): Vector3d {
   return $v(1, ROW_COUNT - 2)
