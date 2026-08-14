@@ -13,7 +13,6 @@ import {
 } from '../primitives.ts'
 import {
   abs,
-  cos,
   floor,
   HALF_PI,
   max,
@@ -42,6 +41,9 @@ import {
   startPowerSirenLoop,
   stopPowerSirenLoop,
 } from './audio.ts'
+import { ActorEnvironment, canMove, DirectionName, nextCell } from './actor.ts'
+import { Ghost } from './ghost.ts'
+import { Pacman } from './pacman.ts'
 
 type GameState = 'playing' | 'won' | 'gameOver'
 
@@ -115,8 +117,6 @@ const PINKY_LOOKAHEAD_TILES = 4
 const INKY_LOOKAHEAD_TILES = 2
 const CLYDE_SHY_DISTANCE_TILES = 8
 
-type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
-
 type Tile =
   | typeof WALL_MARKER
   | typeof EMPTY_MARKER
@@ -175,382 +175,6 @@ MAZE_TEMPLATE.forEach((row, index) => {
   if (row.length !== COLUMN_COUNT)
     throw new Error(`Invalid maze width at row ${index}`)
 })
-
-abstract class Actor {
-  startPosition: Vector3d
-  dir: DirectionName
-  nextDir: DirectionName
-  progress: number
-
-  constructor(
-    public position: Vector3d,
-    public speedTilesPerSecond: number,
-    initialDirection: DirectionName = 'left',
-  ) {
-    this.startPosition = position.clone()
-    this.dir = initialDirection
-    this.nextDir = initialDirection
-    this.progress = 0
-  }
-
-  reset(direction: DirectionName = 'left') {
-    this.position = this.startPosition.clone()
-    this.progress = 0
-    this.dir = direction
-    this.nextDir = direction
-  }
-
-  positionInTiles(): Vector3d {
-    const currentDirection = DIRECTIONS[this.dir]
-
-    return this.position
-      .clone()
-      .add(currentDirection.clone().mult(this.progress))
-  }
-
-  static nextCell(position: Vector3d, direction: DirectionName): Vector3d {
-    const currentDirection = DIRECTIONS[direction]
-
-    return position
-      .clone()
-      .add(currentDirection)
-      .setX(wrapCol(position.x + currentDirection.x))
-  }
-
-  static canMove(position: Vector3d, direction: DirectionName): boolean {
-    if (direction === 'none') return false
-
-    const target = Actor.nextCell(position, direction)
-
-    return !isWall(target)
-  }
-
-  canMoveTo(direction: DirectionName): boolean {
-    return Actor.canMove(this.position, direction)
-  }
-
-  move(
-    deltaSeconds: number,
-    chooseDirectionAtCenter?: (actor: Actor) => DirectionName,
-  ) {
-    let travel = this.speedTilesPerSecond * deltaSeconds
-
-    while (travel > 0) {
-      if (this.progress === 0) {
-        if (chooseDirectionAtCenter) {
-          const selectedDirection = chooseDirectionAtCenter(this)
-
-          if (selectedDirection !== 'none') this.nextDir = selectedDirection
-        }
-
-        if (this.canMoveTo(this.nextDir)) this.dir = this.nextDir
-        else if (!this.canMoveTo(this.dir)) this.dir = 'none'
-      }
-
-      if (this.dir === 'none') return
-
-      if (!this.canMoveTo(this.dir)) {
-        this.progress = 0
-        this.dir = 'none'
-
-        return
-      }
-
-      const remainingToNextTile = 1 - this.progress
-      const step = min(remainingToNextTile, travel)
-
-      this.progress += step
-      travel -= step
-
-      if (this.progress >= 1) {
-        this.position = Actor.nextCell(this.position, this.dir)
-        this.progress = 0
-      }
-    }
-  }
-
-  abstract render(): void
-}
-
-class Pacman extends Actor {
-  render() {
-    const position = this.positionInTiles()
-    const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
-    const radius = TILE_SIZE * PACMAN_RADIUS_RATIO
-    const moving = this.dir !== 'none' && roundDelayRemainingMs <= 0
-    const facingDirection = this.dir !== 'none' ? this.dir : this.nextDir
-    const chompPhase = abs(sin(millis() / 88))
-    const mouth = moving ? 0.1 + 0.28 * chompPhase : 0.04
-    const angle = directionToAngle(facingDirection)
-    const look = DIRECTIONS[facingDirection]
-    const bob = moving ? sin(millis() / 140) * radius * 0.05 : 0
-    const centerX = pixel.x
-    const centerY = pixel.y + bob
-
-    renderCirclePixel(centerX, centerY + radius * 0.95, radius * 0.28, {
-      color: 'rgba(0, 0, 0, 0.22)',
-      noStroke: true,
-    })
-
-    renderCirclePixel(centerX, centerY, radius, {
-      color: '#FFFF00',
-      strokeColor: '#FFFF00',
-      lineWidth: 1.4,
-      noStroke: false,
-    })
-
-    const mouthA = {
-      x: centerX + radius * 1.1 * cos(angle + mouth),
-      y: centerY + radius * 1.1 * sin(angle + mouth),
-    }
-    const mouthB = {
-      x: centerX + radius * 1.1 * cos(angle - mouth),
-      y: centerY + radius * 1.1 * sin(angle - mouth),
-    }
-
-    triangle2d(
-      toWorldPoint(centerX, centerY),
-      toWorldPoint(mouthA.x, mouthA.y),
-      toWorldPoint(mouthB.x, mouthB.y),
-      { color: 'black', noStroke: true, isDoubleSided: true },
-    )
-
-    const eyeX = centerX + look.x * radius * 0.22 - look.y * radius * 0.24
-    const eyeY = centerY + look.y * radius * 0.42 + look.x * radius * 0.44
-
-    renderCirclePixel(eyeX, eyeY, radius * 0.12, { color: '#f9fcff' })
-    renderCirclePixel(
-      eyeX + look.x * radius * 0.03,
-      eyeY + look.y * radius * 0.03,
-      radius * 0.09,
-      { color: '#16223a' },
-    )
-  }
-}
-
-class Ghost extends Actor {
-  lastEatenPowerModeId = -1
-  isEaten = false
-
-  constructor(
-    position: Vector3d,
-    speedTilesPerSecond: number,
-    initialDirection: DirectionName,
-    public id: number,
-    public name: GhostName,
-    public marker: GhostMarker,
-    public color: string,
-  ) {
-    super(position, speedTilesPerSecond, initialDirection)
-  }
-
-  markEaten(baseSpeed: number, speedMultiplier = 1.6) {
-    this.progress = 0
-    this.dir = 'none'
-    this.nextDir = 'none'
-    this.speedTilesPerSecond = baseSpeed * speedMultiplier
-    this.isEaten = true
-  }
-
-  revive(direction: DirectionName = 'left', speed = BASE_GHOST_SPEED) {
-    this.isEaten = false
-    this.speedTilesPerSecond = speed
-    this.dir = direction
-    this.nextDir = direction
-  }
-
-  tryReviveAt(
-    target: Vector3d,
-    direction: DirectionName = 'left',
-    speed = BASE_GHOST_SPEED,
-  ): boolean {
-    if (!this.position.equals(target)) return false
-
-    this.revive(direction, speed)
-
-    return true
-  }
-
-  nextDirectionToTarget(target: Vector3d): DirectionName {
-    const queue: Vector3d[] = [this.position.clone()]
-    const visited = new Set<string>([`${this.position.y},${this.position.x}`])
-    const previous = new Map<
-      string,
-      { position: Vector3d; dir: DirectionName }
-    >()
-
-    while (queue.length > 0) {
-      const current = queue.shift()!
-
-      if (current.equals(target)) break
-      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
-        if (dir === 'none') return
-
-        const next = Actor.nextCell(current, dir)
-        const key = `${next.y},${next.x}`
-
-        if (visited.has(key) || isWall(next)) return
-
-        visited.add(key)
-        previous.set(key, { position: current.clone(), dir })
-        queue.push(next)
-      })
-    }
-
-    const targetKey = `${target.y},${target.x}`
-
-    if (!previous.has(targetKey)) return 'none'
-
-    let stepKey = targetKey
-
-    while (true) {
-      const step = previous.get(stepKey)
-
-      if (!step) return 'none'
-      if (step.position.equals(this.position)) return step.dir
-
-      stepKey = `${step.position.y},${step.position.x}`
-    }
-  }
-
-  getChaseTarget(
-    pacmanPos: Vector3d,
-    pacmanFacing: Vector3d,
-    ghosts: Ghost[],
-  ): Vector3d {
-    switch (this.name) {
-      case 'Blinky':
-        return $v(pacmanPos.x, pacmanPos.y)
-
-      case 'Pinky':
-        return pacmanPos
-          .clone()
-          .add(pacmanFacing.clone().mult(PINKY_LOOKAHEAD_TILES))
-
-      case 'Inky': {
-        const pivot = pacmanPos
-          .clone()
-          .add(pacmanFacing.clone().mult(INKY_LOOKAHEAD_TILES))
-        const blinky = ghosts.find(candidate => {
-          return candidate.name === 'Blinky'
-        })
-
-        if (!blinky) return pivot
-
-        const blinkyPos = blinky.positionInTiles()
-
-        return $v(
-          pivot.x + (pivot.x - blinkyPos.x),
-          pivot.y + (pivot.y - blinkyPos.y),
-        )
-      }
-
-      case 'Clyde': {
-        // Clyde alternates between chase and scatter depending on distance to Pac-Man.
-        const deltaToPacman = pacmanPos.clone().sub(this.position)
-        const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
-
-        if (manhattanDistance <= CLYDE_SHY_DISTANCE_TILES)
-          return getClydeScatterTarget()
-
-        return $v(pacmanPos.x, pacmanPos.y)
-      }
-
-      default: {
-        const exhaustiveCheck: never = this.name
-        return exhaustiveCheck
-      }
-    }
-  }
-
-  render() {
-    const position = this.positionInTiles()
-    const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
-    const radius = TILE_SIZE * GHOST_RADIUS_RATIO
-    const left = pixel.x - radius
-    const top = pixel.y - radius
-    const right = pixel.x + radius
-    const bottom = pixel.y + radius
-    const eyeOffsetX = radius * 0.35
-    const eyeOffsetY = radius * 0.2
-    const eyeRadius = radius * 0.33
-    const pupilRadius = radius * 0.15
-    const lookDirection = DIRECTIONS[this.dir]
-    const frightened =
-      powerModeRemainingMs > 0 &&
-      this.lastEatenPowerModeId !== currentPowerModeId
-    const shouldFlashWarning =
-      frightened &&
-      powerModeRemainingMs <= POWER_WARNING_FLASH_MS &&
-      floor(millis() / POWER_WARNING_FLASH_INTERVAL_MS) % 2 === 0
-    const bodyColor = frightened
-      ? shouldFlashWarning
-        ? '#f5f5f5'
-        : '#2f6eff'
-      : this.color
-
-    if (this.isEaten) {
-      renderCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
-        color: 'white',
-      })
-      renderCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
-        color: 'white',
-      })
-
-      renderCirclePixel(
-        pixel.x - eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
-        pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
-        pupilRadius,
-        { color: '#111' },
-      )
-      renderCirclePixel(
-        pixel.x + eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
-        pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
-        pupilRadius,
-        { color: '#111' },
-      )
-
-      return
-    }
-
-    renderCirclePixel(pixel.x, top + radius, radius, {
-      color: bodyColor,
-      noStroke: true,
-    })
-
-    renderFilledRectPixel(left, pixel.y, radius * 2, radius, bodyColor)
-
-    renderCirclePixel(left + radius * 0.35, bottom, radius * 0.22, {
-      color: bodyColor,
-    })
-    renderCirclePixel(pixel.x, bottom, radius * 0.22, {
-      color: bodyColor,
-    })
-    renderCirclePixel(right - radius * 0.35, bottom, radius * 0.22, {
-      color: bodyColor,
-    })
-
-    renderCirclePixel(pixel.x - eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
-      color: 'white',
-    })
-    renderCirclePixel(pixel.x + eyeOffsetX, pixel.y - eyeOffsetY, eyeRadius, {
-      color: 'white',
-    })
-
-    renderCirclePixel(
-      pixel.x - eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
-      pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
-      pupilRadius,
-      { color: '#111' },
-    )
-    renderCirclePixel(
-      pixel.x + eyeOffsetX + lookDirection.x * eyeRadius * 0.45,
-      pixel.y - eyeOffsetY + lookDirection.y * eyeRadius * 0.45,
-      pupilRadius,
-      { color: '#111' },
-    )
-  }
-}
 
 // renders a power pellet with a pulsing effect.
 function renderPowerPellet(pixel: { x: number; y: number }) {
@@ -691,7 +315,24 @@ const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
 const cherrySpawnPosition = findAndClearMarker(CHERRY_MARKER)
 
-const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED)
+const actorEnvironment: ActorEnvironment = {
+  directions: DIRECTIONS,
+  isWall,
+  wrapCol,
+}
+
+const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED, actorEnvironment, {
+  tileToPixel,
+  renderCirclePixel,
+  toWorldPoint,
+  triangle2d: (pointA, pointB, pointC, options) =>
+    triangle2d(pointA, pointB, pointC, options),
+  directionToAngle,
+  millis,
+  tileSize: TILE_SIZE,
+  radiusRatio: PACMAN_RADIUS_RATIO,
+  roundDelayRemainingMs: () => roundDelayRemainingMs,
+})
 
 const ghosts: Ghost[] = ghostStarts.map((start, index) => {
   return new Ghost(
@@ -702,6 +343,23 @@ const ghosts: Ghost[] = ghostStarts.map((start, index) => {
     start.name,
     start.marker,
     start.color,
+    actorEnvironment,
+    {
+      tileToPixel,
+      renderCirclePixel,
+      renderFilledRectPixel,
+      millis,
+      floor,
+      abs,
+      tileSize: TILE_SIZE,
+      radiusRatio: GHOST_RADIUS_RATIO,
+      powerWarningFlashMs: POWER_WARNING_FLASH_MS,
+      powerWarningFlashIntervalMs: POWER_WARNING_FLASH_INTERVAL_MS,
+      getPowerModeRemainingMs: () => powerModeRemainingMs,
+      getCurrentPowerModeId: () => currentPowerModeId,
+      getGhostHouseCenterTarget,
+      getGhosts: () => ghosts,
+    },
   )
 })
 
@@ -919,7 +577,7 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
     dir => {
       if (dir === 'none') return false
-      if (!Actor.canMove(ghost.position, dir)) return false
+      if (!canMove(ghost.position, dir, actorEnvironment)) return false
 
       return dir !== OPPOSITE_DIRECTIONS[ghost.dir]
     },
@@ -929,7 +587,9 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
     candidates.length > 0
       ? candidates
       : (Object.keys(DIRECTIONS) as DirectionName[]).filter(dir => {
-          return dir !== 'none' && Actor.canMove(ghost.position, dir)
+          return (
+            dir !== 'none' && canMove(ghost.position, dir, actorEnvironment)
+          )
         })
 
   if (directions.length === 0) return 'none'
@@ -947,7 +607,7 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
     let bestFleeScore = Number.NEGATIVE_INFINITY
 
     directions.forEach(dir => {
-      const target = Actor.nextCell(ghost.position, dir)
+      const target = nextCell(ghost.position, dir, actorEnvironment)
       const deltaToPacman = target.clone().sub(pacmanPos)
       const fleeDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
@@ -1019,13 +679,17 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
     pacmanPos,
     DIRECTIONS[getPacmanFacing()],
     ghosts,
+    PINKY_LOOKAHEAD_TILES,
+    INKY_LOOKAHEAD_TILES,
+    CLYDE_SHY_DISTANCE_TILES,
+    getClydeScatterTarget,
   )
 
   let bestDirection = directions[0]
   let bestScore = Number.POSITIVE_INFINITY
 
   directions.forEach(dir => {
-    const target = Actor.nextCell(ghost.position, dir)
+    const target = nextCell(ghost.position, dir, actorEnvironment)
     const deltaToChaseTarget = target.clone().sub(chaseTarget)
     const chaseDistance = abs(deltaToChaseTarget.y) + abs(deltaToChaseTarget.x)
 
@@ -1079,7 +743,7 @@ function chooseDemoPacmanDirection(): DirectionName {
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
     dir => {
       if (dir === 'none') return false
-      if (!Actor.canMove(pacman.position, dir)) return false
+      if (!canMove(pacman.position, dir, actorEnvironment)) return false
 
       return dir !== OPPOSITE_DIRECTIONS[pacman.dir]
     },
@@ -1089,14 +753,16 @@ function chooseDemoPacmanDirection(): DirectionName {
     candidates.length > 0
       ? candidates
       : (Object.keys(DIRECTIONS) as DirectionName[]).filter(dir => {
-          return dir !== 'none' && Actor.canMove(pacman.position, dir)
+          return (
+            dir !== 'none' && canMove(pacman.position, dir, actorEnvironment)
+          )
         })
 
   if (directions.length === 0) return 'none'
 
   const scoredDirections = directions
     .map(dir => {
-      const next = Actor.nextCell(pacman.position, dir)
+      const next = nextCell(pacman.position, dir, actorEnvironment)
       const nextTile = getTile(next)
       const collectibleDistance = getClosestCollectibleDistance(next)
       const collectibleBonus =
