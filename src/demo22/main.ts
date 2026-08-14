@@ -41,8 +41,11 @@ const PACMAN_RADIUS_RATIO = 0.5
 const GHOST_RADIUS_RATIO = 0.44
 const BASE_PACMAN_SPEED = 4
 const BASE_GHOST_SPEED = 3
+const GHOST_SPEED_INCREASE_PER_PHASE = 0.12
 const POWER_MODE_GHOST_SPEED_FACTOR = 0.72
 const POWER_MODE_MS = 7000
+const POWER_MODE_MS_DECREASE_PER_PHASE = 350
+const MIN_POWER_MODE_MS = 2800
 const POWER_WARNING_FLASH_MS = 1800
 const POWER_WARNING_FLASH_INTERVAL_MS = 140
 const CHERRY_SCORE = 200
@@ -50,6 +53,9 @@ const CHERRY_EXTRA_SCORE = 150
 const CHERRY_VISIBLE_MS = 7000
 const CHERRY_RESPAWN_MIN_MS = 9000
 const CHERRY_RESPAWN_MAX_MS = 18000
+const CHERRY_RESPAWN_DECREASE_PER_PHASE = 450
+const MIN_CHERRY_RESPAWN_MIN_MS = 2500
+const MIN_CHERRY_RESPAWN_MAX_MS = 5000
 const GHOST_EATEN_BASE_SCORE = 200
 const COLLISION_DISTANCE_TILES = 0.5
 const ROUND_START_DELAY_MS = 900
@@ -154,7 +160,7 @@ const MAZE_TEMPLATE = [
 const ROW_COUNT = MAZE_TEMPLATE.length
 const COLUMN_COUNT = MAZE_TEMPLATE[0].length
 
-MAZE_TEMPLATE.forEach((row, index) => {
+MAZE_TEMPLATE.forEach(function (row, index) {
   if (row.length !== COLUMN_COUNT)
     throw new Error(`Invalid maze width at row ${index}`)
 })
@@ -366,7 +372,7 @@ class Ghost extends Actor {
       const current = queue.shift()!
 
       if (current.equals(target)) break
-      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
+      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(function (dir) {
         if (dir === 'none') return
 
         const next = Actor.nextCell(current, dir)
@@ -414,7 +420,9 @@ class Ghost extends Actor {
         const pivot = pacmanPos
           .clone()
           .add(pacmanFacing.clone().mult(INKY_LOOKAHEAD_TILES))
-        const blinky = ghosts.find(candidate => candidate.name === 'Blinky')
+        const blinky = ghosts.find(function (candidate) {
+          return candidate.name === 'Blinky'
+        })
 
         if (!blinky) return pivot
 
@@ -534,7 +542,7 @@ class Ghost extends Actor {
 }
 
 // renders a power pellet with a pulsing effect.
-const renderPowerPellet = (pixel: { x: number; y: number }) => {
+function renderPowerPellet(pixel: { x: number; y: number }) {
   const pulse = 0.75 + 0.25 * sin(millis() / 120)
 
   renderCirclePixel(
@@ -545,7 +553,7 @@ const renderPowerPellet = (pixel: { x: number; y: number }) => {
   )
 }
 
-const renderPellet = (pixel: { x: number; y: number }) => {
+function renderPellet(pixel: { x: number; y: number }) {
   renderCirclePixel(
     pixel.x + TILE_SIZE / 2,
     pixel.y + TILE_SIZE / 2,
@@ -554,13 +562,13 @@ const renderPellet = (pixel: { x: number; y: number }) => {
   )
 }
 
-const renderWall = (pixel: { x: number; y: number }) => {
+function renderWall(pixel: { x: number; y: number }) {
   renderFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
   renderStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
 }
 
 // renders a cherry with a stem and two leaves.
-const renderCherry = (pixel: { x: number; y: number }) => {
+function renderCherry(pixel: { x: number; y: number }) {
   const centerX = pixel.x + TILE_SIZE / 2
   const centerY = pixel.y + TILE_SIZE / 2
   const cherryRadius = TILE_SIZE * 0.18
@@ -613,21 +621,30 @@ const PINKY_LOOKAHEAD_TILES = 4
 const INKY_LOOKAHEAD_TILES = 2
 const CLYDE_SHY_DISTANCE_TILES = 8
 
-const getClydeScatterTarget = (): Vector3d => $v(1, ROW_COUNT - 2)
+function getClydeScatterTarget(): Vector3d {
+  return $v(1, ROW_COUNT - 2)
+}
 
-const getGhostHouseCenterTarget = (): Vector3d =>
-  $v(
-    ghostStarts.find(ghost => ghost.name === 'Pinky')?.position.x ??
+function getGhostHouseCenterTarget(): Vector3d {
+  return $v(
+    ghostStarts.find(function (ghost) {
+      return ghost.name === 'Pinky'
+    })?.position.x ??
       floor(
-        ghostStarts.reduce((sum, ghost) => sum + ghost.position.x, 0) /
-          ghostStarts.length,
+        ghostStarts.reduce(function (sum, ghost) {
+          return sum + ghost.position.x
+        }, 0) / ghostStarts.length,
       ),
-    ghostStarts.find(ghost => ghost.name === 'Pinky')?.position.y ??
+    ghostStarts.find(function (ghost) {
+      return ghost.name === 'Pinky'
+    })?.position.y ??
       floor(
-        ghostStarts.reduce((sum, ghost) => sum + ghost.position.y, 0) /
-          ghostStarts.length,
+        ghostStarts.reduce(function (sum, ghost) {
+          return sum + ghost.position.y
+        }, 0) / ghostStarts.length,
       ),
   )
+}
 
 let audioContext: AudioContext | null = null
 let masterGain: GainNode | null = null
@@ -636,7 +653,7 @@ let lastWakaMillis = -Infinity
 let wakaHighTone = false
 let powerSirenTimer: number | null = null
 
-const ensureAudio = () => {
+function ensureAudio() {
   if (audioContext && masterGain) return true
 
   const AudioContextClass = self.AudioContext
@@ -658,12 +675,12 @@ const ensureAudio = () => {
   return true
 }
 
-const resumeAudio = () => {
+function resumeAudio() {
   if (!ensureAudio() || !audioContext) return
   if (audioContext.state === 'suspended') audioContext.resume()
 }
 
-const playTone = (
+function playTone(
   frequency: number,
   duration = 0.08,
   {
@@ -673,7 +690,7 @@ const playTone = (
     type?: OscillatorType
     gain?: number
   } = {},
-) => {
+) {
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
@@ -693,7 +710,7 @@ const playTone = (
   oscillator.stop(now + duration + 0.02)
 }
 
-const playSweep = (
+function playSweep(
   startFrequency: number,
   endFrequency: number,
   duration: number,
@@ -704,7 +721,7 @@ const playSweep = (
     type?: OscillatorType
     gain?: number
   } = {},
-) => {
+) {
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
@@ -728,7 +745,7 @@ const playSweep = (
   oscillator.stop(now + duration + 0.03)
 }
 
-const playNoiseBurst = (duration = 0.12, gain = 0.08) => {
+function playNoiseBurst(duration = 0.12, gain = 0.08) {
   if (!ensureAudio() || !audioContext || !masterGain || !noiseBuffer) return
 
   const now = audioContext.currentTime
@@ -752,7 +769,7 @@ const playNoiseBurst = (duration = 0.12, gain = 0.08) => {
   source.stop(now + duration + 0.02)
 }
 
-const playWaka = () => {
+function playWaka() {
   const nowMillis = millis()
 
   if (nowMillis - lastWakaMillis < WAKA_INTERVAL_MS) return
@@ -763,7 +780,7 @@ const playWaka = () => {
   playTone(wakaHighTone ? 780 : 620, 0.055, { type: 'square', gain: 0.18 })
 }
 
-const playPowerPellet = () => {
+function playPowerPellet() {
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
@@ -863,7 +880,7 @@ const playPowerPellet = () => {
   playNoiseBurst(0.14, 0.018)
 }
 
-const playCherryPickup = () => {
+function playCherryPickup() {
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
@@ -955,43 +972,45 @@ const playCherryPickup = () => {
   playNoiseBurst(0.05, 0.014)
 }
 
-const playGhostEaten = () => {
+function playGhostEaten() {
   playSweep(920, 310, 0.16, { type: 'sawtooth', gain: 0.15 })
   playNoiseBurst(0.1, 0.07)
 }
 
-const playDeath = () => {
+function playDeath() {
   playSweep(620, 90, 0.55, { type: 'sawtooth', gain: 0.2 })
   playNoiseBurst(0.24, 0.09)
 }
 
-const playWin = () => {
-  playTone(660, 0.09, { type: 'triangle', gain: 0.15 })
-  playTone(880, 0.09, { type: 'triangle', gain: 0.15 })
-  playTone(1320, 0.18, { type: 'triangle', gain: 0.15 })
-}
+// function playWin() {
+//   playTone(660, 0.09, { type: 'triangle', gain: 0.15 })
+//   playTone(880, 0.09, { type: 'triangle', gain: 0.15 })
+//   playTone(1320, 0.18, { type: 'triangle', gain: 0.15 })
+// }
 
-const stopPowerSirenLoop = () => {
+function stopPowerSirenLoop() {
   if (powerSirenTimer === null) return
 
   self.clearInterval(powerSirenTimer)
   powerSirenTimer = null
 }
 
-const startPowerSirenLoop = () => {
+function startPowerSirenLoop() {
   if (powerSirenTimer !== null) return
 
   playPowerPellet()
 
-  powerSirenTimer = self.setInterval(() => {
+  powerSirenTimer = self.setInterval(function () {
     if (powerModeRemainingMs > 0 && gameState === 'playing') playPowerPellet()
     else stopPowerSirenLoop()
   }, POWER_SIREN_LOOP_MS)
 }
 
-const maze: Tile[][] = MAZE_TEMPLATE.map(line => line.split('') as Tile[])
+const maze: Tile[][] = MAZE_TEMPLATE.map(function (line) {
+  return line.split('') as Tile[]
+})
 
-const findAndClearMarker = (marker: Tile): Vector3d => {
+function findAndClearMarker(marker: Tile): Vector3d {
   for (let row = 0; row < ROW_COUNT; row++) {
     for (let col = 0; col < COLUMN_COUNT; col++) {
       if (maze[row][col] === marker) {
@@ -1005,13 +1024,13 @@ const findAndClearMarker = (marker: Tile): Vector3d => {
   throw new Error(`Marker not found: ${marker}`)
 }
 
-const findAndClearGhostMarkers = (): {
+function findAndClearGhostMarkers(): {
   position: Vector3d
   marker: GhostMarker
   name: GhostName
   color: string
-}[] =>
-  GHOST_MARKER_SPECS.map(spec => {
+}[] {
+  return GHOST_MARKER_SPECS.map(function (spec) {
     const position = findAndClearMarker(spec.marker)
 
     return {
@@ -1019,6 +1038,7 @@ const findAndClearGhostMarkers = (): {
       position,
     }
   })
+}
 
 const pacmanStart = findAndClearMarker(PACMAN_MARKER)
 const ghostStarts = findAndClearGhostMarkers()
@@ -1026,28 +1046,41 @@ const cherrySpawnPosition = findAndClearMarker(CHERRY_MARKER)
 
 const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED)
 
-const ghosts: Ghost[] = ghostStarts.map(
-  (start, index) =>
-    new Ghost(
-      start.position,
-      BASE_GHOST_SPEED,
-      index % 2 === 0 ? 'left' : 'right',
-      index,
-      start.name,
-      start.marker,
-      start.color,
-    ),
-)
+const ghosts: Ghost[] = ghostStarts.map(function (start, index) {
+  return new Ghost(
+    start.position,
+    BASE_GHOST_SPEED,
+    index % 2 === 0 ? 'left' : 'right',
+    index,
+    start.name,
+    start.marker,
+    start.color,
+  )
+})
 
-const getTile = (position: Vector3d): Tile =>
-  maze[position.y][position.x] ?? WALL_MARKER
+let lastTickMillis: number | null = null
+let score = 0
+let highScore = 0
+let lives = 3
+let gameState: GameState = 'gameOver'
+let pelletsRemaining = countRemainingPellets()
+let powerModeRemainingMs = 0
+let ghostCombo = 0
+let roundDelayRemainingMs = 0
+let currentPowerModeId = 0
+let hasStartedGame = false
+let phase = 1
 
-const setTile = (position: Vector3d, value: Tile): void => {
+function getTile(position: Vector3d): Tile {
+  return maze[position.y][position.x] ?? WALL_MARKER
+}
+
+function setTile(position: Vector3d, value: Tile): void {
   maze[position.y][position.x] = value
 }
 
-const resetMazeFromTemplate = () => {
-  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
+function resetMazeFromTemplate() {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], function (col, row) {
     maze[row][col] = MAZE_TEMPLATE[row][col] as Tile
   })
 
@@ -1060,30 +1093,33 @@ const resetMazeFromTemplate = () => {
   pelletsRemaining = countRemainingPellets()
 }
 
-const randomCherryRespawnDelayMs = () =>
-  CHERRY_RESPAWN_MIN_MS +
-  random() * (CHERRY_RESPAWN_MAX_MS - CHERRY_RESPAWN_MIN_MS)
+function randomCherryRespawnDelayMs() {
+  return (
+    getCherryRespawnBounds().min +
+    random() * (getCherryRespawnBounds().max - getCherryRespawnBounds().min)
+  )
+}
 
 let cherryVisibleRemainingMs = 0
 let cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
 
-const hideCherry = () => {
+function hideCherry() {
   if (getTile(cherrySpawnPosition) === CHERRY_MARKER)
     setTile(cherrySpawnPosition, EMPTY_MARKER)
 }
 
-const showCherry = () => {
+function showCherry() {
   setTile(cherrySpawnPosition, CHERRY_MARKER)
 }
 
-const resetCherryCycle = () => {
+function resetCherryCycle() {
   hideCherry()
 
   cherryVisibleRemainingMs = 0
   cherryRespawnRemainingMs = randomCherryRespawnDelayMs()
 }
 
-const updateCherryCycle = (deltaSeconds: number) => {
+function updateCherryCycle(deltaSeconds: number) {
   if (!cherrySpawnPosition) return
 
   const deltaMs = deltaSeconds * 1000
@@ -1107,20 +1143,21 @@ const updateCherryCycle = (deltaSeconds: number) => {
   }
 }
 
-const isWall = (position: Vector3d): boolean =>
-  getTile(position) === WALL_MARKER
+function isWall(position: Vector3d): boolean {
+  return getTile(position) === WALL_MARKER
+}
 
-const wrapCol = (col: number): number => {
+function wrapCol(col: number): number {
   if (col < 0) return COLUMN_COUNT - 1
   if (col >= COLUMN_COUNT) return 0
 
   return col
 }
 
-const countRemainingPellets = (): number => {
+function countRemainingPellets(): number {
   let count = 0
 
-  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], function (col, row) {
     const tile = getTile($v(col, row))
 
     if (tile === PELLET_MARKER || tile === POWER_PELLET_MARKER) count++
@@ -1129,32 +1166,45 @@ const countRemainingPellets = (): number => {
   return count
 }
 
-let lastTickMillis: number | null = null
-let score = 0
-let highScore = 0
-let lives = 3
-let gameState: GameState = 'gameOver'
-let pelletsRemaining = countRemainingPellets()
-let powerModeRemainingMs = 0
-let ghostCombo = 0
-let roundDelayRemainingMs = 0
-let currentPowerModeId = 0
-let hasStartedGame = false
+function getGhostSpeed() {
+  return BASE_GHOST_SPEED + (phase - 1) * GHOST_SPEED_INCREASE_PER_PHASE
+}
 
-const syncGhostSpeedsForPowerMode = () => {
+function getPowerModeDurationMs() {
+  return max(
+    MIN_POWER_MODE_MS,
+    POWER_MODE_MS - (phase - 1) * POWER_MODE_MS_DECREASE_PER_PHASE,
+  )
+}
+
+function getCherryRespawnBounds() {
+  return {
+    min: max(
+      MIN_CHERRY_RESPAWN_MIN_MS,
+      CHERRY_RESPAWN_MIN_MS - (phase - 1) * CHERRY_RESPAWN_DECREASE_PER_PHASE,
+    ),
+    max: max(
+      MIN_CHERRY_RESPAWN_MAX_MS,
+      CHERRY_RESPAWN_MAX_MS - (phase - 1) * CHERRY_RESPAWN_DECREASE_PER_PHASE,
+    ),
+  }
+}
+
+function syncGhostSpeedsForPowerMode() {
+  const baseGhostSpeed = getGhostSpeed()
   const ghostSpeed =
     powerModeRemainingMs > 0
-      ? BASE_GHOST_SPEED * POWER_MODE_GHOST_SPEED_FACTOR
-      : BASE_GHOST_SPEED
+      ? baseGhostSpeed * POWER_MODE_GHOST_SPEED_FACTOR
+      : baseGhostSpeed
 
-  ghosts.forEach(ghost => {
+  ghosts.forEach(function (ghost) {
     if (ghost.isEaten) return
 
     ghost.speedTilesPerSecond = ghostSpeed
   })
 }
 
-const loadHighScore = (): number => {
+function loadHighScore(): number {
   try {
     const stored = self.localStorage.getItem(HIGH_SCORE_STORAGE_KEY)
 
@@ -1170,7 +1220,7 @@ const loadHighScore = (): number => {
   }
 }
 
-const saveHighScore = (value: number) => {
+function saveHighScore(value: number) {
   try {
     self.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(value))
   } catch {
@@ -1178,7 +1228,7 @@ const saveHighScore = (value: number) => {
   }
 }
 
-const addScore = (points: number) => {
+function addScore(points: number) {
   score += points
 
   if (score > highScore) {
@@ -1189,12 +1239,12 @@ const addScore = (points: number) => {
 
 highScore = loadHighScore()
 
-const resetRound = () => {
+function resetRound() {
   pacman.reset('left')
 
-  ghosts.forEach((ghost, index) => {
+  ghosts.forEach(function (ghost, index) {
     ghost.reset(index % 2 === 0 ? 'left' : 'right')
-    ghost.speedTilesPerSecond = BASE_GHOST_SPEED
+    ghost.speedTilesPerSecond = getGhostSpeed()
     ghost.isEaten = false
   })
 
@@ -1206,20 +1256,21 @@ const resetRound = () => {
   resetCherryCycle()
 }
 
-const getPacmanFacing = (): DirectionName =>
-  pacman.dir !== 'none' ? pacman.dir : pacman.nextDir
+function getPacmanFacing(): DirectionName {
+  return pacman.dir !== 'none' ? pacman.dir : pacman.nextDir
+}
 
-const chooseGhostDirection = (ghost: Ghost): DirectionName => {
+function chooseGhostDirection(ghost: Ghost): DirectionName {
   if (ghost.isEaten) {
     const target = getGhostHouseCenterTarget()
 
-    if (ghost.tryReviveAt(target, 'left', BASE_GHOST_SPEED)) return 'none'
+    if (ghost.tryReviveAt(target, 'left', getGhostSpeed())) return 'none'
 
     return ghost.nextDirectionToTarget(target)
   }
 
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-    dir => {
+    function (dir) {
       if (dir === 'none') return false
       if (!Actor.canMove(ghost.position, dir)) return false
 
@@ -1230,14 +1281,17 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   const directions =
     candidates.length > 0
       ? candidates
-      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-          dir => dir !== 'none' && Actor.canMove(ghost.position, dir),
-        )
+      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(function (dir) {
+          return dir !== 'none' && Actor.canMove(ghost.position, dir)
+        })
 
   if (directions.length === 0) return 'none'
 
   if (powerModeRemainingMs > 0) {
-    const powerRatio = max(0, min(1, powerModeRemainingMs / POWER_MODE_MS))
+    const powerRatio = max(
+      0,
+      min(1, powerModeRemainingMs / getPowerModeDurationMs()),
+    )
     const fleeWeight = 0.55 + powerRatio * 1.25
     const spacingWeight = 0.05 + powerRatio * 0.17
     const uncertaintyWeight = (1 - powerRatio) * 1.1
@@ -1245,15 +1299,17 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     let fleeDirection = directions[0]
     let bestFleeScore = Number.NEGATIVE_INFINITY
 
-    directions.forEach(dir => {
+    directions.forEach(function (dir) {
       const target = Actor.nextCell(ghost.position, dir)
       const deltaToPacman = target.clone().sub(pacmanPos)
       const fleeDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
       // Slightly spread frightened ghosts so they don't bunch up while fleeing.
       const spacingBonus = ghosts
-        .filter(other => other.id !== ghost.id)
-        .reduce((bonus, other) => {
+        .filter(function (other) {
+          return other.id !== ghost.id
+        })
+        .reduce(function (bonus, other) {
           const otherPos = other.positionInTiles()
           const dist = abs(target.y - otherPos.y) + abs(target.x - otherPos.x)
 
@@ -1279,24 +1335,25 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
     return fleeDirection
   }
 
-  const overlappingGhosts = ghosts.filter(
-    other =>
+  const overlappingGhosts = ghosts.filter(function (other) {
+    return (
       other.id !== ghost.id &&
       other.progress === 0 &&
       ghost.progress === 0 &&
-      other.position.equals(ghost.position),
-  )
+      other.position.equals(ghost.position)
+    )
+  })
 
   if (overlappingGhosts.length > 0) {
     const occupiedDirections = new Set(
-      overlappingGhosts.map(other =>
-        other.nextDir !== 'none' ? other.nextDir : other.dir,
-      ),
+      overlappingGhosts.map(function (other) {
+        return other.nextDir !== 'none' ? other.nextDir : other.dir
+      }),
     )
 
-    const freeDirections = directions.filter(
-      dir => !occupiedDirections.has(dir),
-    )
+    const freeDirections = directions.filter(function (dir) {
+      return !occupiedDirections.has(dir)
+    })
 
     if (freeDirections.length > 0) {
       const rotateIndex =
@@ -1320,15 +1377,17 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   let bestDirection = directions[0]
   let bestScore = Number.POSITIVE_INFINITY
 
-  directions.forEach(dir => {
+  directions.forEach(function (dir) {
     const target = Actor.nextCell(ghost.position, dir)
     const deltaToChaseTarget = target.clone().sub(chaseTarget)
     const chaseDistance = abs(deltaToChaseTarget.y) + abs(deltaToChaseTarget.x)
 
     // Penalize candidate directions that keep ghosts clustered.
     const crowdPenalty = ghosts
-      .filter(other => other.id !== ghost.id)
-      .reduce((penalty, other) => {
+      .filter(function (other) {
+        return other.id !== ghost.id
+      })
+      .reduce(function (penalty, other) {
         const otherPos = other.positionInTiles()
         const dist = abs(target.y - otherPos.y) + abs(target.x - otherPos.x)
         const sameTilePenalty = dist < 0.35 ? 7 : 0
@@ -1348,10 +1407,10 @@ const chooseGhostDirection = (ghost: Ghost): DirectionName => {
   return bestDirection
 }
 
-const getClosestCollectibleDistance = (position: Vector3d): number => {
+function getClosestCollectibleDistance(position: Vector3d): number {
   let bestDistance = Number.POSITIVE_INFINITY
 
-  timesForEachN([COLUMN_COUNT, ROW_COUNT], (targetCol, targetRow) => {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], function (targetCol, targetRow) {
     const tile = getTile($v(targetCol, targetRow))
 
     if (
@@ -1369,9 +1428,9 @@ const getClosestCollectibleDistance = (position: Vector3d): number => {
   return bestDistance
 }
 
-const chooseDemoPacmanDirection = (): DirectionName => {
+function chooseDemoPacmanDirection(): DirectionName {
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-    dir => {
+    function (dir) {
       if (dir === 'none') return false
       if (!Actor.canMove(pacman.position, dir)) return false
 
@@ -1382,14 +1441,14 @@ const chooseDemoPacmanDirection = (): DirectionName => {
   const directions =
     candidates.length > 0
       ? candidates
-      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-          dir => dir !== 'none' && Actor.canMove(pacman.position, dir),
-        )
+      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(function (dir) {
+          return dir !== 'none' && Actor.canMove(pacman.position, dir)
+        })
 
   if (directions.length === 0) return 'none'
 
   const scoredDirections = directions
-    .map(dir => {
+    .map(function (dir) {
       const next = Actor.nextCell(pacman.position, dir)
       const nextTile = getTile(next)
       const collectibleDistance = getClosestCollectibleDistance(next)
@@ -1399,7 +1458,7 @@ const chooseDemoPacmanDirection = (): DirectionName => {
           : nextTile === PELLET_MARKER
             ? -25
             : 0
-      const ghostThreat = ghosts.reduce((threat, ghost) => {
+      const ghostThreat = ghosts.reduce(function (threat, ghost) {
         const ghostPos = ghost.positionInTiles()
         const distance = abs(next.y - ghostPos.y) + abs(next.x - ghostPos.x)
 
@@ -1419,7 +1478,9 @@ const chooseDemoPacmanDirection = (): DirectionName => {
 
       return { dir, score }
     })
-    .sort((a, b) => a.score - b.score)
+    .sort(function (a, b) {
+      return a.score - b.score
+    })
 
   // In demo mode, occasionally take an alternate good route so the attract loop varies.
   const alternateRouteChance = powerModeRemainingMs > 0 ? 0.3 : 0.18
@@ -1437,7 +1498,7 @@ const chooseDemoPacmanDirection = (): DirectionName => {
   return scoredDirections[0].dir
 }
 
-const consumePacmanTile = (isDemoMode = false) => {
+function consumePacmanTile(isDemoMode = false) {
   const tile = getTile(pacman.position)
 
   if (tile === PELLET_MARKER) {
@@ -1450,7 +1511,7 @@ const consumePacmanTile = (isDemoMode = false) => {
     pelletsRemaining--
     if (!isDemoMode) addScore(50)
     currentPowerModeId++
-    powerModeRemainingMs = POWER_MODE_MS
+    powerModeRemainingMs = getPowerModeDurationMs()
     ghostCombo = 0
     syncGhostSpeedsForPowerMode()
     if (!isDemoMode) startPowerSirenLoop()
@@ -1468,17 +1529,18 @@ const consumePacmanTile = (isDemoMode = false) => {
       resetMazeFromTemplate()
       resetRound()
     } else {
-      gameState = 'won'
+      phase++
       stopPowerSirenLoop()
-      playWin()
+      resetMazeFromTemplate()
+      resetRound()
     }
   }
 }
 
-const checkGhostCollisions = (isDemoMode = false) => {
+function checkGhostCollisions(isDemoMode = false) {
   const pacmanPos = pacman.positionInTiles()
 
-  ghosts.forEach(ghost => {
+  ghosts.forEach(function (ghost) {
     if (ghost.isEaten) return
 
     const ghostPos = ghost.positionInTiles()
@@ -1490,7 +1552,7 @@ const checkGhostCollisions = (isDemoMode = false) => {
       if (ghost.lastEatenPowerModeId === currentPowerModeId) return
 
       ghost.lastEatenPowerModeId = currentPowerModeId
-      ghost.markEaten(BASE_GHOST_SPEED)
+      ghost.markEaten(getGhostSpeed())
       if (!isDemoMode) addScore(GHOST_EATEN_BASE_SCORE * 2 ** ghostCombo)
       ghostCombo++
       if (!isDemoMode) playGhostEaten()
@@ -1518,7 +1580,7 @@ const checkGhostCollisions = (isDemoMode = false) => {
   })
 }
 
-const updateGame = (deltaSeconds: number) => {
+function updateGame(deltaSeconds: number) {
   if (gameState !== 'playing') {
     if (roundDelayRemainingMs > 0) {
       roundDelayRemainingMs -= deltaSeconds * 1000
@@ -1539,9 +1601,11 @@ const updateGame = (deltaSeconds: number) => {
 
     consumePacmanTile(true)
 
-    ghosts.forEach(ghost =>
-      ghost.move(deltaSeconds, actor => chooseGhostDirection(actor as Ghost)),
-    )
+    ghosts.forEach(function (ghost) {
+      ghost.move(deltaSeconds, function (actor) {
+        return chooseGhostDirection(actor as Ghost)
+      })
+    })
 
     checkGhostCollisions(true)
 
@@ -1572,17 +1636,16 @@ const updateGame = (deltaSeconds: number) => {
 
   consumePacmanTile()
 
-  ghosts.forEach(ghost =>
-    ghost.move(deltaSeconds, actor => chooseGhostDirection(actor as Ghost)),
-  )
+  ghosts.forEach(function (ghost) {
+    ghost.move(deltaSeconds, function (actor) {
+      return chooseGhostDirection(actor as Ghost)
+    })
+  })
 
   checkGhostCollisions()
 }
 
-const tileToPixel = (
-  tileX: number,
-  tileY: number,
-): { x: number; y: number } => {
+function tileToPixel(tileX: number, tileY: number): { x: number; y: number } {
   const boardWidth = COLUMN_COUNT * TILE_SIZE
   const boardHeight = ROW_COUNT * TILE_SIZE
   const offsetX = (animation.width - boardWidth) / 2
@@ -1594,17 +1657,18 @@ const tileToPixel = (
   }
 }
 
-const toWorldPoint = (x: number, y: number) =>
-  $v(x - animation.width / 2, animation.height / 2 - y)
+function toWorldPoint(x: number, y: number) {
+  return $v(x - animation.width / 2, animation.height / 2 - y)
+}
 
-const renderLinePixel = (
+function renderLinePixel(
   x1: number,
   y1: number,
   x2: number,
   y2: number,
   color: string,
   lineWidth = 1,
-) => {
+) {
   line(toWorldPoint(x1, y1), toWorldPoint(x2, y2), {
     color,
     lineWidth,
@@ -1612,15 +1676,15 @@ const renderLinePixel = (
   })
 }
 
-const renderFilledRectPixel = (
+function renderFilledRectPixel(
   x: number,
   y: number,
   width: number,
   height: number,
   color: string,
   opacity = 1,
-) => {
-  isolateTransformations(() => {
+) {
+  isolateTransformations(function () {
     translate(toWorldPoint(x + width / 2, y + height / 2))
 
     rect2d(width, height, {
@@ -1632,7 +1696,7 @@ const renderFilledRectPixel = (
   })
 }
 
-const renderCirclePixel = (
+function renderCirclePixel(
   x: number,
   y: number,
   radius: number,
@@ -1649,8 +1713,8 @@ const renderCirclePixel = (
     noStroke?: boolean
     opacity?: number
   },
-) => {
-  isolateTransformations(() => {
+) {
+  isolateTransformations(function () {
     translate(toWorldPoint(x, y))
 
     circle2d(radius, {
@@ -1665,22 +1729,22 @@ const renderCirclePixel = (
   })
 }
 
-const renderStrokeRectPixel = (
+function renderStrokeRectPixel(
   x: number,
   y: number,
   width: number,
   height: number,
   color: string,
   lineWidth = 1,
-) => {
+) {
   renderLinePixel(x, y, x + width, y, color, lineWidth)
   renderLinePixel(x + width, y, x + width, y + height, color, lineWidth)
   renderLinePixel(x + width, y + height, x, y + height, color, lineWidth)
   renderLinePixel(x, y + height, x, y, color, lineWidth)
 }
 
-const renderMaze = () => {
-  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
+function renderMaze() {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], function (col, row) {
     const tile = getTile($v(col, row))
     const pixel = tileToPixel(col, row)
 
@@ -1701,7 +1765,7 @@ const renderMaze = () => {
   })
 }
 
-const directionToAngle = (direction: DirectionName): number => {
+function directionToAngle(direction: DirectionName): number {
   switch (direction) {
     case 'right':
       return 0
@@ -1711,12 +1775,16 @@ const directionToAngle = (direction: DirectionName): number => {
       return -HALF_PI
     case 'down':
       return HALF_PI
-    default:
+    case 'none':
       return 0
+    default: {
+      const exhaustiveCheck: never = direction
+      return exhaustiveCheck
+    }
   }
 }
 
-const renderHud = () => {
+function renderHud() {
   text2d(`Score: ${score}`, toWorldPoint(20, 60), '#f4f4f4', {
     fontSize: 18,
     fontFamily: 'monospace',
@@ -1738,6 +1806,13 @@ const renderHud = () => {
     textAlign: 'left',
     textBaseline: 'middle',
   })
+  text2d(`Phase: ${phase}`, toWorldPoint(20, 132), '#f4f4f4', {
+    fontSize: 18,
+    fontFamily: 'monospace',
+    fontWeight: 'bold',
+    textAlign: 'left',
+    textBaseline: 'middle',
+  })
   text2d(
     'Move: Arrow Keys / WASD',
     toWorldPoint(20, animation.height - 24),
@@ -1752,7 +1827,7 @@ const renderHud = () => {
   )
 }
 
-const renderStateOverlay = () => {
+function renderStateOverlay() {
   if (!hasStartedGame) {
     renderFilledRectPixel(
       0,
@@ -1838,17 +1913,19 @@ const renderStateOverlay = () => {
   )
 }
 
-const renderScene = () => {
+function renderScene() {
   renderMaze()
 
   pacman.render()
-  ghosts.forEach(ghost => ghost.render())
+  ghosts.forEach(function (ghost) {
+    ghost.render()
+  })
 
   renderHud()
   renderStateOverlay()
 }
 
-const handleKeydown = (event: KeyboardEvent) => {
+function handleKeydown(event: KeyboardEvent) {
   resumeAudio()
 
   const key = event.key.toLowerCase()
@@ -1862,6 +1939,7 @@ const handleKeydown = (event: KeyboardEvent) => {
     hasStartedGame = true
     score = 0
     lives = 3
+    phase = 1
     gameState = 'playing'
     powerModeRemainingMs = 0
     stopPowerSirenLoop()
@@ -1887,7 +1965,7 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
-const draw = () => {
+function draw() {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
   background('black')
@@ -1902,7 +1980,7 @@ const draw = () => {
   renderScene()
 }
 
-const onPaused = () => {
+function onPaused() {
   text2d(
     'PAUSED',
     toWorldPoint(animation.width / 2, animation.height / 2 - 330),
@@ -1910,7 +1988,7 @@ const onPaused = () => {
 }
 
 const { start, stop } = createFrameLoop(
-  () => {
+  function () {
     document.addEventListener('keydown', handleKeydown)
     resetTransformationMatrix()
     draw()
