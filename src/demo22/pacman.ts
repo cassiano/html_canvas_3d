@@ -4,8 +4,10 @@ import { Actor, ActorEnvironment, DirectionName } from './actor.ts'
 
 export type PacmanRenderContext = {
   tileToPixel: (x: number, y: number) => { x: number; y: number }
+  // deno-lint-ignore no-explicit-any
   renderCirclePixel: (...args: any[]) => void
   toWorldPoint: (x: number, y: number) => Vector3d
+  // deno-lint-ignore no-explicit-any
   triangle2d: (...args: any[]) => void
   directionToAngle: (direction: DirectionName) => number
   millis: () => number

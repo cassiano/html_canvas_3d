@@ -7,7 +7,9 @@ export type GhostMarker = 'B' | 'H' | 'I' | 'C'
 
 export type GhostRenderContext = {
   tileToPixel: (x: number, y: number) => { x: number; y: number }
+  // deno-lint-ignore no-explicit-any
   renderCirclePixel: (...args: any[]) => void
+  // deno-lint-ignore no-explicit-any
   renderFilledRectPixel: (...args: any[]) => void
   millis: () => number
   floor: typeof floor
