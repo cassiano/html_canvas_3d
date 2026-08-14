@@ -204,7 +204,7 @@ export function playPowerPellet() {
     tremolo,
     vibrato,
   ]
-  oscillators.forEach(function (oscillator) {
+  oscillators.forEach(oscillator => {
     oscillator.start(now)
     oscillator.stop(now + duration + 0.03)
   })
@@ -277,7 +277,7 @@ export function playCherryPickup() {
   delay.connect(wetGain)
   wetGain.connect(envelope)
   envelope.connect(masterGain)
-  ;[lead, body, sparkle, shimmer].forEach(function (oscillator) {
+  ;[lead, body, sparkle, shimmer].forEach(oscillator => {
     oscillator.start(now)
     oscillator.stop(now + duration + 0.03)
   })
@@ -306,7 +306,7 @@ export function startPowerSirenLoop(
 ) {
   if (powerSirenTimer !== null) return
   playPowerPellet()
-  powerSirenTimer = self.setInterval(function () {
+  powerSirenTimer = self.setInterval(() => {
     if (getPowerModeRemainingMs() > 0 && isPlaying()) playPowerPellet()
     else stopPowerSirenLoop()
   }, POWER_SIREN_LOOP_MS)

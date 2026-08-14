@@ -171,7 +171,7 @@ const MAZE_TEMPLATE = [
 const ROW_COUNT = MAZE_TEMPLATE.length
 const COLUMN_COUNT = MAZE_TEMPLATE[0].length
 
-MAZE_TEMPLATE.forEach(function (row, index) {
+MAZE_TEMPLATE.forEach((row, index) => {
   if (row.length !== COLUMN_COUNT)
     throw new Error(`Invalid maze width at row ${index}`)
 })
@@ -383,7 +383,7 @@ class Ghost extends Actor {
       const current = queue.shift()!
 
       if (current.equals(target)) break
-      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(function (dir) {
+      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
         if (dir === 'none') return
 
         const next = Actor.nextCell(current, dir)
@@ -431,7 +431,7 @@ class Ghost extends Actor {
         const pivot = pacmanPos
           .clone()
           .add(pacmanFacing.clone().mult(INKY_LOOKAHEAD_TILES))
-        const blinky = ghosts.find(function (candidate) {
+        const blinky = ghosts.find(candidate => {
           return candidate.name === 'Blinky'
         })
 
@@ -634,26 +634,26 @@ function getClydeScatterTarget(): Vector3d {
 
 function getGhostHouseCenterTarget(): Vector3d {
   return $v(
-    ghostStarts.find(function (ghost) {
+    ghostStarts.find(ghost => {
       return ghost.name === 'Pinky'
     })?.position.x ??
       floor(
-        ghostStarts.reduce(function (sum, ghost) {
+        ghostStarts.reduce((sum, ghost) => {
           return sum + ghost.position.x
         }, 0) / ghostStarts.length,
       ),
-    ghostStarts.find(function (ghost) {
+    ghostStarts.find(ghost => {
       return ghost.name === 'Pinky'
     })?.position.y ??
       floor(
-        ghostStarts.reduce(function (sum, ghost) {
+        ghostStarts.reduce((sum, ghost) => {
           return sum + ghost.position.y
         }, 0) / ghostStarts.length,
       ),
   )
 }
 
-const maze: Tile[][] = MAZE_TEMPLATE.map(function (line) {
+const maze: Tile[][] = MAZE_TEMPLATE.map(line => {
   return line.split('') as Tile[]
 })
 
@@ -677,7 +677,7 @@ function findAndClearGhostMarkers(): {
   name: GhostName
   color: string
 }[] {
-  return GHOST_MARKER_SPECS.map(function (spec) {
+  return GHOST_MARKER_SPECS.map(spec => {
     const position = findAndClearMarker(spec.marker)
 
     return {
@@ -693,7 +693,7 @@ const cherrySpawnPosition = findAndClearMarker(CHERRY_MARKER)
 
 const pacman = new Pacman(pacmanStart, BASE_PACMAN_SPEED)
 
-const ghosts: Ghost[] = ghostStarts.map(function (start, index) {
+const ghosts: Ghost[] = ghostStarts.map((start, index) => {
   return new Ghost(
     start.position,
     BASE_GHOST_SPEED,
@@ -727,7 +727,7 @@ function setTile(position: Vector3d, value: Tile): void {
 }
 
 function resetMazeFromTemplate() {
-  timesForEachN([COLUMN_COUNT, ROW_COUNT], function (col, row) {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
     maze[row][col] = MAZE_TEMPLATE[row][col] as Tile
   })
 
@@ -804,7 +804,7 @@ function wrapCol(col: number): number {
 function countRemainingPellets(): number {
   let count = 0
 
-  timesForEachN([COLUMN_COUNT, ROW_COUNT], function (col, row) {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
     const tile = getTile($v(col, row))
 
     if (tile === PELLET_MARKER || tile === POWER_PELLET_MARKER) count++
@@ -844,7 +844,7 @@ function syncGhostSpeedsForPowerMode() {
       ? baseGhostSpeed * POWER_MODE_GHOST_SPEED_FACTOR
       : baseGhostSpeed
 
-  ghosts.forEach(function (ghost) {
+  ghosts.forEach(ghost => {
     if (ghost.isEaten) return
 
     ghost.speedTilesPerSecond = ghostSpeed
@@ -889,7 +889,7 @@ highScore = loadHighScore()
 function resetRound() {
   pacman.reset('left')
 
-  ghosts.forEach(function (ghost, index) {
+  ghosts.forEach((ghost, index) => {
     ghost.reset(index % 2 === 0 ? 'left' : 'right')
     ghost.speedTilesPerSecond = getGhostSpeed()
     ghost.isEaten = false
@@ -917,7 +917,7 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
   }
 
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-    function (dir) {
+    dir => {
       if (dir === 'none') return false
       if (!Actor.canMove(ghost.position, dir)) return false
 
@@ -928,7 +928,7 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
   const directions =
     candidates.length > 0
       ? candidates
-      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(function (dir) {
+      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(dir => {
           return dir !== 'none' && Actor.canMove(ghost.position, dir)
         })
 
@@ -946,17 +946,17 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
     let fleeDirection = directions[0]
     let bestFleeScore = Number.NEGATIVE_INFINITY
 
-    directions.forEach(function (dir) {
+    directions.forEach(dir => {
       const target = Actor.nextCell(ghost.position, dir)
       const deltaToPacman = target.clone().sub(pacmanPos)
       const fleeDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
       // Slightly spread frightened ghosts so they don't bunch up while fleeing.
       const spacingBonus = ghosts
-        .filter(function (other) {
+        .filter(other => {
           return other.id !== ghost.id
         })
-        .reduce(function (bonus, other) {
+        .reduce((bonus, other) => {
           const otherPos = other.positionInTiles()
           const dist = abs(target.y - otherPos.y) + abs(target.x - otherPos.x)
 
@@ -982,7 +982,7 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
     return fleeDirection
   }
 
-  const overlappingGhosts = ghosts.filter(function (other) {
+  const overlappingGhosts = ghosts.filter(other => {
     return (
       other.id !== ghost.id &&
       other.progress === 0 &&
@@ -993,12 +993,12 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
 
   if (overlappingGhosts.length > 0) {
     const occupiedDirections = new Set(
-      overlappingGhosts.map(function (other) {
+      overlappingGhosts.map(other => {
         return other.nextDir !== 'none' ? other.nextDir : other.dir
       }),
     )
 
-    const freeDirections = directions.filter(function (dir) {
+    const freeDirections = directions.filter(dir => {
       return !occupiedDirections.has(dir)
     })
 
@@ -1024,17 +1024,17 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
   let bestDirection = directions[0]
   let bestScore = Number.POSITIVE_INFINITY
 
-  directions.forEach(function (dir) {
+  directions.forEach(dir => {
     const target = Actor.nextCell(ghost.position, dir)
     const deltaToChaseTarget = target.clone().sub(chaseTarget)
     const chaseDistance = abs(deltaToChaseTarget.y) + abs(deltaToChaseTarget.x)
 
     // Penalize candidate directions that keep ghosts clustered.
     const crowdPenalty = ghosts
-      .filter(function (other) {
+      .filter(other => {
         return other.id !== ghost.id
       })
-      .reduce(function (penalty, other) {
+      .reduce((penalty, other) => {
         const otherPos = other.positionInTiles()
         const dist = abs(target.y - otherPos.y) + abs(target.x - otherPos.x)
         const sameTilePenalty = dist < 0.35 ? 7 : 0
@@ -1057,7 +1057,7 @@ function chooseGhostDirection(ghost: Ghost): DirectionName {
 function getClosestCollectibleDistance(position: Vector3d): number {
   let bestDistance = Number.POSITIVE_INFINITY
 
-  timesForEachN([COLUMN_COUNT, ROW_COUNT], function (targetCol, targetRow) {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], (targetCol, targetRow) => {
     const tile = getTile($v(targetCol, targetRow))
 
     if (
@@ -1077,7 +1077,7 @@ function getClosestCollectibleDistance(position: Vector3d): number {
 
 function chooseDemoPacmanDirection(): DirectionName {
   const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-    function (dir) {
+    dir => {
       if (dir === 'none') return false
       if (!Actor.canMove(pacman.position, dir)) return false
 
@@ -1088,14 +1088,14 @@ function chooseDemoPacmanDirection(): DirectionName {
   const directions =
     candidates.length > 0
       ? candidates
-      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(function (dir) {
+      : (Object.keys(DIRECTIONS) as DirectionName[]).filter(dir => {
           return dir !== 'none' && Actor.canMove(pacman.position, dir)
         })
 
   if (directions.length === 0) return 'none'
 
   const scoredDirections = directions
-    .map(function (dir) {
+    .map(dir => {
       const next = Actor.nextCell(pacman.position, dir)
       const nextTile = getTile(next)
       const collectibleDistance = getClosestCollectibleDistance(next)
@@ -1105,7 +1105,7 @@ function chooseDemoPacmanDirection(): DirectionName {
           : nextTile === PELLET_MARKER
             ? -25
             : 0
-      const ghostThreat = ghosts.reduce(function (threat, ghost) {
+      const ghostThreat = ghosts.reduce((threat, ghost) => {
         const ghostPos = ghost.positionInTiles()
         const distance = abs(next.y - ghostPos.y) + abs(next.x - ghostPos.x)
 
@@ -1125,7 +1125,7 @@ function chooseDemoPacmanDirection(): DirectionName {
 
       return { dir, score }
     })
-    .sort(function (a, b) {
+    .sort((a, b) => {
       return a.score - b.score
     })
 
@@ -1163,10 +1163,10 @@ function consumePacmanTile(isDemoMode = false) {
     syncGhostSpeedsForPowerMode()
     if (!isDemoMode)
       startPowerSirenLoop(
-        function () {
+        () => {
           return powerModeRemainingMs
         },
-        function () {
+        () => {
           return gameState === 'playing'
         },
       )
@@ -1195,7 +1195,7 @@ function consumePacmanTile(isDemoMode = false) {
 function checkGhostCollisions(isDemoMode = false) {
   const pacmanPos = pacman.positionInTiles()
 
-  ghosts.forEach(function (ghost) {
+  ghosts.forEach(ghost => {
     if (ghost.isEaten) return
 
     const ghostPos = ghost.positionInTiles()
@@ -1256,8 +1256,8 @@ function updateGame(deltaSeconds: number) {
 
     consumePacmanTile(true)
 
-    ghosts.forEach(function (ghost) {
-      ghost.move(deltaSeconds, function (actor) {
+    ghosts.forEach(ghost => {
+      ghost.move(deltaSeconds, actor => {
         return chooseGhostDirection(actor as Ghost)
       })
     })
@@ -1291,8 +1291,8 @@ function updateGame(deltaSeconds: number) {
 
   consumePacmanTile()
 
-  ghosts.forEach(function (ghost) {
-    ghost.move(deltaSeconds, function (actor) {
+  ghosts.forEach(ghost => {
+    ghost.move(deltaSeconds, actor => {
       return chooseGhostDirection(actor as Ghost)
     })
   })
@@ -1339,7 +1339,7 @@ function renderFilledRectPixel(
   color: string,
   opacity = 1,
 ) {
-  isolateTransformations(function () {
+  isolateTransformations(() => {
     translate(toWorldPoint(x + width / 2, y + height / 2))
 
     rect2d(width, height, {
@@ -1369,7 +1369,7 @@ function renderCirclePixel(
     opacity?: number
   },
 ) {
-  isolateTransformations(function () {
+  isolateTransformations(() => {
     translate(toWorldPoint(x, y))
 
     circle2d(radius, {
@@ -1399,7 +1399,7 @@ function renderStrokeRectPixel(
 }
 
 function renderMaze() {
-  timesForEachN([COLUMN_COUNT, ROW_COUNT], function (col, row) {
+  timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
     const tile = getTile($v(col, row))
     const pixel = tileToPixel(col, row)
 
@@ -1572,7 +1572,7 @@ function renderScene() {
   renderMaze()
 
   pacman.render()
-  ghosts.forEach(function (ghost) {
+  ghosts.forEach(ghost => {
     ghost.render()
   })
 
@@ -1643,7 +1643,7 @@ function onPaused() {
 }
 
 const { start, stop } = createFrameLoop(
-  function () {
+  () => {
     document.addEventListener('keydown', handleKeydown)
     resetTransformationMatrix()
     draw()
