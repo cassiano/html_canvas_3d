@@ -111,6 +111,10 @@ const GHOST_MARKER_SPECS: {
   { marker: CLYDE_MARKER, name: CLYDE_NAME, color: '#FFB847' },
 ]
 
+const PINKY_LOOKAHEAD_TILES = 4
+const INKY_LOOKAHEAD_TILES = 2
+const CLYDE_SHY_DISTANCE_TILES = 8
+
 type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
 
 type Tile =
@@ -623,10 +627,6 @@ function renderCherry(pixel: { x: number; y: number }) {
     { color: 'rgba(255, 255, 255, 0.55)' },
   )
 }
-
-const PINKY_LOOKAHEAD_TILES = 4
-const INKY_LOOKAHEAD_TILES = 2
-const CLYDE_SHY_DISTANCE_TILES = 8
 
 function getClydeScatterTarget(): Vector3d {
   return $v(1, ROW_COUNT - 2)
