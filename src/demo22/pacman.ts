@@ -1,6 +1,7 @@
 import { abs, cos, sin } from '../math_utils.ts'
 import { Vector3d } from '../vector_3d.ts'
 import { Actor, ActorEnvironment, DirectionName } from './actor.ts'
+import { millis } from '../utils.ts'
 
 export type PacmanRenderContext = {
   tileToPixel: (x: number, y: number) => { x: number; y: number }
@@ -10,7 +11,6 @@ export type PacmanRenderContext = {
   // deno-lint-ignore no-explicit-any
   triangle2d: (...args: any[]) => void
   directionToAngle: (direction: DirectionName) => number
-  millis: () => number
   tileSize: number
   radiusRatio: number
   roundDelayRemainingMs: () => number
@@ -33,7 +33,6 @@ export class Pacman extends Actor {
       toWorldPoint,
       triangle2d,
       directionToAngle,
-      millis,
       tileSize,
       radiusRatio,
       roundDelayRemainingMs,

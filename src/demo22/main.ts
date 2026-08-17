@@ -171,7 +171,6 @@ class Game {
         triangle2d: (pointA, pointB, pointC, options) =>
           triangle2d(pointA, pointB, pointC, options),
         directionToAngle,
-        millis,
         tileSize: TILE_SIZE,
         radiusRatio: PACMAN_RADIUS_RATIO,
         roundDelayRemainingMs: () => this.roundDelayRemainingMs,
@@ -192,9 +191,6 @@ class Game {
           tileToPixel,
           renderCirclePixel,
           renderFilledRectPixel,
-          millis,
-          floor,
-          abs,
           tileSize: TILE_SIZE,
           radiusRatio: GHOST_RADIUS_RATIO,
           powerWarningFlashMs: POWER_WARNING_FLASH_MS,

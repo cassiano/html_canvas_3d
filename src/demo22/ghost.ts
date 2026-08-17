@@ -1,4 +1,5 @@
 import { abs, floor } from '../math_utils.ts'
+import { millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor, ActorEnvironment, DirectionName, nextCell } from './actor.ts'
 import { GhostName, GhostMarker } from './constants.ts'
@@ -9,9 +10,6 @@ export type GhostRenderContext = {
   renderCirclePixel: (...args: any[]) => void
   // deno-lint-ignore no-explicit-any
   renderFilledRectPixel: (...args: any[]) => void
-  millis: () => number
-  floor: typeof floor
-  abs: typeof abs
   tileSize: number
   radiusRatio: number
   powerWarningFlashMs: number
@@ -149,8 +147,6 @@ export class Ghost extends Actor {
       tileToPixel,
       renderCirclePixel,
       renderFilledRectPixel,
-      millis,
-      floor,
       tileSize,
       radiusRatio,
       powerWarningFlashMs,
