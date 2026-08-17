@@ -136,13 +136,11 @@ export class Ghost extends Actor {
       }
 
       case CLYDE_NAME: {
-        const getClydeScatterTarget = () => $v(1, ROW_COUNT - 2)
-
         const deltaToPacman = pacmanPos.clone().sub(this.position)
         const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
         if (manhattanDistance <= clydeShyDistanceTiles)
-          return getClydeScatterTarget()
+          return $v(1, ROW_COUNT - 2) // Scatter target.
 
         return $v(pacmanPos.x, pacmanPos.y)
       }
