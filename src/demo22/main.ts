@@ -145,6 +145,7 @@ class Game {
     this.pacmanStart = this.findAndClearMarker(PACMAN_MARKER)
     this.ghostStarts = this.findAndClearGhostMarkers()
     this.cherrySpawnPosition = this.findAndClearMarker(CHERRY_MARKER)
+
     configureWallCheck(position => this.isWall(position))
 
     this.pacman = new Pacman(this.pacmanStart, BASE_PACMAN_SPEED)
@@ -1020,6 +1021,7 @@ class Game {
     this.renderMaze()
 
     this.pacman.render(() => this.roundDelayRemainingMs)
+
     this.ghosts.forEach(ghost => {
       ghost.render(
         () => this.powerModeRemainingMs,
@@ -1028,6 +1030,7 @@ class Game {
     })
 
     this.renderHud()
+
     this.renderStateOverlay()
   }
 
