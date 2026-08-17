@@ -1,9 +1,7 @@
 import { abs, floor } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor, ActorEnvironment, DirectionName, nextCell } from './actor.ts'
-
-export type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde'
-export type GhostMarker = 'B' | 'H' | 'I' | 'C'
+import { GhostName, GhostMarker } from './constants.ts'
 
 export type GhostRenderContext = {
   tileToPixel: (x: number, y: number) => { x: number; y: number }
