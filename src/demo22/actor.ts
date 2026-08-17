@@ -10,7 +10,7 @@ export function configureWallCheck(check: (position: Vector3d) => boolean) {
   isWall = check
 }
 
-export function wrapCol(col: number): number {
+export const wrapCol = (col: number): number => {
   if (col < 0) return COLUMN_COUNT - 1
   if (col >= COLUMN_COUNT) return 0
 
