@@ -24,8 +24,6 @@ import {
   tileToPixel,
 } from './render.ts'
 
-export const getClydeScatterTarget = () => $v(1, ROW_COUNT - 2)
-
 export class Ghost extends Actor {
   lastEatenPowerModeId = -1
   isEaten = false
@@ -138,6 +136,8 @@ export class Ghost extends Actor {
       }
 
       case CLYDE_NAME: {
+        const getClydeScatterTarget = () => $v(1, ROW_COUNT - 2)
+
         const deltaToPacman = pacmanPos.clone().sub(this.position)
         const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
