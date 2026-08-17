@@ -10,21 +10,14 @@ type Demo17FormType = {
 
 export const demo17Form: Demo17FormType = {}
 
-export const minParticles = () => {
-  return sliders().minParticles.getValue()
-}
+export const minParticles = () => sliders().minParticles.getValue()
 
-export const maxParticles = () => {
-  return sliders().maxParticles.getValue()
-}
+export const maxParticles = () => sliders().maxParticles.getValue()
 
-export const launchesPer100Frames = () => {
-  return sliders().launchesPer100Frames.getValue()
-}
+export const launchesPer100Frames = () =>
+  sliders().launchesPer100Frames.getValue()
 
-export const renderIn3d = () => {
-  return toggles().renderIn3d.getValue()
-}
+export const renderIn3d = () => toggles().renderIn3d.getValue()
 
 const sliders = () => {
   if (!demo17Form.sliders)

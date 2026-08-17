@@ -13,25 +13,16 @@ type Demo3FormType = {
 
 export const demo3Form: Demo3FormType = {}
 
-export const cubiesPerAxis = () => {
-  return sliders().cubiesPerAxis.getValue()
-}
+export const cubiesPerAxis = () => sliders().cubiesPerAxis.getValue()
 
-export const cubieSize = () => {
-  return sliders().cubieSize.getValue()
-}
+export const cubieSize = () => sliders().cubieSize.getValue()
 
-export const cubieSpacing = () => {
-  return sliders().cubieSpacing.getValue()
-}
+export const cubieSpacing = () => sliders().cubieSpacing.getValue()
 
-export const rotateCubies = () => {
-  return toggles().rotateCubies.getValue()
-}
+export const rotateCubies = () => toggles().rotateCubies.getValue()
 
-export const renderExternalFacesOnly = () => {
-  return toggles().renderExternalFacesOnly.getValue()
-}
+export const renderExternalFacesOnly = () =>
+  toggles().renderExternalFacesOnly.getValue()
 
 const sliders = () => {
   if (!demo3Form.sliders)
