@@ -118,18 +118,13 @@ type GhostStart = {
   color: string
 }
 
-MAZE_TEMPLATE.forEach((row, index) => {
-  if (row.length !== COLUMN_COUNT)
-    throw new Error(`Invalid maze width at row ${index}`)
-})
-
 function getClydeScatterTarget(): Vector3d {
   return $v(1, ROW_COUNT - 2)
 }
 
 class Game {
   private readonly maze: Tile[][] = MAZE_TEMPLATE.map(line => {
-    return line.split('') as Tile[]
+    return [...line] as Tile[]
   })
 
   private readonly pacmanStart: Vector3d
@@ -347,7 +342,7 @@ class Game {
 
   private resetMazeFromTemplate() {
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
-      this.maze[row][col] = MAZE_TEMPLATE[row][col] as Tile
+      this.maze[row][col] = [...MAZE_TEMPLATE[row]][col] as Tile
     })
 
     this.findAndClearMarker(PACMAN_MARKER)

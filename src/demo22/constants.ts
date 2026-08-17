@@ -31,7 +31,7 @@ export const WALL_MARKER = '◻'
 export const EMPTY_MARKER = ' '
 export const PELLET_MARKER = '·'
 export const POWER_PELLET_MARKER = '⏺'
-export const CHERRY_MARKER = 'c'
+export const CHERRY_MARKER = '🍒'
 export const PACMAN_MARKER = 'P'
 export const BLINKY_MARKER = 'B'
 export const PINKY_MARKER = 'H'
@@ -98,7 +98,7 @@ export const MAZE_TEMPLATE = [
   '◻◻◻◻·◻ ◻◻B◻◻ ◻·◻◻◻◻',
   '    ·  ◻IHC◻  ·    ',
   '◻◻◻◻·◻ ◻◻◻◻◻ ◻·◻◻◻◻',
-  '   ◻·◻   c   ◻·◻   ',
+  '   ◻·◻   🍒   ◻·◻   ',
   '◻◻◻◻·◻ ◻◻◻◻◻ ◻·◻◻◻◻',
   '◻········◻········◻',
   '◻·◻◻·◻◻◻·◻·◻◻◻·◻◻·◻',
@@ -114,6 +114,8 @@ export const ROW_COUNT = MAZE_TEMPLATE.length
 export const COLUMN_COUNT = MAZE_TEMPLATE[0].length
 
 MAZE_TEMPLATE.forEach((row, index) => {
-  if (row.length !== COLUMN_COUNT)
-    throw new Error(`Invalid maze width at row ${index}`)
+  if ([...row].length !== COLUMN_COUNT)
+    throw new Error(
+      `Invalid maze width at row ${index}. Expected ${COLUMN_COUNT} but got ${[...row].length}.`,
+    )
 })
