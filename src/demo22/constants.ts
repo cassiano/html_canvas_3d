@@ -32,9 +32,9 @@ export const EMPTY_MARKER = ' '
 export const PELLET_MARKER = '·'
 export const POWER_PELLET_MARKER = '⏺'
 export const CHERRY_MARKER = '🍒'
-export const PACMAN_MARKER = 'P'
+export const PACMAN_MARKER = '🟡'
 export const BLINKY_MARKER = 'B'
-export const PINKY_MARKER = 'H'
+export const PINKY_MARKER = 'P'
 export const INKY_MARKER = 'I'
 export const CLYDE_MARKER = 'C'
 
@@ -96,13 +96,13 @@ export const MAZE_TEMPLATE = [
   '◻◻◻◻·◻◻◻ ◻ ◻◻◻·◻◻◻◻',
   '   ◻·◻       ◻·◻   ',
   '◻◻◻◻·◻ ◻◻B◻◻ ◻·◻◻◻◻',
-  '    ·  ◻IHC◻  ·    ',
+  '    ·  ◻IPC◻  ·    ',
   '◻◻◻◻·◻ ◻◻◻◻◻ ◻·◻◻◻◻',
   '   ◻·◻   🍒   ◻·◻   ',
   '◻◻◻◻·◻ ◻◻◻◻◻ ◻·◻◻◻◻',
   '◻········◻········◻',
   '◻·◻◻·◻◻◻·◻·◻◻◻·◻◻·◻',
-  '◻⏺·◻·····P·····◻·⏺◻',
+  '◻⏺·◻·····🟡·····◻·⏺◻',
   '◻◻·◻·◻·◻◻◻◻◻·◻·◻·◻◻',
   '◻····◻···◻···◻····◻',
   '◻·◻◻◻◻◻◻·◻·◻◻◻◻◻◻·◻',
