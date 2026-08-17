@@ -23,20 +23,22 @@ import {
   startPowerSirenLoop,
   stopPowerSirenLoop,
 } from './audio.ts'
-import { ActorEnvironment, canMove, DirectionName, nextCell } from './actor.ts'
+import {
+  canMove,
+  configureWallCheck,
+  DirectionName,
+  nextCell,
+} from './actor.ts'
 import { Ghost } from './ghost.ts'
 import { Pacman } from './pacman.ts'
 import {
-  directionToAngle,
   renderCherry,
-  renderCirclePixel,
   renderFilledRectPixel,
   renderPellet,
   renderPowerPellet,
   renderWall,
   tileToPixel,
   toWorldPoint,
-  triangle2d,
 } from './render.ts'
 import {
   BASE_GHOST_SPEED,
@@ -59,7 +61,6 @@ import {
   EMPTY_MARKER,
   GHOST_EATEN_BASE_SCORE,
   GHOST_MARKER_SPECS,
-  GHOST_RADIUS_RATIO,
   GHOST_SPEED_INCREASE_PER_PHASE,
   HIGH_SCORE_STORAGE_KEY,
   INKY_LOOKAHEAD_TILES,
@@ -71,7 +72,6 @@ import {
   MIN_POWER_MODE_MS,
   OPPOSITE_DIRECTIONS,
   PACMAN_MARKER,
-  PACMAN_RADIUS_RATIO,
   PINKY_LOOKAHEAD_TILES,
   PINKY_MARKER,
   PINKY_NAME,
@@ -80,11 +80,8 @@ import {
   POWER_MODE_MS,
   POWER_MODE_MS_DECREASE_PER_PHASE,
   POWER_PELLET_MARKER,
-  POWER_WARNING_FLASH_INTERVAL_MS,
-  POWER_WARNING_FLASH_MS,
   ROUND_START_DELAY_MS,
   ROW_COUNT,
-  TILE_SIZE,
   WALL_MARKER,
 } from './constants.ts'
 
@@ -118,9 +115,17 @@ type GhostStart = {
   color: string
 }
 
-function getClydeScatterTarget(): Vector3d {
-  return $v(1, ROW_COUNT - 2)
+export const isWall = (maze: Tile[][], position: Vector3d): boolean =>
+  (maze[position.y]?.[position.x] ?? WALL_MARKER) === WALL_MARKER
+
+export const wrapCol = (col: number): number => {
+  if (col < 0) return COLUMN_COUNT - 1
+  if (col >= COLUMN_COUNT) return 0
+
+  return col
 }
+
+const getClydeScatterTarget = (): Vector3d => $v(1, ROW_COUNT - 2)
 
 class Game {
   private readonly maze: Tile[][] = MAZE_TEMPLATE.map(line => {
@@ -130,7 +135,6 @@ class Game {
   private readonly pacmanStart: Vector3d
   private readonly ghostStarts: GhostStart[]
   private readonly cherrySpawnPosition: Vector3d
-  private readonly actorEnvironment: ActorEnvironment
   private readonly pacman: Pacman
   private readonly ghosts: Ghost[]
 
@@ -153,29 +157,9 @@ class Game {
     this.pacmanStart = this.findAndClearMarker(PACMAN_MARKER)
     this.ghostStarts = this.findAndClearGhostMarkers()
     this.cherrySpawnPosition = this.findAndClearMarker(CHERRY_MARKER)
+    configureWallCheck(position => isWall(this.maze, position))
 
-    this.actorEnvironment = {
-      directions: DIRECTIONS,
-      isWall: position => this.isWall(position),
-      wrapCol: column => this.wrapCol(column),
-    }
-
-    this.pacman = new Pacman(
-      this.pacmanStart,
-      BASE_PACMAN_SPEED,
-      this.actorEnvironment,
-      {
-        tileToPixel,
-        renderCirclePixel,
-        toWorldPoint,
-        triangle2d: (pointA, pointB, pointC, options) =>
-          triangle2d(pointA, pointB, pointC, options),
-        directionToAngle,
-        tileSize: TILE_SIZE,
-        radiusRatio: PACMAN_RADIUS_RATIO,
-        roundDelayRemainingMs: () => this.roundDelayRemainingMs,
-      },
-    )
+    this.pacman = new Pacman(this.pacmanStart, BASE_PACMAN_SPEED)
 
     this.ghosts = this.ghostStarts.map((start, index) => {
       return new Ghost(
@@ -186,20 +170,6 @@ class Game {
         start.name,
         start.marker,
         start.color,
-        this.actorEnvironment,
-        {
-          tileToPixel,
-          renderCirclePixel,
-          renderFilledRectPixel,
-          tileSize: TILE_SIZE,
-          radiusRatio: GHOST_RADIUS_RATIO,
-          powerWarningFlashMs: POWER_WARNING_FLASH_MS,
-          powerWarningFlashIntervalMs: POWER_WARNING_FLASH_INTERVAL_MS,
-          getPowerModeRemainingMs: () => this.powerModeRemainingMs,
-          getCurrentPowerModeId: () => this.currentPowerModeId,
-          getGhostHouseCenterTarget: () => this.getGhostHouseCenterTarget(),
-          getGhosts: () => this.ghosts,
-        },
       )
     })
 
@@ -399,17 +369,6 @@ class Game {
     }
   }
 
-  private isWall(position: Vector3d): boolean {
-    return this.getTile(position) === WALL_MARKER
-  }
-
-  private wrapCol(col: number): number {
-    if (col < 0) return COLUMN_COUNT - 1
-    if (col >= COLUMN_COUNT) return 0
-
-    return col
-  }
-
   private countRemainingPellets(): number {
     let count = 0
 
@@ -528,7 +487,7 @@ class Game {
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
         if (dir === 'none') return false
-        if (!canMove(ghost.position, dir, this.actorEnvironment)) return false
+        if (!canMove(ghost.position, dir)) return false
 
         return dir !== OPPOSITE_DIRECTIONS[ghost.dir]
       },
@@ -538,10 +497,7 @@ class Game {
       candidates.length > 0
         ? candidates
         : (Object.keys(DIRECTIONS) as DirectionName[]).filter(dir => {
-            return (
-              dir !== 'none' &&
-              canMove(ghost.position, dir, this.actorEnvironment)
-            )
+            return dir !== 'none' && canMove(ghost.position, dir)
           })
 
     if (directions.length === 0) return 'none'
@@ -559,7 +515,7 @@ class Game {
       let bestFleeScore = Number.NEGATIVE_INFINITY
 
       directions.forEach(dir => {
-        const target = nextCell(ghost.position, dir, this.actorEnvironment)
+        const target = nextCell(ghost.position, dir)
         const deltaToPacman = target.clone().sub(pacmanPos)
         const fleeDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
@@ -640,7 +596,7 @@ class Game {
     let bestScore = Number.POSITIVE_INFINITY
 
     directions.forEach(dir => {
-      const target = nextCell(ghost.position, dir, this.actorEnvironment)
+      const target = nextCell(ghost.position, dir)
       const deltaToChaseTarget = target.clone().sub(chaseTarget)
       const chaseDistance =
         abs(deltaToChaseTarget.y) + abs(deltaToChaseTarget.x)
@@ -694,8 +650,7 @@ class Game {
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
         if (dir === 'none') return false
-        if (!canMove(this.pacman.position, dir, this.actorEnvironment))
-          return false
+        if (!canMove(this.pacman.position, dir)) return false
 
         return dir !== OPPOSITE_DIRECTIONS[this.pacman.dir]
       },
@@ -705,17 +660,14 @@ class Game {
       candidates.length > 0
         ? candidates
         : (Object.keys(DIRECTIONS) as DirectionName[]).filter(dir => {
-            return (
-              dir !== 'none' &&
-              canMove(this.pacman.position, dir, this.actorEnvironment)
-            )
+            return dir !== 'none' && canMove(this.pacman.position, dir)
           })
 
     if (directions.length === 0) return 'none'
 
     const scoredDirections = directions
       .map(dir => {
-        const next = nextCell(this.pacman.position, dir, this.actorEnvironment)
+        const next = nextCell(this.pacman.position, dir)
         const nextTile = this.getTile(next)
         const collectibleDistance = this.getClosestCollectibleDistance(next)
         const collectibleBonus =
@@ -1080,9 +1032,12 @@ class Game {
   private render() {
     this.renderMaze()
 
-    this.pacman.render()
+    this.pacman.render(() => this.roundDelayRemainingMs)
     this.ghosts.forEach(ghost => {
-      ghost.render()
+      ghost.render(
+        () => this.powerModeRemainingMs,
+        () => this.currentPowerModeId,
+      )
     })
 
     this.renderHud()

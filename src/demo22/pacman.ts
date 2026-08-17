@@ -1,51 +1,31 @@
 import { abs, cos, sin } from '../math_utils.ts'
 import { Vector3d } from '../vector_3d.ts'
-import { Actor, ActorEnvironment, DirectionName } from './actor.ts'
+import { Actor } from './actor.ts'
+import {
+  directionToAngle,
+  renderCirclePixel,
+  tileToPixel,
+  toWorldPoint,
+  triangle2d,
+} from './render.ts'
+import { DIRECTIONS, PACMAN_RADIUS_RATIO, TILE_SIZE } from './constants.ts'
 import { millis } from '../utils.ts'
 
-export type PacmanRenderContext = {
-  tileToPixel: (x: number, y: number) => { x: number; y: number }
-  // deno-lint-ignore no-explicit-any
-  renderCirclePixel: (...args: any[]) => void
-  toWorldPoint: (x: number, y: number) => Vector3d
-  // deno-lint-ignore no-explicit-any
-  triangle2d: (...args: any[]) => void
-  directionToAngle: (direction: DirectionName) => number
-  tileSize: number
-  radiusRatio: number
-  roundDelayRemainingMs: () => number
-}
-
 export class Pacman extends Actor {
-  constructor(
-    position: Vector3d,
-    speedTilesPerSecond: number,
-    environment: ActorEnvironment,
-    private renderContext: PacmanRenderContext,
-  ) {
-    super(position, speedTilesPerSecond, environment)
+  constructor(position: Vector3d, speedTilesPerSecond: number) {
+    super(position, speedTilesPerSecond)
   }
 
-  render() {
-    const {
-      tileToPixel,
-      renderCirclePixel,
-      toWorldPoint,
-      triangle2d,
-      directionToAngle,
-      tileSize,
-      radiusRatio,
-      roundDelayRemainingMs,
-    } = this.renderContext
+  render(roundDelayRemainingMs = () => 0) {
     const position = this.positionInTiles()
     const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
-    const radius = tileSize * radiusRatio
+    const radius = TILE_SIZE * PACMAN_RADIUS_RATIO
     const moving = this.dir !== 'none' && roundDelayRemainingMs() <= 0
     const facingDirection = this.dir !== 'none' ? this.dir : this.nextDir
     const chompPhase = abs(sin(millis() / 88))
     const mouth = moving ? 0.1 + 0.28 * chompPhase : 0.04
     const angle = directionToAngle(facingDirection)
-    const look = this.environment.directions[facingDirection]
+    const look = DIRECTIONS[facingDirection]
     const bob = moving ? sin(millis() / 140) * radius * 0.05 : 0
     const centerX = pixel.x
     const centerY = pixel.y + bob

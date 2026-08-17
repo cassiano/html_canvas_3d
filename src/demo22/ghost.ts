@@ -1,24 +1,22 @@
 import { abs, floor } from '../math_utils.ts'
 import { millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
-import { Actor, ActorEnvironment, DirectionName, nextCell } from './actor.ts'
-import { GhostName, GhostMarker } from './constants.ts'
-
-export type GhostRenderContext = {
-  tileToPixel: (x: number, y: number) => { x: number; y: number }
-  // deno-lint-ignore no-explicit-any
-  renderCirclePixel: (...args: any[]) => void
-  // deno-lint-ignore no-explicit-any
-  renderFilledRectPixel: (...args: any[]) => void
-  tileSize: number
-  radiusRatio: number
-  powerWarningFlashMs: number
-  powerWarningFlashIntervalMs: number
-  getPowerModeRemainingMs: () => number
-  getCurrentPowerModeId: () => number
-  getGhostHouseCenterTarget: () => Vector3d
-  getGhosts: () => Ghost[]
-}
+import { Actor, DirectionName, nextCell, isWall } from './actor.ts'
+import { BLINKY_NAME, PINKY_NAME, INKY_NAME, CLYDE_NAME } from './constants.ts'
+import {
+  DIRECTIONS,
+  GHOST_RADIUS_RATIO,
+  GhostMarker,
+  GhostName,
+  POWER_WARNING_FLASH_INTERVAL_MS,
+  POWER_WARNING_FLASH_MS,
+  TILE_SIZE,
+} from './constants.ts'
+import {
+  renderCirclePixel,
+  renderFilledRectPixel,
+  tileToPixel,
+} from './render.ts'
 
 export class Ghost extends Actor {
   lastEatenPowerModeId = -1
@@ -32,10 +30,8 @@ export class Ghost extends Actor {
     public name: GhostName,
     public marker: GhostMarker,
     public color: string,
-    environment: ActorEnvironment,
-    private renderContext: GhostRenderContext,
   ) {
-    super(position, speedTilesPerSecond, environment, initialDirection)
+    super(position, speedTilesPerSecond, initialDirection)
   }
 
   markEaten(baseSpeed: number, speedMultiplier = 1.6) {
@@ -73,20 +69,18 @@ export class Ghost extends Actor {
       const current = queue.shift()!
 
       if (current.equals(target)) break
-      ;(Object.keys(this.environment.directions) as DirectionName[]).forEach(
-        dir => {
-          if (dir === 'none') return
+      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
+        if (dir === 'none') return
 
-          const next = nextCell(current, dir, this.environment)
-          const key = `${next.y},${next.x}`
+        const next = nextCell(current, dir)
+        const key = `${next.y},${next.x}`
 
-          if (visited.has(key) || this.environment.isWall(next)) return
+        if (visited.has(key) || isWall(next)) return
 
-          visited.add(key)
-          previous.set(key, { position: current.clone(), dir })
-          queue.push(next)
-        },
-      )
+        visited.add(key)
+        previous.set(key, { position: current.clone(), dir })
+        queue.push(next)
+      })
     }
 
     const targetKey = `${target.y},${target.x}`
@@ -114,49 +108,49 @@ export class Ghost extends Actor {
     getClydeScatterTarget: () => Vector3d,
   ): Vector3d {
     switch (this.name) {
-      case 'Blinky':
+      case BLINKY_NAME:
         return $v(pacmanPos.x, pacmanPos.y)
-      case 'Pinky':
+
+      case PINKY_NAME:
         return pacmanPos
           .clone()
           .add(pacmanFacing.clone().mult(pinkyLookaheadTiles))
-      case 'Inky': {
+
+      case INKY_NAME: {
         const pivot = pacmanPos
           .clone()
           .add(pacmanFacing.clone().mult(inkyLookaheadTiles))
         const blinky = ghosts.find(ghost => ghost.name === 'Blinky')
         if (!blinky) return pivot
         const blinkyPos = blinky.positionInTiles()
+
         return $v(
           pivot.x + (pivot.x - blinkyPos.x),
           pivot.y + (pivot.y - blinkyPos.y),
         )
       }
-      case 'Clyde': {
+
+      case CLYDE_NAME: {
         const deltaToPacman = pacmanPos.clone().sub(this.position)
         const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
+
         if (manhattanDistance <= clydeShyDistanceTiles)
           return getClydeScatterTarget()
+
         return $v(pacmanPos.x, pacmanPos.y)
+      }
+
+      default: {
+        const exhaustiveCheck: never = this.name
+        return exhaustiveCheck
       }
     }
   }
 
-  render() {
-    const {
-      tileToPixel,
-      renderCirclePixel,
-      renderFilledRectPixel,
-      tileSize,
-      radiusRatio,
-      powerWarningFlashMs,
-      powerWarningFlashIntervalMs,
-      getPowerModeRemainingMs,
-      getCurrentPowerModeId,
-    } = this.renderContext
+  render(getPowerModeRemainingMs = () => 0, getCurrentPowerModeId = () => -1) {
     const position = this.positionInTiles()
     const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
-    const radius = tileSize * radiusRatio
+    const radius = TILE_SIZE * GHOST_RADIUS_RATIO
     const left = pixel.x - radius
     const top = pixel.y - radius
     const right = pixel.x + radius
@@ -165,14 +159,14 @@ export class Ghost extends Actor {
     const eyeOffsetY = radius * 0.2
     const eyeRadius = radius * 0.33
     const pupilRadius = radius * 0.15
-    const lookDirection = this.environment.directions[this.dir]
+    const lookDirection = DIRECTIONS[this.dir]
     const frightened =
       getPowerModeRemainingMs() > 0 &&
       this.lastEatenPowerModeId !== getCurrentPowerModeId()
     const shouldFlashWarning =
       frightened &&
-      getPowerModeRemainingMs() <= powerWarningFlashMs &&
-      floor(millis() / powerWarningFlashIntervalMs) % 2 === 0
+      getPowerModeRemainingMs() <= POWER_WARNING_FLASH_MS &&
+      floor(millis() / POWER_WARNING_FLASH_INTERVAL_MS) % 2 === 0
     const bodyColor = frightened
       ? shouldFlashWarning
         ? '#f5f5f5'

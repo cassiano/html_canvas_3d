@@ -1,35 +1,41 @@
 import { min } from '../math_utils.ts'
 import { Vector3d } from '../vector_3d.ts'
+import { COLUMN_COUNT, DIRECTIONS } from './constants.ts'
 
 export type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
 
-export type ActorEnvironment = {
-  directions: Record<DirectionName, Vector3d>
-  isWall: (position: Vector3d) => boolean
-  wrapCol: (column: number) => number
+export let isWall = (_position: Vector3d): boolean => true
+
+export function configureWallCheck(check: (position: Vector3d) => boolean) {
+  isWall = check
+}
+
+export function wrapCol(col: number): number {
+  if (col < 0) return COLUMN_COUNT - 1
+  if (col >= COLUMN_COUNT) return 0
+
+  return col
 }
 
 export const nextCell = (
   position: Vector3d,
   direction: DirectionName,
-  environment: ActorEnvironment,
 ): Vector3d => {
-  const directionVector = environment.directions[direction]
+  const directionVector = DIRECTIONS[direction]
 
   return position
     .clone()
     .add(directionVector)
-    .setX(environment.wrapCol(position.x + directionVector.x))
+    .setX(wrapCol(position.x + directionVector.x))
 }
 
 export const canMove = (
   position: Vector3d,
   direction: DirectionName,
-  environment: ActorEnvironment,
 ): boolean => {
   if (direction === 'none') return false
 
-  return !environment.isWall(nextCell(position, direction, environment))
+  return !isWall(nextCell(position, direction))
 }
 
 export abstract class Actor {
@@ -41,7 +47,6 @@ export abstract class Actor {
   constructor(
     public position: Vector3d,
     public speedTilesPerSecond: number,
-    protected environment: ActorEnvironment,
     initialDirection: DirectionName = 'left',
   ) {
     this.startPosition = position.clone()
@@ -58,7 +63,7 @@ export abstract class Actor {
   }
 
   positionInTiles(): Vector3d {
-    const currentDirection = this.environment.directions[this.dir]
+    const currentDirection = DIRECTIONS[this.dir]
 
     return this.position
       .clone()
@@ -66,7 +71,7 @@ export abstract class Actor {
   }
 
   canMoveTo(direction: DirectionName): boolean {
-    return canMove(this.position, direction, this.environment)
+    return canMove(this.position, direction)
   }
 
   move(
@@ -103,11 +108,11 @@ export abstract class Actor {
       travel -= step
 
       if (this.progress >= 1) {
-        this.position = nextCell(this.position, this.dir, this.environment)
+        this.position = nextCell(this.position, this.dir)
         this.progress = 0
       }
     }
   }
 
-  abstract render(): void
+  abstract render(...args: (() => number)[]): void
 }
