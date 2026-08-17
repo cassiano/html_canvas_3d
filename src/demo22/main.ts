@@ -724,8 +724,9 @@ class Game {
     }
 
     if (this.pelletsRemaining <= 0) {
+      this.phase++
+
       if (!isDemoMode) {
-        this.phase++
         stopPowerSirenLoop()
       }
 
