@@ -2,7 +2,13 @@ import { abs, floor } from '../math_utils.ts'
 import { millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor, DirectionName, nextCell, isWall } from './actor.ts'
-import { BLINKY_NAME, PINKY_NAME, INKY_NAME, CLYDE_NAME } from './constants.ts'
+import {
+  BLINKY_NAME,
+  PINKY_NAME,
+  INKY_NAME,
+  CLYDE_NAME,
+  ROW_COUNT,
+} from './constants.ts'
 import {
   DIRECTIONS,
   GHOST_RADIUS_RATIO,
@@ -17,6 +23,8 @@ import {
   renderFilledRectPixel,
   tileToPixel,
 } from './render.ts'
+
+export const getClydeScatterTarget = () => $v(1, ROW_COUNT - 2)
 
 export class Ghost extends Actor {
   lastEatenPowerModeId = -1
@@ -105,7 +113,6 @@ export class Ghost extends Actor {
     pinkyLookaheadTiles: number,
     inkyLookaheadTiles: number,
     clydeShyDistanceTiles: number,
-    getClydeScatterTarget: () => Vector3d,
   ): Vector3d {
     switch (this.name) {
       case BLINKY_NAME:

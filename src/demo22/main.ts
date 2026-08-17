@@ -115,18 +115,6 @@ type GhostStart = {
   color: string
 }
 
-export const isWall = (maze: Tile[][], position: Vector3d): boolean =>
-  (maze[position.y]?.[position.x] ?? WALL_MARKER) === WALL_MARKER
-
-export const wrapCol = (col: number): number => {
-  if (col < 0) return COLUMN_COUNT - 1
-  if (col >= COLUMN_COUNT) return 0
-
-  return col
-}
-
-const getClydeScatterTarget = (): Vector3d => $v(1, ROW_COUNT - 2)
-
 class Game {
   private readonly maze: Tile[][] = MAZE_TEMPLATE.map(line => {
     return [...line] as Tile[]
@@ -157,7 +145,7 @@ class Game {
     this.pacmanStart = this.findAndClearMarker(PACMAN_MARKER)
     this.ghostStarts = this.findAndClearGhostMarkers()
     this.cherrySpawnPosition = this.findAndClearMarker(CHERRY_MARKER)
-    configureWallCheck(position => isWall(this.maze, position))
+    configureWallCheck(position => this.isWall(position))
 
     this.pacman = new Pacman(this.pacmanStart, BASE_PACMAN_SPEED)
 
@@ -589,7 +577,6 @@ class Game {
       PINKY_LOOKAHEAD_TILES,
       INKY_LOOKAHEAD_TILES,
       CLYDE_SHY_DISTANCE_TILES,
-      getClydeScatterTarget,
     )
 
     let bestDirection = directions[0]
@@ -1042,6 +1029,10 @@ class Game {
 
     this.renderHud()
     this.renderStateOverlay()
+  }
+
+  private isWall(position: Vector3d): boolean {
+    return (this.maze[position.y]?.[position.x] ?? WALL_MARKER) === WALL_MARKER
   }
 }
 
