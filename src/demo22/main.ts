@@ -116,9 +116,9 @@ type GhostStart = {
 }
 
 class Game {
-  private readonly maze: Tile[][] = MAZE_TEMPLATE.map(line => {
-    return [...line] as Tile[]
-  })
+  private readonly maze: Tile[][] = MAZE_TEMPLATE.map(
+    line => [...line] as Tile[],
+  )
 
   private readonly pacmanStart: Vector3d
   private readonly ghostStarts: GhostStart[]
@@ -150,17 +150,18 @@ class Game {
 
     this.pacman = new Pacman(this.pacmanStart, BASE_PACMAN_SPEED)
 
-    this.ghosts = this.ghostStarts.map((start, index) => {
-      return new Ghost(
-        start.position,
-        BASE_GHOST_SPEED,
-        index % 2 === 0 ? 'left' : 'right',
-        index,
-        start.name,
-        start.marker,
-        start.color,
-      )
-    })
+    this.ghosts = this.ghostStarts.map(
+      (start, index) =>
+        new Ghost(
+          start.position,
+          BASE_GHOST_SPEED,
+          index % 2 === 0 ? 'left' : 'right',
+          index,
+          start.name,
+          start.marker,
+          start.color,
+        ),
+    )
 
     this.pelletsRemaining = this.countRemainingPellets()
     this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
@@ -275,22 +276,18 @@ class Game {
   }
 
   private getGhostHouseCenterTarget(): Vector3d {
-    const pinkyStart = this.ghostStarts.find(ghost => {
-      return ghost.name === PINKY_NAME
-    })
+    const pinkyStart = this.ghostStarts.find(ghost => ghost.name === PINKY_NAME)
 
     if (pinkyStart) return pinkyStart.position.clone()
 
     return $v(
       floor(
-        this.ghostStarts.reduce((sum, ghost) => {
-          return sum + ghost.position.x
-        }, 0) / this.ghostStarts.length,
+        this.ghostStarts.reduce((sum, ghost) => sum + ghost.position.x, 0) /
+          this.ghostStarts.length,
       ),
       floor(
-        this.ghostStarts.reduce((sum, ghost) => {
-          return sum + ghost.position.y
-        }, 0) / this.ghostStarts.length,
+        this.ghostStarts.reduce((sum, ghost) => sum + ghost.position.y, 0) /
+          this.ghostStarts.length,
       ),
     )
   }
@@ -485,9 +482,9 @@ class Game {
     const directions =
       candidates.length > 0
         ? candidates
-        : (Object.keys(DIRECTIONS) as DirectionName[]).filter(dir => {
-            return dir !== 'none' && canMove(ghost.position, dir)
-          })
+        : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
+            dir => dir !== 'none' && canMove(ghost.position, dir),
+          )
 
     if (directions.length === 0) return 'none'
 
@@ -509,9 +506,7 @@ class Game {
         const fleeDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
         const spacingBonus = this.ghosts
-          .filter(other => {
-            return other.id !== ghost.id
-          })
+          .filter(other => other.id !== ghost.id)
           .reduce((bonus, other) => {
             const otherPos = other.positionInTiles()
             const dist = abs(target.y - otherPos.y) + abs(target.x - otherPos.x)
@@ -538,20 +533,19 @@ class Game {
       return fleeDirection
     }
 
-    const overlappingGhosts = this.ghosts.filter(other => {
-      return (
+    const overlappingGhosts = this.ghosts.filter(
+      other =>
         other.id !== ghost.id &&
         other.progress === 0 &&
         ghost.progress === 0 &&
-        other.position.equals(ghost.position)
-      )
-    })
+        other.position.equals(ghost.position),
+    )
 
     if (overlappingGhosts.length > 0) {
       const occupiedDirections = new Set(
-        overlappingGhosts.map(other => {
-          return other.nextDir !== 'none' ? other.nextDir : other.dir
-        }),
+        overlappingGhosts.map(other =>
+          other.nextDir !== 'none' ? other.nextDir : other.dir,
+        ),
       )
 
       const freeDirections = directions.filter(dir => {
@@ -590,9 +584,7 @@ class Game {
         abs(deltaToChaseTarget.y) + abs(deltaToChaseTarget.x)
 
       const crowdPenalty = this.ghosts
-        .filter(other => {
-          return other.id !== ghost.id
-        })
+        .filter(other => other.id !== ghost.id)
         .reduce((penalty, other) => {
           const otherPos = other.positionInTiles()
           const dist = abs(target.y - otherPos.y) + abs(target.x - otherPos.x)
@@ -647,9 +639,9 @@ class Game {
     const directions =
       candidates.length > 0
         ? candidates
-        : (Object.keys(DIRECTIONS) as DirectionName[]).filter(dir => {
-            return dir !== 'none' && canMove(this.pacman.position, dir)
-          })
+        : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
+            dir => dir !== 'none' && canMove(this.pacman.position, dir),
+          )
 
     if (directions.length === 0) return 'none'
 
@@ -684,9 +676,7 @@ class Game {
 
         return { dir, score }
       })
-      .sort((a, b) => {
-        return a.score - b.score
-      })
+      .sort((a, b) => a.score - b.score)
 
     const alternateRouteChance = this.powerModeRemainingMs > 0 ? 0.3 : 0.18
 
@@ -721,12 +711,8 @@ class Game {
       this.syncGhostSpeedsForPowerMode()
       if (!isDemoMode)
         startPowerSirenLoop(
-          () => {
-            return this.powerModeRemainingMs
-          },
-          () => {
-            return this.gameState === 'playing'
-          },
+          () => this.powerModeRemainingMs,
+          () => this.gameState === 'playing',
         )
     } else if (tile === CHERRY_MARKER) {
       this.setTile(this.pacman.position, EMPTY_MARKER)
@@ -817,9 +803,9 @@ class Game {
       this.consumePacmanTile(true)
 
       this.ghosts.forEach(ghost => {
-        ghost.move(deltaSeconds, actor => {
-          return this.chooseGhostDirection(actor as Ghost)
-        })
+        ghost.move(deltaSeconds, actor =>
+          this.chooseGhostDirection(actor as Ghost),
+        )
       })
 
       this.checkGhostCollisions(true)
@@ -858,9 +844,9 @@ class Game {
     this.consumePacmanTile()
 
     this.ghosts.forEach(ghost => {
-      ghost.move(deltaSeconds, actor => {
-        return this.chooseGhostDirection(actor as Ghost)
-      })
+      ghost.move(deltaSeconds, actor =>
+        this.chooseGhostDirection(actor as Ghost),
+      )
     })
 
     this.checkGhostCollisions()
