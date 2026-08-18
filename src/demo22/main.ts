@@ -85,7 +85,7 @@ import {
   WALL_MARKER,
 } from './constants.ts'
 
-type GameState = 'playing' | 'won' | 'gameOver'
+type GameState = 'playing' | 'gameOver'
 
 type GhostMarker =
   | typeof CLYDE_MARKER
@@ -1014,9 +1014,7 @@ class Game {
       'rgba(0, 0, 0, 0.6)',
     )
 
-    const message = this.gameState === 'won' ? 'YOU WIN' : 'GAME OVER'
-
-    text2d(message, toWorldPoint(animation.width / 2, 70), '#ffffff', {
+    text2d('GAME OVER', toWorldPoint(animation.width / 2, 70), '#ffffff', {
       fontSize: 36,
       fontFamily: 'monospace',
       fontWeight: 'bold',
