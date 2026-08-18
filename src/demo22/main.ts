@@ -241,6 +241,10 @@ class Game {
     stopPowerSirenLoop()
   }
 
+  private inPowerMode() {
+    return this.powerModeRemainingMs > 0
+  }
+
   private startGame() {
     // A new game resets score and lives, while the high score intentionally
     // survives through localStorage and is not cleared here.
@@ -416,10 +420,9 @@ class Game {
     // Frightened ghosts slow down, while eaten ghosts retain their return-home
     // speed until they are revived.
     const baseGhostSpeed = this.getGhostSpeed()
-    const ghostSpeed =
-      this.powerModeRemainingMs > 0
-        ? baseGhostSpeed * POWER_MODE_GHOST_SPEED_FACTOR
-        : baseGhostSpeed
+    const ghostSpeed = this.inPowerMode()
+      ? baseGhostSpeed * POWER_MODE_GHOST_SPEED_FACTOR
+      : baseGhostSpeed
 
     this.ghosts.forEach(ghost => {
       if (ghost.isEaten) return
@@ -540,7 +543,7 @@ class Game {
 
     if (directions.length === 0) return NONE_DIRECTION
 
-    if (this.powerModeRemainingMs > 0) {
+    if (this.inPowerMode()) {
       const powerRatio = max(
         0,
         min(1, this.powerModeRemainingMs / this.getPowerModeDurationMs()),
@@ -736,7 +739,7 @@ class Game {
           const ghostPos = ghost.positionInTiles()
           const distance = Game.manhattanDistance(next, ghostPos)
 
-          if (this.powerModeRemainingMs > 0) return threat
+          if (this.inPowerMode()) return threat
 
           return threat + 1 / (distance + 0.4)
         }, 0)
@@ -767,12 +770,12 @@ class Game {
 
     // Usually take the best route, but occasionally choose a near-best route
     // so demo mode explores the maze instead of repeating one fixed path.
-    const alternateRouteChance = this.powerModeRemainingMs > 0 ? 0.3 : 0.18
+    const alternateRouteChance = this.inPowerMode() ? 0.3 : 0.18
 
     if (scoredDirections.length > 1 && random() < alternateRouteChance) {
       const furthestIndex = min(
         scoredDirections.length - 1,
-        this.powerModeRemainingMs > 0 ? 2 : 1,
+        this.inPowerMode() ? 2 : 1,
       )
       const alternateIndex = 1 + floor(random() * furthestIndex)
 
@@ -839,7 +842,7 @@ class Game {
 
       if (distance > COLLISION_DISTANCE_TILES) return
 
-      if (this.powerModeRemainingMs > 0) {
+      if (this.inPowerMode()) {
         if (ghost.lastEatenPowerModeId === this.currentPowerModeId) return
 
         ghost.lastEatenPowerModeId = this.currentPowerModeId
@@ -883,14 +886,14 @@ class Game {
         return
       }
 
-      const hadPowerMode = this.powerModeRemainingMs > 0
+      const hadPowerMode = this.inPowerMode()
 
       this.powerModeRemainingMs = max(
         0,
         this.powerModeRemainingMs - deltaSeconds * 1000,
       )
 
-      if (hadPowerMode && this.powerModeRemainingMs <= 0) {
+      if (hadPowerMode && !this.inPowerMode()) {
         stopPowerSirenLoop()
         this.syncGhostSpeedsForPowerMode()
       }
@@ -918,14 +921,14 @@ class Game {
       return
     }
 
-    const hadPowerMode = this.powerModeRemainingMs > 0
+    const hadPowerMode = this.inPowerMode()
 
     this.powerModeRemainingMs = max(
       0,
       this.powerModeRemainingMs - deltaSeconds * 1000,
     )
 
-    if (hadPowerMode && this.powerModeRemainingMs <= 0) {
+    if (hadPowerMode && !this.inPowerMode()) {
       stopPowerSirenLoop()
       this.syncGhostSpeedsForPowerMode()
     }
