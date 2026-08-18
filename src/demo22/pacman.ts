@@ -1,5 +1,4 @@
 import { abs, cos, sin } from '../math_utils.ts'
-import { Vector3d } from '../vector_3d.ts'
 import { Actor } from './actor.ts'
 import {
   directionToAngle,
@@ -12,10 +11,6 @@ import { DIRECTIONS, PACMAN_RADIUS_RATIO, TILE_SIZE } from './constants.ts'
 import { millis } from '../utils.ts'
 
 export class Pacman extends Actor {
-  constructor(position: Vector3d, speedTilesPerSecond: number) {
-    super(position, speedTilesPerSecond)
-  }
-
   render(roundDelayRemainingMs = () => 0) {
     const position = this.positionInTiles()
     const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
