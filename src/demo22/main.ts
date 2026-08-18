@@ -735,14 +735,14 @@ class Game {
         // Threat is the sum of inverse (Manhattan) distances to every ghost. A nearby
         // ghost contributes much more than a distant one; while power mode is active,
         // ghosts are edible, so this danger term is disabled.
-        const ghostThreat = this.ghosts.reduce((threat, ghost) => {
-          const ghostPos = ghost.positionInTiles()
-          const distance = Game.manhattanDistance(next, ghostPos)
+        const ghostThreat = this.inPowerMode()
+          ? 0
+          : this.ghosts.reduce((threat, ghost) => {
+              const ghostPos = ghost.positionInTiles()
+              const distance = Game.manhattanDistance(next, ghostPos)
 
-          if (this.inPowerMode()) return threat
-
-          return threat + 1 / (distance + 0.4)
-        }, 0)
+              return threat + 1 / (distance + 0.4)
+            }, 0)
 
         // These tiny deterministic variations prevent equal-scoring exits
         // from always resolving in the same direction without changing the
