@@ -655,6 +655,8 @@ class Game {
   }
 
   private chooseDemoPacmanDirection(): DirectionName {
+    // Keep Pacman moving forward when possible; reversing is only a fallback
+    // when the current corridor has no other legal exit.
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
         if (['none', OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(dir))
@@ -673,17 +675,31 @@ class Game {
 
     if (directions.length === 0) return 'none'
 
+    // Score each exit by how quickly it leads to food, while making power
+    // pellets especially attractive and nearby ghosts increasingly costly.
     const scoredDirections = directions
       .map(dir => {
         const next = nextCell(this.pacman.position, dir)
         const nextTile = this.getTile(next)
+
+        // This is a Manhattan distance to the nearest remaining pellet,
+        // power pellet, or cherry after taking this step. Because the final
+        // score is minimized, a shorter route produces a better score.
         const collectibleDistance = this.getClosestCollectibleDistance(next)
+
+        // A collectible directly in the candidate tile should outweigh the
+        // distance heuristic. Power pellets receive the larger discount
+        // because they also let Pacman safely eat frightened ghosts.
         const collectibleBonus =
           nextTile === POWER_PELLET_MARKER
             ? -50
             : nextTile === PELLET_MARKER
               ? -25
               : 0
+
+        // Threat is the sum of inverse distances to every ghost. A nearby
+        // ghost contributes much more than a distant one; while power mode is
+        // active, ghosts are edible, so this danger term is disabled.
         const ghostThreat = this.ghosts.reduce((threat, ghost) => {
           const ghostPos = ghost.positionInTiles()
           const distance = abs(next.y - ghostPos.y) + abs(next.x - ghostPos.x)
@@ -692,9 +708,20 @@ class Game {
 
           return threat + 1 / (distance + 0.4)
         }, 0)
+
+        // These tiny deterministic variations prevent equal-scoring exits
+        // from always resolving in the same direction without changing the
+        // meaningful food-versus-danger tradeoff.
         const tieBreaker =
           ((dir.charCodeAt(0) + floor(millis() / 220)) % 7) * 0.001
+
+        // Add bounded randomness so the demo does not trace an identical
+        // route every time it restarts. Its maximum contribution is small
+        // compared with the pellet and threat terms.
         const randomJitter = random() * 0.6
+
+        // Lower is better: prioritize nearby food, apply the direct-tile
+        // bonus, and avoid dangerous exits unless power mode is active.
         const score =
           collectibleDistance +
           ghostThreat * 7 +
@@ -706,6 +733,8 @@ class Game {
       })
       .sort((a, b) => a.score - b.score)
 
+    // Usually take the best route, but occasionally choose a near-best route
+    // so demo mode explores the maze instead of repeating one fixed path.
     const alternateRouteChance = this.powerModeRemainingMs > 0 ? 0.3 : 0.18
 
     if (scoredDirections.length > 1 && random() < alternateRouteChance) {
