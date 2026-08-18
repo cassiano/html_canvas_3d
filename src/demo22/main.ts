@@ -249,7 +249,7 @@ class Game {
   }
 
   private getTile(position: Vector3d): Tile {
-    return this.maze[position.y]?.[position.x] ?? WALL_MARKER
+    return this.maze[position.y][position.x] ?? WALL_MARKER
   }
 
   private setTile(position: Vector3d, value: Tile): void {
@@ -657,10 +657,10 @@ class Game {
   private chooseDemoPacmanDirection(): DirectionName {
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
-        if (dir === 'none') return false
-        if (!canMove(this.pacman.position, dir)) return false
+        if (['none', OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(dir))
+          return false
 
-        return dir !== OPPOSITE_DIRECTIONS[this.pacman.dir]
+        return canMove(this.pacman.position, dir)
       },
     )
 
@@ -831,11 +831,11 @@ class Game {
 
       this.consumePacmanTile(true)
 
-      this.ghosts.forEach(ghost => {
+      this.ghosts.forEach(ghost =>
         ghost.move(deltaSeconds, actor =>
           this.chooseGhostDirection(actor as Ghost),
-        )
-      })
+        ),
+      )
 
       this.checkGhostCollisions(true)
 
