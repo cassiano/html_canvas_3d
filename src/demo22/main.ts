@@ -145,6 +145,8 @@ class Game {
   private cherryRespawnRemainingMs = 0
 
   constructor() {
+    // Copy the immutable template so gameplay can consume pellets and replace
+    // markers without mutating the source maze shared by future rounds.
     this.maze = MAZE_TEMPLATE.map(line => Array.from(line) as Tile[])
     this.pacmanStart = this.findAndClearMarker(PACMAN_MARKER)
     this.ghostStarts = this.findAndClearGhostMarkers()
@@ -180,6 +182,8 @@ class Game {
 
     background('black')
 
+    // Clamp elapsed time so a paused tab or dropped frame cannot teleport
+    // actors through walls or make timed effects expire in one update.
     const now = millis()
     const deltaSeconds =
       this.lastTickMillis === null
@@ -235,6 +239,8 @@ class Game {
   }
 
   private startGame() {
+    // A new game resets score and lives, while the high score intentionally
+    // survives through localStorage and is not cleared here.
     this.hasStartedGame = true
     this.score = 0
     this.lives = 3
@@ -299,6 +305,8 @@ class Game {
   }
 
   private resetMazeFromTemplate() {
+    // Restore every tile, then remove spawn markers again because actors keep
+    // their start positions separately from the visible maze contents.
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
       this.maze[row][col] = Array.from(MAZE_TEMPLATE[row])[col] as Tile
     })
@@ -334,6 +342,8 @@ class Game {
   }
 
   private updateCherryCycle(deltaSeconds: number) {
+    // Cherry timing alternates between a hidden respawn countdown and a
+    // visible lifetime; only one timer is active in either state.
     const deltaMs = deltaSeconds * 1000
 
     if (this.cherryVisibleRemainingMs > 0) {
@@ -400,6 +410,8 @@ class Game {
   }
 
   private syncGhostSpeedsForPowerMode() {
+    // Frightened ghosts slow down, while eaten ghosts retain their return-home
+    // speed until they are revived.
     const baseGhostSpeed = this.getGhostSpeed()
     const ghostSpeed =
       this.powerModeRemainingMs > 0
@@ -414,6 +426,8 @@ class Game {
   }
 
   private loadHighScore(): HighScoreRecord {
+    // Accept old numeric saves as phase-one records, but validate new object
+    // saves so corrupt localStorage cannot produce invalid HUD state.
     try {
       const stored = self.localStorage.getItem(HIGH_SCORE_STORAGE_KEY)
 
@@ -469,6 +483,8 @@ class Game {
   }
 
   private resetRound() {
+    // A life loss or maze clear restarts positions and timers without resetting
+    // score, lives, or the current difficulty phase.
     this.pacman.reset('left')
 
     this.ghosts.forEach((ghost, index) => {
@@ -490,6 +506,8 @@ class Game {
   }
 
   private chooseGhostDirection(ghost: Ghost): DirectionName {
+    // Ghosts choose at tile centers. Eaten ghosts path home; frightened ghosts
+    // maximize separation; normal ghosts minimize chase distance plus crowding.
     if (ghost.isEaten) {
       const target = this.getGhostHouseCenterTarget()
 
@@ -634,6 +652,8 @@ class Game {
   }
 
   private getClosestCollectibleDistance(position: Vector3d): number {
+    // This intentionally uses Manhattan distance: the method is a cheap local
+    // heuristic for the demo driver, not a full pathfinding query.
     let bestDistance = Number.POSITIVE_INFINITY
 
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (targetCol, targetRow) => {
@@ -751,6 +771,8 @@ class Game {
   }
 
   private consumePacmanTile(isDemoMode = false) {
+    // Demo mode mutates the maze and advances phases but suppresses player-only
+    // scoring and audio, allowing the attract loop to run indefinitely.
     const tile = this.getTile(this.pacman.position)
 
     if (tile === PELLET_MARKER) {
@@ -793,6 +815,8 @@ class Game {
   }
 
   private checkGhostCollisions(isDemoMode = false) {
+    // Collision handling is ordered from edible ghosts to lethal ghosts, with
+    // demo mode resetting the round instead of consuming a player life.
     const pacmanPos = this.pacman.positionInTiles()
 
     this.ghosts.forEach(ghost => {
@@ -837,6 +861,9 @@ class Game {
   }
 
   private update(deltaSeconds: number) {
+    // Before Enter, the game runs an attract mode. It uses the same actors and
+    // maze rules as play, but supplies an automatic Pacman direction and no
+    // player-facing score or sound effects.
     if (this.gameState !== 'playing') {
       if (this.roundDelayRemainingMs > 0) {
         this.roundDelayRemainingMs -= deltaSeconds * 1000
@@ -871,6 +898,8 @@ class Game {
       return
     }
 
+    // Player mode keeps input-driven direction changes and cherry timing while
+    // sharing movement, pellet consumption, and collision behavior with demo.
     if (this.roundDelayRemainingMs > 0) {
       this.roundDelayRemainingMs -= deltaSeconds * 1000
 
@@ -911,6 +940,8 @@ class Game {
   }
 
   private renderMaze() {
+    // Actors are drawn separately so their fractional positions can animate;
+    // this pass only renders static maze tile content.
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
       const tile = this.getTile($v(col, row))
       const pixel = tileToPixel(col, row)
@@ -1065,6 +1096,7 @@ class Game {
   }
 
   private render() {
+    // Render order places the maze behind actors and the HUD/overlay above both.
     this.renderMaze()
 
     this.pacman.render(() => this.roundDelayRemainingMs)

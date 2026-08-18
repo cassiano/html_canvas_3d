@@ -12,6 +12,8 @@ import { millis } from '../utils.ts'
 
 export class Pacman extends Actor {
   render(roundDelayRemainingMs = () => 0) {
+    // Derive the sprite pose from the actor's fractional tile position so the
+    // mouth, eyes, and shadow stay synchronized with movement.
     const position = this.positionInTiles()
     const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
     const radius = TILE_SIZE * PACMAN_RADIUS_RATIO

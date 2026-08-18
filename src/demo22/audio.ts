@@ -17,6 +17,8 @@ let wakaHighTone = false
 let powerSirenTimer: number | null = null
 
 export function ensureAudio() {
+  // Browsers often create audio contexts only after user interaction. Keep a
+  // lazy singleton and reuse its master gain for every synthesized effect.
   if (audioContext && masterGain) return true
 
   const AudioContextClass = self.AudioContext
@@ -48,6 +50,8 @@ export function playTone(
   duration = 0.08,
   { type = 'square', gain = 0.25 }: AudioToneOptions = {},
 ) {
+  // Each tone gets its own oscillator and gain envelope, allowing overlapping
+  // effects without mutating the shared audio state.
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
@@ -71,6 +75,8 @@ export function playSweep(
   duration: number,
   { type = 'triangle', gain = 0.2 }: AudioToneOptions = {},
 ) {
+  // Frequency ramps create directional effects while the gain envelope avoids
+  // abrupt clicks at the start and end.
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
@@ -93,6 +99,7 @@ export function playSweep(
 }
 
 export function playNoiseBurst(duration = 0.12, gain = 0.08) {
+  // Reuse the pre-generated noise buffer for short arcade-style impact sounds.
   if (!ensureAudio() || !audioContext || !masterGain || !noiseBuffer) return
 
   const now = audioContext.currentTime
@@ -115,6 +122,8 @@ export function playNoiseBurst(duration = 0.12, gain = 0.08) {
 }
 
 export function playWaka() {
+  // Throttle pellet sounds so fast movement does not create an unpleasant
+  // burst of overlapping effects; alternating pitch supplies the rhythm.
   const nowMillis = millis()
 
   if (nowMillis - lastWakaMillis < WAKA_INTERVAL_MS) return
@@ -128,6 +137,8 @@ export function playWaka() {
 }
 
 export function playPowerPellet() {
+  // Layer oscillators, filters, and modulation sources into one evolving
+  // effect instead of using a flat beep.
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
@@ -215,6 +226,8 @@ export function playPowerPellet() {
 }
 
 export function playCherryPickup() {
+  // Combine a melodic lead with filtered delayed feedback for a brighter
+  // reward sound.
   if (!ensureAudio() || !audioContext || !masterGain) return
 
   const now = audioContext.currentTime
@@ -295,6 +308,7 @@ export function playDeath() {
 }
 
 export function stopPowerSirenLoop() {
+  // Clear the interval before dropping its handle so repeated resets are safe.
   if (powerSirenTimer === null) return
   self.clearInterval(powerSirenTimer)
   powerSirenTimer = null
@@ -304,6 +318,8 @@ export function startPowerSirenLoop(
   getPowerModeRemainingMs: () => number,
   isPlaying: () => boolean,
 ) {
+  // Only one siren interval may exist. Each tick checks the supplied state so
+  // the sound stops when power mode expires or gameplay pauses.
   if (powerSirenTimer !== null) return
   playPowerPellet()
   powerSirenTimer = self.setInterval(() => {

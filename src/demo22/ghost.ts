@@ -64,6 +64,8 @@ export class Ghost extends Actor {
   }
 
   nextDirectionToTarget(target: Vector3d): DirectionName {
+    // Breadth-first search finds the shortest walkable route to the target.
+    // The predecessor map is used to recover only the first move on that route.
     const queue: Vector3d[] = [this.position.clone()]
     const visited = new Set<string>([`${this.position.y},${this.position.x}`])
     const previous = new Map<
@@ -112,6 +114,8 @@ export class Ghost extends Actor {
     inkyLookaheadTiles: number,
     clydeShyDistanceTiles: number,
   ): Vector3d {
+    // Each ghost transforms Pacman's state differently, creating distinct
+    // chase personalities instead of four identical pursuers.
     switch (this.name) {
       case BLINKY_NAME:
         return $v(pacmanPos.x, pacmanPos.y)

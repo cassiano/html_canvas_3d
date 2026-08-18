@@ -2,6 +2,8 @@ import { $v, Vector3d } from '../vector_3d.ts'
 
 export type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
 
+// Centralized tuning values keep difficulty and audiovisual timing changes out
+// of the game-state and rendering algorithms.
 export const TILE_SIZE = 24
 export const PACMAN_RADIUS_RATIO = 0.5
 export const GHOST_RADIUS_RATIO = 0.44
@@ -59,6 +61,7 @@ export const GHOST_MARKER_SPECS: {
   name: GhostName
   color: string
 }[] = [
+  // This order also supplies stable ghost ids and alternating start directions.
   { marker: BLINKY_MARKER, name: BLINKY_NAME, color: '#FF0000' },
   { marker: PINKY_MARKER, name: PINKY_NAME, color: '#FFB8DE' },
   { marker: INKY_MARKER, name: INKY_NAME, color: '#46BFEE' },
@@ -86,6 +89,7 @@ export const OPPOSITE_DIRECTIONS: Record<DirectionName, DirectionName> = {
 }
 
 export const MAZE_TEMPLATE = [
+  // Walls, collectibles, and spawn markers are encoded in one rectangular grid.
   '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
   '◻········◻········◻',
   '◻·◻◻·◻◻◻·◻·◻◻◻·◻◻·◻',
@@ -114,6 +118,7 @@ export const ROW_COUNT = MAZE_TEMPLATE.length
 export const COLUMN_COUNT = MAZE_TEMPLATE[0].length
 
 MAZE_TEMPLATE.forEach((row, index) => {
+  // Keep the runtime grid rectangular; movement indexes every row by column.
   if ([...row].length !== COLUMN_COUNT)
     throw new Error(
       `Invalid maze width at row ${index}. Expected ${COLUMN_COUNT} but got ${[...row].length}.`,

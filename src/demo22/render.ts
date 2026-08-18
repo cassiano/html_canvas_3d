@@ -18,6 +18,8 @@ export { TILE_SIZE } from './constants.ts'
 
 export type Pixel = { x: number; y: number }
 
+// All maze sprites use this mapping, keeping pixel placement consistent across
+// walls, collectibles, and actors.
 export function tileToPixel(
   tileX: number,
   tileY: number,
@@ -36,6 +38,7 @@ export function tileToPixel(
 }
 
 export function toWorldPoint(x: number, y: number): Vector3d {
+  // Canvas Y grows downward while the world renderer grows upward.
   return $v(x - animation.width / 2, animation.height / 2 - y)
 }
 
@@ -62,6 +65,8 @@ export function renderFilledRectPixel(
   color: string,
   opacity = 1,
 ) {
+  // Isolate the temporary translation so one pixel primitive cannot affect the
+  // transform used by the next primitive.
   isolateTransformations(() => {
     translate(toWorldPoint(x + width / 2, y + height / 2))
 
@@ -92,6 +97,7 @@ export function renderCirclePixel(
     opacity?: number
   },
 ) {
+  // Pixel-space circles use the same isolated-transform convention as rects.
   isolateTransformations(() => {
     translate(toWorldPoint(x, y))
 
@@ -122,6 +128,8 @@ export function renderStrokeRectPixel(
 }
 
 export function directionToAngle(direction: DirectionName): number {
+  // Convert named gameplay directions to renderer angles only at the drawing
+  // boundary; gameplay code can continue using readable direction names.
   switch (direction) {
     case 'right':
       return 0
@@ -161,6 +169,7 @@ export function renderPellet(pixel: Pixel) {
 }
 
 export function renderWall(pixel: Pixel) {
+  // The outline keeps walls legible against the black playfield.
   renderFilledRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#001243')
   renderStrokeRectPixel(pixel.x, pixel.y, TILE_SIZE, TILE_SIZE, '#2f7bff')
 }

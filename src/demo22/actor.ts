@@ -4,6 +4,8 @@ import { COLUMN_COUNT, DIRECTIONS } from './constants.ts'
 
 export type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
 
+// Game installs the maze-specific wall test once; movement helpers remain
+// independent of the Game instance and can be shared by every actor.
 export let isWall = (_position: Vector3d): boolean => true
 
 export function configureWallCheck(check: (position: Vector3d) => boolean) {
@@ -11,6 +13,7 @@ export function configureWallCheck(check: (position: Vector3d) => boolean) {
 }
 
 export const wrapCol = (col: number): number => {
+  // Pacman's tunnel connects the first and last columns of the maze.
   if (col < 0) return COLUMN_COUNT - 1
   if (col >= COLUMN_COUNT) return 0
 
@@ -21,6 +24,8 @@ export const nextCell = (
   position: Vector3d,
   direction: DirectionName,
 ): Vector3d => {
+  // Movement is grid-based; only horizontal movement can wrap through the
+  // tunnel, while the vertical coordinate remains inside the maze.
   const directionVector = DIRECTIONS[direction]
 
   return position
@@ -56,6 +61,7 @@ export abstract class Actor {
   }
 
   reset(direction: DirectionName = 'left') {
+    // Clear partial-tile progress while preserving the actor's spawn tile.
     this.position = this.startPosition.clone()
     this.progress = 0
     this.dir = direction
@@ -78,6 +84,8 @@ export abstract class Actor {
     deltaSeconds: number,
     chooseDirectionAtCenter?: (actor: Actor) => DirectionName,
   ) {
+    // Consume travel in tile-sized chunks so large frames remain deterministic
+    // and actors cannot skip collision checks at intermediate tiles.
     let travel = this.speedTilesPerSecond * deltaSeconds
 
     while (travel > 0) {
