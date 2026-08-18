@@ -32,10 +32,10 @@ export class Ghost extends Actor {
     position: Vector3d,
     speedTilesPerSecond: number,
     initialDirection: DirectionName,
-    public id: number,
-    public name: GhostName,
-    public marker: GhostMarker,
-    public color: string,
+    public readonly id: number,
+    public readonly name: GhostName,
+    public readonly marker: GhostMarker,
+    public readonly color: string,
   ) {
     super(position, speedTilesPerSecond, initialDirection)
   }

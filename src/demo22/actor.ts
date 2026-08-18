@@ -39,7 +39,7 @@ export const canMove = (
 }
 
 export abstract class Actor {
-  startPosition: Vector3d
+  readonly startPosition: Vector3d
   dir: DirectionName
   nextDir: DirectionName
   progress: number
