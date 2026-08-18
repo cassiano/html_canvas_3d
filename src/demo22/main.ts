@@ -790,39 +790,52 @@ class Game {
     // scoring and audio, allowing the attract loop to run indefinitely.
     const tile = this.getTile(this.pacman.position)
 
-    if (tile === PELLET_MARKER) {
-      this.setTile(this.pacman.position, EMPTY_MARKER)
-      this.pelletsRemaining--
-      if (!isDemoMode) this.addScore(10)
-      if (!isDemoMode) playWaka()
-    } else if (tile === POWER_PELLET_MARKER) {
-      this.setTile(this.pacman.position, EMPTY_MARKER)
-      this.pelletsRemaining--
-      if (!isDemoMode) this.addScore(50)
-      this.currentPowerModeId++
-      this.powerModeRemainingMs = this.getPowerModeDurationMs()
-      this.ghostCombo = 0
-      this.syncGhostSpeedsForPowerMode()
-      if (!isDemoMode)
-        startPowerSirenLoop(
-          () => this.powerModeRemainingMs,
-          () => this.gameState === 'playing',
-        )
-    } else if (tile === CHERRY_MARKER) {
-      this.setTile(this.pacman.position, EMPTY_MARKER)
-      this.hideCherry()
-      this.cherryVisibleRemainingMs = 0
-      this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
-      if (!isDemoMode) this.addScore(CHERRY_SCORE + CHERRY_EXTRA_SCORE)
-      if (!isDemoMode) playCherryPickup()
+    switch (tile) {
+      case PELLET_MARKER:
+        this.setTile(this.pacman.position, EMPTY_MARKER)
+        this.pelletsRemaining--
+
+        if (!isDemoMode) {
+          this.addScore(10)
+          playWaka()
+        }
+        break
+
+      case POWER_PELLET_MARKER:
+        this.setTile(this.pacman.position, EMPTY_MARKER)
+        this.pelletsRemaining--
+
+        if (!isDemoMode) this.addScore(50)
+
+        this.currentPowerModeId++
+        this.powerModeRemainingMs = this.getPowerModeDurationMs()
+        this.ghostCombo = 0
+        this.syncGhostSpeedsForPowerMode()
+
+        if (!isDemoMode)
+          startPowerSirenLoop(
+            () => this.powerModeRemainingMs,
+            () => this.gameState === 'playing',
+          )
+        break
+
+      case CHERRY_MARKER:
+        this.setTile(this.pacman.position, EMPTY_MARKER)
+        this.hideCherry()
+        this.cherryVisibleRemainingMs = 0
+        this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
+
+        if (!isDemoMode) {
+          this.addScore(CHERRY_SCORE + CHERRY_EXTRA_SCORE)
+          playCherryPickup()
+        }
+        break
     }
 
     if (this.pelletsRemaining <= 0) {
       this.phase++
 
-      if (!isDemoMode) {
-        stopPowerSirenLoop()
-      }
+      if (!isDemoMode) stopPowerSirenLoop()
 
       this.resetMazeFromTemplate()
       this.resetRound()
