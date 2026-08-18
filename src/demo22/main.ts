@@ -115,6 +115,11 @@ type GhostStart = {
   color: string
 }
 
+type HighScoreRecord = {
+  score: number
+  phase: number
+}
+
 class Game {
   private readonly maze: Tile[][] = MAZE_TEMPLATE.map(
     line => [...line] as Tile[],
@@ -129,6 +134,7 @@ class Game {
   private lastTickMillis: number | null = null
   private score = 0
   private highScore = 0
+  private highScorePhase = 1
   private lives = 3
   private gameState: GameState = 'gameOver'
   private pelletsRemaining = 0
@@ -165,7 +171,9 @@ class Game {
 
     this.pelletsRemaining = this.countRemainingPellets()
     this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
-    this.highScore = this.loadHighScore()
+    const highScoreRecord = this.loadHighScore()
+    this.highScore = highScoreRecord.score
+    this.highScorePhase = highScoreRecord.phase
   }
 
   drawFrame() {
@@ -407,25 +415,46 @@ class Game {
     })
   }
 
-  private loadHighScore(): number {
+  private loadHighScore(): HighScoreRecord {
     try {
       const stored = self.localStorage.getItem(HIGH_SCORE_STORAGE_KEY)
 
-      if (stored === null) return 0
+      if (stored === null) return { score: 0, phase: 1 }
 
-      const parsed = Number(stored)
+      const parsed = JSON.parse(stored) as unknown
 
-      if (!Number.isFinite(parsed) || parsed < 0) return 0
+      if (typeof parsed === 'number') {
+        return Number.isFinite(parsed) && parsed >= 0
+          ? { score: floor(parsed), phase: 1 }
+          : { score: 0, phase: 1 }
+      }
 
-      return floor(parsed)
+      if (typeof parsed !== 'object' || parsed === null)
+        return { score: 0, phase: 1 }
+
+      const record = parsed as Record<string, unknown>
+      const score = record.score
+      const phase = record.phase
+
+      if (
+        typeof score !== 'number' ||
+        !Number.isFinite(score) ||
+        score < 0 ||
+        typeof phase !== 'number' ||
+        !Number.isFinite(phase) ||
+        phase < 1
+      )
+        return { score: 0, phase: 1 }
+
+      return { score: floor(score), phase: floor(phase) }
     } catch {
-      return 0
+      return { score: 0, phase: 1 }
     }
   }
 
-  private saveHighScore(value: number) {
+  private saveHighScore(record: HighScoreRecord) {
     try {
-      self.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(value))
+      self.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, JSON.stringify(record))
     } catch {
       // Ignore storage write failures to keep gameplay uninterrupted.
     }
@@ -436,7 +465,8 @@ class Game {
 
     if (this.score > this.highScore) {
       this.highScore = this.score
-      this.saveHighScore(this.highScore)
+      this.highScorePhase = this.phase
+      this.saveHighScore({ score: this.highScore, phase: this.highScorePhase })
     }
   }
 
@@ -890,13 +920,18 @@ class Game {
       textAlign: 'left',
       textBaseline: 'middle',
     })
-    text2d(`High Score: ${this.highScore}`, toWorldPoint(20, 108), '#f4f4f4', {
-      fontSize: 18,
-      fontFamily: 'monospace',
-      fontWeight: 'bold',
-      textAlign: 'left',
-      textBaseline: 'middle',
-    })
+    text2d(
+      `High Score: ${this.highScore} (phase ${this.highScorePhase})`,
+      toWorldPoint(20, 108),
+      '#f4f4f4',
+      {
+        fontSize: 18,
+        fontFamily: 'monospace',
+        fontWeight: 'bold',
+        textAlign: 'left',
+        textBaseline: 'middle',
+      },
+    )
     text2d(`Phase: ${this.phase}`, toWorldPoint(20, 132), '#f4f4f4', {
       fontSize: 18,
       fontFamily: 'monospace',
