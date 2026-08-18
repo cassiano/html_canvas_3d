@@ -662,19 +662,18 @@ class Game {
     // heuristic for the demo driver, not a full pathfinding query.
     let bestDistance = Number.POSITIVE_INFINITY
 
-    timesForEachN([COLUMN_COUNT, ROW_COUNT], (targetCol, targetRow) => {
-      const tile = this.getTile($v(targetCol, targetRow))
+    timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
+      const tile = this.getTile($v(col, row))
 
       if (
-        tile !== PELLET_MARKER &&
-        tile !== POWER_PELLET_MARKER &&
-        tile !== CHERRY_MARKER
-      )
-        return
+        tile === PELLET_MARKER ||
+        tile === POWER_PELLET_MARKER ||
+        tile === CHERRY_MARKER
+      ) {
+        const distance = Game.manhattanDistance(position, row, col)
 
-      const distance = abs(position.y - targetRow) + abs(position.x - targetCol)
-
-      if (distance < bestDistance) bestDistance = distance
+        if (distance < bestDistance) bestDistance = distance
+      }
     })
 
     return bestDistance
@@ -700,7 +699,9 @@ class Game {
     const directions =
       candidates.length > 0
         ? candidates
-        : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
+        : // Fallback to reversing if Pacman is trapped in a dead end. This is rare but
+          // possible in the demo maze, and it prevents Pacman from getting stuck.
+          (Object.keys(DIRECTIONS) as DirectionName[]).filter(
             dir => dir !== NONE_DIRECTION && canMove(this.pacman.position, dir),
           )
 
@@ -728,12 +729,12 @@ class Game {
               ? -25
               : 0
 
-        // Threat is the sum of inverse distances to every ghost. A nearby
-        // ghost contributes much more than a distant one; while power mode is
-        // active, ghosts are edible, so this danger term is disabled.
+        // Threat is the sum of inverse (Manhattan) distances to every ghost. A nearby
+        // ghost contributes much more than a distant one; while power mode is active,
+        // ghosts are edible, so this danger term is disabled.
         const ghostThreat = this.ghosts.reduce((threat, ghost) => {
           const ghostPos = ghost.positionInTiles()
-          const distance = abs(next.y - ghostPos.y) + abs(next.x - ghostPos.x)
+          const distance = Game.manhattanDistance(next, ghostPos)
 
           if (this.powerModeRemainingMs > 0) return threat
 
@@ -1126,6 +1127,23 @@ class Game {
 
   private isWall(position: Vector3d): boolean {
     return (this.maze[position.y]?.[position.x] ?? WALL_MARKER) === WALL_MARKER
+  }
+
+  private static manhattanDistance(a: Vector3d, b: Vector3d): number
+  private static manhattanDistance(
+    a: Vector3d,
+    row: number,
+    col: number,
+  ): number
+  private static manhattanDistance(
+    a: Vector3d,
+    bOrRow: Vector3d | number,
+    col?: number,
+  ): number {
+    const [rowValue, colValue] =
+      typeof bOrRow === 'number' ? [bOrRow, col!] : bOrRow.toArray()
+
+    return abs(a.y - rowValue) + abs(a.x - colValue)
   }
 }
 
