@@ -23,12 +23,7 @@ import {
   startPowerSirenLoop,
   stopPowerSirenLoop,
 } from './audio.ts'
-import {
-  canMove,
-  configureWallCheck,
-  DirectionName,
-  nextCell,
-} from './actor.ts'
+import { canMove, configureWallCheck, nextCell } from './actor.ts'
 import { Ghost } from './ghost.ts'
 import { Pacman } from './pacman.ts'
 import {
@@ -41,6 +36,12 @@ import {
   toWorldPoint,
 } from './render.ts'
 import {
+  LEFT_DIRECTION,
+  RIGHT_DIRECTION,
+  DOWN_DIRECTION,
+  UP_DIRECTION,
+  DirectionName,
+  NONE_DIRECTION,
   BASE_GHOST_SPEED,
   BASE_PACMAN_SPEED,
   BLINKY_MARKER,
@@ -161,7 +162,7 @@ class Game {
         new Ghost(
           start.position,
           BASE_GHOST_SPEED,
-          index % 2 === 0 ? 'left' : 'right',
+          index % 2 === 0 ? LEFT_DIRECTION : RIGHT_DIRECTION,
           index,
           start.name,
           start.marker,
@@ -209,11 +210,13 @@ class Game {
     const key = event.key.toLowerCase()
 
     if (this.gameState === 'playing') {
-      if (key === 'w' || key === 'arrowup') this.pacman.nextDir = 'up'
-      else if (key === 's' || key === 'arrowdown') this.pacman.nextDir = 'down'
-      else if (key === 'a' || key === 'arrowleft') this.pacman.nextDir = 'left'
+      if (key === 'w' || key === 'arrowup') this.pacman.nextDir = UP_DIRECTION
+      else if (key === 's' || key === 'arrowdown')
+        this.pacman.nextDir = DOWN_DIRECTION
+      else if (key === 'a' || key === 'arrowleft')
+        this.pacman.nextDir = LEFT_DIRECTION
       else if (key === 'd' || key === 'arrowright')
-        this.pacman.nextDir = 'right'
+        this.pacman.nextDir = RIGHT_DIRECTION
     } else if (key === 'enter') {
       this.startGame()
     }
@@ -485,10 +488,10 @@ class Game {
   private resetRound() {
     // A life loss or maze clear restarts positions and timers without resetting
     // score, lives, or the current difficulty phase.
-    this.pacman.reset('left')
+    this.pacman.reset(LEFT_DIRECTION)
 
     this.ghosts.forEach((ghost, index) => {
-      ghost.reset(index % 2 === 0 ? 'left' : 'right')
+      ghost.reset(index % 2 === 0 ? LEFT_DIRECTION : RIGHT_DIRECTION)
       ghost.speedTilesPerSecond = this.getGhostSpeed()
       ghost.isEaten = false
     })
@@ -502,7 +505,9 @@ class Game {
   }
 
   private getPacmanFacing(): DirectionName {
-    return this.pacman.dir !== 'none' ? this.pacman.dir : this.pacman.nextDir
+    return this.pacman.dir !== NONE_DIRECTION
+      ? this.pacman.dir
+      : this.pacman.nextDir
   }
 
   private chooseGhostDirection(ghost: Ghost): DirectionName {
@@ -511,14 +516,15 @@ class Game {
     if (ghost.isEaten) {
       const target = this.getGhostHouseCenterTarget()
 
-      if (ghost.tryReviveAt(target, 'left', this.getGhostSpeed())) return 'none'
+      if (ghost.tryReviveAt(target, LEFT_DIRECTION, this.getGhostSpeed()))
+        return NONE_DIRECTION
 
       return ghost.nextDirectionToTarget(target)
     }
 
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
-        if (dir === 'none') return false
+        if (dir === NONE_DIRECTION) return false
         if (!canMove(ghost.position, dir)) return false
 
         return dir !== OPPOSITE_DIRECTIONS[ghost.dir]
@@ -529,10 +535,10 @@ class Game {
       candidates.length > 0
         ? candidates
         : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-            dir => dir !== 'none' && canMove(ghost.position, dir),
+            dir => dir !== NONE_DIRECTION && canMove(ghost.position, dir),
           )
 
-    if (directions.length === 0) return 'none'
+    if (directions.length === 0) return NONE_DIRECTION
 
     if (this.powerModeRemainingMs > 0) {
       const powerRatio = max(
@@ -590,7 +596,7 @@ class Game {
     if (overlappingGhosts.length > 0) {
       const occupiedDirections = new Set(
         overlappingGhosts.map(other =>
-          other.nextDir !== 'none' ? other.nextDir : other.dir,
+          other.nextDir !== NONE_DIRECTION ? other.nextDir : other.dir,
         ),
       )
 
@@ -679,7 +685,12 @@ class Game {
     // when the current corridor has no other legal exit.
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
-        if (['none', OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(dir))
+        if (
+          [
+            NONE_DIRECTION as DirectionName,
+            OPPOSITE_DIRECTIONS[this.pacman.dir],
+          ].includes(dir)
+        )
           return false
 
         return canMove(this.pacman.position, dir)
@@ -690,10 +701,10 @@ class Game {
       candidates.length > 0
         ? candidates
         : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-            dir => dir !== 'none' && canMove(this.pacman.position, dir),
+            dir => dir !== NONE_DIRECTION && canMove(this.pacman.position, dir),
           )
 
-    if (directions.length === 0) return 'none'
+    if (directions.length === 0) return NONE_DIRECTION
 
     // Score each exit by how quickly it leads to food, while making power
     // pellets especially attractive and nearby ghosts increasingly costly.

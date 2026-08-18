@@ -1,8 +1,12 @@
 import { min } from '../math_utils.ts'
 import { Vector3d } from '../vector_3d.ts'
-import { COLUMN_COUNT, DIRECTIONS } from './constants.ts'
-
-export type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
+import {
+  COLUMN_COUNT,
+  DirectionName,
+  DIRECTIONS,
+  NONE_DIRECTION,
+  LEFT_DIRECTION,
+} from './constants.ts'
 
 // Game installs the maze-specific wall test once; movement helpers remain
 // independent of the Game instance and can be shared by every actor.
@@ -38,7 +42,7 @@ export const canMove = (
   position: Vector3d,
   direction: DirectionName,
 ): boolean => {
-  if (direction === 'none') return false
+  if (direction === NONE_DIRECTION) return false
 
   return !isWall(nextCell(position, direction))
 }
@@ -52,7 +56,7 @@ export abstract class Actor {
   constructor(
     public position: Vector3d,
     public speedTilesPerSecond: number,
-    initialDirection: DirectionName = 'left',
+    initialDirection: DirectionName = LEFT_DIRECTION,
   ) {
     this.startPosition = position.clone()
     this.dir = initialDirection
@@ -60,7 +64,7 @@ export abstract class Actor {
     this.progress = 0
   }
 
-  reset(direction: DirectionName = 'left') {
+  reset(direction: DirectionName = LEFT_DIRECTION) {
     // Clear partial-tile progress while preserving the actor's spawn tile.
     this.position = this.startPosition.clone()
     this.progress = 0
@@ -93,18 +97,19 @@ export abstract class Actor {
         if (chooseDirectionAtCenter) {
           const selectedDirection = chooseDirectionAtCenter(this)
 
-          if (selectedDirection !== 'none') this.nextDir = selectedDirection
+          if (selectedDirection !== NONE_DIRECTION)
+            this.nextDir = selectedDirection
         }
 
         if (this.canMoveTo(this.nextDir)) this.dir = this.nextDir
-        else if (!this.canMoveTo(this.dir)) this.dir = 'none'
+        else if (!this.canMoveTo(this.dir)) this.dir = NONE_DIRECTION
       }
 
-      if (this.dir === 'none') return
+      if (this.dir === NONE_DIRECTION) return
 
       if (!this.canMoveTo(this.dir)) {
         this.progress = 0
-        this.dir = 'none'
+        this.dir = NONE_DIRECTION
 
         return
       }

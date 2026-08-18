@@ -1,7 +1,5 @@
 import { $v, Vector3d } from '../vector_3d.ts'
 
-export type DirectionName = 'up' | 'down' | 'left' | 'right' | 'none'
-
 // Centralized tuning values keep difficulty and audiovisual timing changes out
 // of the game-state and rendering algorithms.
 export const TILE_SIZE = 24
@@ -72,6 +70,19 @@ export const PINKY_LOOKAHEAD_TILES = 4
 export const INKY_LOOKAHEAD_TILES = 2
 export const CLYDE_SHY_DISTANCE_TILES = 8
 
+export const UP_DIRECTION = 'up'
+export const DOWN_DIRECTION = 'down'
+export const LEFT_DIRECTION = 'left'
+export const RIGHT_DIRECTION = 'right'
+export const NONE_DIRECTION = 'none'
+
+export type DirectionName =
+  | typeof UP_DIRECTION
+  | typeof DOWN_DIRECTION
+  | typeof LEFT_DIRECTION
+  | typeof RIGHT_DIRECTION
+  | typeof NONE_DIRECTION
+
 export const DIRECTIONS: Record<DirectionName, Vector3d> = {
   up: $v(0, -1),
   down: $v(0, 1),
@@ -81,11 +92,11 @@ export const DIRECTIONS: Record<DirectionName, Vector3d> = {
 }
 
 export const OPPOSITE_DIRECTIONS: Record<DirectionName, DirectionName> = {
-  up: 'down',
-  down: 'up',
-  left: 'right',
-  right: 'left',
-  none: 'none',
+  up: DOWN_DIRECTION,
+  down: UP_DIRECTION,
+  left: RIGHT_DIRECTION,
+  right: LEFT_DIRECTION,
+  none: NONE_DIRECTION,
 }
 
 export const MAZE_TEMPLATE = [
