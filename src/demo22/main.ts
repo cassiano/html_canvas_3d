@@ -121,10 +121,7 @@ type HighScoreRecord = {
 }
 
 class Game {
-  private readonly maze: Tile[][] = MAZE_TEMPLATE.map(
-    line => [...line] as Tile[],
-  )
-
+  private readonly maze: Tile[][]
   private readonly pacmanStart: Vector3d
   private readonly ghostStarts: GhostStart[]
   private readonly cherrySpawnPosition: Vector3d
@@ -148,6 +145,7 @@ class Game {
   private cherryRespawnRemainingMs = 0
 
   constructor() {
+    this.maze = MAZE_TEMPLATE.map(line => Array.from(line) as Tile[])
     this.pacmanStart = this.findAndClearMarker(PACMAN_MARKER)
     this.ghostStarts = this.findAndClearGhostMarkers()
     this.cherrySpawnPosition = this.findAndClearMarker(CHERRY_MARKER)
@@ -302,7 +300,7 @@ class Game {
 
   private resetMazeFromTemplate() {
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
-      this.maze[row][col] = [...MAZE_TEMPLATE[row]][col] as Tile
+      this.maze[row][col] = Array.from(MAZE_TEMPLATE[row])[col] as Tile
     })
 
     this.findAndClearMarker(PACMAN_MARKER)
