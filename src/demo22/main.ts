@@ -252,6 +252,15 @@ class Game {
     return this.powerModeRemainingMs > 0
   }
 
+  private isGhostFrightened(ghost: Ghost): boolean {
+    // A ghost already eaten during this power-mode cycle stays a normal
+    // chaser until revived and re-frightened by a future power pellet.
+    return (
+      this.inPowerMode() &&
+      ghost.lastEatenPowerModeId !== this.currentPowerModeId
+    )
+  }
+
   private startGame() {
     // A new game resets score and lives, while the high score intentionally
     // survives through localStorage and is not cleared here.
@@ -427,14 +436,13 @@ class Game {
     // Frightened ghosts slow down, while eaten ghosts retain their return-home
     // speed until they are revived.
     const baseGhostSpeed = this.getGhostSpeed()
-    const ghostSpeed = this.inPowerMode()
-      ? baseGhostSpeed * POWER_MODE_GHOST_SPEED_FACTOR
-      : baseGhostSpeed
 
     this.ghosts.forEach(ghost => {
       if (ghost.isEaten) return
 
-      ghost.speedTilesPerSecond = ghostSpeed
+      ghost.speedTilesPerSecond = this.isGhostFrightened(ghost)
+        ? baseGhostSpeed * POWER_MODE_GHOST_SPEED_FACTOR
+        : baseGhostSpeed
     })
   }
 
@@ -550,7 +558,7 @@ class Game {
 
     if (directions.length === 0) return NONE_DIRECTION
 
-    if (this.inPowerMode()) {
+    if (this.isGhostFrightened(ghost)) {
       const powerRatio = max(
         0,
         min(1, this.powerModeRemainingMs / this.getPowerModeDurationMs()),
@@ -893,9 +901,7 @@ class Game {
 
       if (distance > COLLISION_DISTANCE_TILES) return
 
-      if (this.inPowerMode()) {
-        if (ghost.lastEatenPowerModeId === this.currentPowerModeId) return
-
+      if (this.isGhostFrightened(ghost)) {
         ghost.lastEatenPowerModeId = this.currentPowerModeId
         ghost.markEaten(this.getGhostSpeed())
         if (!isDemoMode)
