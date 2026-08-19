@@ -689,6 +689,26 @@ class Game {
     return bestDistance
   }
 
+  private getClosestFrightenedGhostDistance(position: Vector3d): number {
+    let bestDistance = Number.POSITIVE_INFINITY
+
+    this.ghosts.forEach(ghost => {
+      // Eaten ghosts and ghosts already eaten this power mode are not chase
+      // targets; only currently edible ghosts count as frightened.
+      if (
+        ghost.isEaten ||
+        ghost.lastEatenPowerModeId === this.currentPowerModeId
+      )
+        return
+
+      const distance = position.manhattanDist(ghost.positionInTiles())
+
+      if (distance < bestDistance) bestDistance = distance
+    })
+
+    return bestDistance
+  }
+
   private chooseDemoPacmanDirection(): DirectionName {
     // Keep Pacman moving forward when possible; reversing is only a fallback
     // when the current corridor has no other legal exit.
@@ -729,6 +749,17 @@ class Game {
         // score is minimized, a shorter route produces a better score.
         const collectibleDistance = this.getClosestCollectibleDistance(next)
 
+        // While a power pellet is active, hunting an edible ghost outweighs
+        // collecting pellets, so it overrides the collectible distance for as
+        // long as a frightened ghost remains.
+        const frightenedGhostDistance = this.inPowerMode()
+          ? this.getClosestFrightenedGhostDistance(next)
+          : Number.POSITIVE_INFINITY
+        const primaryDistance =
+          frightenedGhostDistance === Number.POSITIVE_INFINITY
+            ? collectibleDistance
+            : frightenedGhostDistance
+
         // A collectible directly in the candidate tile should outweigh the
         // distance heuristic. Power pellets receive the larger discount
         // because they also let Pacman safely eat frightened ghosts.
@@ -765,7 +796,7 @@ class Game {
         // Lower is better: prioritize nearby food, apply the direct-tile
         // bonus, and avoid dangerous exits unless power mode is active.
         const score =
-          collectibleDistance +
+          primaryDistance +
           ghostThreat * 7 +
           collectibleBonus +
           tieBreaker +
