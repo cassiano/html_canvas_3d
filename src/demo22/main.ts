@@ -138,7 +138,13 @@ class Game {
   private pelletsRemaining = 0
   private powerModeRemainingMs = 0
   private ghostCombo = 0
+
+  // roundDelayRemainingMs is the countdown (in milliseconds) for the "READY!" pause shown at
+  // the start of each round — it's set to ROUND_START_DELAY_MS in resetRound() and counted down
+  // in update(); while it's above zero, actor movement and pellet/collision logic are skipped
+  // so the maze freezes briefly before play resumes.
   private roundDelayRemainingMs = 0
+
   private currentPowerModeId = 0
   private hasStartedGame = false
   private phase = 1
@@ -149,6 +155,7 @@ class Game {
     // Copy the immutable template so gameplay can consume pellets and replace
     // markers without mutating the source maze shared by future rounds.
     this.maze = MAZE_TEMPLATE.map(line => Array.from(line) as Tile[])
+
     this.pacmanStart = this.findAndClearMarker(PACMAN_MARKER)
     this.ghostStarts = this.findAndClearGhostMarkers()
     this.cherrySpawnPosition = this.findAndClearMarker(CHERRY_MARKER)
