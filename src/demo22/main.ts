@@ -753,17 +753,18 @@ class Game {
         // collecting pellets, so it overrides the collectible distance for as
         // long as a frightened ghost remains.
         const primaryDistance = this.inPowerMode()
-          ? // This is a Manhattan distance to the nearest remaining pellet,
+          ? this.getClosestFrightenedGhostDistance(next)
+          : // This is a Manhattan distance to the nearest remaining pellet,
             // power pellet, or cherry after taking this step. Because the final
             // score is minimized, a shorter route produces a better score.
-            this.getClosestFrightenedGhostDistance(next)
-          : this.getClosestCollectibleDistance(next)
+            this.getClosestCollectibleDistance(next)
 
         // A collectible directly in the candidate tile should outweigh the
         // distance heuristic. Power pellets receive the larger discount
         // because they also let Pacman safely eat frightened ghosts.
-        const collectibleBonus =
-          nextTile === POWER_PELLET_MARKER
+        const collectibleBonus = this.inPowerMode()
+          ? 0
+          : nextTile === POWER_PELLET_MARKER
             ? -50
             : nextTile === PELLET_MARKER
               ? -25
