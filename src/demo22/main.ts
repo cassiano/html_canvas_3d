@@ -694,26 +694,6 @@ class Game {
     return bestDistance
   }
 
-  private getClosestFrightenedGhostDistance(position: Vector3d): number {
-    let bestDistance = Number.POSITIVE_INFINITY
-
-    this.ghosts.forEach(ghost => {
-      // Eaten ghosts and ghosts already eaten this power mode are not chase
-      // targets; only currently edible ghosts count as frightened.
-      if (
-        ghost.isEaten ||
-        ghost.lastEatenPowerModeId === this.currentPowerModeId
-      )
-        return
-
-      const distance = position.manhattanDist(ghost.positionInTiles())
-
-      if (distance < bestDistance) bestDistance = distance
-    })
-
-    return bestDistance
-  }
-
   private chooseDemoPacmanDirection(): DirectionName {
     // Keep Pacman moving forward when possible; reversing is only a fallback
     // when the current corridor has no other legal exit.
@@ -749,22 +729,17 @@ class Game {
         const next = nextCell(this.pacman.position, dir)
         const nextTile = this.getTile(next)
 
-        // While a power pellet is active, hunting an edible ghost outweighs
-        // collecting pellets, so it overrides the collectible distance for as
-        // long as a frightened ghost remains.
-        const primaryDistance = this.inPowerMode()
-          ? this.getClosestFrightenedGhostDistance(next)
-          : // This is a Manhattan distance to the nearest remaining pellet,
-            // power pellet, or cherry after taking this step. Because the final
-            // score is minimized, a shorter route produces a better score.
-            this.getClosestCollectibleDistance(next)
+        // This is a Manhattan distance to the nearest remaining pellet,
+        // power pellet, or cherry after taking this step. Because the final
+        // score is minimized, a shorter route produces a better score.
+        const collectibleDistance = this.getClosestCollectibleDistance(next)
 
         // A collectible directly in the candidate tile should outweigh the
-        // distance heuristic. Power pellets receive the larger discount
-        // because they also let Pacman safely eat frightened ghosts.
-        const collectibleBonus = this.inPowerMode()
-          ? 0
-          : nextTile === POWER_PELLET_MARKER
+        // distance heuristic. When not already in power mode, Power pellets
+        // receive the larger discount because they also let Pacman safely eat
+        // frightened ghosts.
+        const collectibleBonus =
+          nextTile === POWER_PELLET_MARKER && !this.inPowerMode()
             ? -50
             : nextTile === PELLET_MARKER
               ? -25
@@ -796,7 +771,7 @@ class Game {
         // Lower is better: prioritize nearby food, apply the direct-tile
         // bonus, and avoid dangerous exits unless power mode is active.
         const score =
-          primaryDistance +
+          collectibleDistance +
           ghostThreat * 7 +
           collectibleBonus +
           tieBreaker +
