@@ -23,7 +23,7 @@ import {
   startPowerSirenLoop,
   stopPowerSirenLoop,
 } from './audio.ts'
-import { canMove, configureWallCheck, nextCell } from './actor.ts'
+import { configureWallCheck, nextCell } from './actor.ts'
 import { Ghost } from './ghost.ts'
 import { Pacman } from './pacman.ts'
 import {
@@ -540,7 +540,7 @@ class Game {
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
         if (dir === DIRECTION_MAP.none) return false
-        if (!canMove(ghost.position, dir)) return false
+        if (!ghost.canMoveTo(dir)) return false
 
         return dir !== OPPOSITE_DIRECTIONS[ghost.dir]
       },
@@ -550,7 +550,7 @@ class Game {
       candidates.length > 0
         ? candidates
         : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-            dir => dir !== DIRECTION_MAP.none && canMove(ghost.position, dir),
+            dir => dir !== DIRECTION_MAP.none && ghost.canMoveTo(dir),
           )
 
     if (directions.length === 0) return DIRECTION_MAP.none
@@ -706,7 +706,7 @@ class Game {
         )
           return false
 
-        return canMove(this.pacman.position, dir)
+        return this.pacman.canMoveTo(dir)
       },
     )
 
@@ -716,8 +716,7 @@ class Game {
         : // Fallback to reversing if Pacman is trapped in a dead end. This is rare but
           // possible in the demo maze, and it prevents Pacman from getting stuck.
           (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-            dir =>
-              dir !== DIRECTION_MAP.none && canMove(this.pacman.position, dir),
+            dir => dir !== DIRECTION_MAP.none && this.pacman.canMoveTo(dir),
           )
 
     if (directions.length === 0) return DIRECTION_MAP.none

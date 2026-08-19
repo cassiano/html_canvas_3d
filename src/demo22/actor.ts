@@ -37,15 +37,6 @@ export const nextCell = (
     .setX(wrapCol(position.x + directionVector.x))
 }
 
-export const canMove = (
-  position: Vector3d,
-  direction: DirectionName,
-): boolean => {
-  if (direction === DIRECTION_MAP.none) return false
-
-  return !isWall(nextCell(position, direction))
-}
-
 export abstract class Actor {
   readonly startPosition: Vector3d
   dir: DirectionName
@@ -80,7 +71,9 @@ export abstract class Actor {
   }
 
   canMoveTo(direction: DirectionName): boolean {
-    return canMove(this.position, direction)
+    return direction === DIRECTION_MAP.none
+      ? false
+      : !isWall(nextCell(this.position, direction))
   }
 
   move(
