@@ -680,7 +680,7 @@ class Game {
         tile === POWER_PELLET_MARKER ||
         tile === CHERRY_MARKER
       ) {
-        const distance = Game.manhattanDistance(position, row, col)
+        const distance = position.manhattanDist(col, row)
 
         if (distance < bestDistance) bestDistance = distance
       }
@@ -746,7 +746,7 @@ class Game {
           ? 0
           : this.ghosts.reduce((threat, ghost) => {
               const ghostPos = ghost.positionInTiles()
-              const distance = Game.manhattanDistance(next, ghostPos)
+              const distance = next.manhattanDist(ghostPos)
 
               return threat + 1 / (distance + 0.4)
             }, 0)
@@ -1150,23 +1150,6 @@ class Game {
 
   private isWall(position: Vector3d): boolean {
     return (this.maze[position.y]?.[position.x] ?? WALL_MARKER) === WALL_MARKER
-  }
-
-  private static manhattanDistance(a: Vector3d, b: Vector3d): number
-  private static manhattanDistance(
-    a: Vector3d,
-    row: number,
-    col: number,
-  ): number
-  private static manhattanDistance(
-    a: Vector3d,
-    bOrRow: Vector3d | number,
-    col?: number,
-  ): number {
-    const [rowValue, colValue] =
-      typeof bOrRow === 'number' ? [bOrRow, col!] : bOrRow.toArray()
-
-    return abs(a.y - rowValue) + abs(a.x - colValue)
   }
 }
 

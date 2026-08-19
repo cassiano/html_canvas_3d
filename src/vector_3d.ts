@@ -1,4 +1,4 @@
-import { acos, sqrt, polarToCartesian2d, random } from './math_utils.ts'
+import { acos, sqrt, polarToCartesian2d, random, abs } from './math_utils.ts'
 
 export class Vector3d {
   private coords: [x: number, y: number, z: number]
@@ -191,6 +191,25 @@ export class Vector3d {
     }
 
     return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z
+  }
+
+  manhattanDist(x: number, y: number, z?: number): number
+  manhattanDist(anotherVector: Vector3d): number
+  manhattanDist(
+    anotherVectorOrX: Vector3d | number,
+    y?: number,
+    z?: number,
+  ): number {
+    const anotherVector =
+      typeof anotherVectorOrX === 'number'
+        ? Vector3d.create(anotherVectorOrX, y!, z ?? 0) // 1st signature: (x, y, z?)
+        : anotherVectorOrX // 2nd signature: (anotherVector)
+
+    return (
+      abs(this.x - anotherVector.x) +
+      abs(this.y - anotherVector.y) +
+      abs(this.z - anotherVector.z)
+    )
   }
 
   equals(x: number, y: number, z?: number): boolean
