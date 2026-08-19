@@ -1,7 +1,7 @@
 import { abs, floor } from '../math_utils.ts'
 import { millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
-import { Actor, nextCell, isWall } from './actor.ts'
+import { Actor } from './actor.ts'
 import {
   DIRECTION_MAP,
   BLINKY_NAME,
@@ -80,10 +80,10 @@ export class Ghost extends Actor {
       ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
         if (dir === DIRECTION_MAP.none) return
 
-        const next = nextCell(current, dir)
+        const next = Actor.nextCell(current, dir)
         const key = `${next.y},${next.x}`
 
-        if (visited.has(key) || isWall(next)) return
+        if (visited.has(key) || Actor.isWall(next)) return
 
         visited.add(key)
         previous.set(key, { position: current.clone(), dir })

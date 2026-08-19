@@ -23,7 +23,6 @@ import {
   startPowerSirenLoop,
   stopPowerSirenLoop,
 } from './audio.ts'
-import { configureWallCheck, nextCell } from './actor.ts'
 import { Ghost } from './ghost.ts'
 import { Pacman } from './pacman.ts'
 import {
@@ -81,6 +80,7 @@ import {
   ROW_COUNT,
   WALL_MARKER,
 } from './constants.ts'
+import { Actor } from './actor.ts'
 
 type GameState = 'playing' | 'gameOver'
 
@@ -156,7 +156,7 @@ class Game {
     this.ghostStarts = this.findAndClearGhostMarkers()
     this.cherrySpawnPosition = this.findAndClearMarker(CHERRY_MARKER)
 
-    configureWallCheck(position => this.isWall(position))
+    Actor.configureWallCheck(position => this.isWall(position))
 
     this.pacman = new Pacman(this.pacmanStart, BASE_PACMAN_SPEED)
 
@@ -568,7 +568,7 @@ class Game {
       let bestFleeScore = Number.NEGATIVE_INFINITY
 
       directions.forEach(dir => {
-        const target = nextCell(ghost.position, dir)
+        const target = Actor.nextCell(ghost.position, dir)
         const deltaToPacman = target.clone().sub(pacmanPos)
         const fleeDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
@@ -645,7 +645,7 @@ class Game {
     let bestScore = Number.POSITIVE_INFINITY
 
     directions.forEach(dir => {
-      const target = nextCell(ghost.position, dir)
+      const target = Actor.nextCell(ghost.position, dir)
       const deltaToChaseTarget = target.clone().sub(chaseTarget)
       const chaseDistance =
         abs(deltaToChaseTarget.y) + abs(deltaToChaseTarget.x)
@@ -725,7 +725,7 @@ class Game {
     // pellets especially attractive and nearby ghosts increasingly costly.
     const scoredDirections = directions
       .map(dir => {
-        const next = nextCell(this.pacman.position, dir)
+        const next = Actor.nextCell(this.pacman.position, dir)
         const nextTile = this.getTile(next)
 
         // This is a Manhattan distance to the nearest remaining pellet,

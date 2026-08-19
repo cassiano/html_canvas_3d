@@ -7,36 +7,6 @@ import {
   DIRECTION_MAP,
 } from './constants.ts'
 
-// Game installs the maze-specific wall test once; movement helpers remain
-// independent of the Game instance and can be shared by every actor.
-export let isWall = (_position: Vector3d): boolean => true
-
-export function configureWallCheck(check: (position: Vector3d) => boolean) {
-  isWall = check
-}
-
-export const wrapCol = (col: number): number => {
-  // Pacman's tunnel connects the first and last columns of the maze.
-  if (col < 0) return COLUMN_COUNT - 1
-  if (col >= COLUMN_COUNT) return 0
-
-  return col
-}
-
-export const nextCell = (
-  position: Vector3d,
-  direction: DirectionName,
-): Vector3d => {
-  // Movement is grid-based; only horizontal movement can wrap through the
-  // tunnel, while the vertical coordinate remains inside the maze.
-  const directionVector = DIRECTIONS[direction]
-
-  return position
-    .clone()
-    .add(directionVector)
-    .setX(wrapCol(position.x + directionVector.x))
-}
-
 export abstract class Actor {
   readonly startPosition: Vector3d
   dir: DirectionName
@@ -73,7 +43,7 @@ export abstract class Actor {
   canMoveTo(direction: DirectionName): boolean {
     return direction === DIRECTION_MAP.none
       ? false
-      : !isWall(nextCell(this.position, direction))
+      : !Actor.isWall(Actor.nextCell(this.position, direction))
   }
 
   move(
@@ -113,10 +83,39 @@ export abstract class Actor {
       travel -= step
 
       if (this.progress >= 1) {
-        this.position = nextCell(this.position, this.dir)
+        this.position = Actor.nextCell(this.position, this.dir)
         this.progress = 0
       }
     }
+  }
+
+  // Game installs the maze-specific wall test once; movement helpers remain
+  // independent of the Game instance and can be shared by every actor.
+  static isWall(_position: Vector3d): boolean {
+    return true
+  }
+
+  static configureWallCheck(check: (position: Vector3d) => boolean) {
+    Actor.isWall = check
+  }
+
+  static wrapCol(col: number): number {
+    // Pacman's tunnel connects the first and last columns of the maze.
+    if (col < 0) return COLUMN_COUNT - 1
+    if (col >= COLUMN_COUNT) return 0
+
+    return col
+  }
+
+  static nextCell(position: Vector3d, direction: DirectionName): Vector3d {
+    // Movement is grid-based; only horizontal movement can wrap through the
+    // tunnel, while the vertical coordinate remains inside the maze.
+    const directionVector = DIRECTIONS[direction]
+
+    return position
+      .clone()
+      .add(directionVector)
+      .setX(Actor.wrapCol(position.x + directionVector.x))
   }
 
   abstract render(...args: (() => number)[]): void
