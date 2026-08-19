@@ -4,8 +4,7 @@ import {
   COLUMN_COUNT,
   DirectionName,
   DIRECTIONS,
-  NONE_DIRECTION,
-  LEFT_DIRECTION,
+  DIRECTION_MAP,
 } from './constants.ts'
 
 // Game installs the maze-specific wall test once; movement helpers remain
@@ -42,7 +41,7 @@ export const canMove = (
   position: Vector3d,
   direction: DirectionName,
 ): boolean => {
-  if (direction === NONE_DIRECTION) return false
+  if (direction === DIRECTION_MAP.none) return false
 
   return !isWall(nextCell(position, direction))
 }
@@ -56,7 +55,7 @@ export abstract class Actor {
   constructor(
     public position: Vector3d,
     public speedTilesPerSecond: number,
-    initialDirection: DirectionName = LEFT_DIRECTION,
+    initialDirection: DirectionName = DIRECTION_MAP.left,
   ) {
     this.startPosition = position.clone()
     this.dir = initialDirection
@@ -64,7 +63,7 @@ export abstract class Actor {
     this.progress = 0
   }
 
-  reset(direction: DirectionName = LEFT_DIRECTION) {
+  reset(direction: DirectionName = DIRECTION_MAP.left) {
     // Clear partial-tile progress while preserving the actor's spawn tile.
     this.position = this.startPosition.clone()
     this.progress = 0
@@ -97,19 +96,19 @@ export abstract class Actor {
         if (chooseDirectionAtCenter) {
           const selectedDirection = chooseDirectionAtCenter(this)
 
-          if (selectedDirection !== NONE_DIRECTION)
+          if (selectedDirection !== DIRECTION_MAP.none)
             this.nextDir = selectedDirection
         }
 
         if (this.canMoveTo(this.nextDir)) this.dir = this.nextDir
-        else if (!this.canMoveTo(this.dir)) this.dir = NONE_DIRECTION
+        else if (!this.canMoveTo(this.dir)) this.dir = DIRECTION_MAP.none
       }
 
-      if (this.dir === NONE_DIRECTION) return
+      if (this.dir === DIRECTION_MAP.none) return
 
       if (!this.canMoveTo(this.dir)) {
         this.progress = 0
-        this.dir = NONE_DIRECTION
+        this.dir = DIRECTION_MAP.none
 
         return
       }

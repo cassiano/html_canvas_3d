@@ -11,15 +11,7 @@ import {
 import { HALF_PI, PI, sin } from '../math_utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { millis } from '../utils.ts'
-import {
-  TILE_SIZE,
-  DirectionName,
-  RIGHT_DIRECTION,
-  LEFT_DIRECTION,
-  UP_DIRECTION,
-  DOWN_DIRECTION,
-  NONE_DIRECTION,
-} from './constants.ts'
+import { TILE_SIZE, DirectionName, DIRECTION_MAP } from './constants.ts'
 
 export type Pixel = { x: number; y: number }
 
@@ -136,15 +128,15 @@ export function directionToAngle(direction: DirectionName): number {
   // Convert named gameplay directions to renderer angles only at the drawing
   // boundary; gameplay code can continue using readable direction names.
   switch (direction) {
-    case RIGHT_DIRECTION:
+    case DIRECTION_MAP.right:
       return 0
-    case LEFT_DIRECTION:
+    case DIRECTION_MAP.left:
       return PI
-    case UP_DIRECTION:
+    case DIRECTION_MAP.up:
       return -HALF_PI
-    case DOWN_DIRECTION:
+    case DIRECTION_MAP.down:
       return HALF_PI
-    case NONE_DIRECTION:
+    case DIRECTION_MAP.none:
       return 0
     default: {
       const exhaustiveCheck: never = direction

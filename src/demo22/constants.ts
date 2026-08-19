@@ -70,18 +70,17 @@ export const PINKY_LOOKAHEAD_TILES = 4
 export const INKY_LOOKAHEAD_TILES = 2
 export const CLYDE_SHY_DISTANCE_TILES = 8
 
-export const UP_DIRECTION = 'up'
-export const DOWN_DIRECTION = 'down'
-export const LEFT_DIRECTION = 'left'
-export const RIGHT_DIRECTION = 'right'
-export const NONE_DIRECTION = 'none'
+export const DIRECTION_MAP = {
+  up: 'up',
+  down: 'down',
+  left: 'left',
+  right: 'right',
+  none: 'none',
+} as const
 
-export type DirectionName =
-  | typeof UP_DIRECTION
-  | typeof DOWN_DIRECTION
-  | typeof LEFT_DIRECTION
-  | typeof RIGHT_DIRECTION
-  | typeof NONE_DIRECTION
+type DirectionMap = typeof DIRECTION_MAP
+
+export type DirectionName = DirectionMap[keyof DirectionMap]
 
 export const DIRECTIONS: Record<DirectionName, Vector3d> = {
   up: $v(0, -1),
@@ -92,11 +91,11 @@ export const DIRECTIONS: Record<DirectionName, Vector3d> = {
 }
 
 export const OPPOSITE_DIRECTIONS: Record<DirectionName, DirectionName> = {
-  up: DOWN_DIRECTION,
-  down: UP_DIRECTION,
-  left: RIGHT_DIRECTION,
-  right: LEFT_DIRECTION,
-  none: NONE_DIRECTION,
+  up: DIRECTION_MAP.down,
+  down: DIRECTION_MAP.up,
+  left: DIRECTION_MAP.right,
+  right: DIRECTION_MAP.left,
+  none: DIRECTION_MAP.none,
 }
 
 export const MAZE_TEMPLATE = [

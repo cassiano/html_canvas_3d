@@ -3,8 +3,7 @@ import { millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor, nextCell, isWall } from './actor.ts'
 import {
-  NONE_DIRECTION,
-  LEFT_DIRECTION,
+  DIRECTION_MAP,
   BLINKY_NAME,
   PINKY_NAME,
   INKY_NAME,
@@ -43,13 +42,13 @@ export class Ghost extends Actor {
 
   markEaten(baseSpeed: number, speedMultiplier = 1.6) {
     this.progress = 0
-    this.dir = NONE_DIRECTION
-    this.nextDir = NONE_DIRECTION
+    this.dir = DIRECTION_MAP.none
+    this.nextDir = DIRECTION_MAP.none
     this.speedTilesPerSecond = baseSpeed * speedMultiplier
     this.isEaten = true
   }
 
-  revive(direction: DirectionName = LEFT_DIRECTION, speed: number) {
+  revive(direction: DirectionName = DIRECTION_MAP.left, speed: number) {
     this.isEaten = false
     this.speedTilesPerSecond = speed
     this.dir = direction
@@ -79,7 +78,7 @@ export class Ghost extends Actor {
 
       if (current.equals(target)) break
       ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
-        if (dir === NONE_DIRECTION) return
+        if (dir === DIRECTION_MAP.none) return
 
         const next = nextCell(current, dir)
         const key = `${next.y},${next.x}`
@@ -93,14 +92,14 @@ export class Ghost extends Actor {
     }
 
     const targetKey = `${target.y},${target.x}`
-    if (!previous.has(targetKey)) return NONE_DIRECTION
+    if (!previous.has(targetKey)) return DIRECTION_MAP.none
 
     let stepKey = targetKey
 
     while (true) {
       const step = previous.get(stepKey)
 
-      if (!step) return NONE_DIRECTION
+      if (!step) return DIRECTION_MAP.none
       if (step.position.equals(this.position)) return step.dir
 
       stepKey = `${step.position.y},${step.position.x}`
