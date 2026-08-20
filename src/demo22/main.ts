@@ -275,7 +275,20 @@ class Game {
     this.resetRound()
   }
 
-  private getTile(position: Vector3d): Tile {
+  private getTile(actor: Actor): Tile
+  private getTile(position: Vector3d): Tile
+  private getTile(row: number, col: number): Tile
+  private getTile(
+    actorOrPositionOrRow: Actor | Vector3d | number,
+    col?: number,
+  ): Tile {
+    const position =
+      typeof actorOrPositionOrRow === 'number'
+        ? $v(col!, actorOrPositionOrRow)
+        : actorOrPositionOrRow instanceof Actor
+          ? actorOrPositionOrRow.position
+          : actorOrPositionOrRow
+
     return this.maze[position.y][position.x] ?? WALL_MARKER
   }
 
@@ -396,7 +409,7 @@ class Game {
     let count = 0
 
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
-      const tile = this.getTile($v(col, row))
+      const tile = this.getTile(row, col)
 
       if (tile === PELLET_MARKER || tile === POWER_PELLET_MARKER) count++
     })
@@ -676,7 +689,7 @@ class Game {
     let shortestDistance = Number.POSITIVE_INFINITY
 
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
-      const tile = this.getTile($v(col, row))
+      const tile = this.getTile(row, col)
 
       if (
         tile === PELLET_MARKER ||
@@ -794,7 +807,7 @@ class Game {
   private consumePacmanTile(isDemoMode = false) {
     // Demo mode mutates the maze and advances phases but suppresses player-only
     // scoring and audio, allowing the attract loop to run indefinitely.
-    const tile = this.getTile(this.pacman.position)
+    const tile = this.getTile(this.pacman)
 
     switch (tile) {
       case PELLET_MARKER:
