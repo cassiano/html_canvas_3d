@@ -549,11 +549,11 @@ class Game {
     }
 
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-      dir => {
-        if (dir === NONE) return false
-        if (!ghost.canMoveTo(dir)) return false
+      direction => {
+        if (direction === NONE) return false
+        if (!ghost.canMoveTo(direction)) return false
 
-        return dir !== OPPOSITE_DIRECTIONS[ghost.dir]
+        return direction !== OPPOSITE_DIRECTIONS[ghost.dir]
       },
     )
 
@@ -561,7 +561,7 @@ class Game {
       candidates.length > 0
         ? candidates
         : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-            dir => dir !== NONE && ghost.canMoveTo(dir),
+            direction => direction !== NONE && ghost.canMoveTo(direction),
           )
 
     if (directions.length === 0) return NONE
@@ -578,8 +578,8 @@ class Game {
       let fleeDirection = directions[0]
       let bestFleeScore = Number.NEGATIVE_INFINITY
 
-      directions.forEach(dir => {
-        const target = ghost.nextCell(dir)
+      directions.forEach(direction => {
+        const target = ghost.nextCell(direction)
         const deltaToPacman = target.clone().sub(pacmanPos)
         const fleeDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
@@ -592,9 +592,10 @@ class Game {
             return bonus + dist
           }, 0)
 
-        const tieBreaker = ((ghost.id + dir.charCodeAt(0)) % 7) * 0.0001
+        const tieBreaker = ((ghost.id + direction.charCodeAt(0)) % 7) * 0.0001
         const decayJitter =
-          (((ghost.id + floor(millis() / 120) + dir.charCodeAt(0)) % 11) / 10) *
+          (((ghost.id + floor(millis() / 120) + direction.charCodeAt(0)) % 11) /
+            10) *
           uncertaintyWeight
         const fleeScore =
           fleeDistance * fleeWeight +
@@ -604,7 +605,7 @@ class Game {
 
         if (fleeScore > bestFleeScore) {
           bestFleeScore = fleeScore
-          fleeDirection = dir
+          fleeDirection = direction
         }
       })
 
@@ -626,8 +627,8 @@ class Game {
         ),
       )
 
-      const freeDirections = directions.filter(dir => {
-        return !occupiedDirections.has(dir)
+      const freeDirections = directions.filter(direction => {
+        return !occupiedDirections.has(direction)
       })
 
       if (freeDirections.length > 0) {
@@ -655,8 +656,8 @@ class Game {
     let bestDirection = directions[0]
     let bestScore = Number.POSITIVE_INFINITY
 
-    directions.forEach(dir => {
-      const target = ghost.nextCell(dir)
+    directions.forEach(direction => {
+      const target = ghost.nextCell(direction)
       const deltaToChaseTarget = target.clone().sub(chaseTarget)
       const chaseDistance =
         abs(deltaToChaseTarget.y) + abs(deltaToChaseTarget.x)
@@ -671,12 +672,12 @@ class Game {
           return penalty + 1 / (dist + 0.45) + sameTilePenalty
         }, 0)
 
-      const tieBreaker = ((ghost.id + dir.charCodeAt(0)) % 7) * 0.0001
+      const tieBreaker = ((ghost.id + direction.charCodeAt(0)) % 7) * 0.0001
       const score = chaseDistance + crowdPenalty * 0.9 + tieBreaker
 
       if (score < bestScore) {
         bestScore = score
-        bestDirection = dir
+        bestDirection = direction
       }
     })
 
@@ -709,11 +710,11 @@ class Game {
     // Keep Pacman moving forward when possible; reversing is only a fallback
     // when the current corridor has no other legal exit.
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-      dir => {
-        if ([NONE, OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(dir))
+      direction => {
+        if ([NONE, OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(direction))
           return false
 
-        return this.pacman.canMoveTo(dir)
+        return this.pacman.canMoveTo(direction)
       },
     )
 
@@ -723,7 +724,7 @@ class Game {
         : // Fallback to reversing if Pacman is trapped in a dead end. This is rare but
           // possible in the demo maze, and it prevents Pacman from getting stuck.
           (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-            dir => dir !== NONE && this.pacman.canMoveTo(dir),
+            direction => direction !== NONE && this.pacman.canMoveTo(direction),
           )
 
     if (directions.length === 0) return NONE
@@ -731,8 +732,8 @@ class Game {
     // Score each exit by how quickly it leads to food, while making power
     // pellets especially attractive and nearby ghosts increasingly costly.
     const scoredDirections = directions
-      .map(dir => {
-        const next = this.pacman.nextCell(dir)
+      .map(direction => {
+        const next = this.pacman.nextCell(direction)
         const nextTile = this.getTile(next)
 
         // This is a Manhattan distance to the nearest remaining pellet,
@@ -767,7 +768,7 @@ class Game {
         // from always resolving in the same direction without changing the
         // meaningful food-versus-danger tradeoff.
         const tieBreaker =
-          ((dir.charCodeAt(0) + floor(millis() / 220)) % 7) * 0.001
+          ((direction.charCodeAt(0) + floor(millis() / 220)) % 7) * 0.001
 
         // Add bounded randomness so the demo does not trace an identical
         // route every time it restarts. Its maximum contribution is small
@@ -783,7 +784,7 @@ class Game {
           tieBreaker +
           randomJitter
 
-        return { dir, score }
+        return { dir: direction, score }
       })
       .sort((a, b) => a.score - b.score)
 
