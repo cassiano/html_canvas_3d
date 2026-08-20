@@ -81,6 +81,7 @@ import {
   WALL_MARKER,
 } from './constants.ts'
 import { Actor } from './actor.ts'
+import { PACMAN_STARTING_LIVES } from './constants.ts'
 
 type GameState = 'playing' | 'gameOver'
 
@@ -129,7 +130,7 @@ class Game {
   private score = 0
   private highScore = 0
   private highScorePhase = 1
-  private lives = 3
+  private lives = PACMAN_STARTING_LIVES
   private gameState: GameState = 'gameOver'
   private pelletsRemaining = 0
   private powerModeRemainingMs = 0
@@ -263,7 +264,7 @@ class Game {
     // survives through localStorage and is not cleared here.
     this.hasStartedGame = true
     this.score = 0
-    this.lives = 3
+    this.lives = PACMAN_STARTING_LIVES
     this.phase = 1
     this.gameState = 'playing'
     this.powerModeRemainingMs = 0
@@ -870,9 +871,12 @@ class Game {
       if (this.isGhostFrightened(ghost)) {
         ghost.lastEatenPowerModeId = this.currentPowerModeId
         ghost.markEaten(this.getGhostSpeed())
+
         if (!isDemoMode)
           this.addScore(GHOST_EATEN_BASE_SCORE * 2 ** this.ghostCombo)
+
         this.ghostCombo++
+
         if (!isDemoMode) playGhostEaten()
 
         return
@@ -888,6 +892,7 @@ class Game {
 
       if (this.lives <= 0) {
         this.gameState = 'gameOver'
+
         stopPowerSirenLoop()
         playDeath()
 
