@@ -14,8 +14,6 @@ export const POWER_MODE_MS_DECREASE_PER_PHASE = 350
 export const MIN_POWER_MODE_MS = 2800
 export const POWER_WARNING_FLASH_MS = 1800
 export const POWER_WARNING_FLASH_INTERVAL_MS = 140
-export const CHERRY_SCORE = 200
-export const CHERRY_EXTRA_SCORE = 150
 export const CHERRY_VISIBLE_MS = 7000
 export const CHERRY_RESPAWN_MIN_MS = 9000
 export const CHERRY_RESPAWN_MAX_MS = 18000
@@ -38,6 +36,15 @@ export const BLINKY_MARKER = 'B'
 export const PINKY_MARKER = 'P'
 export const INKY_MARKER = 'I'
 export const CLYDE_MARKER = 'C'
+
+export const COLLECTIBLE_SCORES = {
+  [PELLET_MARKER]: 10,
+  [POWER_PELLET_MARKER]: 50,
+  [CHERRY_MARKER]: {
+    score: 200,
+    extra: 150,
+  },
+}
 
 export const BLINKY_NAME = 'Blinky'
 export const PINKY_NAME = 'Pinky'

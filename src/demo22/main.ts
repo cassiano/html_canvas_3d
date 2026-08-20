@@ -40,12 +40,10 @@ import {
   BASE_PACMAN_SPEED,
   BLINKY_MARKER,
   BLINKY_NAME,
-  CHERRY_EXTRA_SCORE,
   CHERRY_MARKER,
   CHERRY_RESPAWN_DECREASE_PER_PHASE,
   CHERRY_RESPAWN_MAX_MS,
   CHERRY_RESPAWN_MIN_MS,
-  CHERRY_SCORE,
   CHERRY_VISIBLE_MS,
   CLYDE_MARKER,
   CLYDE_NAME,
@@ -85,7 +83,7 @@ import {
   NONE,
 } from './constants.ts'
 import { Actor } from './actor.ts'
-import { PACMAN_STARTING_LIVES } from './constants.ts'
+import { PACMAN_STARTING_LIVES, COLLECTIBLE_SCORES } from './constants.ts'
 
 type GameState = 'playing' | 'gameOver'
 
@@ -823,7 +821,7 @@ class Game {
         this.pelletsRemaining--
 
         if (!isDemoMode) {
-          this.addScore(10)
+          this.addScore(COLLECTIBLE_SCORES[PELLET_MARKER])
           playWaka()
         }
         break
@@ -832,7 +830,7 @@ class Game {
         this.setTile(this.pacman, EMPTY_MARKER)
         this.pelletsRemaining--
 
-        if (!isDemoMode) this.addScore(50)
+        if (!isDemoMode) this.addScore(COLLECTIBLE_SCORES[POWER_PELLET_MARKER])
 
         this.currentPowerModeId++
         this.powerModeRemainingMs = this.getPowerModeDurationMs()
@@ -853,7 +851,10 @@ class Game {
         this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
 
         if (!isDemoMode) {
-          this.addScore(CHERRY_SCORE + CHERRY_EXTRA_SCORE)
+          this.addScore(
+            COLLECTIBLE_SCORES[CHERRY_MARKER].score +
+              COLLECTIBLE_SCORES[CHERRY_MARKER].extra,
+          )
           playCherryPickup()
         }
         break
