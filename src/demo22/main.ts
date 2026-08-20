@@ -35,7 +35,6 @@ import {
   toWorldPoint,
 } from './render.ts'
 import {
-  DIRECTION_MAP,
   DirectionName,
   BASE_GHOST_SPEED,
   BASE_PACMAN_SPEED,
@@ -79,6 +78,11 @@ import {
   ROUND_START_DELAY_MS,
   ROW_COUNT,
   WALL_MARKER,
+  LEFT,
+  RIGHT,
+  UP,
+  DOWN,
+  NONE,
 } from './constants.ts'
 import { Actor } from './actor.ts'
 import { PACMAN_STARTING_LIVES } from './constants.ts'
@@ -166,7 +170,7 @@ class Game {
         new Ghost(
           start.position,
           BASE_GHOST_SPEED,
-          index % 2 === 0 ? DIRECTION_MAP.left : DIRECTION_MAP.right,
+          index % 2 === 0 ? LEFT : RIGHT,
           index,
           start.name,
           start.marker,
@@ -214,14 +218,10 @@ class Game {
     const key = event.key.toLowerCase()
 
     if (this.gameState === 'playing') {
-      if (key === 'w' || key === 'arrowup')
-        this.pacman.nextDir = DIRECTION_MAP.up
-      else if (key === 's' || key === 'arrowdown')
-        this.pacman.nextDir = DIRECTION_MAP.down
-      else if (key === 'a' || key === 'arrowleft')
-        this.pacman.nextDir = DIRECTION_MAP.left
-      else if (key === 'd' || key === 'arrowright')
-        this.pacman.nextDir = DIRECTION_MAP.right
+      if (key === 'w' || key === 'arrowup') this.pacman.nextDir = UP
+      else if (key === 's' || key === 'arrowdown') this.pacman.nextDir = DOWN
+      else if (key === 'a' || key === 'arrowleft') this.pacman.nextDir = LEFT
+      else if (key === 'd' || key === 'arrowright') this.pacman.nextDir = RIGHT
     } else if (key === 'enter') {
       this.startGame()
     }
@@ -504,10 +504,10 @@ class Game {
   private resetRound() {
     // A life loss or maze clear restarts positions and timers without resetting
     // score, lives, or the current difficulty phase.
-    this.pacman.reset(DIRECTION_MAP.left)
+    this.pacman.reset(LEFT)
 
     this.ghosts.forEach((ghost, index) => {
-      ghost.reset(index % 2 === 0 ? DIRECTION_MAP.left : DIRECTION_MAP.right)
+      ghost.reset(index % 2 === 0 ? LEFT : RIGHT)
       ghost.speedTilesPerSecond = this.getGhostSpeed()
       ghost.isEaten = false
     })
@@ -521,9 +521,7 @@ class Game {
   }
 
   private getPacmanFacing(): DirectionName {
-    return this.pacman.dir !== DIRECTION_MAP.none
-      ? this.pacman.dir
-      : this.pacman.nextDir
+    return this.pacman.dir !== NONE ? this.pacman.dir : this.pacman.nextDir
   }
 
   private chooseGhostDirection(ghost: Ghost): DirectionName {
@@ -532,15 +530,14 @@ class Game {
     if (ghost.isEaten) {
       const target = this.getGhostHouseCenterTarget()
 
-      if (ghost.tryReviveAt(target, DIRECTION_MAP.left, this.getGhostSpeed()))
-        return DIRECTION_MAP.none
+      if (ghost.tryReviveAt(target, LEFT, this.getGhostSpeed())) return NONE
 
       return ghost.nextDirectionToTarget(target)
     }
 
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
-        if (dir === DIRECTION_MAP.none) return false
+        if (dir === NONE) return false
         if (!ghost.canMoveTo(dir)) return false
 
         return dir !== OPPOSITE_DIRECTIONS[ghost.dir]
@@ -551,10 +548,10 @@ class Game {
       candidates.length > 0
         ? candidates
         : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-            dir => dir !== DIRECTION_MAP.none && ghost.canMoveTo(dir),
+            dir => dir !== NONE && ghost.canMoveTo(dir),
           )
 
-    if (directions.length === 0) return DIRECTION_MAP.none
+    if (directions.length === 0) return NONE
 
     if (this.isGhostFrightened(ghost)) {
       const powerRatio = max(
@@ -612,7 +609,7 @@ class Game {
     if (overlappingGhosts.length > 0) {
       const occupiedDirections = new Set(
         overlappingGhosts.map(other =>
-          other.nextDir !== DIRECTION_MAP.none ? other.nextDir : other.dir,
+          other.nextDir !== NONE ? other.nextDir : other.dir,
         ),
       )
 
@@ -676,7 +673,7 @@ class Game {
   private getClosestCollectibleDistance(position: Vector3d): number {
     // This intentionally uses Manhattan distance: the method is a cheap local
     // heuristic for the demo driver, not a full pathfinding query.
-    let bestDistance = Number.POSITIVE_INFINITY
+    let shortestDistance = Number.POSITIVE_INFINITY
 
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
       const tile = this.getTile($v(col, row))
@@ -688,11 +685,11 @@ class Game {
       ) {
         const distance = position.manhattanDist(col, row)
 
-        if (distance < bestDistance) bestDistance = distance
+        if (distance < shortestDistance) shortestDistance = distance
       }
     })
 
-    return bestDistance
+    return shortestDistance
   }
 
   private chooseDemoPacmanDirection(): DirectionName {
@@ -700,11 +697,7 @@ class Game {
     // when the current corridor has no other legal exit.
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
       dir => {
-        if (
-          [DIRECTION_MAP.none, OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(
-            dir,
-          )
-        )
+        if ([NONE, OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(dir))
           return false
 
         return this.pacman.canMoveTo(dir)
@@ -717,10 +710,10 @@ class Game {
         : // Fallback to reversing if Pacman is trapped in a dead end. This is rare but
           // possible in the demo maze, and it prevents Pacman from getting stuck.
           (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-            dir => dir !== DIRECTION_MAP.none && this.pacman.canMoveTo(dir),
+            dir => dir !== NONE && this.pacman.canMoveTo(dir),
           )
 
-    if (directions.length === 0) return DIRECTION_MAP.none
+    if (directions.length === 0) return NONE
 
     // Score each exit by how quickly it leads to food, while making power
     // pellets especially attractive and nearby ghosts increasingly costly.

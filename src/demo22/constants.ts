@@ -83,6 +83,14 @@ type DirectionMap = typeof DIRECTION_MAP
 
 export type DirectionName = DirectionMap[keyof DirectionMap]
 
+export const {
+  up: UP,
+  down: DOWN,
+  left: LEFT,
+  right: RIGHT,
+  none: NONE,
+} = DIRECTION_MAP
+
 export const DIRECTIONS: Record<DirectionName, Vector3d> = {
   up: $v(0, -1),
   down: $v(0, 1),
@@ -92,11 +100,11 @@ export const DIRECTIONS: Record<DirectionName, Vector3d> = {
 }
 
 export const OPPOSITE_DIRECTIONS: Record<DirectionName, DirectionName> = {
-  up: DIRECTION_MAP.down,
-  down: DIRECTION_MAP.up,
-  left: DIRECTION_MAP.right,
-  right: DIRECTION_MAP.left,
-  none: DIRECTION_MAP.none,
+  up: DOWN,
+  down: UP,
+  left: RIGHT,
+  right: LEFT,
+  none: NONE,
 }
 
 export const MAZE_TEMPLATE = [

@@ -4,7 +4,8 @@ import {
   COLUMN_COUNT,
   DirectionName,
   DIRECTIONS,
-  DIRECTION_MAP,
+  LEFT,
+  NONE,
 } from './constants.ts'
 
 export abstract class Actor {
@@ -16,7 +17,7 @@ export abstract class Actor {
   constructor(
     public position: Vector3d,
     public speedTilesPerSecond: number,
-    initialDirection: DirectionName = DIRECTION_MAP.left,
+    initialDirection: DirectionName = LEFT,
   ) {
     this.startPosition = position.clone()
     this.dir = initialDirection
@@ -24,7 +25,7 @@ export abstract class Actor {
     this.progress = 0
   }
 
-  reset(direction: DirectionName = DIRECTION_MAP.left) {
+  reset(direction: DirectionName = LEFT) {
     // Clear partial-tile progress while preserving the actor's spawn tile.
     this.position = this.startPosition.clone()
     this.progress = 0
@@ -41,7 +42,7 @@ export abstract class Actor {
   }
 
   canMoveTo(direction: DirectionName): boolean {
-    return direction === DIRECTION_MAP.none
+    return direction === NONE
       ? false
       : !Actor.isWall(Actor.nextCell(this.position, direction))
   }
@@ -59,19 +60,18 @@ export abstract class Actor {
         if (chooseDirectionAtCenter) {
           const selectedDirection = chooseDirectionAtCenter(this)
 
-          if (selectedDirection !== DIRECTION_MAP.none)
-            this.nextDir = selectedDirection
+          if (selectedDirection !== NONE) this.nextDir = selectedDirection
         }
 
         if (this.canMoveTo(this.nextDir)) this.dir = this.nextDir
-        else if (!this.canMoveTo(this.dir)) this.dir = DIRECTION_MAP.none
+        else if (!this.canMoveTo(this.dir)) this.dir = NONE
       }
 
-      if (this.dir === DIRECTION_MAP.none) return
+      if (this.dir === NONE) return
 
       if (!this.canMoveTo(this.dir)) {
         this.progress = 0
-        this.dir = DIRECTION_MAP.none
+        this.dir = NONE
 
         return
       }

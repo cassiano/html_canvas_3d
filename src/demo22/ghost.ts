@@ -3,7 +3,6 @@ import { millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor } from './actor.ts'
 import {
-  DIRECTION_MAP,
   BLINKY_NAME,
   PINKY_NAME,
   INKY_NAME,
@@ -17,6 +16,8 @@ import {
   POWER_WARNING_FLASH_INTERVAL_MS,
   POWER_WARNING_FLASH_MS,
   TILE_SIZE,
+  NONE,
+  LEFT,
 } from './constants.ts'
 import {
   renderCirclePixel,
@@ -42,13 +43,13 @@ export class Ghost extends Actor {
 
   markEaten(baseSpeed: number, speedMultiplier = 1.6) {
     this.progress = 0
-    this.dir = DIRECTION_MAP.none
-    this.nextDir = DIRECTION_MAP.none
+    this.dir = NONE
+    this.nextDir = NONE
     this.speedTilesPerSecond = baseSpeed * speedMultiplier
     this.isEaten = true
   }
 
-  revive(direction: DirectionName = DIRECTION_MAP.left, speed: number) {
+  revive(direction: DirectionName = LEFT, speed: number) {
     this.isEaten = false
     this.speedTilesPerSecond = speed
     this.dir = direction
@@ -78,7 +79,7 @@ export class Ghost extends Actor {
 
       if (current.equals(target)) break
       ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
-        if (dir === DIRECTION_MAP.none) return
+        if (dir === NONE) return
 
         const next = Actor.nextCell(current, dir)
         const key = `${next.y},${next.x}`
@@ -92,14 +93,14 @@ export class Ghost extends Actor {
     }
 
     const targetKey = `${target.y},${target.x}`
-    if (!previous.has(targetKey)) return DIRECTION_MAP.none
+    if (!previous.has(targetKey)) return NONE
 
     let stepKey = targetKey
 
     while (true) {
       const step = previous.get(stepKey)
 
-      if (!step) return DIRECTION_MAP.none
+      if (!step) return NONE
       if (step.position.equals(this.position)) return step.dir
 
       stepKey = `${step.position.y},${step.position.x}`

@@ -9,9 +9,9 @@ import {
 } from './render.ts'
 import {
   DIRECTIONS,
+  NONE,
   PACMAN_RADIUS_RATIO,
   TILE_SIZE,
-  DIRECTION_MAP,
 } from './constants.ts'
 import { millis } from '../utils.ts'
 
@@ -22,10 +22,8 @@ export class Pacman extends Actor {
     const position = this.positionInTiles()
     const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)
     const radius = TILE_SIZE * PACMAN_RADIUS_RATIO
-    const moving =
-      this.dir !== DIRECTION_MAP.none && roundDelayRemainingMs() <= 0
-    const facingDirection =
-      this.dir !== DIRECTION_MAP.none ? this.dir : this.nextDir
+    const moving = this.dir !== NONE && roundDelayRemainingMs() <= 0
+    const facingDirection = this.dir !== NONE ? this.dir : this.nextDir
     const chompPhase = abs(sin(millis() / 88))
     const mouth = moving ? 0.1 + 0.28 * chompPhase : 0.04
     const angle = directionToAngle(facingDirection)
