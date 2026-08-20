@@ -42,9 +42,7 @@ export abstract class Actor {
   }
 
   canMoveTo(direction: DirectionName): boolean {
-    return direction === NONE
-      ? false
-      : !Actor.isWall(Actor.nextCell(this.position, direction))
+    return direction === NONE ? false : !Actor.isWall(this.nextCell(direction))
   }
 
   move(
@@ -83,10 +81,14 @@ export abstract class Actor {
       travel -= step
 
       if (this.progress >= 1) {
-        this.position = Actor.nextCell(this.position, this.dir)
+        this.position = this.nextCell(this.dir)
         this.progress = 0
       }
     }
+  }
+
+  nextCell(direction: DirectionName): Vector3d {
+    return Actor.nextCell(this.position, direction)
   }
 
   // Game installs the maze-specific wall test once; movement helpers remain

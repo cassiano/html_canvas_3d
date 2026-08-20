@@ -566,7 +566,7 @@ class Game {
       let bestFleeScore = Number.NEGATIVE_INFINITY
 
       directions.forEach(dir => {
-        const target = Actor.nextCell(ghost.position, dir)
+        const target = ghost.nextCell(dir)
         const deltaToPacman = target.clone().sub(pacmanPos)
         const fleeDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
@@ -643,7 +643,7 @@ class Game {
     let bestScore = Number.POSITIVE_INFINITY
 
     directions.forEach(dir => {
-      const target = Actor.nextCell(ghost.position, dir)
+      const target = ghost.nextCell(dir)
       const deltaToChaseTarget = target.clone().sub(chaseTarget)
       const chaseDistance =
         abs(deltaToChaseTarget.y) + abs(deltaToChaseTarget.x)
@@ -719,7 +719,7 @@ class Game {
     // pellets especially attractive and nearby ghosts increasingly costly.
     const scoredDirections = directions
       .map(dir => {
-        const next = Actor.nextCell(this.pacman.position, dir)
+        const next = this.pacman.nextCell(dir)
         const nextTile = this.getTile(next)
 
         // This is a Manhattan distance to the nearest remaining pellet,
