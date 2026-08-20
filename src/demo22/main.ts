@@ -292,7 +292,14 @@ class Game {
     return this.maze[position.y][position.x] ?? WALL_MARKER
   }
 
-  private setTile(position: Vector3d, value: Tile): void {
+  private setTile(actor: Actor, value: Tile): void
+  private setTile(position: Vector3d, value: Tile): void
+  private setTile(actorOrPosition: Actor | Vector3d, value: Tile): void {
+    const position =
+      actorOrPosition instanceof Actor
+        ? actorOrPosition.position
+        : actorOrPosition
+
     this.maze[position.y][position.x] = value
   }
 
@@ -812,7 +819,7 @@ class Game {
 
     switch (tile) {
       case PELLET_MARKER:
-        this.setTile(this.pacman.position, EMPTY_MARKER)
+        this.setTile(this.pacman, EMPTY_MARKER)
         this.pelletsRemaining--
 
         if (!isDemoMode) {
@@ -822,7 +829,7 @@ class Game {
         break
 
       case POWER_PELLET_MARKER:
-        this.setTile(this.pacman.position, EMPTY_MARKER)
+        this.setTile(this.pacman, EMPTY_MARKER)
         this.pelletsRemaining--
 
         if (!isDemoMode) this.addScore(50)
@@ -840,7 +847,7 @@ class Game {
         break
 
       case CHERRY_MARKER:
-        this.setTile(this.pacman.position, EMPTY_MARKER)
+        this.setTile(this.pacman, EMPTY_MARKER)
         this.hideCherry()
         this.cherryVisibleRemainingMs = 0
         this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
