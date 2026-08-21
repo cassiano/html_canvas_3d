@@ -733,6 +733,7 @@ class Game {
           )
 
     if (directions.length === 0) return NONE
+    if (directions.length === 1) return directions[0]
 
     // Score each exit by how quickly it leads to food, while making power
     // pellets especially attractive and nearby ghosts increasingly costly.
@@ -855,6 +856,7 @@ class Game {
             COLLECTIBLE_SCORES[CHERRY_MARKER].score +
               COLLECTIBLE_SCORES[CHERRY_MARKER].extra,
           )
+
           playCherryPickup()
         }
         break
