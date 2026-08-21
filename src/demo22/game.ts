@@ -696,6 +696,9 @@ export class Game {
     return shortestDistance
   }
 
+  // [/doc_img/game.ts/2026-08-21-15-20-20.png]
+  // [/doc_img/game.ts/2026-08-21-15-20-39.png]
+  // [/doc_img/game.ts/2026-08-21-15-21-02.png]
   private chooseDemoPacmanDirection(): DirectionName {
     // Keep Pacman moving forward when possible; reversing is only a fallback
     // when the current corridor has no other legal exit.
