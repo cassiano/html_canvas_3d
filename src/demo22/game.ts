@@ -240,6 +240,7 @@ export class Game {
     // chaser until revived and re-frightened by a future power pellet.
     return (
       this.inPowerMode() &&
+      !ghost.isEaten &&
       ghost.lastEatenPowerModeId !== this.currentPowerModeId
     )
   }
@@ -719,22 +720,23 @@ export class Game {
     if (directions.length === 0) return NONE
     if (directions.length === 1) return directions[0]
 
-    // Score each exit by how quickly it leads to food, while making power
-    // pellets especially attractive and nearby ghosts increasingly costly.
+    const frightenedGhosts = this.ghosts.filter(ghost =>
+      this.isGhostFrightened(ghost),
+    )
+    const isHuntingGhosts = frightenedGhosts.length > 0
+
+    // Score each exit: in normal mode, prioritize pellets/cherries and avoid
+    // lethal ghosts; in power mode with frightened ghosts present, aggressively
+    // hunt down and close distance on the nearest edible ghost.
     const scoredDirections = directions
       .map(direction => {
         const next = this.pacman.nextCell(direction)
         const nextTile = this.getTile(next)
 
-        // This is a Manhattan distance to the nearest remaining pellet,
-        // power pellet, or cherry after taking this step. Because the final
-        // score is minimized, a shorter route produces a better score.
+        // Base food distance heuristic
         const collectibleDistance = this.getClosestCollectibleDistance(next)
 
-        // A collectible directly in the candidate tile should outweigh the
-        // distance heuristic. When not already in power mode, Power pellets
-        // receive the larger discount because they also let Pacman safely eat
-        // frightened ghosts.
+        // Pellet / power pellet bonuses
         const collectibleBonus =
           nextTile === POWER_PELLET_MARKER && !this.inPowerMode()
             ? -50
@@ -742,52 +744,59 @@ export class Game {
               ? -25
               : 0
 
-        // Threat is the sum of inverse (Manhattan) distances to every ghost. A nearby
-        // ghost contributes much more than a distant one; while power mode is active,
-        // ghosts are edible, so this danger term is disabled.
-        const ghostThreat = this.inPowerMode()
-          ? 0
-          : this.ghosts.reduce((threat, ghost) => {
-              const ghostPos = ghost.positionInTiles()
-              const distance = next.manhattanDist(ghostPos)
+        // In normal mode, ghosts are dangerous threats. In power mode, dangerous
+        // non-frightened ghosts (if any) are avoided while frightened ghosts become targets.
+        const nonFrightenedGhosts = this.ghosts.filter(
+          ghost => !ghost.isEaten && !this.isGhostFrightened(ghost),
+        )
 
-              return threat + 1 / (distance + 0.4)
-            }, 0)
+        const ghostThreat = nonFrightenedGhosts.reduce((threat, ghost) => {
+          const ghostPos = ghost.positionInTiles()
+          const distance = next.manhattanDist(ghostPos)
 
-        // These tiny deterministic variations prevent equal-scoring exits
-        // from always resolving in the same direction without changing the
-        // meaningful food-versus-danger tradeoff.
+          return threat + 1 / (distance + 0.4)
+        }, 0)
+
+        // Chase metric: calculate distance to closest frightened ghost
+        let ghostChaseScore = 0
+        if (isHuntingGhosts) {
+          const closestFrightenedDist = min(
+            ...frightenedGhosts.map(ghost =>
+              next.manhattanDist(ghost.positionInTiles()),
+            ),
+          )
+
+          // Strongly minimize distance to closest frightened ghost
+          ghostChaseScore = closestFrightenedDist * 18
+        }
+
+        // Deterministic variation to break ties cleanly
         const tieBreaker =
           ((direction.charCodeAt(0) + floor(millis() / 220)) % 7) * 0.001
 
-        // Add bounded randomness so the demo does not trace an identical
-        // route every time it restarts. Its maximum contribution is small
-        // compared with the pellet and threat terms.
-        const randomJitter = random() * 0.6
+        const randomJitter = isHuntingGhosts ? 0 : random() * 0.6
 
-        // Lower is better: prioritize nearby food, apply the direct-tile
-        // bonus, and avoid dangerous exits unless power mode is active.
-        const score =
-          collectibleDistance +
-          ghostThreat * 7 +
-          collectibleBonus +
-          tieBreaker +
-          randomJitter
+        const score = isHuntingGhosts
+          ? ghostChaseScore +
+            collectibleDistance * 0.2 +
+            ghostThreat * 15 +
+            tieBreaker
+          : collectibleDistance +
+            ghostThreat * 7 +
+            collectibleBonus +
+            tieBreaker +
+            randomJitter
 
         return { dir: direction, score }
       })
       .sort((a, b) => a.score - b.score)
 
-    // Usually take the best route, but occasionally choose a near-best route
-    // so demo mode explores the maze instead of repeating one fixed path.
-    const alternateRouteChance = this.inPowerMode() ? 0.3 : 0.18
+    // In normal mode, occasionally explore alternate paths. When hunting ghosts
+    // in power mode, stay strictly focused on the optimal pursuit course.
+    const alternateRouteChance = isHuntingGhosts ? 0 : 0.18
 
     if (scoredDirections.length > 1 && random() < alternateRouteChance) {
-      const furthestIndex = min(
-        scoredDirections.length - 1,
-        this.inPowerMode() ? 2 : 1,
-      )
-      const alternateIndex = 1 + floor(random() * furthestIndex)
+      const alternateIndex = 1 + floor(random() * (scoredDirections.length - 1))
 
       return scoredDirections[alternateIndex].dir
     }
