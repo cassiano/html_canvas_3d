@@ -1,9 +1,13 @@
 import {
+  ORIGIN,
   DEFAULT_CIRCLE_SEGMENTS,
   Z_EPSILON,
   AXES,
   MAX_LINE_SEGMENT_SIZE,
   ZERO_VECTOR,
+  NORMAL_CONFIG,
+  DEFAULT_ARROW_CIRCLE_SEGMENTS,
+  DEFAULT_SPHERE_LINES,
 } from './constants.ts'
 import { $v, Vector3d } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
@@ -16,16 +20,12 @@ import {
   PI,
   sin,
   multiply4x4Matrices,
-  multiply4x4MatrixBy4dPoint,
   floor,
+  TWO_PI,
+  HALF_PI,
+  map,
+  multiply4x4MatrixBy4dPoint,
 } from './math_utils.ts'
-import {
-  NORMAL_CONFIG,
-  DEFAULT_ARROW_CIRCLE_SEGMENTS,
-  DEFAULT_SPHERE_LINES,
-} from './constants.ts'
-import { ORIGIN } from './constants.ts'
-import { TWO_PI, HALF_PI, polarToCartesian2d, map } from './math_utils.ts'
 
 const FOURTH_DIMENSION_COORD = 1
 
@@ -403,22 +403,26 @@ export const centralize = (point?: Vector3d) =>
   point?.clone().add(getScreenCenter()).add(panOffset)
 
 // Optimized versions.
-export const transform = (point: Vector3d) =>
-  multiply4x4MatrixBy4dPoint(transformationMatrix, [
-    point.x,
-    point.y,
-    point.z,
-    FOURTH_DIMENSION_COORD,
-  ])
+export const transform = (point: Vector3d): Vector3d =>
+  $v(
+    ...multiply4x4MatrixBy4dPoint(transformationMatrix, [
+      point.x,
+      point.y,
+      point.z,
+      FOURTH_DIMENSION_COORD,
+    ]),
+  )
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221bVRsjpez2q3HdcsuDn1nKKO_de1Zmyly%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing, https://drive.google.com/file/d/1bvI7QTO-_Yvs8iV2MDNuaO-NVDi9NYnq/view?usp=sharing
-export const transformNormal = (point: Vector3d) =>
-  multiply4x4MatrixBy4dPoint(transformationMatrix, [
-    point.x,
-    point.y,
-    point.z,
-    0,
-  ])
+export const transformNormal = (point: Vector3d): Vector3d =>
+  $v(
+    ...multiply4x4MatrixBy4dPoint(transformationMatrix, [
+      point.x,
+      point.y,
+      point.z,
+      0,
+    ]),
+  )
 
 const toScreen = (point: Vector3d) =>
   centralize(project3dTo2d(transform(point)))
@@ -763,8 +767,8 @@ export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
     const latAngle = map(latIndex, 0, latSegments, 0, PI) // [0, PI]
     const longAngle = map(longIndex, 0, longSegments, 0, TWO_PI) // [0, 2*PI]
 
-    const [y, latRadius] = polarToCartesian2d(radius, latAngle)
-    const [x, z] = polarToCartesian2d(latRadius, longAngle) // Use RHR Mapping.
+    const [y, latRadius] = Vector3d.polarToCartesian2d(radius, latAngle)
+    const [x, z] = Vector3d.polarToCartesian2d(latRadius, longAngle) // Use RHR Mapping.
 
     return $v(x, y, z)
   }
@@ -800,8 +804,8 @@ export const circle2d = (
   for (let i = 0; i < circleSegments; i++) {
     const theta = i * step
 
-    const p1 = polarToCartesian2d(radius, theta)
-    const p2 = polarToCartesian2d(radius, theta + step)
+    const p1 = Vector3d.polarToCartesian2d(radius, theta)
+    const p2 = Vector3d.polarToCartesian2d(radius, theta + step)
 
     // Form a slice by connecting the two points on the perimeter to the circle center (origin).
     triangle2d(ORIGIN, p1, p2, options, [originScreenCoords])
@@ -824,8 +828,8 @@ export const circlePerimeter2d = (
   for (let i = 0; i < circleSegments; i++) {
     const theta = i * step
 
-    const p1 = polarToCartesian2d(radius, theta)
-    const p2 = polarToCartesian2d(radius, theta + step)
+    const p1 = Vector3d.polarToCartesian2d(radius, theta)
+    const p2 = Vector3d.polarToCartesian2d(radius, theta + step)
 
     line(p1, p2, options)
   }
@@ -852,8 +856,8 @@ export const ring = (
     for (let i = 0; i < circleSegments; i++) {
       const theta = i * step
 
-      const p1 = polarToCartesian2d(radius, theta)
-      const p2 = polarToCartesian2d(radius, theta + step)
+      const p1 = Vector3d.polarToCartesian2d(radius, theta)
+      const p2 = Vector3d.polarToCartesian2d(radius, theta + step)
       const p3 = p2.clone().setZ(depth)
       const p4 = p1.clone().setZ(depth)
 
@@ -880,10 +884,10 @@ export const saturnRing = (
   for (let i = 0; i < circleSegments; i++) {
     const theta = i * step
 
-    const p1 = polarToCartesian2d(internalRadius, theta)
-    const p2 = polarToCartesian2d(internalRadius, theta + step)
-    const p3 = polarToCartesian2d(externalRadius, theta)
-    const p4 = polarToCartesian2d(externalRadius, theta + step)
+    const p1 = Vector3d.polarToCartesian2d(internalRadius, theta)
+    const p2 = Vector3d.polarToCartesian2d(internalRadius, theta + step)
+    const p3 = Vector3d.polarToCartesian2d(externalRadius, theta)
+    const p4 = Vector3d.polarToCartesian2d(externalRadius, theta + step)
 
     quad(p1, p2, p4, p3, { ...options, isDoubleSided: true })
   }
@@ -906,11 +910,11 @@ export const sphericalCheeseSlice = (
 
   for (let i = 0; i < circleSegments; i++) {
     const theta = i * step
-    const avgX = polarToCartesian2d(radius, theta + step / 2).x
+    const avgX = Vector3d.polarToCartesian2d(radius, theta + step / 2).x
     const z = map(avgX, -radius, radius, depth, 0, true)
 
-    const p1 = polarToCartesian2d(radius, theta)
-    const p2 = polarToCartesian2d(radius, theta + step)
+    const p1 = Vector3d.polarToCartesian2d(radius, theta)
+    const p2 = Vector3d.polarToCartesian2d(radius, theta + step)
     const p3 = p2.clone().setZ(z)
     const p4 = p1.clone().setZ(z)
 
@@ -925,16 +929,16 @@ export const torus = (
   options: CircularShapeOptions = {},
 ) => {
   const step = TWO_PI / torusCircleSegments
-  const p1 = polarToCartesian2d(internalRadius + 2 * tubeRadius, 0)
-  const p2 = polarToCartesian2d(internalRadius + 2 * tubeRadius, step)
+  const p1 = Vector3d.polarToCartesian2d(internalRadius + 2 * tubeRadius, 0)
+  const p2 = Vector3d.polarToCartesian2d(internalRadius + 2 * tubeRadius, step)
   const tubeRingDepth = p1.dist(p2)
 
   for (let i = 0; i < torusCircleSegments; i++) {
     const theta = i * step
 
     isolateTransformations(() => {
-      translate(polarToCartesian2d(internalRadius + tubeRadius, theta))
-      rotate(HALF_PI, polarToCartesian2d(1, theta))
+      translate(Vector3d.polarToCartesian2d(internalRadius + tubeRadius, theta))
+      rotate(HALF_PI, Vector3d.polarToCartesian2d(1, theta))
 
       ring(tubeRadius, tubeRingDepth, options)
     })
@@ -960,8 +964,10 @@ export const cone = (
   for (let i = 0; i < circleSegments; i++) {
     const theta = i * step
 
-    const p1 = polarToCartesian2d(radius, theta).setZ(-depth / 2)
-    const p2 = polarToCartesian2d(radius, theta + step).setZ(-depth / 2)
+    const p1 = Vector3d.polarToCartesian2d(radius, theta).setZ(-depth / 2)
+    const p2 = Vector3d.polarToCartesian2d(radius, theta + step).setZ(
+      -depth / 2,
+    )
 
     // Form 2 slices, one connecting the above two points on the perimeter to the tip and
     // another to the back center.
@@ -998,8 +1004,10 @@ export const cylinder = (
 
     const theta = i * step
 
-    const p1 = polarToCartesian2d(radius, theta).setZ(-depth / 2)
-    const p2 = polarToCartesian2d(radius, theta + step).setZ(-depth / 2)
+    const p1 = Vector3d.polarToCartesian2d(radius, theta).setZ(-depth / 2)
+    const p2 = Vector3d.polarToCartesian2d(radius, theta + step).setZ(
+      -depth / 2,
+    )
     const upperP1 = p1.clone().add(0, 0, depth)
     const upperP2 = p2.clone().add(0, 0, depth)
 

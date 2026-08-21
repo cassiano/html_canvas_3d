@@ -1,4 +1,3 @@
-import { $v, Vector3d } from './vector_3d.ts'
 import { Tuple } from './utility_types.ts'
 
 export const {
@@ -28,16 +27,6 @@ export const radians = (degrees: number) =>
   (degrees / FULL_CIRCLE_IN_DEGREES) * TWO_PI
 export const degrees = (radians: number) =>
   (radians / TWO_PI) * FULL_CIRCLE_IN_DEGREES
-
-// https://en.wikipedia.org/wiki/Polar_coordinate_system
-export const polarToCartesian2d = (radius: number, polarAngle: number) =>
-  $v(radius * cos(polarAngle), radius * sin(polarAngle))
-
-export const cartesianToPolar2d = (x: number, y: number) => {
-  const cartesianVector = $v(x, y)
-
-  return [cartesianVector.mag(), cartesianVector.heading()] as const
-}
 
 export const random = (min = 0, max = 1) => Math.random() * (max - min) + min
 
@@ -145,16 +134,16 @@ export const multiply4x4Matrices = (
 export const multiply4x4MatrixBy4dPoint = (
   matrix: number[][],
   point: number[],
-): Vector3d => {
+): Tuple<number, 3> => {
   // Notice the matrix's 4th row is not used at all, since the point's 4th dimension will be discarded
   // during the transformation.
   const [[m00, m01, m02, m03], [m10, m11, m12, m13], [m20, m21, m22, m23]] =
     matrix
   const [x, y, z, w] = point
 
-  return $v(
+  return [
     m00 * x + m01 * y + m02 * z + m03 * w,
     m10 * x + m11 * y + m12 * z + m13 * w,
     m20 * x + m21 * y + m22 * z + m23 * w,
-  )
+  ]
 }
