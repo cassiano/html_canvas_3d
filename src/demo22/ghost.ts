@@ -115,39 +115,39 @@ export class Ghost extends Actor {
     inkyLookaheadTiles: number,
     clydeShyDistanceTiles: number,
   ): Vector3d {
+    // Just to be on the safe side, clone the position so we don't accidentally mutate Pacman's state.
+    pacmanPos = pacmanPos.clone()
+
     // Each ghost transforms Pacman's state differently, creating distinct
     // chase personalities instead of four identical pursuers.
     switch (this.name) {
       case BLINKY_NAME:
-        return $v(pacmanPos.x, pacmanPos.y)
+        return pacmanPos
 
       case PINKY_NAME:
-        return pacmanPos
-          .clone()
-          .add(pacmanFacing.clone().mult(pinkyLookaheadTiles))
+        return pacmanPos.add(pacmanFacing.clone().mult(pinkyLookaheadTiles))
 
       case INKY_NAME: {
-        const pivot = pacmanPos
-          .clone()
-          .add(pacmanFacing.clone().mult(inkyLookaheadTiles))
+        const pivot = pacmanPos.add(
+          pacmanFacing.clone().mult(inkyLookaheadTiles),
+        )
         const blinky = ghosts.find(ghost => ghost.name === 'Blinky')
+
         if (!blinky) return pivot
+
         const blinkyPos = blinky.positionInTiles()
 
-        return $v(
-          pivot.x + (pivot.x - blinkyPos.x),
-          pivot.y + (pivot.y - blinkyPos.y),
-        )
+        return pivot.mult(2).sub(blinkyPos)
       }
 
       case CLYDE_NAME: {
-        const deltaToPacman = pacmanPos.clone().sub(this.position)
+        const deltaToPacman = pacmanPos.sub(this.position)
         const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
 
         if (manhattanDistance <= clydeShyDistanceTiles)
           return $v(1, ROW_COUNT - 2) // Scatter target.
 
-        return $v(pacmanPos.x, pacmanPos.y)
+        return pacmanPos
       }
 
       default: {
