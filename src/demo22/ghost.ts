@@ -1,4 +1,5 @@
-import { abs, floor } from '../math_utils.ts'
+import { ORIGIN } from '../constants.ts'
+import { floor } from '../math_utils.ts'
 import { millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor } from './actor.ts'
@@ -115,20 +116,21 @@ export class Ghost extends Actor {
     inkyLookaheadTiles: number,
     clydeShyDistanceTiles: number,
   ): Vector3d {
-    // Just to be on the safe side, clone the position so we don't accidentally mutate Pacman's state.
-    pacmanPos = pacmanPos.clone()
+    const clonedPacmanPos = pacmanPos.clone()
 
     // Each ghost transforms Pacman's state differently, creating distinct
     // chase personalities instead of four identical pursuers.
     switch (this.name) {
       case BLINKY_NAME:
-        return pacmanPos
+        return clonedPacmanPos
 
       case PINKY_NAME:
-        return pacmanPos.add(pacmanFacing.clone().mult(pinkyLookaheadTiles))
+        return clonedPacmanPos.add(
+          pacmanFacing.clone().mult(pinkyLookaheadTiles),
+        )
 
       case INKY_NAME: {
-        const pivot = pacmanPos.add(
+        const pivot = clonedPacmanPos.add(
           pacmanFacing.clone().mult(inkyLookaheadTiles),
         )
         const blinky = ghosts.find(ghost => ghost.name === 'Blinky')
@@ -141,13 +143,12 @@ export class Ghost extends Actor {
       }
 
       case CLYDE_NAME: {
-        const deltaToPacman = pacmanPos.sub(this.position)
-        const manhattanDistance = abs(deltaToPacman.y) + abs(deltaToPacman.x)
+        const deltaToPacman = clonedPacmanPos.sub(this.position)
 
-        if (manhattanDistance <= clydeShyDistanceTiles)
+        if (deltaToPacman.manhattanDist(ORIGIN) <= clydeShyDistanceTiles)
           return $v(1, ROW_COUNT - 2) // Scatter target.
 
-        return pacmanPos
+        return clonedPacmanPos
       }
 
       default: {
