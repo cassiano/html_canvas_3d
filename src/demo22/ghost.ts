@@ -4,6 +4,11 @@ import { millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor } from './actor.ts'
 import {
+  CLYDE_SHY_DISTANCE_TILES,
+  PINKY_LOOKAHEAD_TILES,
+  INKY_LOOKAHEAD_TILES,
+} from './constants.ts'
+import {
   BLINKY_NAME,
   PINKY_NAME,
   INKY_NAME,
@@ -112,9 +117,6 @@ export class Ghost extends Actor {
     pacmanPos: Vector3d,
     pacmanFacing: Vector3d,
     ghosts: Ghost[],
-    pinkyLookaheadTiles: number,
-    inkyLookaheadTiles: number,
-    clydeShyDistanceTiles: number,
   ): Vector3d {
     const clonedPacmanPos = pacmanPos.clone()
 
@@ -126,12 +128,12 @@ export class Ghost extends Actor {
 
       case PINKY_NAME:
         return clonedPacmanPos.add(
-          pacmanFacing.clone().mult(pinkyLookaheadTiles),
+          pacmanFacing.clone().mult(PINKY_LOOKAHEAD_TILES),
         )
 
       case INKY_NAME: {
         const pivot = clonedPacmanPos.add(
-          pacmanFacing.clone().mult(inkyLookaheadTiles),
+          pacmanFacing.clone().mult(INKY_LOOKAHEAD_TILES),
         )
         const blinky = ghosts.find(ghost => ghost.name === 'Blinky')
 
@@ -145,7 +147,7 @@ export class Ghost extends Actor {
       case CLYDE_NAME: {
         const deltaToPacman = clonedPacmanPos.sub(this.position)
 
-        if (deltaToPacman.manhattanDist(ORIGIN) <= clydeShyDistanceTiles)
+        if (deltaToPacman.manhattanDist(ORIGIN) <= CLYDE_SHY_DISTANCE_TILES)
           return $v(1, ROW_COUNT - 2) // Scatter target.
 
         return clonedPacmanPos
