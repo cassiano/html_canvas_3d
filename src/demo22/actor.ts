@@ -12,7 +12,7 @@ export abstract class Actor {
   readonly startPosition: Vector3d
   dir: DirectionName
   nextDir: DirectionName
-  progress: number
+  progress = 0
 
   constructor(
     public position: Vector3d,
@@ -22,7 +22,6 @@ export abstract class Actor {
     this.startPosition = position.clone()
     this.dir = initialDirection
     this.nextDir = initialDirection
-    this.progress = 0
   }
 
   reset(direction: DirectionName = LEFT) {
