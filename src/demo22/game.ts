@@ -70,7 +70,11 @@ import {
   NONE,
 } from './constants.ts'
 import { Actor } from './actor.ts'
-import { PACMAN_STARTING_LIVES, COLLECTIBLE_SCORES } from './constants.ts'
+import {
+  EXTRA_LIFE_SCORE_THRESHOLD,
+  PACMAN_STARTING_LIVES,
+  COLLECTIBLE_SCORES,
+} from './constants.ts'
 
 type GameState = 'playing' | 'gameOver'
 
@@ -498,6 +502,12 @@ export class Game {
   }
 
   private addScore(points: number) {
+    // Award an extra life for every threshold the score crosses, so multiple
+    // crossings within one pickup still grant one life per full threshold.
+    const previousThresholdIndex = floor(
+      this.score / EXTRA_LIFE_SCORE_THRESHOLD,
+    )
+
     this.score += points
 
     if (this.score > this.highScore) {
@@ -505,6 +515,9 @@ export class Game {
       this.highScorePhase = this.phase
       this.saveHighScore({ score: this.highScore, phase: this.highScorePhase })
     }
+
+    if (floor(this.score / EXTRA_LIFE_SCORE_THRESHOLD) > previousThresholdIndex)
+      this.lives++
   }
 
   private resetRound() {

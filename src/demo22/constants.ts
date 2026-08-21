@@ -25,6 +25,7 @@ export const COLLISION_DISTANCE_TILES = 0.5
 export const ROUND_START_DELAY_MS = 900
 export const HIGH_SCORE_STORAGE_KEY = 'demo22_pacman_high_score'
 export const PACMAN_STARTING_LIVES = 3
+export const EXTRA_LIFE_SCORE_THRESHOLD = 10000
 
 export const WALL_MARKER = '◻'
 export const EMPTY_MARKER = ' '
