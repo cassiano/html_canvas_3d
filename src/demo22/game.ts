@@ -40,7 +40,7 @@ import {
   COLLISION_DISTANCE_TILES,
   COLUMN_COUNT,
   DIRECTIONS,
-  DEMO_POWER_MODE_MS,
+  ATTRACT_POWER_MODE_MS,
   EMPTY_MARKER,
   GHOST_EATEN_BASE_SCORE,
   GHOST_MARKER_SPECS,
@@ -420,9 +420,9 @@ export class Game {
   }
 
   private getPowerModeDurationMs() {
-    // The attract loop extends power mode so demo viewers see frightened-ghost
-    // gameplay for longer than a player would.
-    if (this.gameState !== 'playing') return DEMO_POWER_MODE_MS
+    // The attract loop extends power mode so attract-mode viewers see
+    // frightened-ghost gameplay for longer than a player would.
+    if (this.gameState !== 'playing') return ATTRACT_POWER_MODE_MS
 
     return max(
       MIN_POWER_MODE_MS,
@@ -694,7 +694,7 @@ export class Game {
 
   private getClosestCollectibleDistance(position: Vector3d): number {
     // This intentionally uses Manhattan distance: the method is a cheap local
-    // heuristic for the demo driver, not a full pathfinding query.
+    // heuristic for the attract-mode driver, not a full pathfinding query.
     let shortestDistance = Number.POSITIVE_INFINITY
 
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
@@ -717,7 +717,7 @@ export class Game {
   // [/doc_img/game.ts/2026-08-21-15-20-20.png]
   // [/doc_img/game.ts/2026-08-21-15-20-39.png]
   // [/doc_img/game.ts/2026-08-21-15-21-02.png]
-  private chooseDemoPacmanDirection(): DirectionName {
+  private chooseAttractModePacmanDirection(): DirectionName {
     // Keep Pacman moving forward when possible; reversing is only a fallback
     // when the current corridor has no other legal exit.
     const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
@@ -733,7 +733,7 @@ export class Game {
       candidates.length > 0
         ? candidates
         : // Fallback to reversing if Pacman is trapped in a dead end. This is rare but
-          // possible in the demo maze, and it prevents Pacman from getting stuck.
+          // possible in the attract-mode maze, and it prevents Pacman from getting stuck.
           (Object.keys(DIRECTIONS) as DirectionName[]).filter(
             direction => direction !== NONE && this.pacman.canMoveTo(direction),
           )
@@ -825,8 +825,8 @@ export class Game {
     return scoredDirections[0].dir
   }
 
-  private consumePacmanTile(isDemoMode = false) {
-    // Demo mode mutates the maze and advances phases but suppresses player-only
+  private consumePacmanTile(isAttractMode = false) {
+    // Attract mode mutates the maze and advances phases but suppresses player-only
     // scoring and audio, allowing the attract loop to run indefinitely.
     const tile = this.getTile(this.pacman)
 
@@ -835,7 +835,7 @@ export class Game {
         this.setTile(this.pacman, EMPTY_MARKER)
         this.pelletsRemaining--
 
-        if (!isDemoMode) {
+        if (!isAttractMode) {
           this.addScore(COLLECTIBLE_SCORES[PELLET_MARKER])
           playWaka()
         }
@@ -845,14 +845,15 @@ export class Game {
         this.setTile(this.pacman, EMPTY_MARKER)
         this.pelletsRemaining--
 
-        if (!isDemoMode) this.addScore(COLLECTIBLE_SCORES[POWER_PELLET_MARKER])
+        if (!isAttractMode)
+          this.addScore(COLLECTIBLE_SCORES[POWER_PELLET_MARKER])
 
         this.currentPowerModeId++
         this.powerModeRemainingMs = this.getPowerModeDurationMs()
         this.ghostCombo = 0
         this.syncGhostSpeedsForPowerMode()
 
-        if (!isDemoMode)
+        if (!isAttractMode)
           startPowerSirenLoop(
             () => this.powerModeRemainingMs,
             () => this.gameState === 'playing',
@@ -865,7 +866,7 @@ export class Game {
         this.cherryVisibleRemainingMs = 0
         this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
 
-        if (!isDemoMode) {
+        if (!isAttractMode) {
           this.addScore(
             COLLECTIBLE_SCORES[CHERRY_MARKER].score +
               COLLECTIBLE_SCORES[CHERRY_MARKER].extra,
@@ -879,16 +880,16 @@ export class Game {
     if (this.pelletsRemaining <= 0) {
       this.phase++
 
-      if (!isDemoMode) stopPowerSirenLoop()
+      if (!isAttractMode) stopPowerSirenLoop()
 
       this.resetMazeFromTemplate()
       this.resetRound()
     }
   }
 
-  private checkGhostCollisions(isDemoMode = false) {
+  private checkGhostCollisions(isAttractMode = false) {
     // Collision handling is ordered from edible ghosts to lethal ghosts, with
-    // demo mode resetting the round instead of consuming a player life.
+    // attract mode resetting the round instead of consuming a player life.
     const pacmanPos = this.pacman.positionInTiles()
 
     this.ghosts.forEach(ghost => {
@@ -903,17 +904,17 @@ export class Game {
         ghost.lastEatenPowerModeId = this.currentPowerModeId
         ghost.markEaten(this.getGhostSpeed())
 
-        if (!isDemoMode)
+        if (!isAttractMode)
           this.addScore(GHOST_EATEN_BASE_SCORE * 2 ** this.ghostCombo)
 
         this.ghostCombo++
 
-        if (!isDemoMode) playGhostEaten()
+        if (!isAttractMode) playGhostEaten()
 
         return
       }
 
-      if (isDemoMode) {
+      if (isAttractMode) {
         this.resetRound()
 
         return
@@ -957,7 +958,9 @@ export class Game {
         this.syncGhostSpeedsForPowerMode()
       }
 
-      this.pacman.move(deltaSeconds, () => this.chooseDemoPacmanDirection())
+      this.pacman.move(deltaSeconds, () =>
+        this.chooseAttractModePacmanDirection(),
+      )
 
       this.consumePacmanTile(true)
 
@@ -973,7 +976,7 @@ export class Game {
     }
 
     // Player mode keeps input-driven direction changes and cherry timing while
-    // sharing movement, pellet consumption, and collision behavior with demo.
+    // sharing movement, pellet consumption, and collision behavior with attract mode.
     if (this.roundDelayRemainingMs > 0) {
       this.roundDelayRemainingMs -= deltaSeconds * 1000
 
