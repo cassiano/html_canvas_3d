@@ -714,9 +714,7 @@ export class Game {
     return shortestDistance
   }
 
-  // [/doc_img/game.ts/2026-08-21-15-20-20.png]
-  // [/doc_img/game.ts/2026-08-21-15-20-39.png]
-  // [/doc_img/game.ts/2026-08-21-15-21-02.png]
+  // https://drive.google.com/file/d/1EjJiVstVLq4C_HHFdc6ZI01UdJZ6dQ3D/view?usp=sharing, https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221QxqF4E22VIbEok8RgHujB2gdbe-Nesmc%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
   private chooseAttractModePacmanDirection(): DirectionName {
     // Keep Pacman moving forward when possible; reversing is only a fallback
     // when the current corridor has no other legal exit.
