@@ -99,6 +99,24 @@ function navigateDemo(delta: number) {
 }
 
 function handleKeydown(event: KeyboardEvent) {
+  // Shift + Up/Down navigates demos in every demo, including the Pac-Man one,
+  // where the unshifted arrow keys are reserved for gameplay movement.
+  if (event.shiftKey && event.key === 'ArrowUp') {
+    event.preventDefault()
+
+    navigateDemo(-1)
+
+    return
+  }
+
+  if (event.shiftKey && event.key === 'ArrowDown') {
+    event.preventDefault()
+
+    navigateDemo(1)
+
+    return
+  }
+
   if (
     currentDemoPath === PACMAN_DEMO_PATH &&
     ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)
