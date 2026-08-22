@@ -40,6 +40,7 @@ import {
   COLLISION_DISTANCE_TILES,
   COLUMN_COUNT,
   DIRECTIONS,
+  DEMO_POWER_MODE_MS,
   EMPTY_MARKER,
   GHOST_EATEN_BASE_SCORE,
   GHOST_MARKER_SPECS,
@@ -419,6 +420,10 @@ export class Game {
   }
 
   private getPowerModeDurationMs() {
+    // The attract loop extends power mode so demo viewers see frightened-ghost
+    // gameplay for longer than a player would.
+    if (this.gameState !== 'playing') return DEMO_POWER_MODE_MS
+
     return max(
       MIN_POWER_MODE_MS,
       POWER_MODE_MS - (this.phase - 1) * POWER_MODE_MS_DECREASE_PER_PHASE,
