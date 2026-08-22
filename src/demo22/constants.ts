@@ -116,6 +116,7 @@ export const OPPOSITE_DIRECTIONS: Record<DirectionName, DirectionName> = {
   none: NONE,
 }
 
+// [/doc_img/constants.ts/2026-08-10-09-50-36.png]
 export const MAZE_TEMPLATE = [
   // Walls, collectibles, and spawn markers are encoded in one rectangular grid.
   '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',

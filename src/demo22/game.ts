@@ -90,7 +90,7 @@ type GhostName =
   | typeof INKY_NAME
   | typeof CLYDE_NAME
 
-// [/doc_img/main.ts/2026-08-08-12-04-06.png]
+// [/doc_img/game.ts/2026-08-08-12-04-06.png]
 type Tile =
   | typeof WALL_MARKER
   | typeof EMPTY_MARKER
@@ -752,10 +752,10 @@ export class Game {
         const next = this.pacman.nextCell(direction)
         const nextTile = this.getTile(next)
 
-        // Base food distance heuristic
+        // Base food distance heuristic.
         const collectibleDistance = this.getClosestCollectibleDistance(next)
 
-        // Pellet / power pellet bonuses
+        // Pellet / power pellet bonuses.
         const collectibleBonus =
           nextTile === POWER_PELLET_MARKER && !this.inPowerMode()
             ? -50
@@ -776,7 +776,7 @@ export class Game {
           return threat + 1 / (distance + 0.4)
         }, 0)
 
-        // Chase metric: calculate distance to closest frightened ghost
+        // Chase metric: calculate distance to closest frightened ghost.
         let ghostChaseScore = 0
         if (isHuntingGhosts) {
           const closestFrightenedDist = min(
@@ -785,11 +785,11 @@ export class Game {
             ),
           )
 
-          // Strongly minimize distance to closest frightened ghost
+          // Strongly minimize distance to closest frightened ghost.
           ghostChaseScore = closestFrightenedDist * 18
         }
 
-        // Deterministic variation to break ties cleanly
+        // Deterministic variation to break ties cleanly.
         const tieBreaker =
           ((direction.charCodeAt(0) + floor(millis() / 220)) % 7) * 0.001
 
