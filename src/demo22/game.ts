@@ -1086,6 +1086,12 @@ export class Game {
     )
   }
 
+  // Classic arcade blink: toggles the "INSERT COIN" prompt on/off every half
+  // second based on the global animation clock.
+  private static isInsertCoinVisible(): boolean {
+    return floor(millis() / 500) % 2 === 0
+  }
+
   private renderStateOverlay() {
     if (!this.hasStartedGame) {
       renderFilledRectPixel(
@@ -1097,13 +1103,19 @@ export class Game {
         0.75,
       )
 
-      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 70), '#ffde59', {
-        fontSize: 34,
-        fontFamily: 'monospace',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        textBaseline: 'middle',
-      })
+      if (Game.isInsertCoinVisible())
+        text2d(
+          'INSERT COIN',
+          toWorldPoint(animation.width / 2, 70),
+          '#ffde59',
+          {
+            fontSize: 34,
+            fontFamily: 'monospace',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            textBaseline: 'middle',
+          },
+        )
       text2d(
         'Press Enter to play',
         toWorldPoint(animation.width / 2, 70 + 40),
@@ -1149,13 +1161,14 @@ export class Game {
       'rgba(0, 0, 0, 0.6)',
     )
 
-    text2d('INSERT COIN', toWorldPoint(animation.width / 2, 70), '#ffffff', {
-      fontSize: 36,
-      fontFamily: 'monospace',
-      fontWeight: 'bold',
-      textAlign: 'center',
-      textBaseline: 'middle',
-    })
+    if (Game.isInsertCoinVisible())
+      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 70), '#ffffff', {
+        fontSize: 36,
+        fontFamily: 'monospace',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        textBaseline: 'middle',
+      })
     text2d(
       'GAME OVER - Press Enter to play again',
       toWorldPoint(animation.width / 2, 70 + 40),
