@@ -1086,10 +1086,10 @@ export class Game {
     )
   }
 
-  // Classic arcade blink: toggles the "INSERT COIN" prompt on/off every half
-  // second based on the global animation clock.
-  private static isInsertCoinVisible(): boolean {
-    return floor(millis() / 500) % 2 === 0
+  // Toggles a boolean (on/off) value every `periodInMs` milliseconds, useful for example
+  // for blinking text.
+  private static toggleEvery(periodInMs: number): boolean {
+    return floor(millis() / periodInMs) % 2 === 0
   }
 
   private renderStateOverlay() {
@@ -1103,7 +1103,8 @@ export class Game {
         0.75,
       )
 
-      if (Game.isInsertCoinVisible())
+      // Classic arcade blink: toggles the "INSERT COIN" prompt on/off every half second.
+      if (Game.toggleEvery(500))
         text2d(
           'INSERT COIN',
           toWorldPoint(animation.width / 2, 70),
@@ -1161,7 +1162,8 @@ export class Game {
       'rgba(0, 0, 0, 0.6)',
     )
 
-    if (Game.isInsertCoinVisible())
+    // Classic arcade blink: toggles the "INSERT COIN" prompt on/off every half second.
+    if (Game.toggleEvery(500))
       text2d('INSERT COIN', toWorldPoint(animation.width / 2, 70), '#ffffff', {
         fontSize: 36,
         fontFamily: 'monospace',
