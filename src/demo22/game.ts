@@ -834,7 +834,7 @@ export class Game {
         this.pelletsRemaining--
 
         if (!isAttractMode) {
-          this.addScore(COLLECTIBLE_SCORES[PELLET_MARKER])
+          this.addScore(COLLECTIBLE_SCORES.pellet)
           playWaka()
         }
         break
@@ -843,8 +843,7 @@ export class Game {
         this.setTile(this.pacman, EMPTY_MARKER)
         this.pelletsRemaining--
 
-        if (!isAttractMode)
-          this.addScore(COLLECTIBLE_SCORES[POWER_PELLET_MARKER])
+        if (!isAttractMode) this.addScore(COLLECTIBLE_SCORES.powerPellet)
 
         this.currentPowerModeId++
         this.powerModeRemainingMs = this.getPowerModeDurationMs()
@@ -865,10 +864,7 @@ export class Game {
         this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
 
         if (!isAttractMode) {
-          this.addScore(
-            COLLECTIBLE_SCORES[CHERRY_MARKER].score +
-              COLLECTIBLE_SCORES[CHERRY_MARKER].extra,
-          )
+          this.addScore(COLLECTIBLE_SCORES.cherry)
 
           playCherryPickup()
         }

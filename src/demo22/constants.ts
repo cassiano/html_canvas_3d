@@ -40,12 +40,9 @@ export const INKY_MARKER = 'I'
 export const CLYDE_MARKER = 'C'
 
 export const COLLECTIBLE_SCORES = {
-  [PELLET_MARKER]: 10,
-  [POWER_PELLET_MARKER]: 50,
-  [CHERRY_MARKER]: {
-    score: 200,
-    extra: 150,
-  },
+  pellet: 10,
+  powerPellet: 50,
+  cherry: 350,
 }
 
 export const BLINKY_NAME = 'Blinky'
