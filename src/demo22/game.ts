@@ -1052,9 +1052,16 @@ export class Game {
       textAlign: 'left',
       textBaseline: 'middle',
     })
+    text2d(`Phase: ${this.phase}`, toWorldPoint(20, 108), '#f4f4f4', {
+      fontSize: 18,
+      fontFamily: 'monospace',
+      fontWeight: 'bold',
+      textAlign: 'left',
+      textBaseline: 'middle',
+    })
     text2d(
-      `High Score: ${this.highScore} (phase ${this.highScorePhase})`,
-      toWorldPoint(20, 108),
+      `HIGH SCORE: ${this.highScore} (PHASE ${this.highScorePhase})`,
+      toWorldPoint(20, 140),
       '#f4f4f4',
       {
         fontSize: 18,
@@ -1064,13 +1071,6 @@ export class Game {
         textBaseline: 'middle',
       },
     )
-    text2d(`Phase: ${this.phase}`, toWorldPoint(20, 132), '#f4f4f4', {
-      fontSize: 18,
-      fontFamily: 'monospace',
-      fontWeight: 'bold',
-      textAlign: 'left',
-      textBaseline: 'middle',
-    })
     text2d(
       'Move: Arrow Keys / WASD',
       toWorldPoint(20, animation.height - 24),
@@ -1096,7 +1096,7 @@ export class Game {
         0.75,
       )
 
-      text2d('DEMO MODE', toWorldPoint(animation.width / 2, 70), '#ffde59', {
+      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 70), '#ffde59', {
         fontSize: 34,
         fontFamily: 'monospace',
         fontWeight: 'bold',
@@ -1148,7 +1148,7 @@ export class Game {
       'rgba(0, 0, 0, 0.6)',
     )
 
-    text2d('GAME OVER', toWorldPoint(animation.width / 2, 70), '#ffffff', {
+    text2d('INSERT COIN', toWorldPoint(animation.width / 2, 70), '#ffffff', {
       fontSize: 36,
       fontFamily: 'monospace',
       fontWeight: 'bold',
@@ -1156,7 +1156,7 @@ export class Game {
       textBaseline: 'middle',
     })
     text2d(
-      'Press Enter to play again',
+      'GAME OVER - Press Enter to play again',
       toWorldPoint(animation.width / 2, 70 + 40),
       '#ffffff',
       {
