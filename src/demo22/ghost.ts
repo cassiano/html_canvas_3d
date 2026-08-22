@@ -29,7 +29,7 @@ import {
   renderCirclePixel,
   renderFilledRectPixel,
   tileToPixel,
-} from './render.ts'
+} from './render_utils.ts'
 
 export class Ghost extends Actor {
   lastEatenPowerModeId = -1

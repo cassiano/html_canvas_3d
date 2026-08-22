@@ -6,7 +6,7 @@ import {
   tileToPixel,
   toWorldPoint,
   triangle2d,
-} from './render.ts'
+} from './render_utils.ts'
 import {
   DIRECTIONS,
   NONE,

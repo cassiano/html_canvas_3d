@@ -23,7 +23,7 @@ import {
   renderWall,
   tileToPixel,
   toWorldPoint,
-} from './render.ts'
+} from './render_utils.ts'
 import {
   DirectionName,
   BASE_GHOST_SPEED,
