@@ -345,17 +345,17 @@ export class Game {
 
   private getTile(actor: Actor): Tile
   private getTile(position: Vector3d): Tile
-  private getTile(row: number, col: number): Tile
+  private getTile(col: number, row: number): Tile
   private getTile(
-    actorOrPositionOrRow: Actor | Vector3d | number,
-    col?: number,
+    actorOrPositionOrCol: Actor | Vector3d | number,
+    row?: number,
   ): Tile {
     const position =
-      typeof actorOrPositionOrRow === 'number'
-        ? $v(col!, actorOrPositionOrRow)
-        : actorOrPositionOrRow instanceof Actor
-          ? actorOrPositionOrRow.position
-          : actorOrPositionOrRow
+      typeof actorOrPositionOrCol === 'number'
+        ? $v(actorOrPositionOrCol, row!)
+        : actorOrPositionOrCol instanceof Actor
+          ? actorOrPositionOrCol.position
+          : actorOrPositionOrCol
 
     return this.maze[position.y][position.x] ?? WALL_MARKER
   }
@@ -484,7 +484,7 @@ export class Game {
     let count = 0
 
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
-      const tile = this.getTile(row, col)
+      const tile = this.getTile(col, row)
 
       if (tile === PELLET_MARKER || tile === POWER_PELLET_MARKER) count++
     })
@@ -795,7 +795,7 @@ export class Game {
     let shortestDistance = Number.POSITIVE_INFINITY
 
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
-      const tile = this.getTile(row, col)
+      const tile = this.getTile(col, row)
 
       if (
         tile === PELLET_MARKER ||
@@ -1118,7 +1118,7 @@ export class Game {
     // Actors are drawn separately so their fractional positions can animate;
     // this pass only renders static maze tile content.
     timesForEachN([COLUMN_COUNT, ROW_COUNT], (col, row) => {
-      const tile = this.getTile($v(col, row))
+      const tile = this.getTile(col, row)
       const pixel = tileToPixel(col, row)
 
       switch (tile) {
