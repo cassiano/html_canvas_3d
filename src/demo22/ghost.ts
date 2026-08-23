@@ -1,35 +1,14 @@
-import { ORIGIN } from '../constants.ts'
-import { floor } from '../math_utils.ts'
-import { millis, assertIsNotUndefined } from '../utils.ts'
-import { $v, Vector3d } from '../vector_3d.ts'
-import { Actor } from './actor.ts'
+import { ORIGIN } from '../constants.ts';
+import { floor } from '../math_utils.ts';
+import { assertIsNotUndefined, millis } from '../utils.ts';
+import { $v, Vector3d } from '../vector_3d.ts';
+import { Actor } from './actor.ts';
 import {
-  CLYDE_SHY_DISTANCE_TILES,
-  PINKY_LOOKAHEAD_TILES,
-  INKY_LOOKAHEAD_TILES,
-} from './constants.ts'
-import {
-  BLINKY_NAME,
-  PINKY_NAME,
-  INKY_NAME,
-  CLYDE_NAME,
-  ROW_COUNT,
-  DirectionName,
-  DIRECTIONS,
-  GHOST_RADIUS_RATIO,
-  GhostMarker,
-  GhostName,
-  POWER_WARNING_FLASH_INTERVAL_MS,
-  POWER_WARNING_FLASH_MS,
-  TILE_SIZE,
-  NONE,
-  LEFT,
-} from './constants.ts'
-import {
-  renderCirclePixel,
-  renderFilledRectPixel,
-  tileToPixel,
-} from './render_utils.ts'
+  BLINKY_NAME, CLYDE_NAME, CLYDE_SHY_DISTANCE_TILES, DirectionName, DIRECTIONS, GHOST_RADIUS_RATIO,
+  GhostMarker, GhostName, INKY_LOOKAHEAD_TILES, INKY_NAME, LEFT, NONE, PINKY_LOOKAHEAD_TILES,
+  PINKY_NAME, POWER_WARNING_FLASH_INTERVAL_MS, POWER_WARNING_FLASH_MS, ROW_COUNT, TILE_SIZE,
+} from './constants.ts';
+import { renderCirclePixel, renderFilledRectPixel, tileToPixel } from './render_utils.ts';
 
 export class Ghost extends Actor {
   lastEatenPowerModeId = -1

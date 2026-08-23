@@ -1,4 +1,4 @@
-import { $v, Vector3d } from '../vector_3d.ts'
+import { $v, Vector3d } from '../vector_3d.ts';
 
 // Centralized tuning values keep difficulty and audiovisual timing changes out
 // of the game-state and rendering algorithms.

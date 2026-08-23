@@ -1,81 +1,31 @@
-import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
-import { millis, frameCount, fps, timesForEachN } from '../utils.ts'
-import { animation, background } from '../primitives.ts'
-import { abs, floor, max, min, random } from '../math_utils.ts'
-import { $v, Vector3d } from '../vector_3d.ts'
-import { text2d } from '../primitives.ts'
+import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts';
+import { abs, floor, max, min, random } from '../math_utils.ts';
+import { animation, background, text2d } from '../primitives.ts';
+import { fps, frameCount, millis, timesForEachN } from '../utils.ts';
+import { $v, Vector3d } from '../vector_3d.ts';
+import { Actor } from './actor.ts';
 import {
-  playCherryPickup,
-  playDeath,
-  playGhostEaten,
-  playWaka,
-  resumeAudio,
-  startPowerSirenLoop,
+  playCherryPickup, playDeath, playGhostEaten, playWaka, resumeAudio, startPowerSirenLoop,
   stopPowerSirenLoop,
-} from './audio.ts'
-import { Ghost } from './ghost.ts'
-import { Pacman } from './pacman.ts'
+} from './audio.ts';
 import {
-  renderCherry,
-  renderFilledRectPixel,
-  renderPellet,
-  renderPowerPellet,
-  renderWall,
-  tileToPixel,
+  ATTRACT_POWER_MODE_MS, BASE_GHOST_SPEED, BASE_PACMAN_SPEED, BLINKY_MARKER, BLINKY_NAME,
+  CHERRY_MARKER, CHERRY_RESPAWN_DECREASE_PER_PHASE, CHERRY_RESPAWN_MAX_MS, CHERRY_RESPAWN_MIN_MS,
+  CHERRY_VISIBLE_MS, CLYDE_MARKER, CLYDE_NAME, COLLECTIBLE_SCORES, COLLISION_DISTANCE_TILES,
+  COLUMN_COUNT, DirectionName, DIRECTIONS, DOWN, EMPTY_MARKER, EXTRA_LIFE_SCORE_THRESHOLD,
+  GHOST_EATEN_BASE_SCORE, GHOST_MARKER_SPECS, GHOST_SPEED_INCREASE_PER_PHASE,
+  HIGH_SCORE_STORAGE_KEY, INKY_MARKER, INKY_NAME, LEFT, MAZE_TEMPLATE, MIN_CHERRY_RESPAWN_MAX_MS,
+  MIN_CHERRY_RESPAWN_MIN_MS, MIN_POWER_MODE_MS, NONE, OPPOSITE_DIRECTIONS, PACMAN_MARKER,
+  PACMAN_STARTING_LIVES, PELLET_MARKER, PINKY_MARKER, PINKY_NAME, POWER_MODE_GHOST_SPEED_FACTOR,
+  POWER_MODE_MS, POWER_MODE_MS_DECREASE_PER_PHASE, POWER_PELLET_MARKER, RIGHT, ROUND_START_DELAY_MS,
+  ROW_COUNT, UP, WALL_MARKER,
+} from './constants.ts';
+import { Ghost } from './ghost.ts';
+import { Pacman } from './pacman.ts';
+import {
+  renderCherry, renderFilledRectPixel, renderPellet, renderPowerPellet, renderWall, tileToPixel,
   toWorldPoint,
-} from './render_utils.ts'
-import {
-  DirectionName,
-  BASE_GHOST_SPEED,
-  BASE_PACMAN_SPEED,
-  BLINKY_MARKER,
-  BLINKY_NAME,
-  CHERRY_MARKER,
-  CHERRY_RESPAWN_DECREASE_PER_PHASE,
-  CHERRY_RESPAWN_MAX_MS,
-  CHERRY_RESPAWN_MIN_MS,
-  CHERRY_VISIBLE_MS,
-  CLYDE_MARKER,
-  CLYDE_NAME,
-  COLLISION_DISTANCE_TILES,
-  COLUMN_COUNT,
-  DIRECTIONS,
-  ATTRACT_POWER_MODE_MS,
-  EMPTY_MARKER,
-  GHOST_EATEN_BASE_SCORE,
-  GHOST_MARKER_SPECS,
-  GHOST_SPEED_INCREASE_PER_PHASE,
-  HIGH_SCORE_STORAGE_KEY,
-  INKY_MARKER,
-  INKY_NAME,
-  MAZE_TEMPLATE,
-  MIN_CHERRY_RESPAWN_MAX_MS,
-  MIN_CHERRY_RESPAWN_MIN_MS,
-  MIN_POWER_MODE_MS,
-  OPPOSITE_DIRECTIONS,
-  PACMAN_MARKER,
-  PINKY_MARKER,
-  PINKY_NAME,
-  PELLET_MARKER,
-  POWER_MODE_GHOST_SPEED_FACTOR,
-  POWER_MODE_MS,
-  POWER_MODE_MS_DECREASE_PER_PHASE,
-  POWER_PELLET_MARKER,
-  ROUND_START_DELAY_MS,
-  ROW_COUNT,
-  WALL_MARKER,
-  LEFT,
-  RIGHT,
-  UP,
-  DOWN,
-  NONE,
-} from './constants.ts'
-import { Actor } from './actor.ts'
-import {
-  EXTRA_LIFE_SCORE_THRESHOLD,
-  PACMAN_STARTING_LIVES,
-  COLLECTIBLE_SCORES,
-} from './constants.ts'
+} from './render_utils.ts';
 
 type GameState = 'playing' | 'gameOver'
 

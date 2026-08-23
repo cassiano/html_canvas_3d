@@ -1,19 +1,10 @@
-import { abs, cos, sin } from '../math_utils.ts'
-import { Actor } from './actor.ts'
+import { abs, cos, sin } from '../math_utils.ts';
+import { millis } from '../utils.ts';
+import { Actor } from './actor.ts';
+import { DIRECTIONS, NONE, PACMAN_RADIUS_RATIO, TILE_SIZE } from './constants.ts';
 import {
-  directionToAngle,
-  renderCirclePixel,
-  tileToPixel,
-  toWorldPoint,
-  triangle2d,
-} from './render_utils.ts'
-import {
-  DIRECTIONS,
-  NONE,
-  PACMAN_RADIUS_RATIO,
-  TILE_SIZE,
-} from './constants.ts'
-import { millis } from '../utils.ts'
+  directionToAngle, renderCirclePixel, tileToPixel, toWorldPoint, triangle2d,
+} from './render_utils.ts';
 
 export class Pacman extends Actor {
   render(roundDelayRemainingMs = () => 0) {

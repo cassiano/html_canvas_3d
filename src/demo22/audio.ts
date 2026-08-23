@@ -1,5 +1,5 @@
-import { floor, random } from '../math_utils.ts'
-import { millis } from '../utils.ts'
+import { floor, random } from '../math_utils.ts';
+import { millis } from '../utils.ts';
 
 export const WAKA_INTERVAL_MS = 95
 export const POWER_SIREN_LOOP_MS = 900
