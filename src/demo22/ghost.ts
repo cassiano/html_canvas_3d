@@ -79,7 +79,8 @@ export class Ghost extends Actor {
     >()
 
     while (queue.length > 0) {
-      const current = queue.shift()!
+      const current = queue.shift()
+      assertIsNotUndefined(current)
 
       if (current.equals(target)) break
 
