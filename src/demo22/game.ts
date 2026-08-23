@@ -1254,13 +1254,16 @@ export class Game {
 
     if (this.gameState === 'playing') return
 
-    renderFilledRectPixel(
-      0,
-      0,
-      animation.width,
-      animation.height,
-      'rgba(0, 0, 0, 0.6)',
-    )
+    // Name entry after a new high score keeps the maze at full brightness;
+    // the dimming veil only covers the plain game-over/attract screens.
+    if (!this.isEnteringInitials)
+      renderFilledRectPixel(
+        0,
+        0,
+        animation.width,
+        animation.height,
+        'rgba(0, 0, 0, 0.6)',
+      )
 
     if (this.isEnteringInitials) {
       this.renderInitialsEntry()
@@ -1322,24 +1325,9 @@ export class Game {
     const slotWidth = 64
     const slotCenterX = animation.width / 2
 
-    timesForEach(HIGH_SCORE_INITIALS_LENGTH, index => {
-      const x =
-        slotCenterX + (index - (HIGH_SCORE_INITIALS_LENGTH - 1) / 2) * slotWidth
-      const character = this.initialsChars[index]
-
-      if (character !== undefined || Game.toggleEvery(500))
-        text2d(character ?? '_', toWorldPoint(x, 730), '#ffde59', {
-          fontSize: 40,
-          fontFamily: 'monospace',
-          fontWeight: 'bold',
-          textAlign: 'center',
-          textBaseline: 'middle',
-        })
-    })
-
     text2d(
-      `Type ${HIGH_SCORE_INITIALS_LENGTH} characters - Backspace erases - Enter saves`,
-      toWorldPoint(animation.width / 2, 775),
+      `Type your initials (up to ${HIGH_SCORE_INITIALS_LENGTH} characters) - Backspace erases - Enter saves`,
+      toWorldPoint(animation.width / 2, 730),
       '#ffffff',
       {
         fontSize: 18,
@@ -1349,6 +1337,21 @@ export class Game {
         textBaseline: 'middle',
       },
     )
+
+    timesForEach(HIGH_SCORE_INITIALS_LENGTH, index => {
+      const x =
+        slotCenterX + (index - (HIGH_SCORE_INITIALS_LENGTH - 1) / 2) * slotWidth
+      const character = this.initialsChars[index]
+
+      if (character !== undefined || Game.toggleEvery(500))
+        text2d(character ?? '_', toWorldPoint(x, 775), '#ffde59', {
+          fontSize: 40,
+          fontFamily: 'monospace',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          textBaseline: 'middle',
+        })
+    })
   }
 
   private render() {
