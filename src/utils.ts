@@ -111,7 +111,10 @@ export const createFrameLoop = (
     if (!running) {
       running = true
 
-      requestAnimationFrame(frame)
+      // Wait for fonts to be ready before starting your render/animation loop
+      document.fonts.ready.then(() => {
+        requestAnimationFrame(frame)
+      })
     }
   }
 

@@ -1141,21 +1141,21 @@ export class Game {
   private renderHud() {
     text2d(`Score: ${this.score}`, toWorldPoint(20, 60), '#f4f4f4', {
       fontSize: 18,
-      fontFamily: 'monospace',
+      fontFamily: '"Press Start 2P", monospace',
       fontWeight: 'bold',
       textAlign: 'left',
       textBaseline: 'middle',
     })
     text2d(`Lives: ${this.lives}`, toWorldPoint(20, 84), '#f4f4f4', {
       fontSize: 18,
-      fontFamily: 'monospace',
+      fontFamily: '"Press Start 2P", monospace',
       fontWeight: 'bold',
       textAlign: 'left',
       textBaseline: 'middle',
     })
     text2d(`Phase: ${this.phase}`, toWorldPoint(20, 108), '#f4f4f4', {
       fontSize: 18,
-      fontFamily: 'monospace',
+      fontFamily: '"Press Start 2P", monospace',
       fontWeight: 'bold',
       textAlign: 'left',
       textBaseline: 'middle',
@@ -1166,7 +1166,7 @@ export class Game {
       '#f4f4f4',
       {
         fontSize: 18,
-        fontFamily: 'monospace',
+        fontFamily: '"Press Start 2P", monospace',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1178,7 +1178,7 @@ export class Game {
       '#f4f4f4',
       {
         fontSize: 18,
-        fontFamily: 'monospace',
+        fontFamily: '"Press Start 2P", monospace',
         fontWeight: 'bold',
         textAlign: 'left',
         textBaseline: 'middle',
@@ -1211,7 +1211,7 @@ export class Game {
           '#ffde59',
           {
             fontSize: 34,
-            fontFamily: 'monospace',
+            fontFamily: '"Press Start 2P", monospace',
             fontWeight: 'bold',
             textAlign: 'center',
             textBaseline: 'middle',
@@ -1223,7 +1223,7 @@ export class Game {
         '#ffffff',
         {
           fontSize: 20,
-          fontFamily: 'monospace',
+          fontFamily: '"Press Start 2P", monospace',
           fontWeight: 'bold',
           textAlign: 'center',
           textBaseline: 'middle',
@@ -1243,7 +1243,7 @@ export class Game {
       )
       text2d('READY!', toWorldPoint(animation.width / 2, 125), '#ffde59', {
         fontSize: 26,
-        fontFamily: 'monospace',
+        fontFamily: '"Press Start 2P", monospace',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1275,7 +1275,7 @@ export class Game {
     if (Game.toggleEvery(500))
       text2d('INSERT COIN', toWorldPoint(animation.width / 2, 125), '#ffffff', {
         fontSize: 36,
-        fontFamily: 'monospace',
+        fontFamily: '"Press Start 2P", monospace',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1286,7 +1286,7 @@ export class Game {
       '#ffffff',
       {
         fontSize: 20,
-        fontFamily: 'monospace',
+        fontFamily: '"Press Start 2P", monospace',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1302,7 +1302,7 @@ export class Game {
         '#ffde59',
         {
           fontSize: 34,
-          fontFamily: 'monospace',
+          fontFamily: '"Press Start 2P", monospace',
           fontWeight: 'bold',
           textAlign: 'center',
           textBaseline: 'middle',
@@ -1314,7 +1314,7 @@ export class Game {
       '#ffffff',
       {
         fontSize: 20,
-        fontFamily: 'monospace',
+        fontFamily: '"Press Start 2P", monospace',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1327,7 +1327,7 @@ export class Game {
       '#ffffff',
       {
         fontSize: 18,
-        fontFamily: 'monospace',
+        fontFamily: '"Press Start 2P", monospace',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1346,7 +1346,7 @@ export class Game {
       if (character !== undefined || Game.toggleEvery(500))
         text2d(character ?? '_', toWorldPoint(x, 775), '#ffde59', {
           fontSize: 40,
-          fontFamily: 'monospace',
+          fontFamily: '"Press Start 2P", monospace',
           fontWeight: 'bold',
           textAlign: 'center',
           textBaseline: 'middle',
