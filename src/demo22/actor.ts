@@ -1,6 +1,12 @@
-import { min } from '../math_utils.ts';
-import { Vector3d } from '../vector_3d.ts';
-import { COLUMN_COUNT, DirectionName, DIRECTIONS, LEFT, NONE } from './constants.ts';
+import { min } from '../math_utils.ts'
+import { Vector3d } from '../vector_3d.ts'
+import {
+  COLUMN_COUNT,
+  DirectionName,
+  DIRECTIONS,
+  LEFT,
+  NONE,
+} from './constants.ts'
 
 export abstract class Actor {
   readonly startPosition: Vector3d

@@ -1,10 +1,25 @@
-import { HALF_PI, PI, sin } from '../math_utils.ts';
+import { HALF_PI, PI, sin } from '../math_utils.ts'
 import {
-  animation, circle2d, isolateTransformations, line, rect2d, text2d, translate, triangle2d,
-} from '../primitives.ts';
-import { millis } from '../utils.ts';
-import { $v, Vector3d } from '../vector_3d.ts';
-import { DirectionName, DOWN, LEFT, NONE, RIGHT, TILE_SIZE, UP } from './constants.ts';
+  animation,
+  circle2d,
+  isolateTransformations,
+  line,
+  rect2d,
+  text2d,
+  translate,
+  triangle2d,
+} from '../primitives.ts'
+import { millis } from '../utils.ts'
+import { $v, Vector3d } from '../vector_3d.ts'
+import {
+  DirectionName,
+  DOWN,
+  LEFT,
+  NONE,
+  RIGHT,
+  TILE_SIZE,
+  UP,
+} from './constants.ts'
 
 export type Pixel = { x: number; y: number }
 

@@ -1,7 +1,7 @@
-import { FPS } from '../constants.ts';
-import { render3dScene, resetTransformationMatrix } from '../primitives.ts';
-import { createFrameLoop } from '../utils.ts';
-import { Game } from './game.ts';
+import { FPS } from '../constants.ts'
+import { render3dScene, resetTransformationMatrix } from '../primitives.ts'
+import { createFrameLoop } from '../utils.ts'
+import { Game } from './game.ts'
 
 const game = new Game()
 
