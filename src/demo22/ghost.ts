@@ -1,6 +1,6 @@
 import { ORIGIN } from '../constants.ts'
 import { floor } from '../math_utils.ts'
-import { millis } from '../utils.ts'
+import { millis, assertIsNotUndefined } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor } from './actor.ts'
 import {
@@ -135,9 +135,8 @@ export class Ghost extends Actor {
         const pivot = clonedPacmanPos.add(
           pacmanFacing.clone().mult(INKY_LOOKAHEAD_TILES),
         )
-        const blinky = ghosts.find(ghost => ghost.name === 'Blinky')
-
-        if (!blinky) return pivot
+        const blinky = ghosts.find(ghost => ghost.name === BLINKY_NAME)
+        assertIsNotUndefined(blinky)
 
         const blinkyPos = blinky.positionInTiles()
 
