@@ -1,31 +1,85 @@
-import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts';
-import { abs, floor, max, min, random } from '../math_utils.ts';
-import { animation, background, text2d } from '../primitives.ts';
-import { fps, frameCount, millis, timesForEachN } from '../utils.ts';
-import { $v, Vector3d } from '../vector_3d.ts';
-import { Actor } from './actor.ts';
+import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
+import { abs, floor, max, min, random } from '../math_utils.ts'
+import { animation, background, text2d } from '../primitives.ts'
 import {
-  playCherryPickup, playDeath, playGhostEaten, playWaka, resumeAudio, startPowerSirenLoop,
+  fps,
+  frameCount,
+  millis,
+  timesForEach,
+  timesForEachN,
+} from '../utils.ts'
+import { $v, Vector3d } from '../vector_3d.ts'
+import { Actor } from './actor.ts'
+import {
+  playCherryPickup,
+  playDeath,
+  playGhostEaten,
+  playWaka,
+  resumeAudio,
+  startPowerSirenLoop,
   stopPowerSirenLoop,
-} from './audio.ts';
+} from './audio.ts'
 import {
-  ATTRACT_POWER_MODE_MS, BASE_GHOST_SPEED, BASE_PACMAN_SPEED, BLINKY_MARKER, BLINKY_NAME,
-  CHERRY_MARKER, CHERRY_RESPAWN_DECREASE_PER_PHASE, CHERRY_RESPAWN_MAX_MS, CHERRY_RESPAWN_MIN_MS,
-  CHERRY_VISIBLE_MS, CLYDE_MARKER, CLYDE_NAME, COLLECTIBLE_SCORES, COLLISION_DISTANCE_TILES,
-  COLUMN_COUNT, DirectionName, DIRECTIONS, DOWN, EMPTY_MARKER, EXTRA_LIFE_SCORE_THRESHOLD,
-  GHOST_EATEN_BASE_SCORE, GHOST_MARKER_SPECS, GHOST_SPEED_INCREASE_PER_PHASE,
-  HIGH_SCORE_STORAGE_KEY, INKY_MARKER, INKY_NAME, LEFT, MAZE_TEMPLATE, MIN_CHERRY_RESPAWN_MAX_MS,
-  MIN_CHERRY_RESPAWN_MIN_MS, MIN_POWER_MODE_MS, NONE, OPPOSITE_DIRECTIONS, PACMAN_MARKER,
-  PACMAN_STARTING_LIVES, PELLET_MARKER, PINKY_MARKER, PINKY_NAME, POWER_MODE_GHOST_SPEED_FACTOR,
-  POWER_MODE_MS, POWER_MODE_MS_DECREASE_PER_PHASE, POWER_PELLET_MARKER, RIGHT, ROUND_START_DELAY_MS,
-  ROW_COUNT, UP, WALL_MARKER,
-} from './constants.ts';
-import { Ghost } from './ghost.ts';
-import { Pacman } from './pacman.ts';
+  ATTRACT_POWER_MODE_MS,
+  BASE_GHOST_SPEED,
+  BASE_PACMAN_SPEED,
+  BLINKY_MARKER,
+  BLINKY_NAME,
+  CHERRY_MARKER,
+  CHERRY_RESPAWN_DECREASE_PER_PHASE,
+  CHERRY_RESPAWN_MAX_MS,
+  CHERRY_RESPAWN_MIN_MS,
+  CHERRY_VISIBLE_MS,
+  CLYDE_MARKER,
+  CLYDE_NAME,
+  COLLECTIBLE_SCORES,
+  COLLISION_DISTANCE_TILES,
+  COLUMN_COUNT,
+  DirectionName,
+  DIRECTIONS,
+  DOWN,
+  EMPTY_MARKER,
+  EXTRA_LIFE_SCORE_THRESHOLD,
+  GHOST_EATEN_BASE_SCORE,
+  GHOST_MARKER_SPECS,
+  GHOST_SPEED_INCREASE_PER_PHASE,
+  HIGH_SCORE_INITIALS_LENGTH,
+  HIGH_SCORE_STORAGE_KEY,
+  INKY_MARKER,
+  INKY_NAME,
+  LEFT,
+  MAZE_TEMPLATE,
+  MIN_CHERRY_RESPAWN_MAX_MS,
+  MIN_CHERRY_RESPAWN_MIN_MS,
+  MIN_POWER_MODE_MS,
+  NONE,
+  OPPOSITE_DIRECTIONS,
+  PACMAN_MARKER,
+  PACMAN_STARTING_LIVES,
+  PELLET_MARKER,
+  PINKY_MARKER,
+  PINKY_NAME,
+  POWER_MODE_GHOST_SPEED_FACTOR,
+  POWER_MODE_MS,
+  POWER_MODE_MS_DECREASE_PER_PHASE,
+  POWER_PELLET_MARKER,
+  RIGHT,
+  ROUND_START_DELAY_MS,
+  ROW_COUNT,
+  UP,
+  WALL_MARKER,
+} from './constants.ts'
+import { Ghost } from './ghost.ts'
+import { Pacman } from './pacman.ts'
 import {
-  renderCherry, renderFilledRectPixel, renderPellet, renderPowerPellet, renderWall, tileToPixel,
+  renderCherry,
+  renderFilledRectPixel,
+  renderPellet,
+  renderPowerPellet,
+  renderWall,
+  tileToPixel,
   toWorldPoint,
-} from './render_utils.ts';
+} from './render_utils.ts'
 
 type GameState = 'playing' | 'gameOver'
 
@@ -60,6 +114,7 @@ type GhostStart = {
 type HighScoreRecord = {
   score: number
   phase: number
+  initials?: string
 }
 
 export class Game {
@@ -74,6 +129,18 @@ export class Game {
   private score = 0
   private highScore = 0
   private highScorePhase = 1
+
+  // highScoreInitials is the three-character arcade tag saved alongside the
+  // record; it defaults to dashes until a record holder signs their score.
+  private highScoreInitials = '---'
+
+  // highScoreAtRunStart snapshots the stored record when a run begins, so the
+  // game-over transition can tell whether THIS run earned name entry even
+  // though addScore() promotes this.score into highScore while playing.
+  private highScoreAtRunStart = 0
+  private isEnteringInitials = false
+  private initialsChars: string[] = []
+
   private lives = PACMAN_STARTING_LIVES
   private gameState: GameState = 'gameOver'
   private pelletsRemaining = 0
@@ -123,6 +190,8 @@ export class Game {
     const highScoreRecord = this.loadHighScore()
     this.highScore = highScoreRecord.score
     this.highScorePhase = highScoreRecord.phase
+    this.highScoreInitials =
+      highScoreRecord.initials ?? '-'.repeat(HIGH_SCORE_INITIALS_LENGTH)
   }
 
   drawFrame() {
@@ -155,6 +224,16 @@ export class Game {
   handleKeydown = (event: KeyboardEvent) => {
     resumeAudio()
 
+    // High-score entry owns the keyboard. The handler runs in the capture
+    // phase so swallowing the event here also keeps the global shortcuts in
+    // home.ts (digit demo switching, pause, shift+arrow navigation) from
+    // reacting to characters meant as initials.
+    if (this.isEnteringInitials) {
+      this.handleInitialsKeydown(event)
+
+      return
+    }
+
     const key = event.key.toLowerCase()
 
     if (this.gameState === 'playing') {
@@ -186,6 +265,48 @@ export class Game {
     stopPowerSirenLoop()
   }
 
+  private handleInitialsKeydown(event: KeyboardEvent) {
+    event.preventDefault()
+    event.stopImmediatePropagation()
+
+    if (event.key === 'Enter') {
+      this.confirmInitials()
+
+      return
+    }
+
+    if (event.key === 'Backspace') {
+      this.initialsChars.pop()
+
+      return
+    }
+
+    // Accept any printable Unicode character, emoji included. Spreading the
+    // key counts code points, so surrogate-pair characters still count as a
+    // single typed character while named keys (Shift, Dead, ...) are ignored.
+    const characters = Array.from(event.key)
+
+    if (characters.length !== 1) return
+
+    if (this.initialsChars.length < HIGH_SCORE_INITIALS_LENGTH)
+      this.initialsChars.push(characters[0])
+  }
+
+  private confirmInitials() {
+    while (this.initialsChars.length < HIGH_SCORE_INITIALS_LENGTH)
+      this.initialsChars.push('-')
+
+    this.highScoreInitials = this.initialsChars.join('')
+    this.isEnteringInitials = false
+    this.initialsChars = []
+
+    this.saveHighScore({
+      score: this.highScore,
+      phase: this.highScorePhase,
+      initials: this.highScoreInitials,
+    })
+  }
+
   private inPowerMode() {
     return this.powerModeRemainingMs > 0
   }
@@ -211,6 +332,12 @@ export class Game {
     this.powerModeRemainingMs = 0
     stopPowerSirenLoop()
     this.ghostCombo = 0
+
+    // Remember the record to beat so game over can tell whether this run set
+    // a new high score worthy of the name-entry screen.
+    this.highScoreAtRunStart = this.highScore
+    this.isEnteringInitials = false
+    this.initialsChars = []
 
     this.resetMazeFromTemplate()
     this.resetRound()
@@ -409,6 +536,18 @@ export class Game {
     })
   }
 
+  // Initials are optional so legacy saves keep loading; stored strings are
+  // clamped to the slot count and dropped when empty.
+  private parseInitials(value: unknown): string | undefined {
+    if (typeof value !== 'string') return undefined
+
+    const characters = Array.from(value.trim())
+
+    return characters.length > 0
+      ? characters.slice(0, HIGH_SCORE_INITIALS_LENGTH).join('')
+      : undefined
+  }
+
   private loadHighScore(): HighScoreRecord {
     // Accept old numeric saves as phase-one records, but validate new object
     // saves so corrupt localStorage cannot produce invalid HUD state.
@@ -442,7 +581,11 @@ export class Game {
       )
         return { score: 0, phase: 1 }
 
-      return { score: floor(score), phase: floor(phase) }
+      return {
+        score: floor(score),
+        phase: floor(phase),
+        initials: this.parseInitials(record.initials),
+      }
     } catch {
       return { score: 0, phase: 1 }
     }
@@ -468,7 +611,11 @@ export class Game {
     if (this.score > this.highScore) {
       this.highScore = this.score
       this.highScorePhase = this.phase
-      this.saveHighScore({ score: this.highScore, phase: this.highScorePhase })
+      this.saveHighScore({
+        score: this.highScore,
+        phase: this.highScorePhase,
+        initials: this.highScoreInitials,
+      })
     }
 
     if (floor(this.score / EXTRA_LIFE_SCORE_THRESHOLD) > previousThresholdIndex)
@@ -869,6 +1016,13 @@ export class Game {
       if (this.lives <= 0) {
         this.gameState = 'gameOver'
 
+        // Beating the record captured at run start earns the classic
+        // three-character name entry before the game-over screen returns.
+        this.isEnteringInitials =
+          this.score > this.highScoreAtRunStart && this.score > 0
+
+        if (this.isEnteringInitials) this.initialsChars = []
+
         stopPowerSirenLoop()
         playDeath()
 
@@ -1007,14 +1161,14 @@ export class Game {
       textBaseline: 'middle',
     })
     text2d(
-      `HIGH SCORE: ${this.highScore} (PHASE ${this.highScorePhase})`,
-      toWorldPoint(20, 140),
+      `HIGH SCORE: ${this.highScore} (PHASE ${this.highScorePhase}) [${this.highScoreInitials}]`,
+      toWorldPoint(animation.width / 2, 60),
       '#f4f4f4',
       {
         fontSize: 18,
         fontFamily: 'monospace',
         fontWeight: 'bold',
-        textAlign: 'left',
+        textAlign: 'center',
         textBaseline: 'middle',
       },
     )
@@ -1053,7 +1207,7 @@ export class Game {
       if (Game.toggleEvery(500))
         text2d(
           'INSERT COIN',
-          toWorldPoint(animation.width / 2, 70),
+          toWorldPoint(animation.width / 2, 125),
           '#ffde59',
           {
             fontSize: 34,
@@ -1065,7 +1219,7 @@ export class Game {
         )
       text2d(
         'Press Enter to play',
-        toWorldPoint(animation.width / 2, 70 + 40),
+        toWorldPoint(animation.width / 2, 84),
         '#ffffff',
         {
           fontSize: 20,
@@ -1087,7 +1241,7 @@ export class Game {
         animation.height,
         'rgba(0, 0, 0, 0.45)',
       )
-      text2d('READY!', toWorldPoint(animation.width / 2, 70), '#ffde59', {
+      text2d('READY!', toWorldPoint(animation.width / 2, 125), '#ffde59', {
         fontSize: 26,
         fontFamily: 'monospace',
         fontWeight: 'bold',
@@ -1108,9 +1262,15 @@ export class Game {
       'rgba(0, 0, 0, 0.6)',
     )
 
+    if (this.isEnteringInitials) {
+      this.renderInitialsEntry()
+
+      return
+    }
+
     // Classic arcade blink: toggles the "INSERT COIN" prompt on/off every half second.
     if (Game.toggleEvery(500))
-      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 70), '#ffffff', {
+      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 125), '#ffffff', {
         fontSize: 36,
         fontFamily: 'monospace',
         fontWeight: 'bold',
@@ -1119,10 +1279,70 @@ export class Game {
       })
     text2d(
       'GAME OVER - Press Enter to play again',
-      toWorldPoint(animation.width / 2, 70 + 40),
+      toWorldPoint(animation.width / 2, 84),
       '#ffffff',
       {
         fontSize: 20,
+        fontFamily: 'monospace',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        textBaseline: 'middle',
+      },
+    )
+  }
+
+  private renderInitialsEntry() {
+    if (Game.toggleEvery(500))
+      text2d(
+        'NEW HIGH SCORE!',
+        toWorldPoint(animation.width / 2, 145),
+        '#ffde59',
+        {
+          fontSize: 34,
+          fontFamily: 'monospace',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          textBaseline: 'middle',
+        },
+      )
+    text2d(
+      `${this.score} POINTS - PHASE ${this.phase}`,
+      toWorldPoint(animation.width / 2, 110),
+      '#ffffff',
+      {
+        fontSize: 20,
+        fontFamily: 'monospace',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        textBaseline: 'middle',
+      },
+    )
+
+    // Three evenly spaced slots; the next empty slot blinks as the cursor.
+    const slotWidth = 64
+    const slotCenterX = animation.width / 2
+
+    timesForEach(HIGH_SCORE_INITIALS_LENGTH, index => {
+      const x =
+        slotCenterX + (index - (HIGH_SCORE_INITIALS_LENGTH - 1) / 2) * slotWidth
+      const character = this.initialsChars[index]
+
+      if (character !== undefined || Game.toggleEvery(500))
+        text2d(character ?? '_', toWorldPoint(x, 730), '#ffde59', {
+          fontSize: 40,
+          fontFamily: 'monospace',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          textBaseline: 'middle',
+        })
+    })
+
+    text2d(
+      `Type ${HIGH_SCORE_INITIALS_LENGTH} characters - Backspace erases - Enter saves`,
+      toWorldPoint(animation.width / 2, 775),
+      '#ffffff',
+      {
+        fontSize: 18,
         fontFamily: 'monospace',
         fontWeight: 'bold',
         textAlign: 'center',
