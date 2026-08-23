@@ -72,7 +72,7 @@ export class Ghost extends Actor {
     // Breadth-first search finds the shortest walkable route to the target.
     // The predecessor map is used to recover only the first move on that route.
     const queue: Vector3d[] = [this.position.clone()]
-    const visited = new Set<string>([`${this.position.y},${this.position.x}`])
+    const visited = new Set<string>([this.position.toString()])
     const previous = new Map<
       string,
       { position: Vector3d; dir: DirectionName }
@@ -82,11 +82,17 @@ export class Ghost extends Actor {
       const current = queue.shift()!
 
       if (current.equals(target)) break
-      ;(Object.keys(DIRECTIONS) as DirectionName[]).forEach(dir => {
+
+      const directions = Object.keys(DIRECTIONS) as DirectionName[]
+
+      // Check all four cardinal directions from the current position. If a direction is
+      // walkable and hasn't been visited yet, add it to the queue and record the
+      // current position as its predecessor.
+      directions.forEach(dir => {
         if (dir === NONE) return
 
         const next = Actor.nextCell(current, dir)
-        const key = `${next.y},${next.x}`
+        const key = next.toString()
 
         if (visited.has(key) || Actor.isWall(next)) return
 
@@ -96,7 +102,7 @@ export class Ghost extends Actor {
       })
     }
 
-    const targetKey = `${target.y},${target.x}`
+    const targetKey = target.toString()
     if (!previous.has(targetKey)) return NONE
 
     let stepKey = targetKey
@@ -107,7 +113,7 @@ export class Ghost extends Actor {
       if (!step) return NONE
       if (step.position.equals(this.position)) return step.dir
 
-      stepKey = `${step.position.y},${step.position.x}`
+      stepKey = step.position.toString()
     }
   }
 
