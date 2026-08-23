@@ -1321,10 +1321,6 @@ export class Game {
       },
     )
 
-    // Three evenly spaced slots; the next empty slot blinks as the cursor.
-    const slotWidth = 64
-    const slotCenterX = animation.width / 2
-
     text2d(
       `Type your initials (up to ${HIGH_SCORE_INITIALS_LENGTH} characters) - Backspace erases - Enter saves`,
       toWorldPoint(animation.width / 2, 730),
@@ -1337,6 +1333,10 @@ export class Game {
         textBaseline: 'middle',
       },
     )
+
+    // Three evenly spaced slots; the next empty slot blinks as the cursor.
+    const slotWidth = 64
+    const slotCenterX = animation.width / 2
 
     timesForEach(HIGH_SCORE_INITIALS_LENGTH, index => {
       const x =
