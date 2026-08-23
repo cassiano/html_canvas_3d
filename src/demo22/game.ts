@@ -1037,7 +1037,7 @@ export class Game {
     // Before Enter, the game runs an attract mode. It uses the same actors and
     // maze rules as play, but supplies an automatic Pacman direction and no
     // player-facing score or sound effects.
-    if (this.gameState !== 'playing') {
+    if (this.gameState === 'gameOver') {
       if (this.roundDelayRemainingMs > 0) {
         this.roundDelayRemainingMs -= deltaSeconds * 1000
 
