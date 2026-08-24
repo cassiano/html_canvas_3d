@@ -1207,26 +1207,20 @@ export class Game {
       if (Game.toggleEvery(500))
         text2d(
           'INSERT COIN',
-          toWorldPoint(animation.width / 2, 125),
+          toWorldPoint(animation.width / 2, 150),
           'yellow',
           {
             fontSize: 28,
             fontFamily: '"Press Start 2P"',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            textBaseline: 'middle',
           },
         )
       text2d(
         'Press Enter to play',
-        toWorldPoint(animation.width / 2, 84),
+        toWorldPoint(animation.width / 2, 95),
         '#ffffff',
         {
           fontSize: 18,
           fontFamily: '"Press Start 2P"',
-          fontWeight: 'bold',
-          textAlign: 'center',
-          textBaseline: 'middle',
         },
       )
 
@@ -1244,9 +1238,6 @@ export class Game {
       text2d('READY!', toWorldPoint(animation.width / 2, 125), '#ffde59', {
         fontSize: 24,
         fontFamily: '"Press Start 2P"',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        textBaseline: 'middle',
       })
 
       return
@@ -1273,23 +1264,17 @@ export class Game {
 
     // Classic arcade blink: toggles the "INSERT COIN" prompt on/off every half second.
     if (Game.toggleEvery(500))
-      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 125), 'yellow', {
+      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 150), 'yellow', {
         fontSize: 28,
         fontFamily: '"Press Start 2P"',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        textBaseline: 'middle',
       })
     text2d(
       'GAME OVER - Press Enter to play again',
-      toWorldPoint(animation.width / 2, 84),
+      toWorldPoint(animation.width / 2, 95),
       '#ffffff',
       {
         fontSize: 18,
         fontFamily: '"Press Start 2P"',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        textBaseline: 'middle',
       },
     )
   }
@@ -1299,9 +1284,6 @@ export class Game {
       text2d('NEW HIGH SCORE!', toWorldPoint(animation.width / 2, 155), 'red', {
         fontSize: 32,
         fontFamily: '"Press Start 2P"',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        textBaseline: 'middle',
       })
     text2d(
       `${this.score} POINTS - PHASE ${this.phase}`,
@@ -1310,9 +1292,6 @@ export class Game {
       {
         fontSize: 20,
         fontFamily: '"Press Start 2P"',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        textBaseline: 'middle',
       },
     )
 
@@ -1323,9 +1302,6 @@ export class Game {
       {
         fontSize: 18,
         fontFamily: '"Press Start 2P"',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        textBaseline: 'middle',
       },
     )
 
@@ -1342,9 +1318,6 @@ export class Game {
         text2d(character ?? '_', toWorldPoint(x, 830), '#ffde59', {
           fontSize: 40,
           fontFamily: '"Press Start 2P"',
-          fontWeight: 'bold',
-          textAlign: 'center',
-          textBaseline: 'middle',
         })
     })
   }
