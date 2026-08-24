@@ -24,11 +24,25 @@ let isListeningToKeyboard = false
 // keeping home.ts shortcuts (digits, 'p', shift+arrows) out of the way.
 const KEY_EVENT_OPTIONS: AddEventListenerOptions = { capture: true }
 
+// Canvas fillText never triggers a webfont download by itself, so the font is
+// requested explicitly once; until it resolves, frames render with the
+// monospace fallback declared after 'Press Start 2P' in the font stacks.
+let fontLoadPromise: Promise<unknown> | null = null
+
+function loadPressStart2P() {
+  if (fontLoadPromise === null)
+    fontLoadPromise = document.fonts.load('16px "Press Start 2P"')
+
+  return fontLoadPromise
+}
+
 function start() {
   if (!isListeningToKeyboard) {
     document.addEventListener('keydown', game.handleKeydown, KEY_EVENT_OPTIONS)
     isListeningToKeyboard = true
   }
+
+  loadPressStart2P()
 
   startFrameLoop()
 }

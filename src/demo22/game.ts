@@ -1140,22 +1140,22 @@ export class Game {
 
   private renderHud() {
     text2d(`Score: ${this.score}`, toWorldPoint(20, 60), '#f4f4f4', {
-      fontSize: 18,
-      fontFamily: '"Press Start 2P", monospace',
+      fontSize: 16,
+      fontFamily: '"Press Start 2P"',
       fontWeight: 'bold',
       textAlign: 'left',
       textBaseline: 'middle',
     })
     text2d(`Lives: ${this.lives}`, toWorldPoint(20, 84), '#f4f4f4', {
-      fontSize: 18,
-      fontFamily: '"Press Start 2P", monospace',
+      fontSize: 16,
+      fontFamily: '"Press Start 2P"',
       fontWeight: 'bold',
       textAlign: 'left',
       textBaseline: 'middle',
     })
     text2d(`Phase: ${this.phase}`, toWorldPoint(20, 108), '#f4f4f4', {
-      fontSize: 18,
-      fontFamily: '"Press Start 2P", monospace',
+      fontSize: 16,
+      fontFamily: '"Press Start 2P"',
       fontWeight: 'bold',
       textAlign: 'left',
       textBaseline: 'middle',
@@ -1165,8 +1165,8 @@ export class Game {
       toWorldPoint(animation.width / 2, 60),
       '#f4f4f4',
       {
-        fontSize: 18,
-        fontFamily: '"Press Start 2P", monospace',
+        fontSize: 16,
+        fontFamily: '"Press Start 2P"',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1177,8 +1177,8 @@ export class Game {
       toWorldPoint(20, animation.height - 24),
       '#f4f4f4',
       {
-        fontSize: 18,
-        fontFamily: '"Press Start 2P", monospace',
+        fontSize: 15,
+        fontFamily: '"Press Start 2P"',
         fontWeight: 'bold',
         textAlign: 'left',
         textBaseline: 'middle',
@@ -1208,10 +1208,10 @@ export class Game {
         text2d(
           'INSERT COIN',
           toWorldPoint(animation.width / 2, 125),
-          '#ffde59',
+          'yellow',
           {
-            fontSize: 34,
-            fontFamily: '"Press Start 2P", monospace',
+            fontSize: 28,
+            fontFamily: '"Press Start 2P"',
             fontWeight: 'bold',
             textAlign: 'center',
             textBaseline: 'middle',
@@ -1222,8 +1222,8 @@ export class Game {
         toWorldPoint(animation.width / 2, 84),
         '#ffffff',
         {
-          fontSize: 20,
-          fontFamily: '"Press Start 2P", monospace',
+          fontSize: 18,
+          fontFamily: '"Press Start 2P"',
           fontWeight: 'bold',
           textAlign: 'center',
           textBaseline: 'middle',
@@ -1242,8 +1242,8 @@ export class Game {
         'rgba(0, 0, 0, 0.45)',
       )
       text2d('READY!', toWorldPoint(animation.width / 2, 125), '#ffde59', {
-        fontSize: 26,
-        fontFamily: '"Press Start 2P", monospace',
+        fontSize: 24,
+        fontFamily: '"Press Start 2P"',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1273,9 +1273,9 @@ export class Game {
 
     // Classic arcade blink: toggles the "INSERT COIN" prompt on/off every half second.
     if (Game.toggleEvery(500))
-      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 125), '#ffffff', {
-        fontSize: 36,
-        fontFamily: '"Press Start 2P", monospace',
+      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 125), 'yellow', {
+        fontSize: 28,
+        fontFamily: '"Press Start 2P"',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1285,8 +1285,8 @@ export class Game {
       toWorldPoint(animation.width / 2, 84),
       '#ffffff',
       {
-        fontSize: 20,
-        fontFamily: '"Press Start 2P", monospace',
+        fontSize: 18,
+        fontFamily: '"Press Start 2P"',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1296,25 +1296,20 @@ export class Game {
 
   private renderInitialsEntry() {
     if (Game.toggleEvery(500))
-      text2d(
-        'NEW HIGH SCORE!',
-        toWorldPoint(animation.width / 2, 145),
-        '#ffde59',
-        {
-          fontSize: 34,
-          fontFamily: '"Press Start 2P", monospace',
-          fontWeight: 'bold',
-          textAlign: 'center',
-          textBaseline: 'middle',
-        },
-      )
+      text2d('NEW HIGH SCORE!', toWorldPoint(animation.width / 2, 155), 'red', {
+        fontSize: 32,
+        fontFamily: '"Press Start 2P"',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        textBaseline: 'middle',
+      })
     text2d(
       `${this.score} POINTS - PHASE ${this.phase}`,
       toWorldPoint(animation.width / 2, 110),
       '#ffffff',
       {
         fontSize: 20,
-        fontFamily: '"Press Start 2P", monospace',
+        fontFamily: '"Press Start 2P"',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1322,12 +1317,12 @@ export class Game {
     )
 
     text2d(
-      `Type your initials (up to ${HIGH_SCORE_INITIALS_LENGTH} characters) - Backspace erases - Enter saves`,
-      toWorldPoint(animation.width / 2, 730),
+      `Type in your initials (up to ${HIGH_SCORE_INITIALS_LENGTH} characters) and hit Enter`,
+      toWorldPoint(animation.width / 2, 785),
       '#ffffff',
       {
         fontSize: 18,
-        fontFamily: '"Press Start 2P", monospace',
+        fontFamily: '"Press Start 2P"',
         fontWeight: 'bold',
         textAlign: 'center',
         textBaseline: 'middle',
@@ -1344,9 +1339,9 @@ export class Game {
       const character = this.initialsChars[index]
 
       if (character !== undefined || Game.toggleEvery(500))
-        text2d(character ?? '_', toWorldPoint(x, 775), '#ffde59', {
+        text2d(character ?? '_', toWorldPoint(x, 830), '#ffde59', {
           fontSize: 40,
-          fontFamily: '"Press Start 2P", monospace',
+          fontFamily: '"Press Start 2P"',
           fontWeight: 'bold',
           textAlign: 'center',
           textBaseline: 'middle',
