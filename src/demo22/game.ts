@@ -663,6 +663,7 @@ export class Game {
           )
 
     if (directions.length === 0) return NONE
+    if (directions.length === 1) return directions[0]
 
     if (this.isGhostFrightened(ghost)) {
       const powerRatio = max(
