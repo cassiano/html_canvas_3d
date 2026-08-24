@@ -220,6 +220,8 @@ export class Game {
     text2d(
       'PAUSED',
       toWorldPoint(animation.width / 2, animation.height / 2 - 330),
+      'red',
+      { fontSize: 45, fontFamily: '"Press Start 2P"' },
     )
   }
 
