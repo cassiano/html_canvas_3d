@@ -90,6 +90,8 @@ type DirectionMap = typeof DIRECTION_MAP
 
 export type DirectionName = DirectionMap[keyof DirectionMap]
 
+export const DIRECTION_NAMES = Object.keys(DIRECTION_MAP) as DirectionName[]
+
 export const {
   up: UP,
   down: DOWN,

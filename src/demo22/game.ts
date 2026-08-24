@@ -35,6 +35,7 @@ import {
   COLLECTIBLE_SCORES,
   COLLISION_DISTANCE_TILES,
   COLUMN_COUNT,
+  DIRECTION_NAMES,
   DirectionName,
   DIRECTIONS,
   DOWN,
@@ -647,19 +648,17 @@ export class Game {
       return ghost.nextDirectionToTarget(target)
     }
 
-    const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-      direction => {
-        if (direction === NONE) return false
-        if (!ghost.canMoveTo(direction)) return false
+    const candidates = DIRECTION_NAMES.filter(direction => {
+      if (direction === NONE) return false
+      if (!ghost.canMoveTo(direction)) return false
 
-        return direction !== OPPOSITE_DIRECTIONS[ghost.dir]
-      },
-    )
+      return direction !== OPPOSITE_DIRECTIONS[ghost.dir]
+    })
 
     const directions =
       candidates.length > 0
         ? candidates
-        : (Object.keys(DIRECTIONS) as DirectionName[]).filter(
+        : DIRECTION_NAMES.filter(
             direction => direction !== NONE && ghost.canMoveTo(direction),
           )
 
@@ -806,21 +805,19 @@ export class Game {
   private chooseAttractModePacmanDirection(): DirectionName {
     // Keep Pacman moving forward when possible; reversing is only a fallback
     // when the current corridor has no other legal exit.
-    const candidates = (Object.keys(DIRECTIONS) as DirectionName[]).filter(
-      direction => {
-        if ([NONE, OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(direction))
-          return false
+    const candidates = DIRECTION_NAMES.filter(direction => {
+      if ([NONE, OPPOSITE_DIRECTIONS[this.pacman.dir]].includes(direction))
+        return false
 
-        return this.pacman.canMoveTo(direction)
-      },
-    )
+      return this.pacman.canMoveTo(direction)
+    })
 
     const directions =
       candidates.length > 0
         ? candidates
         : // Fallback to reversing if Pacman is trapped in a dead end. This is rare but
           // possible in the attract-mode maze, and it prevents Pacman from getting stuck.
-          (Object.keys(DIRECTIONS) as DirectionName[]).filter(
+          DIRECTION_NAMES.filter(
             direction => direction !== NONE && this.pacman.canMoveTo(direction),
           )
 

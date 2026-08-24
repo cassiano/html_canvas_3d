@@ -3,6 +3,7 @@ import { floor } from '../math_utils.ts'
 import { assertIsNotUndefined, millis } from '../utils.ts'
 import { $v, Vector3d } from '../vector_3d.ts'
 import { Actor } from './actor.ts'
+import { DIRECTION_NAMES } from './constants.ts'
 import {
   BLINKY_NAME,
   CLYDE_NAME,
@@ -14,10 +15,7 @@ import {
   GhostName,
   INKY_LOOKAHEAD_TILES,
   INKY_NAME,
-  UP,
-  DOWN,
   LEFT,
-  RIGHT,
   NONE,
   PINKY_LOOKAHEAD_TILES,
   PINKY_NAME,
@@ -90,7 +88,9 @@ export class Ghost extends Actor {
       // Check all four cardinal directions from the current position. If a direction is
       // walkable and hasn't been visited yet, add it to the queue and record the
       // current position as its predecessor.
-      ;[UP, DOWN, LEFT, RIGHT].forEach(direction => {
+      DIRECTION_NAMES.forEach(direction => {
+        if (direction === NONE) return false
+
         const next = Actor.nextCell(current, direction)
         const key = next.toString()
 
