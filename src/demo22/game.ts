@@ -1142,23 +1142,17 @@ export class Game {
     text2d(`Score: ${this.score}`, toWorldPoint(20, 60), '#f4f4f4', {
       fontSize: 16,
       fontFamily: '"Press Start 2P"',
-      fontWeight: 'bold',
       textAlign: 'left',
-      textBaseline: 'middle',
     })
     text2d(`Lives: ${this.lives}`, toWorldPoint(20, 84), '#f4f4f4', {
       fontSize: 16,
       fontFamily: '"Press Start 2P"',
-      fontWeight: 'bold',
       textAlign: 'left',
-      textBaseline: 'middle',
     })
     text2d(`Phase: ${this.phase}`, toWorldPoint(20, 108), '#f4f4f4', {
       fontSize: 16,
       fontFamily: '"Press Start 2P"',
-      fontWeight: 'bold',
       textAlign: 'left',
-      textBaseline: 'middle',
     })
     text2d(
       `HIGH SCORE: ${this.highScore} (PHASE ${this.highScorePhase}) [${this.highScoreInitials}]`,
@@ -1167,9 +1161,7 @@ export class Game {
       {
         fontSize: 16,
         fontFamily: '"Press Start 2P"',
-        fontWeight: 'bold',
         textAlign: 'center',
-        textBaseline: 'middle',
       },
     )
     text2d(
@@ -1179,9 +1171,7 @@ export class Game {
       {
         fontSize: 15,
         fontFamily: '"Press Start 2P"',
-        fontWeight: 'bold',
         textAlign: 'left',
-        textBaseline: 'middle',
       },
     )
   }
@@ -1281,10 +1271,15 @@ export class Game {
 
   private renderInitialsEntry() {
     if (Game.toggleEvery(500))
-      text2d('NEW HIGH SCORE!', toWorldPoint(animation.width / 2, 155), 'red', {
-        fontSize: 32,
-        fontFamily: '"Press Start 2P"',
-      })
+      text2d(
+        'NEW HIGH SCORE!',
+        toWorldPoint(animation.width / 2, 155),
+        'orange',
+        {
+          fontSize: 32,
+          fontFamily: '"Press Start 2P"',
+        },
+      )
     text2d(
       `${this.score} POINTS - PHASE ${this.phase}`,
       toWorldPoint(animation.width / 2, 110),
@@ -1298,7 +1293,7 @@ export class Game {
     text2d(
       `Type in your initials (up to ${HIGH_SCORE_INITIALS_LENGTH} characters) and hit Enter`,
       toWorldPoint(animation.width / 2, 785),
-      '#ffffff',
+      'orange',
       {
         fontSize: 18,
         fontFamily: '"Press Start 2P"',
@@ -1315,7 +1310,7 @@ export class Game {
       const character = this.initialsChars[index]
 
       if (character !== undefined || Game.toggleEvery(500))
-        text2d(character ?? '_', toWorldPoint(x, 830), '#ffde59', {
+        text2d(character ?? '_', toWorldPoint(x, 830), 'orange', {
           fontSize: 40,
           fontFamily: '"Press Start 2P"',
         })
