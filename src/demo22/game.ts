@@ -71,6 +71,7 @@ import {
 } from './constants.ts'
 import { Ghost } from './ghost.ts'
 import { Pacman } from './pacman.ts'
+import { assertIsNotUndefined } from '../utils.ts'
 import {
   renderCherry,
   renderFilledRectPixel,
@@ -397,20 +398,10 @@ export class Game {
   }
 
   private getGhostHouseCenterTarget(): Vector3d {
-    const pinkyStart = this.ghostStarts.find(ghost => ghost.name === PINKY_NAME)
+    const pinkyStart = this.ghostStarts.find(start => start.name === PINKY_NAME)
+    assertIsNotUndefined(pinkyStart)
 
-    if (pinkyStart) return pinkyStart.position.clone()
-
-    return $v(
-      floor(
-        this.ghostStarts.reduce((sum, ghost) => sum + ghost.position.x, 0) /
-          this.ghostStarts.length,
-      ),
-      floor(
-        this.ghostStarts.reduce((sum, ghost) => sum + ghost.position.y, 0) /
-          this.ghostStarts.length,
-      ),
-    )
+    return pinkyStart.position.clone()
   }
 
   private resetMazeFromTemplate() {
