@@ -89,33 +89,31 @@ export class Ghost extends Actor {
       // walkable and hasn't been visited yet, add it to the queue and record the
       // current position as its predecessor.
       DIRECTION_NAMES.forEach(direction => {
-        if (direction === NONE) return false
+        if (direction === NONE) return
 
         const next = Actor.nextCell(current, direction)
-        const key = next.toString()
+        const nextKey = next.toString()
 
-        if (visited.has(key) || Actor.isWall(next)) return
+        if (visited.has(nextKey) || Actor.isWall(next)) return
 
-        visited.add(key)
-        previous.set(key, { position: current, dir: direction })
+        visited.add(nextKey)
+        previous.set(nextKey, { position: current, dir: direction })
         queue.push(next)
       })
     }
 
     // Find the first step on the shortest path to the target by backtracking
     // through the predecessor map.
-    const targetKey = target.toString()
-    if (!previous.has(targetKey)) return NONE
-
-    let stepKey = targetKey
+    let currentStepKey = target.toString()
 
     while (true) {
-      const step = previous.get(stepKey)
+      const previousStep = previous.get(currentStepKey)
+      if (!previousStep)
+        throw new Error('Previous step not found in predecessor map.')
 
-      if (!step) return NONE
-      if (step.position.equals(this.position)) return step.dir
+      if (previousStep.position.equals(this.position)) return previousStep.dir
 
-      stepKey = step.position.toString()
+      currentStepKey = previousStep.position.toString()
     }
   }
 

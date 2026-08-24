@@ -103,7 +103,7 @@ export abstract class Actor {
   static wrapCol(col: number): number {
     // Pacman's tunnel connects the first and last columns of the maze.
     if (col < 0) return COLUMN_COUNT - 1
-    if (col >= COLUMN_COUNT) return 0
+    if (col > COLUMN_COUNT - 1) return 0
 
     return col
   }
