@@ -34,6 +34,13 @@ export class Ghost extends Actor {
   lastEatenPowerModeId = -1
   isEaten = false
 
+  // Eaten ghosts follow a route home computed by a single breadth-first
+  // search when the trip starts. homingCell anchors the route to the tile it
+  // was computed from so repeated direction queries within one tile (blocked
+  // moves, multi-tile frames) replay the same step instead of advancing.
+  private homingRoute: DirectionName[] = []
+  private homingCell: Vector3d | null = null
+
   constructor(
     position: Vector3d,
     speedTilesPerSecond: number,
@@ -52,6 +59,8 @@ export class Ghost extends Actor {
     this.nextDir = NONE
     this.speedTilesPerSecond = baseSpeed * speedMultiplier
     this.isEaten = true
+
+    this.clearHomingRoute()
   }
 
   revive(direction: DirectionName = LEFT, speed: number) {
@@ -59,10 +68,23 @@ export class Ghost extends Actor {
     this.speedTilesPerSecond = speed
     this.dir = direction
     this.nextDir = direction
+
+    this.clearHomingRoute()
+  }
+
+  reset(direction: DirectionName = LEFT) {
+    super.reset(direction)
+
+    this.clearHomingRoute()
+  }
+
+  private clearHomingRoute() {
+    this.homingRoute = []
+    this.homingCell = null
   }
 
   tryReviveAt(target: Vector3d, direction: DirectionName, speed: number) {
-    if (!this.position.equals(target)) return false
+    if (this.position.notEquals(target)) return false
 
     this.revive(direction, speed)
 
@@ -70,8 +92,31 @@ export class Ghost extends Actor {
   }
 
   nextDirectionToTarget(target: Vector3d): DirectionName {
-    // Breadth-first search finds the shortest walkable route to the target.
-    // The predecessor map (`previous`) is used to recover only the first move on that route.
+    // The maze never changes while a ghost heads home, so the search runs
+    // once per eaten trip; later tile-center queries replay the cached steps.
+    if (this.homingCell === null) {
+      this.homingRoute = this.findHomingRoute(target)
+      this.homingCell = this.position
+
+      return this.homingRoute.shift() ?? NONE
+    }
+
+    // A new tile center consumes the next step.
+    if (this.homingCell.notEquals(this.position)) {
+      this.homingCell = this.position
+
+      return this.homingRoute.shift() ?? NONE
+    }
+
+    // this.homingCell === this.position. A repeated query from the same
+    // cell (e.g. after a blocked move) still returns the pending step.
+    return this.homingRoute[0] ?? NONE
+  }
+
+  // Breadth-first search finds the shortest walkable route to the target and
+  // reconstructs every step of it up front by backtracking through the
+  // predecessor map, so callers never need to run the search again mid-trip.
+  private findHomingRoute(target: Vector3d): DirectionName[] {
     const queue = [this.position]
     const visited = new Set([this.position.toString()])
     const previous = new Map<
@@ -102,19 +147,18 @@ export class Ghost extends Actor {
       })
     }
 
-    // Find the first step on the shortest path to the target by backtracking
-    // through the predecessor map.
-    let currentStepKey = target.toString()
+    const route: DirectionName[] = []
+    let stepKey = target.toString()
 
-    while (true) {
-      const previousStep = previous.get(currentStepKey)
-      if (!previousStep)
-        throw new Error('Previous step not found in predecessor map.')
+    while (previous.has(stepKey)) {
+      const step = previous.get(stepKey)
+      assertIsNotUndefined(step)
 
-      if (previousStep.position.equals(this.position)) return previousStep.dir
-
-      currentStepKey = previousStep.position.toString()
+      route.unshift(step.dir)
+      stepKey = step.position.toString()
     }
+
+    return route
   }
 
   getChaseTarget(
