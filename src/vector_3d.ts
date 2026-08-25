@@ -228,6 +228,22 @@ export class Vector3d {
     )
   }
 
+  notEquals(x: number, y: number, z?: number): boolean
+  notEquals(anotherVector: Vector3d): boolean
+  notEquals(
+    xOrAnotherVector: number | Vector3d,
+    y?: number,
+    z?: number,
+  ): boolean {
+    const anotherVector = this.inferAnotherVectorFromParams(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
+    return !this.equals(anotherVector)
+  }
+
   isAllZeros() {
     return this.equals(Vector3d.create(0, 0, 0))
   }
