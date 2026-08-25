@@ -80,8 +80,8 @@ export const CLYDE_SHY_DISTANCE_TILES = 8
 
 export const DIRECTION_MAP = {
   up: 'up',
-  down: 'down',
   left: 'left',
+  down: 'down',
   right: 'right',
   none: 'none',
 } as const
