@@ -174,10 +174,19 @@ export class Ghost extends Actor {
       case BLINKY_NAME:
         return clonedPacmanPos
 
-      case PINKY_NAME:
-        return clonedPacmanPos.add(
+      case PINKY_NAME: {
+        // The original arcade code has an integer overflow when Pac-Man faces
+        // up: the Y offset is added to both Y and X axes, making Pinky's
+        // target drift four tiles to the left. This bug was never fixed and is
+        // now part of the authentic game behaviour.
+        const target = clonedPacmanPos.add(
           pacmanFacing.clone().mult(PINKY_LOOKAHEAD_TILES),
         )
+
+        if (pacmanFacing.y < 0) target.x -= PINKY_LOOKAHEAD_TILES
+
+        return target
+      }
 
       case INKY_NAME: {
         const pivot = clonedPacmanPos.add(
