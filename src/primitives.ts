@@ -475,7 +475,7 @@ export const arrow = (
     const yAngle = AXES.y.angleBetween(lineAB)
 
     // If AB line is already over the Y-axis, no need to rotate.
-    if (!orthogonalAxis.equals(ZERO_VECTOR)) rotate(yAngle, orthogonalAxis)
+    if (orthogonalAxis.notEquals(ZERO_VECTOR)) rotate(yAngle, orthogonalAxis)
     else if (lineAB.y < 0) rotateX(PI) // Or `rotateZ(PI)`.
 
     line(ORIGIN, $v(0, lineAB.mag(), 0), options)
