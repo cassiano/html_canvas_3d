@@ -1,4 +1,5 @@
 import { Tuple } from './utility_types.ts'
+import { Vector3d } from './vector_3d.ts'
 
 export const {
   PI,
@@ -146,4 +147,23 @@ export const multiply4x4MatrixBy4dPoint = (
     m10 * x + m11 * y + m12 * z + m13 * w,
     m20 * x + m21 * y + m22 * z + m23 * w,
   ]
+}
+
+// https://en.wikipedia.org/wiki/Polar_coordinate_system
+export const polarToCartesian2d = (radius: number, polarAngle: number) => {
+  return Vector3d.create(radius * cos(polarAngle), radius * sin(polarAngle))
+}
+
+export function cartesianToPolar2d(
+  x: number,
+  y: number,
+): readonly [radius: number, polarAngle: number]
+export function cartesianToPolar2d(
+  vector: Vector3d,
+): readonly [radius: number, polarAngle: number]
+export function cartesianToPolar2d(xOrVector: number | Vector3d, y?: number) {
+  const cartesianVector =
+    typeof xOrVector === 'number' ? Vector3d.create(xOrVector, y!) : xOrVector
+
+  return [cartesianVector.mag(), cartesianVector.heading()] as const
 }

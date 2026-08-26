@@ -1,4 +1,4 @@
-import { acos, sqrt, random, abs, cos, sin } from './math_utils.ts'
+import { acos, sqrt, random, abs, polarToCartesian2d } from './math_utils.ts'
 
 export class Vector3d {
   private coords: [x: number, y: number, z: number]
@@ -71,7 +71,7 @@ export class Vector3d {
       throw new Error('`setHeading()` can only be called on 2d vectors')
     }
 
-    ;[this.x, this.y] = Vector3d.polarToCartesian2d(this.mag(), newHeading)
+    ;[this.x, this.y] = polarToCartesian2d(this.mag(), newHeading)
 
     return this
   }
@@ -328,25 +328,6 @@ export class Vector3d {
       random(-1, 1),
       random(-1, 1),
     ).normalize()
-  }
-
-  // https://en.wikipedia.org/wiki/Polar_coordinate_system
-  static polarToCartesian2d(radius: number, polarAngle: number) {
-    return Vector3d.create(radius * cos(polarAngle), radius * sin(polarAngle))
-  }
-
-  static cartesianToPolar2d(
-    x: number,
-    y: number,
-  ): readonly [radius: number, polarAngle: number]
-  static cartesianToPolar2d(
-    vector: Vector3d,
-  ): readonly [radius: number, polarAngle: number]
-  static cartesianToPolar2d(xOrVector: number | Vector3d, y?: number) {
-    const cartesianVector =
-      typeof xOrVector === 'number' ? Vector3d.create(xOrVector, y!) : xOrVector
-
-    return [cartesianVector.mag(), cartesianVector.heading()] as const
   }
 
   *[Symbol.iterator](): Generator<number, void, unknown> {
