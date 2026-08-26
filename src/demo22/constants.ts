@@ -118,7 +118,8 @@ export const OPPOSITE_DIRECTIONS: Record<DirectionName, DirectionName> = {
 
 // [/doc_img/constants.ts/2026-08-10-09-50-36.png]
 export const MAZE_TEMPLATE = [
-  // Walls, collectibles, and spawn markers are encoded in one rectangular grid.
+  // Walls, collectibles, and spawn markers (Pacman and ghosts) are encoded in
+  // one rectangular grid.
   '◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻◻',
   '◻········◻········◻',
   '◻·◻◻·◻◻◻·◻·◻◻◻·◻◻·◻',
