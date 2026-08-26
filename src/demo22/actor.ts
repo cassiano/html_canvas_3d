@@ -51,7 +51,7 @@ export abstract class Actor {
   move(
     deltaSeconds: number,
     chooseDirectionAtCenter?: (actor: Actor) => DirectionName,
-  ) {
+  ): void {
     // Consume travel in tile-sized chunks so large frames remain deterministic
     // and actors cannot skip collision checks at intermediate tiles.
     let travel = this.speedTilesPerSecond * deltaSeconds
@@ -100,7 +100,7 @@ export abstract class Actor {
     return true
   }
 
-  static configureWallCheck(check: (position: Vector3d) => boolean) {
+  static configureWallCheck(check: (position: Vector3d) => boolean): void {
     Actor.isWall = check
   }
 
