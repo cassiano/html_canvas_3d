@@ -1,31 +1,31 @@
 import {
-  ORIGIN,
-  DEFAULT_CIRCLE_SEGMENTS,
-  Z_EPSILON,
   AXES,
-  MAX_LINE_SEGMENT_SIZE,
-  ZERO_VECTOR,
-  NORMAL_CONFIG,
   DEFAULT_ARROW_CIRCLE_SEGMENTS,
+  DEFAULT_CIRCLE_SEGMENTS,
   DEFAULT_SPHERE_LINES,
+  MAX_LINE_SEGMENT_SIZE,
+  NORMAL_CONFIG,
+  ORIGIN,
+  Z_EPSILON,
+  ZERO_VECTOR,
 } from './constants.ts'
-import { $v, Vector3d } from './vector_3d.ts'
-import { Tuple } from './utility_types.ts'
-import { timesForEach, timesForEachN } from './utils.ts'
 import {
   abs,
   cos,
-  min,
-  max,
-  PI,
-  sin,
-  multiply4x4Matrices,
   floor,
-  TWO_PI,
   HALF_PI,
   map,
+  max,
+  min,
+  multiply4x4Matrices,
   multiply4x4MatrixBy4dPoint,
+  PI,
+  sin,
+  TWO_PI,
 } from './math_utils.ts'
+import { Tuple } from './utility_types.ts'
+import { timesForEach, timesForEachN } from './utils.ts'
+import { $v, Vector3d } from './vector_3d.ts'
 
 const FOURTH_DIMENSION_COORD = 1
 

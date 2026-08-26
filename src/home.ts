@@ -1,19 +1,17 @@
-import { timesForEach, timesMap, timesReduce, togglePause } from './utils.ts'
+import { min } from './math_utils.ts'
 import {
-  resetZoom,
-  resetPanOffset,
-  setshowNormals,
-  setRender3dAxesEnabled,
-} from './primitives.ts'
-import {
-  animation,
   addDragRotation,
-  resetDragRotation,
   addPanOffset,
   addZoom,
+  animation,
+  resetDragRotation,
+  resetPanOffset,
+  resetZoom,
+  setAutoRotationCheckboxEnabled,
+  setRender3dAxesEnabled,
+  setshowNormals,
 } from './primitives.ts'
-import { min } from './math_utils.ts'
-import { setAutoRotationCheckboxEnabled } from './primitives.ts'
+import { timesForEach, timesMap, timesReduce, togglePause } from './utils.ts'
 
 ///////////////////////
 // AI-generated code //
