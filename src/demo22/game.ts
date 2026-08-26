@@ -1,3 +1,7 @@
+//////////////////////
+// AI-assisted code //
+//////////////////////
+
 import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import { abs, floor, max, min, random } from '../math_utils.ts'
 import { animation, background, text2d } from '../primitives.ts'

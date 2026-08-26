@@ -1,3 +1,7 @@
+//////////////////////
+// AI-assisted code //
+//////////////////////
+
 import { FPS } from '../constants.ts'
 import { render3dScene, resetTransformationMatrix } from '../primitives.ts'
 import { createFrameLoop } from '../utils.ts'

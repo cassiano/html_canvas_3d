@@ -1,3 +1,7 @@
+//////////////////////
+// AI-assisted code //
+//////////////////////
+
 import { floor, random } from '../math_utils.ts'
 import { millis } from '../utils.ts'
 

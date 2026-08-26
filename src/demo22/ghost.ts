@@ -1,3 +1,7 @@
+//////////////////////
+// AI-assisted code //
+//////////////////////
+
 import { ORIGIN } from '../constants.ts'
 import { floor } from '../math_utils.ts'
 import { assertIsNotUndefined, millis } from '../utils.ts'

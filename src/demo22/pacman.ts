@@ -1,3 +1,7 @@
+//////////////////////
+// AI-assisted code //
+//////////////////////
+
 import { abs, cos, sin } from '../math_utils.ts'
 import { millis } from '../utils.ts'
 import { Actor } from './actor.ts'

@@ -1,3 +1,7 @@
+//////////////////////
+// AI-assisted code //
+//////////////////////
+
 import { HALF_PI, PI, sin } from '../math_utils.ts'
 import {
   animation,

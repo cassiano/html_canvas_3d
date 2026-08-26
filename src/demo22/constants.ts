@@ -1,3 +1,7 @@
+//////////////////////
+// AI-assisted code //
+//////////////////////
+
 import { $v, Vector3d } from '../vector_3d.ts'
 
 // Centralized tuning values keep difficulty and audiovisual timing changes out

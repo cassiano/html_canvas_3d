@@ -1,3 +1,7 @@
+//////////////////////
+// AI-assisted code //
+//////////////////////
+
 import { min } from '../math_utils.ts'
 import { Vector3d } from '../vector_3d.ts'
 import {
