@@ -1192,7 +1192,7 @@ export class Game {
       if (Game.toggleEvery(500))
         text2d(
           'INSERT COIN',
-          toWorldPoint(animation.width / 2, 150),
+          toWorldPoint(animation.width / 2, 140),
           'yellow',
           {
             fontSize: 28,
@@ -1249,7 +1249,7 @@ export class Game {
 
     // Classic arcade blink: toggles the "INSERT COIN" prompt on/off every half second.
     if (Game.toggleEvery(500))
-      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 150), 'yellow', {
+      text2d('INSERT COIN', toWorldPoint(animation.width / 2, 140), 'yellow', {
         fontSize: 28,
         fontFamily: '"Press Start 2P"',
       })
@@ -1268,7 +1268,7 @@ export class Game {
     if (Game.toggleEvery(500))
       text2d(
         'NEW HIGH SCORE!',
-        toWorldPoint(animation.width / 2, 155),
+        toWorldPoint(animation.width / 2, 145),
         'orange',
         {
           fontSize: 32,
@@ -1287,7 +1287,7 @@ export class Game {
 
     text2d(
       `Type in your initials (up to ${HIGH_SCORE_INITIALS_LENGTH} characters) and hit Enter`,
-      toWorldPoint(animation.width / 2, 785),
+      toWorldPoint(animation.width / 2, 775),
       'orange',
       {
         fontSize: 18,
@@ -1305,7 +1305,7 @@ export class Game {
       const character = this.initialsChars[index]
 
       if (character !== undefined || Game.toggleEvery(500))
-        text2d(character ?? '_', toWorldPoint(x, 830), 'orange', {
+        text2d(character ?? '_', toWorldPoint(x, 820), 'orange', {
           fontSize: 40,
           fontFamily: '"Press Start 2P"',
         })
