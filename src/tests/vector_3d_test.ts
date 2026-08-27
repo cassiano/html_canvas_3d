@@ -61,6 +61,15 @@ test('Vector - Normalize and setMag', () => {
   assertEquals(v.mag(), 5)
 })
 
+test('Vector - normalize() on zero vector throws', () => {
+  const v = $v(0, 0, 0)
+  assertThrows(
+    () => v.normalize(),
+    Error,
+    'Sorry, but division by 0 is not supported',
+  )
+})
+
 test('Vector - Heading and setHeading can only be called on 2d vectors', () => {
   const v = $v(1, 2, 3)
 
@@ -86,6 +95,17 @@ test('Vector - Heading', () => {
   assertAlmostEquals(v3.heading(), HALF_PI)
   assertAlmostEquals(v4.heading(), (3 * PI) / 4)
   assertAlmostEquals(v5.heading(), PI)
+})
+
+test('Vector - Heading negative angles', () => {
+  const v1 = $v(1, -1) // 4th quadrant
+  const v2 = $v(-1, -1) // 3rd quadrant
+  const v3 = $v(0, -1) // straight down
+
+  // heading() uses angleBetween (law of cosines), returns [0, PI]
+  assertAlmostEquals(v1.heading(), PI / 4)
+  assertAlmostEquals(v2.heading(), (3 * PI) / 4)
+  assertAlmostEquals(v3.heading(), HALF_PI)
 })
 
 test('Vector - setHeading', () => {
@@ -148,6 +168,19 @@ test('Vector - Mult and Div', () => {
   )
 })
 
+test('Vector - mult(1) and div(1) are no-ops', () => {
+  const v = $v(5, 10, 15)
+  const ref = v
+
+  v.mult(1)
+  assertEquals(v, ref) // same reference (no clone)
+
+  v.div(1)
+  assertEquals(v, ref)
+
+  assertEquals(v.toArray(), [5, 10, 15]) // values unchanged
+})
+
 test('Vector - Dot Product', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
@@ -167,6 +200,14 @@ test('Vector - Cross Product', () => {
   assertEquals(result2.toArray(), [...AXES['-z']]) // Y cross X = -Z
 })
 
+test('Vector - Cross Product scalar overload', () => {
+  const result1 = AXES.x.cross(0, 1, 0)
+  assertEquals(result1.toArray(), [...AXES.z]) // X cross Y = Z
+
+  const result2 = AXES.y.cross(0, 0, 1)
+  assertEquals(result2.toArray(), [...AXES.x]) // Y cross Z = X
+})
+
 test('Vector - Distance', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(3, 4, 0)
@@ -176,6 +217,32 @@ test('Vector - Distance', () => {
 
   assertEquals(v2.dist(v1), 5)
   assertEquals(v2.distSq(v1), 25)
+})
+
+test('Vector - Distance scalar overloads', () => {
+  const v = $v(0, 0, 0)
+
+  assertEquals(v.dist(3, 4, 0), 5)
+  assertEquals(v.distSq(3, 4, 0), 25)
+
+  // 2D (z defaults to 0)
+  assertEquals(v.dist(1, 2), $v(0, 0, 0).dist($v(1, 2, 0)))
+})
+
+// --- manhattanDist Coverage ---
+
+test('Vector - manhattanDist', () => {
+  const v = $v(1, 2, 3)
+
+  // Vector overload
+  assertEquals(v.manhattanDist($v(4, 6, 8)), 12) // |1-4| + |2-6| + |3-8| = 3+4+5
+  assertEquals(v.manhattanDist($v(1, 2, 3)), 0)
+
+  // Scalar overload
+  assertEquals(v.manhattanDist(4, 6, 8), 12)
+
+  // 3D with negatives
+  assertEquals($v(0, 0, 0).manhattanDist(-1, -2, -3), 6)
 })
 
 test('Vector - Equality and Helpers', () => {
@@ -189,6 +256,23 @@ test('Vector - Equality and Helpers', () => {
 
   const zero = $v(0, 0, 0)
   assertEquals(zero.isAllZeros(), true)
+})
+
+// --- notEquals Coverage ---
+
+test('Vector - notEquals', () => {
+  const v = $v(1, 2, 3)
+
+  // Scalar overload
+  assertEquals(v.notEquals(1, 2, 3), false)
+  assertEquals(v.notEquals(1, 2, 4), true)
+
+  // Vector overload
+  assertEquals(v.notEquals($v(1, 2, 3)), false)
+  assertEquals(v.notEquals($v(0, 0, 0)), true)
+
+  // 2D comparison (z defaults to 0)
+  assertEquals(v.notEquals(1, 2), true)
 })
 
 test('Vector - AngleBetween', () => {
@@ -209,6 +293,17 @@ test('Vector - AngleBetween', () => {
   assertAlmostEquals(v1.angleBetween(v1.clone().mult(-1)), PI)
 })
 
+test('Vector - angleBetween with zero vectors', () => {
+  const v = $v(1, 0, 0)
+
+  // Zero vector has mag 0 → division by 0 → NaN
+  assertAlmostEquals(v.angleBetween($v(0, 0, 0)), NaN)
+  assertAlmostEquals($v(0, 0, 0).angleBetween(v), NaN)
+
+  // Both zero
+  assertAlmostEquals($v(0, 0, 0).angleBetween($v(0, 0, 0)), NaN)
+})
+
 test('Vector - lerp (Linear intERPolation)', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(10, 10, 10)
@@ -224,6 +319,23 @@ test('Vector - lerp (Linear intERPolation)', () => {
   // Specific ratio 0.8 via coordinates
   const high = v1.lerp(10, 10, 10, 0.8)
   assertEquals(high.toArray(), [8, 8, 8])
+})
+
+test('Vector - lerp edge cases', () => {
+  const v1 = $v(0, 0, 0)
+  const v2 = $v(10, 10, 10)
+
+  // Ratio 0 → original
+  assertEquals(v1.lerp(v2, 0).toArray(), [0, 0, 0])
+
+  // Ratio 1 → target
+  assertEquals(v1.lerp(v2, 1).toArray(), [10, 10, 10])
+
+  // Negative ratio
+  assertEquals(v1.lerp(v2, -0.5).toArray(), [-5, -5, -5])
+
+  // Ratio > 1
+  assertEquals(v1.lerp(v2, 1.5).toArray(), [15, 15, 15])
 })
 
 test('Vector - Iterator and Serialization', () => {
@@ -267,6 +379,19 @@ test('Vector - Getters and Setters', () => {
   assertEquals(v.x, 1)
   assertEquals(v.y, 2)
   assertEquals(v.z, 3)
+})
+
+test('Vector - Chainable setters (setX, setY, setZ)', () => {
+  const v = $v(0, 0, 0)
+  const result = v.setX(1).setY(2).setZ(3)
+
+  assertEquals(v.toArray(), [1, 2, 3])
+  assertEquals(result, v) // same instance
+
+  // Verify return values are `this`
+  assertEquals(v.setX(5), v)
+  assertEquals(v.setY(5), v)
+  assertEquals(v.setZ(5), v)
 })
 
 // --- Arithmetic & Chainability ---
