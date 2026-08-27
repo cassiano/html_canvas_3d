@@ -101,6 +101,7 @@ test('Vector - Heading negative angles', () => {
   const v1 = $v(1, -1) // 4th quadrant
   const v2 = $v(-1, -1) // 3rd quadrant
   const v3 = $v(0, -1) // straight down
+
   // heading() uses atan2(y, x), returns [-PI, PI]
   assertAlmostEquals(v1.heading(), -PI / 4)
   assertAlmostEquals(v2.heading(), -(3 * PI) / 4)
