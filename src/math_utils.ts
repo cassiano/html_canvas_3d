@@ -14,6 +14,7 @@ export const {
   acos,
   asin,
   atan,
+  atan2,
   sign,
   floor,
   ceil,

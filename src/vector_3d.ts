@@ -1,4 +1,4 @@
-import { acos, sqrt, random, abs, polarToCartesian2d } from './math_utils.ts'
+import { acos, sqrt, random, abs, atan2, polarToCartesian2d } from './math_utils.ts'
 
 export class Vector3d {
   private coords: [x: number, y: number, z: number]
@@ -63,7 +63,7 @@ export class Vector3d {
       throw new Error('`heading()` can only be called on 2d vectors')
     }
 
-    return this.angleBetween($v(1, 0, 0))
+    return atan2(this.y, this.x)
   }
 
   setHeading(newHeading: number) {
