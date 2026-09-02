@@ -35,6 +35,7 @@ import { rotateZ } from '../primitives.ts'
 export const G = 6.6743e-11 // Universal gravitational constant, in m³ / (kg x s²).
 export const AU = 149597870.7 // Astronomical Unit (in km).
 export const KM_TO_M = 1000 // Conversion factor from km to m.
+export const SUN_MASS_IN_KG = 1.9891e30 // Mass of the Sun in kg.
 export const EARTH_YEAR_IN_DAYS = 365.256363004 // Sidereal year.
 export const EARTH_DAY_IN_SECONDS = 24 * 3600
 export const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
@@ -146,7 +147,7 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
     radius: 695700,
     radiusCustomScale: DEFAULT_RADIUS_SCALE / 15, // Scale down the sun's radius to fit the canvas.
     distanceFromSun: 0,
-    mass: 1.9891e30,
+    mass: SUN_MASS_IN_KG,
     color: 'yellow',
     orbitalPeriod: 0,
   },
@@ -269,15 +270,15 @@ const createDemoControls = () => {
 
   demoForm.sliders = {
     spacing: createSlider({
-      label: "Sun's Mass (⨉10³⁰ kg)",
-      min: 0.1,
-      max: 4,
-      value: sun.mass / 1e30,
-      step: 0.0001,
+      label: `Sun's Mass (% of ${(SUN_MASS_IN_KG / 1e30).toFixed(4)} ✖️10³⁰ kg)`,
+      min: 0.01,
+      max: 5,
+      value: 1,
+      step: 0.01,
       container: demoControlPanel,
-      valueFormatter: v => v.toFixed(4),
+      valueFormatter: v => v * 100 + '%',
       onChange: value => {
-        sun.mass = value * 1e30
+        sun.mass = value * SUN_MASS_IN_KG
       },
     }),
   }
