@@ -1,6 +1,9 @@
 import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import {
+  createDemoControlPanel,
   createFrameLoop,
+  createSlider,
+  createToggle,
   fps,
   frameCount,
   millis,
@@ -241,7 +244,44 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
 export const earth = bodies.find(body => body.name === 'earth')
 assertIsNotUndefined(earth)
 
+export const sun = bodies.find(body => body.name === 'sun')
+assertIsNotUndefined(sun)
+
 let lastTickMillis: number | null = null
+
+// -------------------------------------------------------------------------------------------------
+
+// Get the canvas container
+const canvasContainer = document.getElementById('canvas-container')
+if (!canvasContainer) throw new Error('canvasContainer not found')
+
+let demoControlPanel: HTMLDivElement | null
+
+type FormType = {
+  sliders?: Record<'spacing', ReturnType<typeof createSlider>>
+  toggles?: Record<'rotateAroundYAxis', ReturnType<typeof createToggle>>
+}
+
+export const demoForm: FormType = {}
+
+const createDemoControls = () => {
+  demoControlPanel = createDemoControlPanel(canvasContainer)
+
+  demoForm.sliders = {
+    spacing: createSlider({
+      label: "Sun's Mass (⨉10³⁰ kg)",
+      min: 0.1,
+      max: 4,
+      value: sun.mass / 1e30,
+      step: 0.0001,
+      container: demoControlPanel,
+      valueFormatter: v => v.toFixed(4),
+      onChange: value => {
+        sun.mass = value * 1e30
+      },
+    }),
+  }
+}
 
 // -------------------------------------------------------------------------------------------------
 
@@ -281,7 +321,7 @@ const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
-const { start, stop } = createFrameLoop(
+const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
     draw()
@@ -290,5 +330,17 @@ const { start, stop } = createFrameLoop(
   onPaused,
   FPS,
 )
+
+const start = () => {
+  createDemoControls()
+  startFrameLoop()
+}
+
+const stop = () => {
+  demoControlPanel?.remove()
+  demoControlPanel = null
+
+  stopFrameLoop()
+}
 
 export { start, stop }
