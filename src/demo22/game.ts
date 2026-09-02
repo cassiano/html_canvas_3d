@@ -961,6 +961,12 @@ export class Game {
           playCherryPickup()
         }
         break
+
+      case EMPTY_MARKER:
+        break
+
+      default:
+        throw new Error(`Unhandled tile type: ${tile}`)
     }
 
     if (this.pelletsRemaining <= 0) {
