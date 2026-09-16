@@ -195,9 +195,11 @@ export const timesForEachN = <T, D extends number[]>(
       [...currentIndexes, i] as ArrayAsObject<D>
 
     timesForEach(firstDimension, i => {
-      remainingDimensions.length === 0
-        ? callback(...augmentedIndexes(i))
-        : accumulateIndices(remainingDimensions, [...currentIndexes, i])
+      if (remainingDimensions.length === 0) {
+        callback(...augmentedIndexes(i))
+      } else {
+        accumulateIndices(remainingDimensions, [...currentIndexes, i])
+      }
     })
   }
 
