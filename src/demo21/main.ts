@@ -270,13 +270,13 @@ const createDemoControls = () => {
 
   demoForm.sliders = {
     spacing: createSlider({
-      label: `Sun's Mass (% of ${(SUN_MASS_IN_KG / 1e30).toFixed(4)} ✖️10³⁰ kg)`,
+      label: `Sun's mass in % of original value (${(SUN_MASS_IN_KG / 1e30).toFixed(4)} 𝒙 10³⁰ kg)`,
       min: 0.01,
       max: 5,
       value: 1,
       step: 0.01,
       container: demoControlPanel,
-      valueFormatter: v => v * 100 + '%',
+      valueFormatter: v => (v * 100).toFixed(0) + '%',
       onChange: value => {
         sun.mass = value * SUN_MASS_IN_KG
       },
