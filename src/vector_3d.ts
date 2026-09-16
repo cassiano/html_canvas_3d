@@ -1,4 +1,11 @@
-import { acos, sqrt, random, abs, atan2, polarToCartesian2d } from './math_utils.ts'
+import {
+  acos,
+  sqrt,
+  random,
+  abs,
+  atan2,
+  polarToCartesian2d,
+} from './math_utils.ts'
 
 export class Vector3d {
   private coords: [x: number, y: number, z: number]
@@ -160,6 +167,26 @@ export class Vector3d {
       this.y * anotherVector.z - this.z * anotherVector.y,
       -(this.x * anotherVector.z - this.z * anotherVector.x),
       this.x * anotherVector.y - this.y * anotherVector.x,
+    )
+  }
+
+  hadamardproduct(x: number, y: number, z?: number): Vector3d
+  hadamardproduct(anotherVector: Vector3d): Vector3d
+  hadamardproduct(
+    xOrAnotherVector: number | Vector3d,
+    y?: number,
+    z?: number,
+  ): Vector3d {
+    const anotherVector = this.inferAnotherVectorFromParams(
+      xOrAnotherVector,
+      y,
+      z,
+    )
+
+    return Vector3d.create(
+      this.x * anotherVector.x,
+      this.y * anotherVector.y,
+      this.z * anotherVector.z,
     )
   }
 
