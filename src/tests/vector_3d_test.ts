@@ -211,21 +211,21 @@ test('Vector - Cross Product scalar overload', () => {
 test('Vector - Hadamard Product (vector overload)', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
-  const result = v1.hadamardproduct(v2)
+  const result = v1.hadamardProduct(v2)
 
   assertEquals(result.toArray(), [1 * 4, 2 * 5, 3 * 6]) // [4, 10, 18]
 })
 
 test('Vector - Hadamard Product (scalar overload)', () => {
   const v1 = $v(1, 2, 3)
-  const result = v1.hadamardproduct(4, 5, 6)
+  const result = v1.hadamardProduct(4, 5, 6)
 
   assertEquals(result.toArray(), [1 * 4, 2 * 5, 3 * 6]) // [4, 10, 18]
 })
 
 test('Vector - Hadamard Product z defaults to 0', () => {
   const v1 = $v(1, 2, 3)
-  const result = v1.hadamardproduct(4, 5)
+  const result = v1.hadamardProduct(4, 5)
 
   assertEquals(result.toArray(), [1 * 4, 2 * 5, 3 * 0]) // [4, 10, 0]
 })
@@ -234,21 +234,21 @@ test('Vector - Hadamard Product returns new vector', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
   const original = v1.toArray()
-  v1.hadamardproduct(v2)
+  v1.hadamardProduct(v2)
 
   assertEquals(v1.toArray(), original, 'Original vector should not be mutated')
 })
 
 test('Vector - Hadamard Product with zero vector', () => {
   const v = $v(5, 10, 15)
-  const result = v.hadamardproduct($v(0, 0, 0))
+  const result = v.hadamardProduct($v(0, 0, 0))
 
   assertEquals(result.toArray(), [0, 0, 0])
 })
 
 test('Vector - Hadamard Product with identity vector', () => {
   const v = $v(5, 10, 15)
-  const result = v.hadamardproduct($v(1, 1, 1))
+  const result = v.hadamardProduct($v(1, 1, 1))
 
   assertEquals(result.toArray(), [5, 10, 15])
 })
@@ -256,7 +256,7 @@ test('Vector - Hadamard Product with identity vector', () => {
 test('Vector - Hadamard Product with negative values', () => {
   const v1 = $v(-1, -2, -3)
   const v2 = $v(2, 3, 4)
-  const result = v1.hadamardproduct(v2)
+  const result = v1.hadamardProduct(v2)
 
   assertEquals(result.toArray(), [-2, -6, -12])
 })
@@ -264,7 +264,7 @@ test('Vector - Hadamard Product with negative values', () => {
 test('Vector - Hadamard Product with fractional values', () => {
   const v1 = $v(0.5, 1.5, 2.5)
   const v2 = $v(2, 4, 6)
-  const result = v1.hadamardproduct(v2)
+  const result = v1.hadamardProduct(v2)
 
   assertEquals(result.toArray(), [1, 6, 15])
 })
@@ -273,17 +273,14 @@ test('Vector - Hadamard Product is commutative', () => {
   const a = $v(1, 2, 3)
   const b = $v(4, 5, 6)
 
-  assertEquals(
-    a.hadamardproduct(b).toArray(),
-    b.hadamardproduct(a).toArray(),
-  )
+  assertEquals(a.hadamardProduct(b).toArray(), b.hadamardProduct(a).toArray())
 })
 
 test('Vector - Hadamard Product scalar mult equivalence', () => {
   const v = $v(2, 4, 6)
   const k = 3
 
-  const hadamardResult = v.hadamardproduct(k, k, k)
+  const hadamardResult = v.hadamardProduct(k, k, k)
   const multResult = v.clone().mult(k)
 
   assertEquals(hadamardResult.toArray(), multResult.toArray())
@@ -291,14 +288,14 @@ test('Vector - Hadamard Product scalar mult equivalence', () => {
 
 test('Vector - Hadamard Product scalar overload negative z', () => {
   const v1 = $v(1, 2, 3)
-  const result = v1.hadamardproduct(4, 5, -2)
+  const result = v1.hadamardProduct(4, 5, -2)
 
   assertEquals(result.toArray(), [4, 10, -6])
 })
 
 test('Vector - Hadamard Product self (squares components)', () => {
   const v = $v(2, 3, 4)
-  const result = v.hadamardproduct(v)
+  const result = v.hadamardProduct(v)
 
   assertEquals(result.toArray(), [4, 9, 16])
 })

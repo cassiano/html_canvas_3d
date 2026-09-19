@@ -170,9 +170,10 @@ export class Vector3d {
     )
   }
 
-  hadamardproduct(x: number, y: number, z?: number): Vector3d
-  hadamardproduct(anotherVector: Vector3d): Vector3d
-  hadamardproduct(
+  // Element-wise multiplication.
+  hadamardProduct(x: number, y: number, z?: number): Vector3d
+  hadamardProduct(anotherVector: Vector3d): Vector3d
+  hadamardProduct(
     xOrAnotherVector: number | Vector3d,
     y?: number,
     z?: number,
