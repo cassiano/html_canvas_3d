@@ -5,10 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/html_canvas_3d/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>html_canvas_3d</title>
-    <script type="module" crossorigin src="/html_canvas_3d/assets/index-sBqpUvsS.js"></script>
+    <script type="module" crossorigin src="/html_canvas_3d/assets/index-zkGd_BkN.js"></script>
     <link rel="stylesheet" crossorigin href="/html_canvas_3d/assets/index-B-sjjUqC.css">
   </head>
   <body>
+    <!--
+      The side menu. It holds the global display toggles and one button per
+      demo. The buttons are looked up by id (`demo1`, `demo2`, …) when the
+      application shell boots, so their ids must match the demo numbering.
+    -->
     <div id="menu">
       <h1>3D Canvas Demos</h1>
       <label for="show-3d-axes-checkbox">
@@ -50,8 +55,16 @@
       <button id="demo21">Demo 21 - Solar System</button>
       <button id="demo22">Demo 22 - Pac-Man 2D (AI-assisted)</button>
     </div>
+    <!--
+      The canvas container. Its size drives the size of the animation canvas,
+      which is kept in sync by a resize listener registered in the shell.
+    -->
     <div id="canvas-container">
       <canvas id="animation"></canvas>
     </div>
+    <!--
+      The application shell. It discovers the demos, wires up the menu, the
+      keyboard shortcuts and the camera gestures, and starts the first demo.
+    -->
   </body>
 </html>
