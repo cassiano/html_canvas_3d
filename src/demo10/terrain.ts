@@ -1,6 +1,6 @@
 import { timesMapN, millis, timesForEachN } from '../utils.ts'
 import { quad } from '../primitives.ts'
-import { perlin } from '../perlin_noise.ts'
+import { perlin } from './perlin_noise.ts'
 import { $v } from '../vector_3d.ts'
 import { floor, map } from '../math_utils.ts'
 
