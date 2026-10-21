@@ -27,6 +27,15 @@ import { $v } from '../vector_3d.ts'
 import { HALF_PI, PI, cos, sin, TWO_PI } from '../math_utils.ts'
 import { autoRotationEnabled } from '../primitives.ts'
 
+/**
+ * Draws a single frame of the space scene.
+ *
+ * A translucent sphere surrounded by two rings, a rotating cube and a box,
+ * a handful of orbiting bodies and a field of stars are drawn against a
+ * dark background.
+ *
+ * @returns Nothing; the shapes are queued for rendering as a side effect.
+ */
 const draw = () => {
   background('#050816')
 
@@ -140,10 +149,24 @@ const draw = () => {
   })
 }
 
+/**
+ * Draws the label shown while the demo is paused.
+ *
+ * @returns Nothing; the label is drawn into the canvas as a side effect.
+ */
 const onPaused = () => {
   text2d('PAUSED', $v(0, 260))
 }
 
+/**
+ * Creates the demo's frame loop and exposes its controls.
+ *
+ * The destructured `startFrameLoop` function begins the animation frame loop
+ * that renders the scene, while `stopFrameLoop` ends it.
+ *
+ * @returns Nothing; `startFrameLoop` and `stopFrameLoop` control the demo's
+ *   frame loop.
+ */
 const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
@@ -154,10 +177,24 @@ const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   FPS,
 )
 
+/**
+ * Starts the demo.
+ *
+ * Begins the animation frame loop that renders the scene.
+ *
+ * @returns Nothing; the demo runs until {@link stop} is called.
+ */
 const start = () => {
   startFrameLoop()
 }
 
+/**
+ * Stops the demo.
+ *
+ * Ends the animation frame loop, so that no further frames are rendered.
+ *
+ * @returns Nothing; the demo's frame loop is left stopped.
+ */
 const stop = () => {
   stopFrameLoop()
 }

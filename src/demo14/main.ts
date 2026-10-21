@@ -17,11 +17,29 @@ import { translate, autoRotationEnabled, scale } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * The number of segments used to approximate the circular cross-sections.
+ */
 const CIRCLE_SEGMENTS = 16
+
+/**
+ * The fill opacity shared by every elbow of the scene.
+ */
 const OPACITY = 0.5
+
+/**
+ * The radius of the elbows, in world units.
+ */
 const RADIUS = 100
+
+/**
+ * The number of slices used to approximate the curved cross-sections.
+ */
 const CIRCLE_SLICES = 16
 
+/**
+ * The options of the grey elbows.
+ */
 const options1: ElbowShapeOptions = {
   circleSegments: CIRCLE_SEGMENTS,
   opacity: OPACITY,
@@ -29,11 +47,17 @@ const options1: ElbowShapeOptions = {
   color: 'darkGray',
 }
 
+/**
+ * The options of the orange elbows.
+ */
 const options2: ElbowShapeOptions = {
   ...options1,
   color: 'orangered',
 }
 
+/**
+ * The options of the black elbows.
+ */
 const options3: ElbowShapeOptions = {
   ...options1,
   color: 'black',
@@ -41,6 +65,14 @@ const options3: ElbowShapeOptions = {
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Draws a single frame of the elbow showcase.
+ *
+ * A series of elbows is arranged around the origin, each of them rendered
+ * with a different color, above the coordinate axes.
+ *
+ * @returns Nothing; the elbows are queued for rendering as a side effect.
+ */
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
@@ -78,10 +110,23 @@ const draw = () => {
   elbow['-z'].x(RADIUS, options2, true)
 }
 
+/**
+ * Draws the label shown while the demo is paused.
+ *
+ * @returns Nothing; the label is drawn into the canvas as a side effect.
+ */
 const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
+/**
+ * Creates the demo's frame loop and exposes its controls.
+ *
+ * The destructured `start` function begins the animation frame loop that
+ * renders the scene, while `stop` ends it. Both are exported by this module.
+ *
+ * @returns Nothing; `start` and `stop` control the demo's frame loop.
+ */
 const { start, stop } = createFrameLoop(
   () => {
     resetTransformationMatrix()

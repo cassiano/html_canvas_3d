@@ -1,6 +1,10 @@
 import { Tuple } from './utility_types.ts'
 import { Vector3d } from './vector_3d.ts'
 
+/**
+ * Numeric constants and functions re-exported from `Math`, so that consumers
+ * never need to import from the global namespace directly.
+ */
 export const {
   PI,
   sin,
@@ -20,18 +24,54 @@ export const {
   ceil,
 } = Math
 
+/** A full turn, in radians. */
 export const TWO_PI = 2 * PI
+
+/** A quarter turn, in radians. */
 export const HALF_PI = PI / 2
 
+/** A full turn, in degrees. */
 export const FULL_CIRCLE_IN_DEGREES = 360
 
+/**
+ * Converts an angle from degrees to radians.
+ *
+ * @param degrees - The angle expressed in degrees.
+ * @returns The equivalent angle expressed in radians.
+ */
 export const radians = (degrees: number) =>
   (degrees / FULL_CIRCLE_IN_DEGREES) * TWO_PI
+
+/**
+ * Converts an angle from radians to degrees.
+ *
+ * @param radians - The angle expressed in radians.
+ * @returns The equivalent angle expressed in degrees.
+ */
 export const degrees = (radians: number) =>
   (radians / TWO_PI) * FULL_CIRCLE_IN_DEGREES
 
+/**
+ * Returns a pseudo-random number within the given range.
+ *
+ * @param min - The lower bound of the range. Defaults to `0`.
+ * @param max - The upper bound of the range. Defaults to `1`.
+ * @returns A random number within `[min, max)`.
+ */
 export const random = (min = 0, max = 1) => Math.random() * (max - min) + min
 
+/**
+ * Re-maps a number from one range onto another.
+ *
+ * @param value - The number to be re-mapped.
+ * @param lower - The lower bound of the source range.
+ * @param higher - The upper bound of the source range.
+ * @param projectedLower - The value that the lower bound maps to.
+ * @param projectedUpper - The value that the upper bound maps to.
+ * @param withinBounds - When `true`, the result is clamped to the projected
+ *   range. Defaults to `false`.
+ * @returns The re-mapped number.
+ */
 export const map = (
   value: number,
   lower: number,
@@ -57,6 +97,15 @@ export const map = (
   )
 }
 
+/**
+ * Multiplies two matrices.
+ *
+ * @param leftMatrix - The left-hand matrix.
+ * @param rightMatrix - The right-hand matrix.
+ * @returns The product of the two matrices.
+ * @throws {Error} When the number of columns of `leftMatrix` does not match
+ *   the number of rows of `rightMatrix`.
+ */
 export const multiplyMatrices = (
   leftMatrix: number[][],
   rightMatrix: number[][],
@@ -88,6 +137,13 @@ export const multiplyMatrices = (
   return result
 }
 
+/**
+ * Multiplies two 4x4 transformation matrices.
+ *
+ * @param leftMatrix - The left-hand matrix.
+ * @param rightMatrix - The right-hand matrix.
+ * @returns The product of the two matrices.
+ */
 export const multiply4x4Matrices = (
   leftMatrix: Tuple<Tuple<number, 4>, 4>,
   rightMatrix: Tuple<Tuple<number, 4>, 4>,
@@ -133,6 +189,14 @@ export const multiply4x4Matrices = (
   ]
 }
 
+/**
+ * Transforms a 4-dimensional point by a 4x4 matrix, discarding the resulting
+ * fourth coordinate.
+ *
+ * @param matrix - The transformation matrix.
+ * @param point - The `[x, y, z, w]` point to transform.
+ * @returns The transformed `[x, y, z]` coordinates.
+ */
 export const multiply4x4MatrixBy4dPoint = (
   matrix: number[][],
   point: number[],
@@ -151,10 +215,26 @@ export const multiply4x4MatrixBy4dPoint = (
 }
 
 // https://en.wikipedia.org/wiki/Polar_coordinate_system
+/**
+ * Converts polar coordinates into Cartesian coordinates on the XY-plane.
+ *
+ * @param radius - The distance from the origin.
+ * @param polarAngle - The angle measured from the positive X-axis, in radians.
+ * @returns A new vector holding the Cartesian coordinates.
+ */
 export const polarToCartesian2d = (radius: number, polarAngle: number) => {
   return Vector3d.create(radius * cos(polarAngle), radius * sin(polarAngle))
 }
 
+/**
+ * Converts Cartesian coordinates on the XY-plane into polar coordinates.
+ *
+ * @param x - The coordinate on the X-axis.
+ * @param y - The coordinate on the Y-axis.
+ * @returns The `[radius, polarAngle]` pair.
+ * @throws {Error} When the resulting vector has a non-zero Z coordinate,
+ *   because polar coordinates are only defined for 2D vectors.
+ */
 export function cartesianToPolar2d(
   x: number,
   y: number,

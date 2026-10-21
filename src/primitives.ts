@@ -30,25 +30,47 @@ import { $v, Vector3d } from './vector_3d.ts'
 
 const FOURTH_DIMENSION_COORD = 1
 
+/**
+ * The canvas element every demo draws into.
+ */
 export const animation = document.getElementById(
   'animation',
 ) as HTMLCanvasElement
 
+/**
+ * The 2D rendering context of {@link animation}.
+ */
 export const ctx = animation.getContext('2d')!
 
+/**
+ * The visual options accepted by every shape primitive.
+ */
 export interface ShapeOptions {
+  /** The fill color of the shape. */
   color?: string | CanvasGradient | CanvasPattern
+  /** The stroke width, in pixels. */
   lineWidth?: number
+  /** The fill opacity, within the range `[0, 1]`. */
   opacity?: number
+  /** The stroke color of the shape. */
   strokeColor?: string | CanvasGradient | CanvasPattern
+  /** Whether the outline should be omitted. */
   noStroke?: boolean
+  /** The size of the shape, in pixels. */
   size?: number
-  noSplit?: boolean // Used for lines and arrows.
+  /** Whether the shape should be drawn as a single unsplit segment. Used for lines and arrows. */
+  noSplit?: boolean
+  /** Whether the shape should be rendered from both sides. */
   isDoubleSided?: boolean
+  /** Whether the surface normal of the shape should never be displayed. */
   nevershowNormals?: boolean
+  /** The fraction of the shape that should be drawn, within the range `[0, 1]`. */
   percentage?: number
 }
 
+/**
+ * The default values applied to every {@link ShapeOptions} field.
+ */
 export const DEFAULT_SHAPE_OPTIONS: Required<ShapeOptions> = {
   color: 'gray',
   lineWidth: 1,
@@ -69,6 +91,14 @@ const deferredRenderList: {
 }[] = []
 
 // https://en.wikipedia.org/wiki/Painter%27s_algorithm
+/**
+ * Draws every shape queued since the last call, from the farthest to the
+ * nearest one.
+ *
+ * This implements the painter's algorithm: shapes are sorted by their depth
+ * and painted back-to-front, so nearer shapes overlap farther ones. The queue
+ * is emptied afterwards, so it must be called once per frame.
+ */
 export const render3dScene = () => {
   const orderedList = deferredRenderList.toSorted((left, right) =>
     abs(left.z - right.z) < Z_EPSILON ? left.id - right.id : left.z - right.z,
@@ -79,30 +109,65 @@ export const render3dScene = () => {
   deferredRenderList.length = 0
 }
 
+/**
+ * The center of the canvas, expressed in world coordinates.
+ */
 export const SCREEN_CENTER = $v(animation.width / 2, animation.height / 2, 0)
 
 const getScreenCenter = () => $v(animation.width / 2, animation.height / 2, 0)
 
 const getAxisLength = () => min(animation.width, animation.height) * 0.6
 
+/**
+ * Whether surface normals are currently displayed.
+ */
 export let showNormals = false
+
+/**
+ * Whether the coordinate axes are currently drawn.
+ */
 export let render3dAxesEnabled = true
+
+/**
+ * Whether the demos should auto-rotate their scene.
+ */
 export let autoRotationEnabled = true
 
+/**
+ * Toggles the display of surface normals.
+ *
+ * @param value - `true` to display normals.
+ */
 export const setshowNormals = (value: boolean) => {
   showNormals = value
 }
 
+/**
+ * Toggles the display of the coordinate axes.
+ *
+ * @param value - `true` to draw the axes.
+ */
 export const setRender3dAxesEnabled = (value: boolean) => {
   render3dAxesEnabled = value
 }
 
+/**
+ * Toggles the auto-rotation of the scene.
+ *
+ * @param value - `true` to let the demos rotate their scene.
+ */
 export const setAutoRotationCheckboxEnabled = (value: boolean) => {
   autoRotationEnabled = value
 }
 
+/**
+ * A 4x4 transformation matrix, stored as a tuple of rows.
+ */
 export type transformationMatrix4x4Type = Tuple<Tuple<number, 4>, 4>
 
+/**
+ * The identity transformation matrix used as the baseline of every scene.
+ */
 export const DEFAULT_TRANSFORMATION_MATRIX: transformationMatrix4x4Type =
   // Use ĵ as [0, -1, 0, 0] so the Y-axis in completely inverted, pointing up.
   // prettier-ignore
@@ -130,38 +195,85 @@ let zoomLevel = 1
 const dragRotation = $v(0, 0)
 const panOffset = $v(0, 0)
 
+/**
+ * Replaces the rotation applied by the user's dragging gesture.
+ *
+ * @param x - The rotation around the X-axis, in radians.
+ * @param y - The rotation around the Y-axis, in radians.
+ */
 export const setDragRotation = (x: number, y: number) => {
   dragRotation.x = x
   dragRotation.y = y
 }
 
+/**
+ * Adds to the rotation applied by the user's dragging gesture.
+ *
+ * @param x - The rotation to add around the X-axis, in radians.
+ * @param y - The rotation to add around the Y-axis, in radians.
+ */
 export const addDragRotation = (x: number, y: number) => {
   dragRotation.add(x, y)
 }
 
+/**
+ * Clears the rotation applied by the user's dragging gesture.
+ */
 export const resetDragRotation = () => setDragRotation(0, 0)
 
+/**
+ * Replaces the zoom factor applied to the scene.
+ *
+ * @param z - The new zoom factor.
+ */
 export const setZoom = (z: number) => {
   zoomLevel = z
 }
 
+/**
+ * Adds to the zoom factor applied to the scene.
+ *
+ * @param delta - The amount to add to the zoom factor.
+ */
 export const addZoom = (delta: number) => {
   zoomLevel += delta
 }
 
+/**
+ * Restores the default zoom factor.
+ */
 export const resetZoom = () => setZoom(1)
 
+/**
+ * Replaces the offset used to pan the scene.
+ *
+ * @param x - The horizontal offset, in pixels.
+ * @param y - The vertical offset, in pixels.
+ */
 export const setPanOffset = (x: number, y: number) => {
   panOffset.x = x
   panOffset.y = y
 }
 
+/**
+ * Adds to the offset used to pan the scene.
+ *
+ * @param x - The horizontal offset to add, in pixels.
+ * @param y - The vertical offset to add, in pixels.
+ */
 export const addPanOffset = (x: number, y: number) => {
   panOffset.add(x, y)
 }
 
+/**
+ * Clears the offset used to pan the scene.
+ */
 export const resetPanOffset = () => setPanOffset(0, 0)
 
+/**
+ * Resets the transformation matrix to its default state, re-applying the
+ * current zoom and drag rotation.
+ */
 export const resetTransformationMatrix = () => {
   transformationMatrix = cloneTransformationMatrix(
     DEFAULT_TRANSFORMATION_MATRIX,
@@ -172,10 +284,18 @@ export const resetTransformationMatrix = () => {
   rotateX(dragRotation.x)
 }
 
+/**
+ * Saves the current transformation matrix onto the transformation stack.
+ */
 export const push = () => {
   transformatioMatrixStack.push(cloneTransformationMatrix(transformationMatrix))
 }
 
+/**
+ * Restores the transformation matrix from the top of the transformation stack.
+ *
+ * @throws {Error} When the transformation stack is empty.
+ */
 export const pop = () => {
   const matrix = transformatioMatrixStack.pop()
 
@@ -184,16 +304,32 @@ export const pop = () => {
   transformationMatrix = matrix
 }
 
-export const pushMatrix = push // Synonym for `push()`, as used by Processing.
-export const popMatrix = pop // Synonym for `pop()`, as used by Processing.
+/**
+ * Synonym for {@link push}, as used by Processing.
+ */
+export const pushMatrix = push
 
+/**
+ * Synonym for {@link pop}, as used by Processing.
+ */
+export const popMatrix = pop
+
+/**
+ * Runs a function with an isolated transformation state, restoring the
+ * previous state afterwards.
+ *
+ * @param fn - The function to run.
+ */
 export const isolateTransformations = (fn: () => void) => {
   push()
   fn()
   pop()
 }
 
-export const restoreCoordinateSystem = isolateTransformations // Synonym for `isolateTransformations()`.
+/**
+ * Synonym for {@link isolateTransformations}.
+ */
+export const restoreCoordinateSystem = isolateTransformations
 
 interface ScaleOverloadedSignatures {
   (x: number, y: number, z: number): void
@@ -201,6 +337,19 @@ interface ScaleOverloadedSignatures {
   (vector: Vector3d): void
 }
 
+/**
+ * Scales the scene.
+ *
+ * @param x - The scale factor on the X-axis, when using the `(x, y, z)`
+ *   overload.
+ * @param y - The scale factor on the Y-axis, when using the `(x, y, z)`
+ *   overload.
+ * @param z - The scale factor on the Z-axis, when using the `(x, y, z)`
+ *   overload.
+ * @param xyz - The scale factor applied to every axis, when using the
+ *   single-number overload.
+ * @param vector - The per-axis scale factors, when using the vector overload.
+ */
 export const scale: ScaleOverloadedSignatures = (
   xOrXyzOrVector: number | Vector3d,
   y?: number,
@@ -239,6 +388,14 @@ interface TranslateOverloadedSignatures {
 }
 
 // Translate using an "Affine Transformation".
+/**
+ * Translates the scene.
+ *
+ * @param x - The offset on the X-axis, when using the coordinate overload.
+ * @param y - The offset on the Y-axis, when using the coordinate overload.
+ * @param z - The offset on the Z-axis, when using the coordinate overload.
+ * @param vector - The offset, when using the vector overload.
+ */
 export const translate: TranslateOverloadedSignatures = (
   xOrVector: number | Vector3d,
   y?: number,
@@ -269,6 +426,15 @@ export const translate: TranslateOverloadedSignatures = (
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221OL6ezsueUbeXeq3_HvOMHkaVCwXvLuDK%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
 // Counter-clockwise rotation around an arbitrary axis.
+/**
+ * Rotates the scene counter-clockwise around an arbitrary axis.
+ *
+ * @param angle - The rotation angle, in radians.
+ * @param axis - The axis to rotate around. It does not need to be normalized.
+ * @param options - Additional options.
+ * @param options.isCanonical - Set it to `true` when `axis` is already a unit
+ *   vector, to skip normalizing it.
+ */
 export const rotate = (
   angle: number,
   axis: Vector3d,
@@ -301,6 +467,11 @@ export const rotate = (
 }
 
 // Counter-clockwise rotation around the X axis.
+/**
+ * Rotates the scene counter-clockwise around the X-axis.
+ *
+ * @param angle - The rotation angle, in radians.
+ */
 export const rotateX = (angle: number) => {
   if (angle === 0) return
 
@@ -324,6 +495,11 @@ export const rotateX = (angle: number) => {
 }
 
 // Counter-clockwise rotation around the Y axis.
+/**
+ * Rotates the scene counter-clockwise around the Y-axis.
+ *
+ * @param angle - The rotation angle, in radians.
+ */
 export const rotateY = (angle: number) => {
   if (angle === 0) return
 
@@ -350,6 +526,11 @@ export const rotateY = (angle: number) => {
 }
 
 // Counter-clockwise rotation around the Z axis.
+/**
+ * Rotates the scene counter-clockwise around the Z-axis.
+ *
+ * @param angle - The rotation angle, in radians.
+ */
 export const rotateZ = (angle: number) => {
   if (angle === 0) return
 
@@ -372,6 +553,11 @@ export const rotateZ = (angle: number) => {
   // Equivalent to: `rotate(angle, AXES.z, { isCanonical: true })`
 }
 
+/**
+ * Fills the whole canvas with a solid color.
+ *
+ * @param color - The CSS color to fill the canvas with.
+ */
 export const background = (color: string) => {
   ctx.fillStyle = color
   ctx.fillRect(0, 0, animation.width, animation.height)
@@ -388,6 +574,14 @@ const getCurrentFocalLength = () => {
 }
 
 // Updated projection function.
+/**
+ * Projects a world-space point onto the screen using a perspective
+ * projection.
+ *
+ * @param point - The world-space point to project.
+ * @returns The projected 2D point, or `undefined` when the point lies behind
+ *   the camera.
+ */
 export const project3dTo2d = ({ x, y, z }: Vector3d) => {
   const focalLength = getCurrentFocalLength()
   const divisor = focalLength - z
@@ -400,10 +594,23 @@ export const project3dTo2d = ({ x, y, z }: Vector3d) => {
 }
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%2218pwbUVcOk6C_ICb7JXo82YBAFzJMpz_a%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
+/**
+ * Moves a point to the center of the canvas, applying the current pan offset.
+ *
+ * @param point - The point to centralize. When omitted, the canvas center
+ *   itself is returned.
+ * @returns The centralized point, or `undefined` when no point was given.
+ */
 export const centralize = (point?: Vector3d) =>
   point?.clone().add(getScreenCenter()).add(panOffset)
 
 // Optimized versions.
+/**
+ * Applies the current transformation matrix to a world-space point.
+ *
+ * @param point - The point to transform.
+ * @returns The transformed point.
+ */
 export const transform = (point: Vector3d): Vector3d =>
   $v(
     ...multiply4x4MatrixBy4dPoint(transformationMatrix, [
@@ -415,6 +622,13 @@ export const transform = (point: Vector3d): Vector3d =>
   )
 
 // https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221bVRsjpez2q3HdcsuDn1nKKO_de1Zmyly%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing, https://drive.google.com/file/d/1bvI7QTO-_Yvs8iV2MDNuaO-NVDi9NYnq/view?usp=sharing
+/**
+ * Applies the current transformation matrix to a direction vector, ignoring
+ * translation.
+ *
+ * @param point - The direction vector to transform.
+ * @returns The transformed direction vector.
+ */
 export const transformNormal = (point: Vector3d): Vector3d =>
   $v(
     ...multiply4x4MatrixBy4dPoint(transformationMatrix, [
@@ -428,6 +642,12 @@ export const transformNormal = (point: Vector3d): Vector3d =>
 const toScreen = (point: Vector3d) =>
   centralize(project3dTo2d(transform(point)))
 
+/**
+ * Draws a single point.
+ *
+ * @param point3d - The world-space position of the point.
+ * @param options - The shape options.
+ */
 export const point = (point3d: Vector3d, options: ShapeOptions = {}) => {
   const finalOptions = { ...DEFAULT_SHAPE_OPTIONS, ...options }
   const { color, size, opacity } = finalOptions
@@ -450,12 +670,27 @@ export const point = (point3d: Vector3d, options: ShapeOptions = {}) => {
   })
 }
 
+/**
+ * The options accepted by {@link arrow}.
+ *
+ * Extends the shared shape options with the geometry of the arrow head.
+ */
 type ArrowShapeOptions = ShapeOptions & {
+  /** The radius of the arrow head's base, in pixels. */
   tipRadius: number
+  /** The height of the arrow head, in pixels. */
   tipHeight: number
+  /** The number of segments used to approximate the arrow head's base. */
   circleSegments?: number
 }
 
+/**
+ * Draws an arrow from one point to another, with a cone-shaped head.
+ *
+ * @param point3dA - The world-space position of the arrow's tail.
+ * @param point3dB - The world-space position of the arrow's tip.
+ * @param options - The shape options, plus the arrow head's radius and height.
+ */
 export const arrow = (
   point3dA: Vector3d,
   point3dB: Vector3d,
@@ -494,6 +729,13 @@ export const arrow = (
   })
 }
 
+/**
+ * Draws a line segment between two points.
+ *
+ * @param point3dA - The world-space position of the first endpoint.
+ * @param point3dB - The world-space position of the second endpoint.
+ * @param options - The shape options.
+ */
 export const line = (
   point3dA: Vector3d,
   point3dB: Vector3d,
@@ -545,6 +787,18 @@ export const line = (
   })
 }
 
+/**
+ * Draws a triangle.
+ *
+ * @param pointA - The world-space position of the first vertex.
+ * @param pointB - The world-space position of the second vertex.
+ * @param pointC - The world-space position of the third vertex.
+ * @param options - The shape options.
+ * @param screenCoords - Optional pre-projected screen coordinates, used to
+ *   avoid projecting the same vertex twice when a shape is built from
+ *   several triangles.
+ * @returns The screen coordinates of the three vertices.
+ */
 export const triangle2d = (
   pointA: Vector3d,
   pointB: Vector3d,
@@ -642,6 +896,13 @@ export const triangle2d = (
   return { screenA, screenB, screenC }
 }
 
+/**
+ * Tells whether a surface faces the camera.
+ *
+ * @param center - A point on the surface.
+ * @param normal - The surface's normal vector.
+ * @returns `true` when the surface is visible from the camera's position.
+ */
 const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
   const transformed = {
     center: transform(center),
@@ -660,6 +921,15 @@ const isShapeFacingCamera = (center: Vector3d, normal: Vector3d): boolean => {
 }
 
 // Quadrilateral.
+/**
+ * Draws a quadrilateral, as two triangles sharing an edge.
+ *
+ * @param pointA - The world-space position of the first vertex.
+ * @param pointB - The world-space position of the second vertex.
+ * @param pointC - The world-space position of the third vertex.
+ * @param pointD - The world-space position of the fourth vertex.
+ * @param options - The shape options.
+ */
 export const quad = (
   pointA: Vector3d,
   pointB: Vector3d,
@@ -673,6 +943,13 @@ export const quad = (
     triangle2d(pointA, pointC, pointD, options, [screenA, screenC])
 }
 
+/**
+ * Draws a rectangle centered on the current origin, on the XY-plane.
+ *
+ * @param width - The rectangle's width, along the X-axis.
+ * @param height - The rectangle's height, along the Y-axis.
+ * @param options - The shape options.
+ */
 export const rect2d = (
   width: number, // X-axis
   height: number, // Y-axis
@@ -686,10 +963,24 @@ export const rect2d = (
   quad(point2dA, point2dB, point2dC, point2dD, options)
 }
 
+/**
+ * Draws a square centered on the current origin, on the XY-plane.
+ *
+ * @param side - The length of the square's sides.
+ * @param options - The shape options.
+ */
 export const square2d = (side: number, options: ShapeOptions = {}) => {
   rect2d(side, side, options)
 }
 
+/**
+ * Draws a rectangular box centered on the current origin.
+ *
+ * @param width - The box's width, along the X-axis.
+ * @param height - The box's height, along the Y-axis.
+ * @param depth - The box's depth, along the Z-axis.
+ * @param options - The shape options.
+ */
 export const box = (
   width: number, // X-axis
   height: number, // Y-axis
@@ -744,15 +1035,35 @@ export const box = (
   })
 }
 
+/**
+ * Draws a cube centered on the current origin.
+ *
+ * @param size - The length of the cube's sides.
+ * @param options - The shape options.
+ */
 export const cube = (size: number, options: ShapeOptions = {}) => {
   box(size, size, size, options)
 }
 
+/**
+ * The options accepted by {@link sphere}.
+ *
+ * Extends the shared shape options with the resolution of the surface mesh.
+ */
 type SphericalShapeOptions = ShapeOptions & {
+  /** The number of lines used to approximate the sphere's latitude bands. */
   latitudeLines?: number
+  /** The number of lines used to approximate the sphere's longitude bands. */
   longitudeLines?: number
 }
 
+/**
+ * Draws a sphere centered on the current origin.
+ *
+ * @param radius - The sphere's radius.
+ * @param options - The shape options, plus the number of latitude and
+ *   longitude lines used to approximate its surface.
+ */
 export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
@@ -786,8 +1097,23 @@ export const sphere = (radius: number, options: SphericalShapeOptions = {}) => {
   })
 }
 
-export type CircularShapeOptions = ShapeOptions & { circleSegments?: number }
+/**
+ * The options accepted by every shape that approximates a circle.
+ *
+ * Extends the shared shape options with the resolution of the circle.
+ */
+export type CircularShapeOptions = ShapeOptions & {
+  /** The number of segments used to approximate the circle. */
+  circleSegments?: number
+}
 
+/**
+ * Draws a filled circle centered on the current origin, on the XY-plane.
+ *
+ * @param radius - The circle's radius.
+ * @param options - The shape options, plus the number of segments used to
+ *   approximate the circle.
+ */
 export const circle2d = (
   radius: number, // XY-plane
   options: CircularShapeOptions = {},
@@ -813,6 +1139,14 @@ export const circle2d = (
   }
 }
 
+/**
+ * Draws the outline of a circle centered on the current origin, on the
+ * XY-plane.
+ *
+ * @param radius - The circle's radius.
+ * @param options - The shape options, plus the number of segments used to
+ *   approximate the circle.
+ */
 export const circlePerimeter2d = (
   radius: number, // XY-plane
   options: CircularShapeOptions = {},
@@ -837,6 +1171,15 @@ export const circlePerimeter2d = (
 }
 
 // [/doc_img/primitives.ts/2026-07-03-11-36-30.png]
+/**
+ * Draws a hollow ring (a tube) centered on the current origin, extending
+ * along the Z-axis.
+ *
+ * @param radius - The ring's outer radius, on the XY-plane.
+ * @param depth - The ring's length, along the Z-axis.
+ * @param options - The shape options, plus the number of segments used to
+ *   approximate the ring.
+ */
 export const ring = (
   radius: number, // XY-plane
   depth: number, // Z-axis
@@ -868,6 +1211,14 @@ export const ring = (
 }
 
 // [/doc_img/primitives.ts/2026-07-23-12-29-52.png]
+/**
+ * Draws a flat annular ring centered on the current origin, on the XY-plane.
+ *
+ * @param internalRadius - The ring's inner radius, on the XY-plane.
+ * @param externalRadius - The ring's outer radius, on the XY-plane.
+ * @param options - The shape options, plus the number of segments used to
+ *   approximate the ring.
+ */
 export const saturnRing = (
   internalRadius: number, // XY-plane
   externalRadius: number, // XY-plane
@@ -895,6 +1246,15 @@ export const saturnRing = (
 }
 
 // [/doc_img/primitives.ts/2026-07-19-15-40-03.png]
+/**
+ * Draws a wedge shaped like a slice of a spherical shell, centered on the
+ * current origin.
+ *
+ * @param radius - The slice's radius, on the XY-plane.
+ * @param depth - The slice's height, along the Z-axis.
+ * @param options - The shape options, plus the number of segments used to
+ *   approximate the slice.
+ */
 export const sphericalCheeseSlice = (
   radius: number, // XY-plane
   depth: number, // Z-axis
@@ -923,6 +1283,17 @@ export const sphericalCheeseSlice = (
   }
 }
 
+/**
+ * Draws a torus centered on the current origin.
+ *
+ * @param internalRadius - The distance from the center to the middle of the
+ *   tube, on the XY-plane.
+ * @param tubeRadius - The radius of the tube, on the XY-plane.
+ * @param torusCircleSegments - The number of segments used to approximate the
+ *   torus.
+ * @param options - The shape options, plus the number of segments used to
+ *   approximate each ring.
+ */
 export const torus = (
   internalRadius: number, // XY-plane
   tubeRadius: number, // XY-plane
@@ -946,6 +1317,14 @@ export const torus = (
   }
 }
 
+/**
+ * Draws a cone centered on the current origin, pointing along the Z-axis.
+ *
+ * @param radius - The cone's base radius, on the XY-plane.
+ * @param depth - The cone's height, along the Z-axis.
+ * @param options - The shape options, plus the number of segments used to
+ *   approximate the cone.
+ */
 export const cone = (
   radius: number, // XY-plane
   depth: number, // Z-axis.
@@ -982,6 +1361,14 @@ export const cone = (
   }
 }
 
+/**
+ * Draws a cylinder centered on the current origin, extending along the Z-axis.
+ *
+ * @param radius - The cylinder's radius, on the XY-plane.
+ * @param depth - The cylinder's length, along the Z-axis.
+ * @param options - The shape options, plus the number of segments used to
+ *   approximate the cylinder.
+ */
 export const cylinder = (
   radius: number, // XY-plane
   depth: number, // Z-axis.
@@ -1015,6 +1402,19 @@ export const cylinder = (
   }
 }
 
+/**
+ * Draws a text label in the scene.
+ *
+ * @param message - The text to draw.
+ * @param point - The world-space position of the text.
+ * @param color - The color of the text. Defaults to `'red'`.
+ * @param options - The typographic options.
+ * @param options.fontSize - The font size, in pixels. Defaults to `60`.
+ * @param options.fontFamily - The font family. Defaults to `'sans-serif'`.
+ * @param options.fontWeight - The font weight. Defaults to `'bold'`.
+ * @param options.textAlign - The horizontal alignment. Defaults to `'center'`.
+ * @param options.textBaseline - The vertical alignment. Defaults to `'middle'`.
+ */
 export const text2d = (
   message: string,
   point: Vector3d,
@@ -1043,6 +1443,12 @@ export const text2d = (
   ctx.fillText(message, position.x, position.y)
 }
 
+/**
+ * Draws the coordinate axes, as three colored arrows.
+ *
+ * @param length - The total length of the axes. Defaults to a value derived
+ *   from the canvas size.
+ */
 export const render3dAxes = (length?: number) => {
   if (!render3dAxesEnabled) return
 
@@ -1070,6 +1476,12 @@ export const render3dAxes = (length?: number) => {
   })
 }
 
+/**
+ * Returns the depth of a point along the camera axis.
+ *
+ * @param point3d - The world-space point.
+ * @returns The point's depth, used to order the scene.
+ */
 const calculateZ = (point3d: Vector3d): number => {
   const [tm20, tm21, tm22, tm23] = transformationMatrix[2] // 3rd row.
   const { x, y, z } = point3d

@@ -30,14 +30,36 @@ import { autoRotationEnabled } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * The cube rendered by the demo, or `null` while the demo is stopped.
+ */
 let cube: RubikCube | null = null
 
 // Get the canvas container
+/**
+ * The element the demo's canvas and control panel are attached to.
+ *
+ * @throws {Error} With the message `canvasContainer not found` when the page
+ *   does not provide the expected container element.
+ */
 const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
+/**
+ * The demo's control panel, or `null` when the panel has been removed.
+ */
 let demoControlPanel: HTMLDivElement | null
 
+/**
+ * Creates the demo's control panel and the cube it controls.
+ *
+ * The panel hosts the sliders and the toggles that drive the demo. Moving
+ * the "cubies per axis" or the "cubie size" slider rebuilds the cube from
+ * scratch with the new values.
+ *
+ * @returns Nothing; the panel is appended to the canvas container and the
+ *   demo's cube is replaced.
+ */
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
@@ -83,6 +105,11 @@ const createDemoControls = () => {
     }),
   }
 
+  /**
+   * Rebuilds the demo's cube using the current slider values.
+   *
+   * @returns Nothing; the demo's cube is replaced.
+   */
   const createRubikCube = () => {
     cube = new RubikCube(cubieSize(), cubiesPerAxis())
   }
@@ -96,6 +123,18 @@ const createDemoControls = () => {
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Draws a single frame of the demo.
+ *
+ * Fills the canvas with the background color, applies the camera rotation
+ * (automatic or fixed), draws the coordinate axes and renders the cube.
+ *
+ * @returns Nothing; the frame's shapes are queued for rendering.
+ * @throws {Error} With the message `demo3Form.sliders should contain a value`
+ *   when the demo's sliders have not been created yet.
+ * @throws {Error} With the message `demo3Form.toggles should contain a value`
+ *   when the demo's toggles have not been created yet.
+ */
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
@@ -116,6 +155,11 @@ const draw = () => {
   cube?.render()
 }
 
+/**
+ * Displays the "PAUSED" indicator over the scene.
+ *
+ * @returns Nothing; the label is drawn directly onto the canvas.
+ */
 const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
@@ -130,11 +174,27 @@ const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   FPS,
 )
 
+/**
+ * Starts the demo.
+ *
+ * Creates the control panel and the initial cube, then begins the animation
+ * frame loop that renders the scene.
+ *
+ * @returns Nothing; the demo starts running as a side effect.
+ */
 const start = () => {
   createDemoControls()
   startFrameLoop()
 }
 
+/**
+ * Stops the demo.
+ *
+ * Removes the control panel from the page, discards the cube and ends the
+ * animation frame loop.
+ *
+ * @returns Nothing; the demo is torn down as a side effect.
+ */
 const stop = () => {
   demoControlPanel?.remove()
 
@@ -144,4 +204,10 @@ const stop = () => {
   stopFrameLoop()
 }
 
+/**
+ * The demo's public API.
+ *
+ * `start()` launches the demo and its animation frame loop, while `stop()`
+ * tears them down.
+ */
 export { start, stop }

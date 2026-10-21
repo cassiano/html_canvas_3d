@@ -87,13 +87,25 @@ import {
   toWorldPoint,
 } from './render_utils.ts'
 
+/**
+ * The two states the game can be in.
+ *
+ * `playing` means a player is in control; `gameOver` means the demo is
+ * showing its attract mode, the insertion prompt, or the name entry screen.
+ */
 type GameState = 'playing' | 'gameOver'
 
+/**
+ * The maze characters that may mark a ghost's starting cell.
+ */
 type GhostMarker =
   | typeof CLYDE_MARKER
   | typeof INKY_MARKER
   | typeof PINKY_MARKER
   | typeof BLINKY_MARKER
+/**
+ * The display names of the four ghosts.
+ */
 type GhostName =
   | typeof BLINKY_NAME
   | typeof PINKY_NAME
@@ -101,6 +113,9 @@ type GhostName =
   | typeof CLYDE_NAME
 
 // [/doc_img/game.ts/2026-08-08-12-04-06.png]
+/**
+ * A character that may occupy a cell of the maze.
+ */
 type Tile =
   | typeof WALL_MARKER
   | typeof EMPTY_MARKER
@@ -110,61 +125,118 @@ type Tile =
   | typeof PACMAN_MARKER
   | GhostMarker
 
+/**
+ * Where a ghost starts, and how it is identified.
+ */
 type GhostStart = {
+  /** The cell the ghost starts on, in maze tiles. */
   position: Vector3d
+  /** The maze character that marked the ghost's starting cell. */
   marker: GhostMarker
+  /** The ghost's display name. */
   name: GhostName
+  /** The CSS color of the ghost's body. */
   color: string
 }
 
+/**
+ * The persisted high score record.
+ */
 type HighScoreRecord = {
+  /** The score of the record, in points. */
   score: number
+  /** The difficulty phase the record was set in. */
   phase: number
+  /** The three-character tag of the record holder, when it is known. */
   initials?: string
 }
 
+/**
+ * The Pac-Man game: it owns the maze, the actors, the score, and the
+ * rendering of the whole scene.
+ */
 export class Game {
+  /** The maze tiles of the current round. */
   private readonly maze: Tile[][]
+  /** The cell where Pac-Man is placed when a round starts. */
   private readonly pacmanStart: Vector3d
+  /** The starting cell of each ghost. */
   private readonly ghostStarts: GhostStart[]
+  /** The cell where the bonus cherry appears. */
   private readonly cherrySpawnPosition: Vector3d
+  /** The player character. */
   private readonly pacman: Pacman
+  /** The four ghosts that chase the player. */
   private readonly ghosts: Ghost[]
 
+  /** The timestamp of the last processed tick, used to compute the elapsed time. */
   private lastTickMillis: number | null = null
+  /** The score accumulated during the current run. */
   private score = 0
+  /** The best score recorded on this machine. */
   private highScore = 0
+  /** The phase of the high-score entry sequence the game is currently in. */
   private highScorePhase = 1
 
   // highScoreInitials is the three-character arcade tag saved alongside the
   // record; it defaults to dashes until a record holder signs their score.
   private highScoreInitials = '---'
 
-  // highScoreAtRunStart snapshots the stored record when a run begins, so the
-  // game-over transition can tell whether THIS run earned name entry even
-  // though addScore() promotes this.score into highScore while playing.
+  /**
+   * Snapshots the stored record when a run begins, so the game-over
+   * transition can tell whether THIS run earned name entry even though
+   * `addScore()` promotes `score` into `highScore` while playing.
+   */
   private highScoreAtRunStart = 0
+  /** Whether the game is currently waiting for the player to type their initials. */
   private isEnteringInitials = false
+  /** The characters typed so far during the high-score entry sequence. */
   private initialsChars: string[] = []
 
+  /** The number of Pac-Man lives left in the current round. */
   private lives = PACMAN_STARTING_LIVES
+  /** The current state of the game session. */
   private gameState: GameState = 'gameOver'
+  /** The number of pellets still to be collected in the current round. */
   private pelletsRemaining = 0
+  /** How much longer the power mode lasts, in milliseconds. */
   private powerModeRemainingMs = 0
+  /** How many ghosts have been eaten during the current power mode. */
   private ghostCombo = 0
 
-  // roundDelayRemainingMs is the countdown (in milliseconds) for the "READY!" pause shown at
-  // the start of each round — it's set to ROUND_START_DELAY_MS in resetRound() and counted down
-  // in update(); while it's above zero, actor movement and pellet/collision logic are skipped
-  // so the maze freezes briefly before play resumes.
+  /**
+   * The countdown (in milliseconds) for the "READY!" pause shown at the start
+   * of each round.
+   *
+   * It is set to `ROUND_START_DELAY_MS` in `resetRound()` and counted down in
+   * `update()`; while it is above zero, actor movement and pellet/collision
+   * logic are skipped so the maze freezes briefly before play resumes.
+   */
   private roundDelayRemainingMs = 0
 
+  /** The identifier of the power mode currently in progress. */
   private currentPowerModeId = 0
+  /** Whether the player has already started the current game session. */
   private hasStartedGame = false
+  /** The number of the level currently being played. */
   private phase = 1
+  /** How much longer the bonus cherry stays on the maze, in milliseconds. */
   private cherryVisibleRemainingMs = 0
+  /** How long until the bonus cherry appears again, in milliseconds. */
   private cherryRespawnRemainingMs = 0
 
+  /**
+   * Creates the game.
+   *
+   * The maze is copied from the immutable template, so gameplay can consume
+   * pellets and replace markers without affecting the source maze shared by
+   * future rounds. The stored high score record is loaded from
+   * `localStorage`.
+   *
+   * @returns Nothing; the game's initial state is prepared in place.
+   * @throws {Error} When the maze template does not contain one of the
+   *   expected spawn markers. The message reads `Marker not found: <marker>`.
+   */
   constructor() {
     // Copy the immutable template so gameplay can consume pellets and replace
     // markers without mutating the source maze shared by future rounds.
@@ -200,6 +272,15 @@ export class Game {
       highScoreRecord.initials ?? '-'.repeat(HIGH_SCORE_INITIALS_LENGTH)
   }
 
+  /**
+   * Advances the simulation by one frame and draws the resulting scene.
+   *
+   * @returns Nothing; the game state is updated and the canvas is redrawn.
+   * @throws {Error} When the tile Pac-Man stands on is not a known maze
+   *   character. The message reads `Unhandled tile type: <tile>`.
+   * @throws {TypeError} When the maze layout does not contain Pinky the
+   *   ghost, whose starting cell is used as the ghost house centre.
+   */
   drawFrame() {
     if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0)
       console.log({ fps: fps() })
@@ -220,6 +301,11 @@ export class Game {
     this.render()
   }
 
+  /**
+   * Draws the indicator shown while the demo is paused.
+   *
+   * @returns Nothing; the indicator is drawn onto the canvas.
+   */
   renderPaused() {
     text2d(
       'PAUSED',
@@ -229,6 +315,20 @@ export class Game {
     )
   }
 
+  /**
+   * Handles a key press.
+   *
+   * While a game is being played the arrow keys and the WASD keys steer
+   * Pac-Man; otherwise Enter starts a new game. During the high score name
+   * entry the keyboard belongs to the name entry screen, and the event is
+   * swallowed so the global shortcuts do not react to the typed characters.
+   *
+   * @param event - The keyboard event to handle.
+   * @returns Nothing; the game state is updated in place.
+   * @throws {Error} When a new game is started and the maze template does not
+   *   contain one of the expected spawn markers. The message reads
+   *   `Marker not found: <marker>`.
+   */
   handleKeydown = (event: KeyboardEvent) => {
     resumeAudio()
 
@@ -269,10 +369,24 @@ export class Game {
     }
   }
 
+  /**
+   * Stops the sounds the game may be playing.
+   *
+   * @returns Nothing; the repeating power mode siren is stopped.
+   */
   stop() {
     stopPowerSirenLoop()
   }
 
+  /**
+   * Handles a key press during the high score name entry.
+   *
+   * The event is always swallowed, so the global shortcuts of the host page
+   * stay out of the way while the initials are being typed.
+   *
+   * @param event - The keyboard event to handle.
+   * @returns Nothing; the initials being typed are updated in place.
+   */
   private handleInitialsKeydown(event: KeyboardEvent) {
     event.preventDefault()
     event.stopImmediatePropagation()
@@ -300,6 +414,13 @@ export class Game {
       this.initialsChars.push(characters[0])
   }
 
+  /**
+   * Confirms the high score name entry and stores the result.
+   *
+   * Unfilled slots are saved as dashes.
+   *
+   * @returns Nothing; the high score record is updated and persisted.
+   */
   private confirmInitials() {
     while (this.initialsChars.length < HIGH_SCORE_INITIALS_LENGTH)
       this.initialsChars.push('-')
@@ -315,10 +436,24 @@ export class Game {
     })
   }
 
+  /**
+   * Tells whether the power mode is currently active.
+   *
+   * @returns `true` while the power mode timer is running.
+   */
   private inPowerMode() {
     return this.powerModeRemainingMs > 0
   }
 
+  /**
+   * Tells whether a ghost is currently edible.
+   *
+   * A ghost already eaten during the current power mode cycle stays a normal
+   * chaser until it is revived and re-frightened by a future power pellet.
+   *
+   * @param ghost - The ghost to test.
+   * @returns `true` when the ghost is frightened and can be eaten.
+   */
   private isGhostFrightened(ghost: Ghost): boolean {
     // A ghost already eaten during this power-mode cycle stays a normal
     // chaser until revived and re-frightened by a future power pellet.
@@ -329,6 +464,16 @@ export class Game {
     )
   }
 
+  /**
+   * Starts a new game.
+   *
+   * The score and the lives are reset, while the high score intentionally
+   * survives through `localStorage` and is not cleared here.
+   *
+   * @returns Nothing; the game state is updated in place.
+   * @throws {Error} When the maze template does not contain one of the
+   *   expected spawn markers. The message reads `Marker not found: <marker>`.
+   */
   private startGame() {
     // A new game resets score and lives, while the high score intentionally
     // survives through localStorage and is not cleared here.
@@ -351,6 +496,18 @@ export class Game {
     this.resetRound()
   }
 
+  /**
+   * Returns the maze character occupying a cell.
+   *
+   * @param actor - The actor whose cell should be read.
+   * @param position - The cell to read, in maze tiles. Used instead of
+   *   `actor`.
+   * @param col - The column of the cell to read. Used instead of `actor` and
+   *   `position`.
+   * @param row - The row of the cell to read. Used only together with `col`.
+   * @returns The character occupying the cell, or the wall marker when the
+   *   cell lies outside the maze.
+   */
   private getTile(actor: Actor): Tile
   private getTile(position: Vector3d): Tile
   private getTile(col: number, row: number): Tile
@@ -368,6 +525,15 @@ export class Game {
     return this.maze[position.y][position.x] ?? WALL_MARKER
   }
 
+  /**
+   * Writes a maze character into a cell.
+   *
+   * @param actor - The actor whose cell should be written.
+   * @param value - The character to write.
+   * @param position - The cell to write, in maze tiles. Used instead of
+   *   `actor`.
+   * @returns Nothing; the maze is updated in place.
+   */
   private setTile(actor: Actor, value: Tile): void
   private setTile(position: Vector3d, value: Tile): void
   private setTile(actorOrPosition: Actor | Vector3d, value: Tile): void {
@@ -379,6 +545,14 @@ export class Game {
     this.maze[position.y][position.x] = value
   }
 
+  /**
+   * Finds the cell holding a spawn marker and replaces it with an empty cell.
+   *
+   * @param marker - The maze character to look for.
+   * @returns A new vector holding the position of the marker, in maze tiles.
+   * @throws {Error} When the maze holds no such marker. The message reads
+   *   `Marker not found: <marker>`.
+   */
   private findAndClearMarker(marker: Tile): Vector3d {
     for (let row = 0; row < ROW_COUNT; row++) {
       for (let col = 0; col < COLUMN_COUNT; col++) {
@@ -393,6 +567,14 @@ export class Game {
     throw new Error(`Marker not found: ${marker}`)
   }
 
+  /**
+   * Finds and clears the starting cells of all the ghosts.
+   *
+   * @returns The starting position and identity of every ghost, in the order
+   *   the ghosts are declared in the ghost specifications.
+   * @throws {Error} When the maze holds no marker for one of the ghosts. The
+   *   message reads `Marker not found: <marker>`.
+   */
   private findAndClearGhostMarkers(): GhostStart[] {
     return GHOST_MARKER_SPECS.map(spec => {
       const position = this.findAndClearMarker(spec.marker)
@@ -404,6 +586,14 @@ export class Game {
     })
   }
 
+  /**
+   * Returns the cell the eaten ghosts head back to.
+   *
+   * @returns A new vector holding the centre of the ghost house, in maze
+   *   tiles.
+   * @throws {TypeError} When the maze layout does not contain Pinky the
+   *   ghost, whose starting cell marks the ghost house.
+   */
   private getGhostHouseCenterTarget(): Vector3d {
     const pinkyStart = this.ghostStarts.find(start => start.name === PINKY_NAME)
     assertIsNotUndefined(pinkyStart)
@@ -411,6 +601,17 @@ export class Game {
     return pinkyStart.position.clone()
   }
 
+  /**
+   * Restores the maze to the layout of the template.
+   *
+   * Every tile is restored and the spawn markers are removed again, because
+   * the actors keep their starting positions separately from the visible maze
+   * contents.
+   *
+   * @returns Nothing; the maze is updated in place.
+   * @throws {Error} When the maze template does not contain one of the
+   *   expected spawn markers. The message reads `Marker not found: <marker>`.
+   */
   private resetMazeFromTemplate() {
     // Restore every tile, then remove spawn markers again because actors keep
     // their start positions separately from the visible maze contents.
@@ -426,21 +627,43 @@ export class Game {
     this.pelletsRemaining = this.countRemainingPellets()
   }
 
+  /**
+   * Returns how long the game waits before the cherry reappears.
+   *
+   * @returns The delay, in milliseconds, within the current phase's respawn
+   *   bounds.
+   */
   private randomCherryRespawnDelayMs() {
     const bounds = this.getCherryRespawnBounds()
 
     return bounds.min + random() * (bounds.max - bounds.min)
   }
 
+  /**
+   * Removes the cherry from the maze.
+   *
+   * @returns Nothing; the maze is updated in place.
+   */
   private hideCherry() {
     if (this.getTile(this.cherrySpawnPosition) === CHERRY_MARKER)
       this.setTile(this.cherrySpawnPosition, EMPTY_MARKER)
   }
 
+  /**
+   * Puts the cherry back into the maze.
+   *
+   * @returns Nothing; the maze is updated in place.
+   */
   private showCherry() {
     this.setTile(this.cherrySpawnPosition, CHERRY_MARKER)
   }
 
+  /**
+   * Restarts the cherry cycle, so the cherry is hidden and a new respawn
+   * delay is picked.
+   *
+   * @returns Nothing; the cherry timers are updated in place.
+   */
   private resetCherryCycle() {
     this.hideCherry()
 
@@ -448,6 +671,16 @@ export class Game {
     this.cherryRespawnRemainingMs = this.randomCherryRespawnDelayMs()
   }
 
+  /**
+   * Advances the cherry cycle.
+   *
+   * The cycle alternates between a hidden respawn countdown and a visible
+   * lifetime; only one of the two timers is active at a time.
+   *
+   * @param deltaSeconds - The elapsed wall-clock time since the previous
+   *   update, in seconds.
+   * @returns Nothing; the cherry timers and the maze are updated in place.
+   */
   private updateCherryCycle(deltaSeconds: number) {
     // Cherry timing alternates between a hidden respawn countdown and a
     // visible lifetime; only one timer is active in either state.
@@ -478,6 +711,11 @@ export class Game {
     }
   }
 
+  /**
+   * Counts the pellets still lying on the maze.
+   *
+   * @returns The number of regular and power pellets left.
+   */
   private countRemainingPellets(): number {
     let count = 0
 
@@ -490,10 +728,23 @@ export class Game {
     return count
   }
 
+  /**
+   * Returns the speed the ghosts should travel at in the current phase.
+   *
+   * @returns The ghost speed, in tiles per second.
+   */
   private getGhostSpeed() {
     return BASE_GHOST_SPEED + (this.phase - 1) * GHOST_SPEED_INCREASE_PER_PHASE
   }
 
+  /**
+   * Returns how long the current power mode lasts.
+   *
+   * The attract mode extends power mode so attract-mode viewers see
+   * frightened-ghost gameplay for longer than a player would.
+   *
+   * @returns The power mode duration, in milliseconds.
+   */
   private getPowerModeDurationMs() {
     // The attract loop extends power mode so attract-mode viewers see
     // frightened-ghost gameplay for longer than a player would.
@@ -505,6 +756,11 @@ export class Game {
     )
   }
 
+  /**
+   * Returns the bounds of the cherry respawn delay in the current phase.
+   *
+   * @returns The lowest and highest respawn delays, in milliseconds.
+   */
   private getCherryRespawnBounds() {
     return {
       min: max(
@@ -520,6 +776,14 @@ export class Game {
     }
   }
 
+  /**
+   * Applies the current power mode state to the speed of every ghost.
+   *
+   * Frightened ghosts slow down, while eaten ghosts retain their return-home
+   * speed until they are revived.
+   *
+   * @returns Nothing; the ghosts' speeds are updated in place.
+   */
   private syncGhostSpeedsForPowerMode() {
     // Frightened ghosts slow down, while eaten ghosts retain their return-home
     // speed until they are revived.
@@ -536,6 +800,15 @@ export class Game {
 
   // Initials are optional so legacy saves keep loading; stored strings are
   // clamped to the slot count and dropped when empty.
+  /**
+   * Normalises a stored high score tag.
+   *
+   * Initials are optional so legacy saves keep loading; stored strings are
+   * clamped to the slot count and dropped when empty.
+   *
+   * @param value - The raw value read from storage.
+   * @returns The tag, or `undefined` when the value is not a usable string.
+   */
   private parseInitials(value: unknown): string | undefined {
     if (typeof value !== 'string') return undefined
 
@@ -546,6 +819,15 @@ export class Game {
       : undefined
   }
 
+  /**
+   * Loads the persisted high score record.
+   *
+   * Old numeric saves are accepted as phase-one records, while new object
+   * saves are validated so corrupt storage cannot produce invalid HUD state.
+   *
+   * @returns The stored record, or an empty phase-one record when no usable
+   *   record is stored.
+   */
   private loadHighScore(): HighScoreRecord {
     // Accept old numeric saves as phase-one records, but validate new object
     // saves so corrupt localStorage cannot produce invalid HUD state.
@@ -589,6 +871,14 @@ export class Game {
     }
   }
 
+  /**
+   * Persists the high score record.
+   *
+   * Storage write failures are ignored, to keep gameplay uninterrupted.
+   *
+   * @param record - The record to store.
+   * @returns Nothing; the record is written to `localStorage`.
+   */
   private saveHighScore(record: HighScoreRecord) {
     try {
       self.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, JSON.stringify(record))
@@ -597,6 +887,17 @@ export class Game {
     }
   }
 
+  /**
+   * Adds points to the score.
+   *
+   * An extra life is awarded for every threshold the score crosses, so
+   * multiple crossings within one pickup still grant one life per full
+   * threshold.
+   *
+   * @param points - The number of points to add.
+   * @returns Nothing; the score, the high score, and the lives are updated
+   *   in place.
+   */
   private addScore(points: number) {
     // Award an extra life for every threshold the score crosses, so multiple
     // crossings within one pickup still grant one life per full threshold.
@@ -620,6 +921,14 @@ export class Game {
       this.lives++
   }
 
+  /**
+   * Restarts the round.
+   *
+   * A life loss or a maze clear restarts the positions and the timers without
+   * resetting the score, the lives, or the current difficulty phase.
+   *
+   * @returns Nothing; the actors and the timers are updated in place.
+   */
   private resetRound() {
     // A life loss or maze clear restarts positions and timers without resetting
     // score, lives, or the current difficulty phase.
@@ -639,10 +948,29 @@ export class Game {
     this.resetCherryCycle()
   }
 
+  /**
+   * Returns the direction Pac-Man is facing.
+   *
+   * @returns Pac-Man's current direction, or the direction it is about to
+   *   take when it is not moving.
+   */
   private getPacmanFacing(): DirectionName {
     return this.pacman.dir !== NONE ? this.pacman.dir : this.pacman.nextDir
   }
 
+  /**
+   * Chooses the direction a ghost takes when it reaches a cell centre.
+   *
+   * Eaten ghosts head back to the ghost house, frightened ghosts try to
+   * maximize their distance from Pac-Man, and normal ghosts minimize their
+   * chase distance while avoiding crowding.
+   *
+   * @param ghost - The ghost that needs a new direction.
+   * @returns The direction the ghost should take, or `none` when the ghost
+   *   cannot move anywhere.
+   * @throws {TypeError} When the maze layout does not contain Pinky the
+   *   ghost, whose starting cell is used as the ghost house centre.
+   */
   private chooseGhostDirection(ghost: Ghost): DirectionName {
     // Ghosts choose at tile centers. Eaten ghosts path home; frightened ghosts
     // maximize separation; normal ghosts minimize chase distance plus crowding.
@@ -786,6 +1114,16 @@ export class Game {
     return bestDirection
   }
 
+  /**
+   * Returns the distance to the closest collectible item still on the maze.
+   *
+   * The distance is a Manhattan distance: the method is a cheap local
+   * heuristic for the attract-mode driver, not a full pathfinding query.
+   *
+   * @param position - The position to measure from, in maze tiles.
+   * @returns The distance to the closest collectible, or
+   *   `Number.POSITIVE_INFINITY` when the maze holds no collectible.
+   */
   private getClosestCollectibleDistance(position: Vector3d): number {
     // This intentionally uses Manhattan distance: the method is a cheap local
     // heuristic for the attract-mode driver, not a full pathfinding query.
@@ -809,6 +1147,16 @@ export class Game {
   }
 
   // https://drive.google.com/file/d/1EjJiVstVLq4C_HHFdc6ZI01UdJZ6dQ3D/view?usp=sharing, https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221QxqF4E22VIbEok8RgHujB2gdbe-Nesmc%22%5D,%22action%22:%22open%22,%22userId%22:%22113757018662815530084%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing
+  /**
+   * Chooses the direction the automatically driven Pac-Man takes when it
+   * reaches a cell centre.
+   *
+   * Pac-Man keeps moving forward when possible; reversing is only a fallback
+   * when the current corridor has no other legal exit.
+   *
+   * @returns The direction Pac-Man should take, or `none` when Pac-Man
+   *   cannot move anywhere.
+   */
   private chooseAttractModePacmanDirection(): DirectionName {
     // Keep Pacman moving forward when possible; reversing is only a fallback
     // when the current corridor has no other legal exit.
@@ -915,6 +1263,20 @@ export class Game {
     return scoredDirections[0].dir
   }
 
+  /**
+   * Applies the effect of the collectible item Pac-Man is standing on.
+   *
+   * Attract mode mutates the maze and advances the phases, but suppresses the
+   * player-only scoring and audio, allowing the attract loop to run
+   * indefinitely.
+   *
+   * @param isAttractMode - Whether the game is running in attract mode.
+   *   Defaults to `false`.
+   * @returns Nothing; the maze, the score, and the timers are updated in
+   *   place.
+   * @throws {Error} When the tile Pac-Man stands on is not a known maze
+   *   character. The message reads `Unhandled tile type: <tile>`.
+   */
   private consumePacmanTile(isAttractMode = false) {
     // Attract mode mutates the maze and advances phases but suppresses player-only
     // scoring and audio, allowing the attract loop to run indefinitely.
@@ -979,6 +1341,16 @@ export class Game {
     }
   }
 
+  /**
+   * Resolves the collisions between Pac-Man and the ghosts.
+   *
+   * The collision handling is ordered from edible ghosts to lethal ghosts.
+   * In attract mode the round is reset instead of consuming a player life.
+   *
+   * @param isAttractMode - Whether the game is running in attract mode.
+   *   Defaults to `false`.
+   * @returns Nothing; the game state is updated in place.
+   */
   private checkGhostCollisions(isAttractMode = false) {
     // Collision handling is ordered from edible ghosts to lethal ghosts, with
     // attract mode resetting the round instead of consuming a player life.
@@ -1034,6 +1406,21 @@ export class Game {
     })
   }
 
+  /**
+   * Advances the simulation by one step.
+   *
+   * Before Enter is pressed, the game runs an attract mode. It uses the same
+   * actors and the same maze rules as a played game, but supplies an
+   * automatic Pac-Man direction and no player-facing score or sound effects.
+   *
+   * @param deltaSeconds - The elapsed wall-clock time since the previous
+   *   update, in seconds.
+   * @returns Nothing; the game state is updated in place.
+   * @throws {Error} When the tile Pac-Man stands on is not a known maze
+   *   character. The message reads `Unhandled tile type: <tile>`.
+   * @throws {TypeError} When the maze layout does not contain Pinky the
+   *   ghost, whose starting cell is used as the ghost house centre.
+   */
   private update(deltaSeconds: number) {
     // Before Enter, the game runs an attract mode. It uses the same actors and
     // maze rules as play, but supplies an automatic Pacman direction and no
@@ -1115,6 +1502,14 @@ export class Game {
     this.checkGhostCollisions()
   }
 
+  /**
+   * Draws the static content of the maze.
+   *
+   * The actors are drawn separately, so their fractional positions can
+   * animate; this pass only renders the static maze tile content.
+   *
+   * @returns Nothing; the maze is drawn onto the canvas.
+   */
   private renderMaze() {
     // Actors are drawn separately so their fractional positions can animate;
     // this pass only renders static maze tile content.
@@ -1139,6 +1534,11 @@ export class Game {
     })
   }
 
+  /**
+   * Draws the heads-up display.
+   *
+   * @returns Nothing; the HUD is drawn onto the canvas.
+   */
   private renderHud() {
     text2d(`Score: ${this.score}`, toWorldPoint(20, 60), '#f4f4f4', {
       fontSize: 16,
@@ -1179,10 +1579,27 @@ export class Game {
 
   // Toggles a boolean (on/off) value every `periodInMs` milliseconds, useful for example
   // for blinking text.
+  /**
+   * Tells whether the current time falls in the first half of a blinking
+   * period.
+   *
+   * @param periodInMs - The length of a full blink cycle, in milliseconds.
+   * @returns `true` during the first half of the cycle and `false` during the
+   *   second half.
+   */
   private static toggleEvery(periodInMs: number): boolean {
     return floor(millis() / periodInMs) % 2 === 0
   }
 
+  /**
+   * Draws the overlay shown on top of the maze.
+   *
+   * The overlay shows the insertion prompt before the first game, the
+   * "READY!" notice at the start of a round, and the game-over screen or the
+   * high score name entry afterwards.
+   *
+   * @returns Nothing; the overlay is drawn onto the canvas.
+   */
   private renderStateOverlay() {
     if (!this.hasStartedGame) {
       renderFilledRectPixel(
@@ -1270,6 +1687,11 @@ export class Game {
     )
   }
 
+  /**
+   * Draws the high score name entry screen.
+   *
+   * @returns Nothing; the name entry screen is drawn onto the canvas.
+   */
   private renderInitialsEntry() {
     if (Game.toggleEvery(500))
       text2d(
@@ -1318,6 +1740,14 @@ export class Game {
     })
   }
 
+  /**
+   * Draws the whole scene.
+   *
+   * The render order places the maze behind the actors, and the HUD and the
+   * overlay above both.
+   *
+   * @returns Nothing; the scene is drawn onto the canvas.
+   */
   private render() {
     // Render order places the maze behind actors and the HUD/overlay above both.
     this.renderMaze()
@@ -1336,6 +1766,12 @@ export class Game {
     this.renderStateOverlay()
   }
 
+  /**
+   * Tells whether a cell is a wall.
+   *
+   * @param position - The cell to test, in maze tiles.
+   * @returns `true` when the cell holds a wall, or lies outside the maze.
+   */
   private isWall(position: Vector3d): boolean {
     return (this.maze[position.y]?.[position.x] ?? WALL_MARKER) === WALL_MARKER
   }

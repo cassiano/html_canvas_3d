@@ -32,11 +32,20 @@ import {
 // -------------------------------------------------------------------------------------------------
 
 // Get the canvas container
+// Notice: loading this module throws when the canvas container is missing
+// from the page.
 const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
+/**
+ * The demo's control panel, while it is attached to the canvas container.
+ */
 let demoControlPanel: HTMLDivElement | null
 
+/**
+ * The type of the demo's form, holding the sliders that drive the sphere's
+ * tessellation.
+ */
 type DemoFormType = {
   sliders?: Record<
     'latitudeLines' | 'longitudeLines',
@@ -44,8 +53,22 @@ type DemoFormType = {
   >
 }
 
+/**
+ * The demo's controls, exposed so that they can be inspected or driven
+ * programmatically.
+ */
 export const demoForm: DemoFormType = {}
 
+/**
+ * Creates the demo's control panel.
+ *
+ * The panel hosts two sliders: one choosing how many latitude lines the
+ * sphere is drawn with, and one choosing how many longitude lines it is
+ * drawn with.
+ *
+ * @returns Nothing; the function appends the control panel to the canvas
+ *   container and updates the demo's form in place.
+ */
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
@@ -70,6 +93,14 @@ const createDemoControls = () => {
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Renders a single frame of the demo.
+ *
+ * The scene shows a sphere whose tessellation is controlled by the demo's
+ * sliders, seen from an automatically rotating coordinate system.
+ *
+ * @returns Nothing; the function draws to the canvas.
+ */
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
@@ -96,10 +127,21 @@ const draw = () => {
   })
 }
 
+/**
+ * Displays the pause indicator once the frame loop enters the paused state.
+ *
+ * @returns Nothing; the function draws the indicator on the canvas.
+ */
 const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
+/**
+ * The demo's animation frame loop.
+ *
+ * Every frame resets the transformation matrix, draws the scene and flushes
+ * the deferred render queue.
+ */
 const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
@@ -110,11 +152,27 @@ const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   FPS,
 )
 
+/**
+ * Starts the demo.
+ *
+ * The demo's control panel is created and appended to the canvas container,
+ * and the animation frame loop begins rendering the scene.
+ *
+ * @returns Nothing; the function starts the animation frame loop.
+ */
 const start = () => {
   createDemoControls()
   startFrameLoop()
 }
 
+/**
+ * Stops the demo.
+ *
+ * The demo's control panel is removed from the DOM and the animation frame
+ * loop ends, so no further frames are drawn.
+ *
+ * @returns Nothing; the function stops the animation frame loop.
+ */
 const stop = () => {
   demoControlPanel?.remove()
   demoControlPanel = null
@@ -122,4 +180,7 @@ const stop = () => {
   stopFrameLoop()
 }
 
+/**
+ * The demo's lifecycle API, consumed by the demo loader.
+ */
 export { start, stop }

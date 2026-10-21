@@ -1,3 +1,16 @@
+/**
+ * Demo 21 — an n-body simulation of the solar system.
+ *
+ * The demo integrates the gravitational attraction between a set of
+ * celestial bodies and then draws them, their orbits and Saturn's rings on
+ * the canvas. The mass of the Sun can be adjusted through the control panel
+ * created by {@link start}.
+ *
+ * The simulation runs on its own time scale: for every real second,
+ * {@link SIMULATION_SECONDS_PER_REAL_SECOND} simulated seconds elapse, so the
+ * Earth completes one orbit in {@link EARTH_ORBIT_DURATION_IN_SECONDS} real
+ * seconds.
+ */
 import { FPS, FPS_LOGGING_FRAME_PERIOD } from '../constants.ts'
 import {
   createDemoControlPanel,
@@ -32,35 +45,100 @@ import { rotateZ } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * The universal gravitational constant, used to compute the attraction
+ * between two bodies.
+ */
 export const G = 6.6743e-11 // Universal gravitational constant, in m³ / (kg x s²).
+/**
+ * One Astronomical Unit: the mean distance between the Earth and the Sun.
+ */
 export const AU = 149597870.7 // Astronomical Unit (in km).
+/**
+ * The number of metres in a kilometre.
+ */
 export const KM_TO_M = 1000 // Conversion factor from km to m.
+/**
+ * The mass of the Sun, in kilograms.
+ */
 export const SUN_MASS_IN_KG = 1.9891e30 // Mass of the Sun in kg.
+/**
+ * The duration of a sidereal Earth year, in days.
+ */
 export const EARTH_YEAR_IN_DAYS = 365.256363004 // Sidereal year.
+/**
+ * The duration of a day, in seconds.
+ */
 export const EARTH_DAY_IN_SECONDS = 24 * 3600
+/**
+ * The duration of a sidereal Earth year, in seconds.
+ */
 export const EARTH_YEAR_IN_SECONDS = EARTH_YEAR_IN_DAYS * EARTH_DAY_IN_SECONDS
+/**
+ * The mean distance between the centres of the Earth and the Moon, in
+ * kilometres.
+ */
 export const EARTH_MOON_DISTANCE_IN_KM = 384399 // Mean Earth-Moon distance in km.
+/**
+ * The mean radius of the Moon, in kilometres.
+ */
 export const MOON_RADIUS_IN_KM = 1737.4 // Mean Moon radius in km.
+/**
+ * The sidereal orbital period of the Moon, in days.
+ */
 export const MOON_ORBITAL_PERIOD_IN_DAYS = 27.321582 // Sidereal orbital period of the Moon in days.
+/**
+ * The sidereal orbital period of the Moon, in seconds.
+ */
 export const MOON_ORBITAL_PERIOD_IN_SECONDS =
   MOON_ORBITAL_PERIOD_IN_DAYS * EARTH_DAY_IN_SECONDS
+/**
+ * The mean radius of the Earth, in kilometres.
+ */
 export const EARTH_RADIUS_IN_KM = 6371 // Mean Earth radius in km.
+/**
+ * How long the Earth takes to complete one orbit in the simulation, in
+ * seconds.
+ */
 export const EARTH_ORBIT_DURATION_IN_SECONDS = 120
+/**
+ * The distance between the centres of the Earth and the Moon, in metres.
+ */
 export const EARTH_MOON_CENTERS_DISTANCE_IN_M =
   (EARTH_RADIUS_IN_KM + EARTH_MOON_DISTANCE_IN_KM + MOON_RADIUS_IN_KM) * KM_TO_M // The distance from the Earth's center to the Moon's center in m.
 
+/**
+ * The factor applied to the real radius of a body when drawing it.
+ */
 export const DEFAULT_RADIUS_SCALE = 1 / 5e5
+/**
+ * The factor applied to the real distance of a body when drawing it.
+ */
 export const DEFAULT_DISTANCE_SCALE = 3e-1 / AU // Scale down distances to fit the canvas.
+/**
+ * The factor applied to the Earth-Moon distance when drawing the Moon and
+ * its orbit.
+ */
 export const EARTH_MOON_DISTANCE_SCALE = 25 // Scale up the Earth-Moon distance arbitrarily, so the moon orbits around the Earth in a visually appealing way.
 
 // Simulation seconds advanced per real second so Earth completes one orbit in the target duration.
+/**
+ * How many simulated seconds elapse for every real second of wall-clock
+ * time.
+ */
 export const SIMULATION_SECONDS_PER_REAL_SECOND =
   EARTH_YEAR_IN_SECONDS / EARTH_ORBIT_DURATION_IN_SECONDS
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * The distance from Saturn's surface to the innermost ring, in kilometres.
+ */
 const RINGS_DISTANCE_FROM_SATURN_SURFACE_IN_KM = 6632 // In km. The distance from Saturn's surface to the innermost ring (D ring).
 
+/**
+ * The width and the color of each of Saturn's rings.
+ */
 const SATURN_RINGS_DATA: Record<string, { width: number; color: string }> = {
   // Width in km.
   a: { width: 14585, color: 'lightPink' },
@@ -70,6 +148,12 @@ const SATURN_RINGS_DATA: Record<string, { width: number; color: string }> = {
   d: { width: 7594, color: 'purple' },
 }
 
+/**
+ * Draws the rings around Saturn.
+ *
+ * @param radius - Saturn's real radius, in metres.
+ * @returns Nothing; the rings are drawn on the canvas.
+ */
 const drawSaturnRings = (radius: number) => {
   let startingRadius =
     (radius + RINGS_DISTANCE_FROM_SATURN_SURFACE_IN_KM * KM_TO_M) *
@@ -132,16 +216,30 @@ const drawSaturnRings = (radius: number) => {
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * The physical and orbital data describing one body of the solar system.
+ */
 type SolarSystemBodyType = {
+  /** The body's mean radius, in kilometres. */
   radius: number // Mean radius in km.
+  /** The factor applied to the body's radius when drawing it. */
   radiusCustomScale?: number
+  /** The body's mean distance from the Sun, in Astronomical Units. */
   distanceFromSun: number // In AU.
+  /** The body's mass, in kilograms. */
   mass: number // In kg
+  /** The CSS color used to draw the body. */
   color: string
+  /** The body's sidereal orbital period, in Earth days. */
   orbitalPeriod: number // Aka sidereal orbital period, in (Earth) days.
+  /** An optional callback that draws the rings around the body. */
   renderRings?: (radius: number) => void
 }
 
+/**
+ * The physical and orbital data of every body of the simulated solar
+ * system, keyed by the body's name.
+ */
 const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
   sun: {
     radius: 695700,
@@ -219,6 +317,10 @@ const SOLAR_SYSTEM_DATA: Record<string, SolarSystemBodyType> = {
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * The bodies of the simulated solar system, in the order they were
+ * declared.
+ */
 const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
   const {
     radius,
@@ -242,29 +344,69 @@ const bodies = Object.entries(SOLAR_SYSTEM_DATA).map(([name, data]) => {
   )
 })
 
+/**
+ * The Earth, as part of the simulated solar system.
+ *
+ * It is the reference body used to place the Moon and to draw the Moon's
+ * orbit.
+ */
 export const earth = bodies.find(body => body.name === 'earth')
 assertIsNotUndefined(earth)
 
+/**
+ * The Sun, as part of the simulated solar system.
+ *
+ * Its mass can be changed at runtime through the demo's control panel.
+ */
 export const sun = bodies.find(body => body.name === 'sun')
 assertIsNotUndefined(sun)
 
+/**
+ * The timestamp of the previous frame, used to measure the time elapsed
+ * between two frames. It is `null` until the first frame is drawn.
+ */
 let lastTickMillis: number | null = null
 
 // -------------------------------------------------------------------------------------------------
 
 // Get the canvas container
+/**
+ * The DOM element that hosts the canvas and the demo's control panel.
+ */
 const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
+/**
+ * The demo's control panel, while it is mounted in the DOM.
+ */
 let demoControlPanel: HTMLDivElement | null
 
+/**
+ * The demo's controls, grouped by the kind of control they are.
+ */
 type FormType = {
+  /** The demo's sliders, keyed by their purpose. */
   sliders?: Record<'spacing', ReturnType<typeof createSlider>>
+  /** The demo's toggles, keyed by their purpose. */
   toggles?: Record<'rotateAroundYAxis', ReturnType<typeof createToggle>>
 }
 
+/**
+ * The controls exposed by the demo.
+ *
+ * The object is populated when the demo starts and holds references to the
+ * controls that have been created.
+ */
 export const demoForm: FormType = {}
 
+/**
+ * Creates the demo's control panel and its controls.
+ *
+ * The panel is appended to the canvas container and the created controls
+ * are registered in {@link demoForm}.
+ *
+ * @returns Nothing; the control panel is added to the DOM.
+ */
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
@@ -286,6 +428,17 @@ const createDemoControls = () => {
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Advances the simulation by one frame and draws the scene.
+ *
+ * Every body attracts every other body, then every body is moved forward
+ * and drawn.
+ *
+ * @returns Nothing; the simulation state and the canvas are updated in
+ *   place.
+ * @throws {Error} When two bodies occupy the same position, or when a body
+ *   has a mass of `0`, while the gravitational attractions are computed.
+ */
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
@@ -318,10 +471,19 @@ const draw = () => {
   })
 }
 
+/**
+ * Draws the indicator shown while the animation loop is paused.
+ *
+ * @returns Nothing; the indicator is drawn on the canvas.
+ */
 const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
+/**
+ * The animation loop that drives the demo, along with the callback used to
+ * display the pause indicator.
+ */
 const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
@@ -332,11 +494,26 @@ const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   FPS,
 )
 
+/**
+ * Starts the demo.
+ *
+ * Creates the demo's control panel and begins the animation loop.
+ *
+ * @returns Nothing; the animation loop is started.
+ */
 const start = () => {
   createDemoControls()
   startFrameLoop()
 }
 
+/**
+ * Stops the demo.
+ *
+ * Removes the demo's control panel from the DOM and ends the animation
+ * loop.
+ *
+ * @returns Nothing; the animation loop is stopped.
+ */
 const stop = () => {
   demoControlPanel?.remove()
   demoControlPanel = null

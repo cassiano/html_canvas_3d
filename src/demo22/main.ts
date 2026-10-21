@@ -33,6 +33,16 @@ const KEY_EVENT_OPTIONS: AddEventListenerOptions = { capture: true }
 // monospace fallback declared after 'Press Start 2P' in the font stacks.
 let fontLoadPromise: Promise<unknown> | null = null
 
+/**
+ * Requests the arcade webfont used by the HUD and the overlay screens.
+ *
+ * The request is memoised, so repeated calls reuse the same promise instead
+ * of issuing additional network requests. Until the promise settles, the
+ * canvas falls back to the monospace font declared after `'Press Start 2P'`
+ * in the font stacks.
+ *
+ * @returns A promise that settles when the font request completes.
+ */
 function loadPressStart2P() {
   if (fontLoadPromise === null)
     fontLoadPromise = document.fonts.load('16px "Press Start 2P"')
@@ -40,6 +50,17 @@ function loadPressStart2P() {
   return fontLoadPromise
 }
 
+/**
+ * Starts the Pac-Man demo.
+ *
+ * Registers the keyboard listener that steers Pac-Man, requests the arcade
+ * webfont, and starts the animation frame loop that drives the game. Calling
+ * this function more than once is safe: the keyboard listener is only
+ * registered once.
+ *
+ * @returns Nothing; the function has side effects on the document and on the
+ *   animation frame loop.
+ */
 function start() {
   if (!isListeningToKeyboard) {
     document.addEventListener('keydown', game.handleKeydown, KEY_EVENT_OPTIONS)
@@ -51,6 +72,16 @@ function start() {
   startFrameLoop()
 }
 
+/**
+ * Stops the Pac-Man demo.
+ *
+ * Removes the keyboard listener, silences the power-mode siren, and ends the
+ * animation frame loop. Calling this function when the demo is not running
+ * is safe: every cleanup step is idempotent.
+ *
+ * @returns Nothing; the function has side effects on the document, on the
+ *   audio subsystem, and on the animation frame loop.
+ */
 function stop() {
   if (isListeningToKeyboard) {
     document.removeEventListener(
@@ -65,4 +96,8 @@ function stop() {
   stopFrameLoop()
 }
 
+/**
+ * The lifecycle hooks called by the host page when the demo is selected or
+ * deselected.
+ */
 export { start, stop }

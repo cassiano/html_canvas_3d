@@ -21,10 +21,29 @@ import { launchesPer100Frames as launchesPer100Frames } from './demo17_form.ts'
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * The downward acceleration applied to the fireworks on every frame.
+ */
 const GRAVITY = 0.03
+
+/**
+ * The force pulling the fireworks towards the bottom of the screen.
+ */
 const gravity = $v(0, -GRAVITY, 0)
+
+/**
+ * The initial value of the "Particles (min)" slider.
+ */
 const FIREWORKS_PARTICLES_DEFAULT_MIN_COUNT = 100
+
+/**
+ * The initial value of the "Particles (max)" slider.
+ */
 const FIREWORKS_PARTICLES_DEFAULT_MAX_COUNT = 1000
+
+/**
+ * The initial value of the "Launches per 100 frames" slider.
+ */
 const DEFAULT_FIREWORKS_LAUNCHES_PER_100_FRAMES = 10
 
 // -------------------------------------------------------------------------------------------------
@@ -33,8 +52,21 @@ const DEFAULT_FIREWORKS_LAUNCHES_PER_100_FRAMES = 10
 const canvasContainer = document.getElementById('canvas-container')
 if (!canvasContainer) throw new Error('canvasContainer not found')
 
+/**
+ * The demo's control panel, while the demo is running.
+ */
 let demoControlPanel: HTMLDivElement | null
 
+/**
+ * Creates the demo's control panel and registers the controls it holds.
+ *
+ * The panel is appended to the canvas container, and the sliders and the
+ * toggle it holds are stored in the demo's form state, so that the rest of
+ * the demo can read the user's choices.
+ *
+ * @returns Nothing; the control panel is created and registered as a side
+ *   effect.
+ */
 const createDemoControls = () => {
   demoControlPanel = createDemoControlPanel(canvasContainer)
 
@@ -73,6 +105,9 @@ const createDemoControls = () => {
   }
 }
 
+/**
+ * How many fireworks have been launched since the last 100-frame period.
+ */
 let launchCount = 0
 
 // const counts = { fireworks: 0, particles: 0 }
@@ -80,6 +115,21 @@ let launchCount = 0
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Draws a single frame of the demo.
+ *
+ * New fireworks are launched according to the demo's settings, and the
+ * fireworks already in the scene are moved, exploded and drawn.
+ *
+ * @returns Nothing; the scene is drawn as a side effect.
+ * @throws {Error} With the message `demo3Form.sliders should contain a
+ *   value`, when the demo's control panel has not been created yet, because
+ *   the launch rate and the explosion's particle count are taken from it.
+ * @throws {Error} With the message `demo3Form.toggles should contain a
+ *   value`, when the demo's control panel has not been created yet, because
+ *   the fireworks' depth and the explosion's shape depend on the "3D
+ *   version" setting.
+ */
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
@@ -116,6 +166,11 @@ const draw = () => {
   // logJson({ counts, maxCounts })
 }
 
+/**
+ * Draws the indicator shown while the demo is paused.
+ *
+ * @returns Nothing; the indicator is drawn as a side effect.
+ */
 const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
@@ -130,11 +185,26 @@ const { start: startFrameLoop, stop: stopFrameLoop } = createFrameLoop(
   FPS,
 )
 
+/**
+ * Starts the demo.
+ *
+ * The demo's control panel is created, and the animation frame loop begins.
+ *
+ * @returns Nothing; the animation frame loop is started as a side effect.
+ */
 const start = () => {
   createDemoControls()
   startFrameLoop()
 }
 
+/**
+ * Stops the demo.
+ *
+ * The demo's control panel is removed from the page, and the animation frame
+ * loop ends.
+ *
+ * @returns Nothing; the animation frame loop is stopped as a side effect.
+ */
 const stop = () => {
   demoControlPanel?.remove()
   demoControlPanel = null

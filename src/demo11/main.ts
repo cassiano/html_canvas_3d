@@ -19,13 +19,36 @@ import { rotateY, autoRotationEnabled, scale } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * The base dimensions of the pipe assembly, in world units.
+ */
 const PIPE = { radius: 25, height: 150 }
+
+/**
+ * The fill color of the elbow segments connecting the assembly's rings.
+ */
 const ELBOW_COLOR = 'darkGray'
+
+/**
+ * The number of segments used to approximate the circular cross-sections.
+ */
 const CIRCLE_SEGMENTS = 16
+
+/**
+ * The fill opacity shared by every shape of the assembly.
+ */
 const OPACITY = 0.5
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Draws a single frame of the pipe assembly.
+ *
+ * The assembly is built from elbow and ring segments whose radius and length
+ * change over time, and is displayed next to the coordinate axes.
+ *
+ * @returns Nothing; the shapes are queued for rendering as a side effect.
+ */
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
@@ -158,10 +181,23 @@ const draw = () => {
   })
 }
 
+/**
+ * Draws the label shown while the demo is paused.
+ *
+ * @returns Nothing; the label is drawn into the canvas as a side effect.
+ */
 const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
+/**
+ * Creates the demo's frame loop and exposes its controls.
+ *
+ * The destructured `start` function begins the animation frame loop that
+ * renders the scene, while `stop` ends it. Both are exported by this module.
+ *
+ * @returns Nothing; `start` and `stop` control the demo's frame loop.
+ */
 const { start, stop } = createFrameLoop(
   () => {
     resetTransformationMatrix()

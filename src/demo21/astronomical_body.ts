@@ -18,7 +18,34 @@ import { DEFAULT_RADIUS_SCALE, DEFAULT_DISTANCE_SCALE, G, AU } from './main.ts'
 import { assertIsNotUndefined } from '../utils.ts'
 import { rotateY } from '../primitives.ts'
 
+/**
+ * A celestial body of the simulated solar system.
+ *
+ * In addition to the physical state provided by {@link Mover3D}, the class
+ * knows how to draw the body as a sphere, how to draw the orbit it follows
+ * around the Sun, and how much gravitational pull it exerts on the other
+ * bodies of the simulation.
+ */
 export class AstronomicalBody extends Mover3D {
+  /**
+   * Creates a celestial body and places it on its orbit around the Sun.
+   *
+   * The body starts at its distance from the Sun and moves tangentially at
+   * the speed implied by its orbital period.
+   *
+   * @param name - The body's name, used to identify it in the simulation.
+   * @param radius - The body's mean radius, in metres.
+   * @param distanceFromSun - The body's mean distance from the Sun's centre,
+   *   in metres.
+   * @param mass - The body's mass, in kg.
+   * @param color - The CSS color used to draw the body.
+   * @param orbitalPeriod - The body's sidereal orbital period, in seconds. A
+   *   value of `0` means the body does not orbit.
+   * @param radiusCustomScale - The factor applied to the body's real radius
+   *   when drawing it. Defaults to the shared default radius scale.
+   * @param renderRings - An optional callback that draws the rings around
+   *   the body. It receives the body's real radius, in metres.
+   */
   constructor(
     public name: string,
     public radius: number,
@@ -51,6 +78,16 @@ export class AstronomicalBody extends Mover3D {
     super(mass, initialPosition, initialVelocity)
   }
 
+  /**
+   * Draws the body, its optional rings, and the orbit it follows.
+   *
+   * The body is drawn at its current position, while the orbit is drawn as
+   * a circle centred on the Sun — or on the Earth, for the Moon.
+   *
+   * @returns Nothing; the body and its orbit are drawn on the canvas.
+   * @throws {TypeError} When the Earth is missing from the simulation, since
+   *   the Earth is used as a reference to place the bodies.
+   */
   override render() {
     const radius =
       this.radius * (this.radiusCustomScale ?? DEFAULT_RADIUS_SCALE)
@@ -116,6 +153,20 @@ export class AstronomicalBody extends Mover3D {
     })
   }
 
+  /**
+   * Applies the gravitational pull that this body exerts on another body.
+   *
+   * The attraction is accumulated by the other body, which turns it into an
+   * acceleration during the next simulation step.
+   *
+   * @param other - The body being attracted.
+   * @returns Nothing; the other body's accumulated acceleration is updated
+   *   in place.
+   * @throws {Error} When both bodies are at the same position, because the
+   *   direction of the attraction then has no magnitude to preserve.
+   * @throws {Error} When the other body's mass is `0`, because the force
+   *   cannot be divided by it.
+   */
   attract(other: AstronomicalBody) {
     const direction = this.position.clone().sub(other.position)
     const distanceSq = direction.magSq()

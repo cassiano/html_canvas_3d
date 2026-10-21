@@ -310,6 +310,11 @@ code {
 }
 
 /* Canvas Layout Styles */
+
+/**
+ * The side menu. Its fixed width of 250px is what the demo control panels
+ * offset themselves from when they are anchored next to the menu.
+ */
 #menu {
   background-color: #333;
   padding: 20px;
@@ -321,6 +326,7 @@ code {
   gap: 1px;
 }
 
+/** The title at the top of the side menu. */
 #menu h1 {
   color: #fff;
   font-size: 14px;
@@ -330,6 +336,7 @@ code {
   padding-left: 6px;
 }
 
+/** One demo button. The `.active` class marks the demo that is running. */
 #menu button {
   width: 100%;
   padding: 5px;
@@ -346,15 +353,18 @@ code {
   padding-left: 12px;
 }
 
+/** The hover state of a demo button. */
 #menu button:hover {
   background-color: #666;
 }
 
+/** The state of the button of the demo that is currently running. */
 #menu button.active {
   background-color: #0078d4;
   border-color: #0078d4;
 }
 
+/** A label wrapping one of the global display toggles. */
 #menu label {
   width: 100%;
   display: flex;
@@ -365,11 +375,16 @@ code {
   cursor: pointer;
 }
 
+/** The checkbox of a global display toggle. */
 #menu label input {
   width: auto;
   height: auto;
 }
 
+/**
+ * The element that hosts the animation canvas. The canvas is resized to
+ * match this container whenever the window is resized.
+ */
 #canvas-container {
   flex: 1;
   display: flex;
@@ -380,6 +395,7 @@ code {
   height: 100%;
 }
 
+/** The canvas every demo draws into. */
 #animation {
   cursor: auto;
   width: 100%;

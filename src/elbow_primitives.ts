@@ -13,11 +13,37 @@ import {
   CircularShapeOptions,
 } from './primitives.ts'
 
+/**
+ * Options accepted by the elbow (curved pipe) primitives.
+ *
+ * Extends the shared circular-shape options with a control over how many
+ * slices are used to approximate the curve of the elbow.
+ */
 export type ElbowShapeOptions = CircularShapeOptions & {
+  /**
+   * Number of slices used to approximate the quarter-circle bend of the elbow.
+   *
+   * Higher values produce a smoother curve at the cost of more draw calls.
+   */
   elbowCircleSlices?: number
 }
 
 // Top -> Right
+/**
+ * Draws the canonical "top to right" elbow bend at the current origin.
+ *
+ * The bend is approximated by a series of slices; every slice is drawn as a
+ * hollow spherical slice (a "cheese slice"). The caller is responsible for
+ * applying any rotation or translation needed to place the bend.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ *   `elbowCircleSlices` controls the smoothness of the bend and all other
+ *   entries are forwarded to the underlying shape renderer.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative, which
+ *   would make the slice stepping non-terminating or invalid.
+ */
 const defaultElbow = (radius: number, options: ElbowShapeOptions = {}) => {
   const finalOptions = {
     ...DEFAULT_SHAPE_OPTIONS,
@@ -42,6 +68,17 @@ const defaultElbow = (radius: number, options: ElbowShapeOptions = {}) => {
   }
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +Y axis to the +X axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromTopToRight = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -52,6 +89,17 @@ const elbowFromTopToRight = (
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -Y axis to the +X axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromBottomToRight = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -66,6 +114,17 @@ const elbowFromBottomToRight = (
   if (includeTranslation) translate(radius / 2, -radius / 2, 0)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -Z axis to the +X axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromBackToRight = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -80,6 +139,17 @@ const elbowFromBackToRight = (
   if (includeTranslation) translate(radius / 2, 0, -radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +Z axis to the +X axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromFrontToRight = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -94,6 +164,17 @@ const elbowFromFrontToRight = (
   if (includeTranslation) translate(radius / 2, 0, radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +Y axis to the -X axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromTopToLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -108,6 +189,17 @@ const elbowFromTopToLeft = (
   if (includeTranslation) translate(-radius / 2, radius / 2, 0)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -Y axis to the -X axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromBottomToLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -123,6 +215,17 @@ const elbowFromBottomToLeft = (
   if (includeTranslation) translate(-radius / 2, -radius / 2, 0)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -Z axis to the -X axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromBackToLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -138,6 +241,17 @@ const elbowFromBackToLeft = (
   if (includeTranslation) translate(-radius / 2, 0, -radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +Z axis to the -X axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromFrontToLeft = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -153,6 +267,17 @@ const elbowFromFrontToLeft = (
   if (includeTranslation) translate(-radius / 2, 0, radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -X axis to the +Y axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromLeftToTop = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -168,6 +293,17 @@ const elbowFromLeftToTop = (
   if (includeTranslation) translate(-radius / 2, radius / 2, 0)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +X axis to the +Y axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromRightToTop = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -184,6 +320,17 @@ const elbowFromRightToTop = (
   if (includeTranslation) translate(radius / 2, radius / 2, 0)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -Z axis to the +Y axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromBackToTop = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -200,6 +347,17 @@ const elbowFromBackToTop = (
   if (includeTranslation) translate(0, radius / 2, -radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +Z axis to the +Y axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromFrontToTop = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -216,6 +374,17 @@ const elbowFromFrontToTop = (
   if (includeTranslation) translate(0, radius / 2, radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -X axis to the -Y axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromLeftToBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -230,6 +399,17 @@ const elbowFromLeftToBottom = (
   if (includeTranslation) translate(-radius / 2, -radius / 2, 0)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +X axis to the -Y axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromRightToBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -245,6 +425,17 @@ const elbowFromRightToBottom = (
   if (includeTranslation) translate(radius / 2, -radius / 2, 0)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -Z axis to the -Y axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromBackToBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -260,6 +451,17 @@ const elbowFromBackToBottom = (
   if (includeTranslation) translate(0, -radius / 2, -radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +Z axis to the -Y axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromFrontToBottom = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -275,6 +477,17 @@ const elbowFromFrontToBottom = (
   if (includeTranslation) translate(0, -radius / 2, radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +Y axis to the +Z axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromTopToFront = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -289,6 +502,17 @@ const elbowFromTopToFront = (
   if (includeTranslation) translate(0, radius / 2, radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -Y axis to the +Z axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromBottomToFront = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -305,6 +529,17 @@ const elbowFromBottomToFront = (
   if (includeTranslation) translate(0, -radius / 2, radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -X axis to the +Z axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromLeftToFront = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -320,6 +555,17 @@ const elbowFromLeftToFront = (
   if (includeTranslation) translate(-radius / 2, 0, radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +X axis to the +Z axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromRightToFront = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -336,6 +582,17 @@ const elbowFromRightToFront = (
   if (includeTranslation) translate(radius / 2, 0, radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +Y axis to the -Z axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromTopToBack = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -350,6 +607,17 @@ const elbowFromTopToBack = (
   if (includeTranslation) translate(0, radius / 2, -radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -Y axis to the -Z axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromBottomToBack = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -365,6 +633,17 @@ const elbowFromBottomToBack = (
   if (includeTranslation) translate(0, -radius / 2, -radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the -X axis to the -Z axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromLeftToBack = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -380,6 +659,17 @@ const elbowFromLeftToBack = (
   if (includeTranslation) translate(-radius / 2, 0, -radius / 2)
 }
 
+/**
+ * Draws a 90-degree elbow that bends from the +X axis to the -Z axis.
+ *
+ * @param radius - Radius of the pipe that forms the elbow, in world units.
+ * @param options - Optional rendering overrides; see {@link ElbowShapeOptions}.
+ * @param includeTranslation - When `true`, the elbow is additionally offset so
+ *   that it visually connects the two axes; when `false`, the elbow is drawn
+ *   around the current origin without that extra offset.
+ * @returns Nothing; the elbow is queued for rendering as a side effect.
+ * @throws {Error} When `options.elbowCircleSlices` is `0` or negative.
+ */
 const elbowFromRightToBack = (
   radius: number,
   options: ElbowShapeOptions = {},
@@ -396,6 +686,19 @@ const elbowFromRightToBack = (
   if (includeTranslation) translate(radius / 2, 0, -radius / 2)
 }
 
+/**
+ * Lookup table of every elbow variant, indexed by the axis it starts from and
+ * the axis it bends to.
+ *
+ * The outer key is the source axis and the inner key is the destination axis.
+ * Both use the axis naming convention of {@link AXES_NAMES} (`'x'`, `'y'`,
+ * `'z'`, `'-x'`, `'-y'`, `'-z'`).
+ *
+ * @example
+ * ```ts
+ * elbow.x.y(20) // Draws an elbow from the +X axis bending towards +Y.
+ * ```
+ */
 export const elbow = {
   x: {
     y: elbowFromRightToTop,

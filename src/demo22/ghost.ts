@@ -34,17 +34,49 @@ import {
   tileToPixel,
 } from './render_utils.ts'
 
+/**
+ * An enemy that chases Pac-Man around the maze.
+ *
+ * Each ghost has its own chase personality, its own body color, and its own
+ * state for the power mode in which it was last eaten.
+ */
 export class Ghost extends Actor {
+  /**
+   * The identifier of the power mode in which this ghost was last eaten.
+   *
+   * A value of `-1` means the ghost has never been eaten.
+   */
   lastEatenPowerModeId = -1
+  /** Whether the ghost is currently heading back to the ghost house. */
   isEaten = false
 
-  // Eaten ghosts follow a route home computed by a single breadth-first
-  // search when the trip starts. homingCell anchors the route to the tile it
-  // was computed from so repeated direction queries within one tile (blocked
-  // moves, multi-tile frames) replay the same step instead of advancing.
+  /**
+   * The route the ghost follows home, computed by a single breadth-first
+   * search when the trip starts.
+   */
   private homingRoute: DirectionName[] = []
+  /**
+   * The tile the homing route was computed from.
+   *
+   * It anchors the route so repeated direction queries within one tile
+   * (blocked moves, multi-tile frames) replay the same step instead of
+   * advancing.
+   */
   private homingCell: Vector3d | null = null
 
+  /**
+   * Creates a ghost.
+   *
+   * @param position - The cell the ghost starts on, in maze tiles.
+   * @param speedTilesPerSecond - The ghost's travelling speed, in tiles per
+   *   second.
+   * @param initialDirection - The direction the ghost starts travelling in.
+   * @param id - The ghost's stable identifier, used to break ties and to
+   *   tell the ghosts apart.
+   * @param name - The ghost's display name.
+   * @param marker - The maze character that marks the ghost's starting cell.
+   * @param color - The CSS color of the ghost's body.
+   */
   constructor(
     position: Vector3d,
     speedTilesPerSecond: number,
@@ -57,6 +89,15 @@ export class Ghost extends Actor {
     super(position, speedTilesPerSecond, initialDirection)
   }
 
+  /**
+   * Marks the ghost as eaten, so it stops chasing and heads back to the ghost
+   * house.
+   *
+   * @param baseSpeed - The ghost's regular speed, in tiles per second.
+   * @param speedMultiplier - The factor applied to `baseSpeed` while the
+   *   ghost returns home. Defaults to `1.6`.
+   * @returns Nothing; the ghost's state is updated in place.
+   */
   markEaten(baseSpeed: number, speedMultiplier = 1.6) {
     this.progress = 0
     this.dir = NONE
@@ -67,6 +108,14 @@ export class Ghost extends Actor {
     this.clearHomingRoute()
   }
 
+  /**
+   * Brings the ghost back to life.
+   *
+   * @param direction - The direction the ghost resumes travelling in.
+   *   Defaults to `LEFT`.
+   * @param speed - The ghost's speed, in tiles per second.
+   * @returns Nothing; the ghost's state is updated in place.
+   */
   revive(direction: DirectionName = LEFT, speed: number) {
     this.isEaten = false
     this.speedTilesPerSecond = speed
@@ -76,17 +125,39 @@ export class Ghost extends Actor {
     this.clearHomingRoute()
   }
 
+  /**
+   * Returns the ghost to its starting cell and clears any partial progress.
+   *
+   * @param direction - The direction the ghost should travel in afterwards.
+   *   Defaults to `LEFT`.
+   * @returns Nothing; the ghost's state is updated in place.
+   */
   reset(direction: DirectionName = LEFT) {
     super.reset(direction)
 
     this.clearHomingRoute()
   }
 
+  /**
+   * Discards the cached route back to the ghost house.
+   *
+   * @returns Nothing; the cached route is cleared in place.
+   */
   private clearHomingRoute() {
     this.homingRoute = []
     this.homingCell = null
   }
 
+  /**
+   * Revives the ghost if it has reached the given cell.
+   *
+   * @param target - The cell to compare the ghost's position with, in maze
+   *   tiles.
+   * @param direction - The direction the ghost resumes travelling in.
+   * @param speed - The ghost's speed, in tiles per second.
+   * @returns `true` when the ghost was on the target cell and has been
+   *   revived; `false` otherwise.
+   */
   tryReviveAt(target: Vector3d, direction: DirectionName, speed: number) {
     if (this.position.notEquals(target)) return false
 
@@ -95,6 +166,18 @@ export class Ghost extends Actor {
     return true
   }
 
+  /**
+   * Returns the next step of the route that leads the ghost back to the given
+   * target cell.
+   *
+   * The route is computed once per trip and then replayed step by step.
+   *
+   * @param target - The cell the ghost should head to, in maze tiles.
+   * @returns The direction to travel next, or `none` when the route is
+   *   exhausted or unreachable.
+   * @throws {TypeError} When the route cannot be reconstructed because an
+   *   internal step of the search is missing.
+   */
   nextDirectionToTarget(target: Vector3d): DirectionName {
     // The maze never changes while a ghost heads home, so the search runs
     // once per eaten trip; later tile-center queries replay the cached steps.
@@ -120,6 +203,16 @@ export class Ghost extends Actor {
   // Breadth-first search finds the shortest walkable route to the target and
   // reconstructs every step of it up front by backtracking through the
   // predecessor map, so callers never need to run the search again mid-trip.
+  /**
+   * Finds the shortest walkable route from the ghost's current cell to the
+   * target cell.
+   *
+   * @param target - The cell the ghost should head to, in maze tiles.
+   * @returns The ordered list of directions to travel to reach the target;
+   *   an empty list when the target is unreachable.
+   * @throws {TypeError} When the search encounters an internal state that
+   *   cannot be resolved to a position or a step.
+   */
   private findHomingRoute(target: Vector3d): DirectionName[] {
     const queue = [this.position]
     const visited = new Set([this.position.toString()])
@@ -165,6 +258,22 @@ export class Ghost extends Actor {
     return route
   }
 
+  /**
+   * Returns the cell this ghost is aiming for while chasing Pac-Man.
+   *
+   * Each ghost transforms Pac-Man's state differently, creating distinct
+   * chase personalities instead of four identical pursuers.
+   *
+   * @param pacmanPos - Pac-Man's current position, in maze tiles.
+   * @param pacmanFacing - The unit vector pointing in the direction Pac-Man
+   *   is travelling.
+   * @param ghosts - All the ghosts in play, used by the ghosts whose target
+   *   depends on another ghost's position.
+   * @returns A new vector holding the cell the ghost should head to, in maze
+   *   tiles.
+   * @throws {TypeError} When the ghosts depend on Blinky the ghost but Blinky
+   *   is not part of the `ghosts` list.
+   */
   getChaseTarget(
     pacmanPos: Vector3d,
     pacmanFacing: Vector3d,
@@ -220,6 +329,18 @@ export class Ghost extends Actor {
     }
   }
 
+  /**
+   * Draws the ghost on the canvas.
+   *
+   * The ghost is drawn in its normal color, in the frightened color, or as a
+   * pair of floating eyes when it has been eaten.
+   *
+   * @param getPowerModeRemainingMs - Callback returning the remaining power
+   *   mode time, in milliseconds. Defaults to a callback returning `0`.
+   * @param getCurrentPowerModeId - Callback returning the identifier of the
+   *   current power mode. Defaults to a callback returning `-1`.
+   * @returns Nothing; the ghost is drawn onto the canvas.
+   */
   render(getPowerModeRemainingMs = () => 0, getCurrentPowerModeId = () => -1) {
     const position = this.positionInTiles()
     const pixel = tileToPixel(position.x + 0.5, position.y + 0.5)

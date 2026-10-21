@@ -19,8 +19,18 @@ import { Vector3d, $v, createVector } from '../vector_3d.ts'
 import { PI, HALF_PI } from '../math_utils.ts'
 import { AXES } from '../constants.ts'
 
+/**
+ * Alias for `Deno.test`, used to register the test cases in this file.
+ */
 const test = Deno.test
 
+/**
+ * Verifies that a vector exposes its components through the `x`, `y` and `z` accessors and that assigning to those accessors updates the vector in place.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Constructor and Getters/Setters', () => {
   const v = new Vector3d(1, 2, 3)
   assertEquals(v.x, 1)
@@ -34,6 +44,13 @@ test('Vector - Constructor and Getters/Setters', () => {
   assertEquals(v.toArray(), [10, 20, 30])
 })
 
+/**
+ * Verifies that `clone()` returns a vector with the same components as the original but backed by a different object reference.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Clone', () => {
   const v1 = $v(1, 2, 3)
   const v2 = v1.clone()
@@ -42,6 +59,13 @@ test('Vector - Clone', () => {
   assertNotStrictEquals(v1, v2) // Ensure it's a different reference
 })
 
+/**
+ * Verifies the squared and non-squared magnitude accessors of a vector.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Magnitude calculations', () => {
   const v = $v(3, 4, 0)
 
@@ -49,6 +73,13 @@ test('Vector - Magnitude calculations', () => {
   assertEquals(v.mag(), 5)
 })
 
+/**
+ * Verifies that `normalize()` scales a vector to unit length and that `setMag()` scales it to a requested length.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Normalize and setMag', () => {
   const v = $v(10, 0, 0)
 
@@ -61,6 +92,13 @@ test('Vector - Normalize and setMag', () => {
   assertEquals(v.mag(), 5)
 })
 
+/**
+ * Verifies that normalising a zero-length vector throws an `Error` instead of producing `NaN` components.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - normalize() on zero vector throws', () => {
   const v = $v(0, 0, 0)
   assertThrows(
@@ -70,6 +108,13 @@ test('Vector - normalize() on zero vector throws', () => {
   )
 })
 
+/**
+ * Verifies that `heading()` and `setHeading()` reject vectors that have a non-zero `z` component.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Heading and setHeading can only be called on 2d vectors', () => {
   const v = $v(1, 2, 3)
 
@@ -83,6 +128,13 @@ test('Vector - Heading and setHeading can only be called on 2d vectors', () => {
   )
 })
 
+/**
+ * Verifies that `heading()` returns the expected angle for vectors in the first and second quadrants.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Heading', () => {
   const v1 = $v(1, 0)
   const v2 = $v(1, 1)
@@ -97,6 +149,13 @@ test('Vector - Heading', () => {
   assertAlmostEquals(v5.heading(), PI)
 })
 
+/**
+ * Verifies that `heading()` returns negative angles for vectors in the third and fourth quadrants.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Heading negative angles', () => {
   const v1 = $v(1, -1) // 4th quadrant
   const v2 = $v(-1, -1) // 3rd quadrant
@@ -108,6 +167,13 @@ test('Vector - Heading negative angles', () => {
   assertAlmostEquals(v3.heading(), -HALF_PI)
 })
 
+/**
+ * Verifies that `setHeading()` rotates a vector to the requested angle without changing its magnitude.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - setHeading', () => {
   const v1 = $v(1, 0)
   const v1Mag = v1.mag()
@@ -133,6 +199,13 @@ test('Vector - setHeading', () => {
   assertAlmostEquals(v1.heading(), PI)
 })
 
+/**
+ * Verifies that `add()` supports both a vector argument and a set of scalar arguments.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Add (overloads)', () => {
   // Vector overload
   const v1 = $v(1, 1, 1)
@@ -144,6 +217,13 @@ test('Vector - Add (overloads)', () => {
   assertEquals(v1.toArray(), [2 + 1, 3 + 1, 4 + 1])
 })
 
+/**
+ * Verifies that `sub()` supports both a vector argument and a set of scalar arguments.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Sub (overloads)', () => {
   const v1 = $v(10, 10, 10)
   v1.sub($v(1, 2, 3))
@@ -153,6 +233,13 @@ test('Vector - Sub (overloads)', () => {
   assertEquals(v1.toArray(), [9 - 1, 8 - 1, 7 - 1])
 })
 
+/**
+ * Verifies that `mult()` and `div()` scale every component and that dividing by zero throws an `Error`.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Mult and Div', () => {
   const v = $v(1, 2, 3)
   v.mult(2)
@@ -168,6 +255,13 @@ test('Vector - Mult and Div', () => {
   )
 })
 
+/**
+ * Verifies that multiplying or dividing by `1` leaves the vector unchanged and keeps the same object reference.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - mult(1) and div(1) are no-ops', () => {
   const v = $v(5, 10, 15)
   const ref = v
@@ -181,6 +275,13 @@ test('Vector - mult(1) and div(1) are no-ops', () => {
   assertEquals(v.toArray(), [5, 10, 15]) // values unchanged
 })
 
+/**
+ * Verifies that `dot()` computes the dot product for both the vector and the scalar overloads.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Dot Product', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
@@ -192,6 +293,13 @@ test('Vector - Dot Product', () => {
   assertEquals(v2.dot(1, 2, 3), 1 * 4 + 2 * 5 + 3 * 6) // 32
 })
 
+/**
+ * Verifies that `cross()` returns the correct perpendicular vector for the standard axis pairs.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Cross Product', () => {
   const result1 = AXES.x.cross(AXES.y)
   assertEquals(result1.toArray(), [...AXES.z]) // X cross Y = Z
@@ -200,6 +308,13 @@ test('Vector - Cross Product', () => {
   assertEquals(result2.toArray(), [...AXES['-z']]) // Y cross X = -Z
 })
 
+/**
+ * Verifies that `cross()` computes the same result when the other vector is given as scalars.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Cross Product scalar overload', () => {
   const result1 = AXES.x.cross(0, 1, 0)
   assertEquals(result1.toArray(), [...AXES.z]) // X cross Y = Z
@@ -208,6 +323,13 @@ test('Vector - Cross Product scalar overload', () => {
   assertEquals(result2.toArray(), [...AXES.x]) // Y cross Z = X
 })
 
+/**
+ * Verifies that `hadamardProduct()` multiplies the components pairwise when given another vector.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product (vector overload)', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
@@ -216,6 +338,13 @@ test('Vector - Hadamard Product (vector overload)', () => {
   assertEquals(result.toArray(), [1 * 4, 2 * 5, 3 * 6]) // [4, 10, 18]
 })
 
+/**
+ * Verifies that `hadamardProduct()` multiplies the components pairwise when given scalars.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product (scalar overload)', () => {
   const v1 = $v(1, 2, 3)
   const result = v1.hadamardProduct(4, 5, 6)
@@ -223,6 +352,13 @@ test('Vector - Hadamard Product (scalar overload)', () => {
   assertEquals(result.toArray(), [1 * 4, 2 * 5, 3 * 6]) // [4, 10, 18]
 })
 
+/**
+ * Verifies that the `z` argument of the scalar overload of `hadamardProduct()` defaults to `0`.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product z defaults to 0', () => {
   const v1 = $v(1, 2, 3)
   const result = v1.hadamardProduct(4, 5)
@@ -230,6 +366,13 @@ test('Vector - Hadamard Product z defaults to 0', () => {
   assertEquals(result.toArray(), [1 * 4, 2 * 5, 3 * 0]) // [4, 10, 0]
 })
 
+/**
+ * Verifies that `hadamardProduct()` returns a new vector and does not mutate either operand.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product returns new vector', () => {
   const v1 = $v(1, 2, 3)
   const v2 = $v(4, 5, 6)
@@ -239,6 +382,13 @@ test('Vector - Hadamard Product returns new vector', () => {
   assertEquals(v1.toArray(), original, 'Original vector should not be mutated')
 })
 
+/**
+ * Verifies that the Hadamard product with a zero vector is the zero vector.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product with zero vector', () => {
   const v = $v(5, 10, 15)
   const result = v.hadamardProduct($v(0, 0, 0))
@@ -246,6 +396,13 @@ test('Vector - Hadamard Product with zero vector', () => {
   assertEquals(result.toArray(), [0, 0, 0])
 })
 
+/**
+ * Verifies that the Hadamard product with the all-ones vector leaves the operand unchanged.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product with identity vector', () => {
   const v = $v(5, 10, 15)
   const result = v.hadamardProduct($v(1, 1, 1))
@@ -253,6 +410,13 @@ test('Vector - Hadamard Product with identity vector', () => {
   assertEquals(result.toArray(), [5, 10, 15])
 })
 
+/**
+ * Verifies that the Hadamard product handles negative components.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product with negative values', () => {
   const v1 = $v(-1, -2, -3)
   const v2 = $v(2, 3, 4)
@@ -261,6 +425,13 @@ test('Vector - Hadamard Product with negative values', () => {
   assertEquals(result.toArray(), [-2, -6, -12])
 })
 
+/**
+ * Verifies that the Hadamard product handles fractional components.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product with fractional values', () => {
   const v1 = $v(0.5, 1.5, 2.5)
   const v2 = $v(2, 4, 6)
@@ -269,6 +440,13 @@ test('Vector - Hadamard Product with fractional values', () => {
   assertEquals(result.toArray(), [1, 6, 15])
 })
 
+/**
+ * Verifies that the Hadamard product yields the same result regardless of operand order.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product is commutative', () => {
   const a = $v(1, 2, 3)
   const b = $v(4, 5, 6)
@@ -276,6 +454,13 @@ test('Vector - Hadamard Product is commutative', () => {
   assertEquals(a.hadamardProduct(b).toArray(), b.hadamardProduct(a).toArray())
 })
 
+/**
+ * Verifies that the scalar overload of `hadamardProduct()` is equivalent to multiplying by a scalar.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product scalar mult equivalence', () => {
   const v = $v(2, 4, 6)
   const k = 3
@@ -286,6 +471,13 @@ test('Vector - Hadamard Product scalar mult equivalence', () => {
   assertEquals(hadamardResult.toArray(), multResult.toArray())
 })
 
+/**
+ * Verifies that the scalar overload of `hadamardProduct()` handles a negative `z` argument.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product scalar overload negative z', () => {
   const v1 = $v(1, 2, 3)
   const result = v1.hadamardProduct(4, 5, -2)
@@ -293,6 +485,13 @@ test('Vector - Hadamard Product scalar overload negative z', () => {
   assertEquals(result.toArray(), [4, 10, -6])
 })
 
+/**
+ * Verifies that the Hadamard product of a vector with itself squares each component.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Hadamard Product self (squares components)', () => {
   const v = $v(2, 3, 4)
   const result = v.hadamardProduct(v)
@@ -300,6 +499,13 @@ test('Vector - Hadamard Product self (squares components)', () => {
   assertEquals(result.toArray(), [4, 9, 16])
 })
 
+/**
+ * Verifies that `dist()` and `distSq()` are symmetric between two vectors.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Distance', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(3, 4, 0)
@@ -311,6 +517,13 @@ test('Vector - Distance', () => {
   assertEquals(v2.distSq(v1), 25)
 })
 
+/**
+ * Verifies that the scalar overloads of `dist()` and `distSq()` match the vector overloads.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Distance scalar overloads', () => {
   const v = $v(0, 0, 0)
 
@@ -323,6 +536,13 @@ test('Vector - Distance scalar overloads', () => {
 
 // --- manhattanDist Coverage ---
 
+/**
+ * Verifies that `manhattanDist()` sums the absolute component differences for both overloads.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - manhattanDist', () => {
   const v = $v(1, 2, 3)
 
@@ -337,6 +557,13 @@ test('Vector - manhattanDist', () => {
   assertEquals($v(0, 0, 0).manhattanDist(-1, -2, -3), 6)
 })
 
+/**
+ * Verifies the `equals()`, `isAllOnes()` and `isAllZeros()` helpers.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Equality and Helpers', () => {
   const v = $v(1, 1, 1)
 
@@ -352,6 +579,13 @@ test('Vector - Equality and Helpers', () => {
 
 // --- notEquals Coverage ---
 
+/**
+ * Verifies that `notEquals()` is the negation of `equals()` for both overloads.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - notEquals', () => {
   const v = $v(1, 2, 3)
 
@@ -367,6 +601,13 @@ test('Vector - notEquals', () => {
   assertEquals(v.notEquals(1, 2), true)
 })
 
+/**
+ * Verifies that `angleBetween()` returns the angle between two vectors for both overloads.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - AngleBetween', () => {
   const v1 = $v(1, 0, 0)
   const v2 = $v(0, 1, 0)
@@ -385,6 +626,13 @@ test('Vector - AngleBetween', () => {
   assertAlmostEquals(v1.angleBetween(v1.clone().mult(-1)), PI)
 })
 
+/**
+ * Verifies that `angleBetween()` yields `NaN` when either operand has zero length.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - angleBetween with zero vectors', () => {
   const v = $v(1, 0, 0)
 
@@ -396,6 +644,13 @@ test('Vector - angleBetween with zero vectors', () => {
   assertAlmostEquals($v(0, 0, 0).angleBetween($v(0, 0, 0)), NaN)
 })
 
+/**
+ * Verifies that `lerp()` interpolates between two vectors for the default and explicit ratios.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - lerp (Linear intERPolation)', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(10, 10, 10)
@@ -413,6 +668,13 @@ test('Vector - lerp (Linear intERPolation)', () => {
   assertEquals(high.toArray(), [8, 8, 8])
 })
 
+/**
+ * Verifies that `lerp()` extrapolates correctly for ratios outside the `[0, 1]` range.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - lerp edge cases', () => {
   const v1 = $v(0, 0, 0)
   const v2 = $v(10, 10, 10)
@@ -430,6 +692,13 @@ test('Vector - lerp edge cases', () => {
   assertEquals(v1.lerp(v2, 1.5).toArray(), [15, 15, 15])
 })
 
+/**
+ * Verifies the `toArray()` and `toString()` serialisation helpers.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Iterator and Serialization', () => {
   const v = $v(1, 2, 3)
 
@@ -446,12 +715,26 @@ test('Vector - Iterator and Serialization', () => {
 
 // --- Constructor & Factory Coverage ---
 
+/**
+ * Verifies that the `z` component of a vector defaults to `0` when it is not supplied.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Constructor defaults', () => {
   const v = new Vector3d(5, 10)
 
   assertEquals(v.z, 0, 'z should default to 0')
 })
 
+/**
+ * Verifies that the `$v` and `createVector` factories produce equivalent vectors.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Factory Aliases', () => {
   const v1 = $v(1, 2, 3)
   const v2 = createVector(1, 2, 3)
@@ -461,6 +744,13 @@ test('Vector - Factory Aliases', () => {
 
 // --- Property Accessors Coverage ---
 
+/**
+ * Verifies that assigning to the `x`, `y` and `z` accessors updates the vector.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Getters and Setters', () => {
   const v = $v(0, 0, 0)
   v.x = 1
@@ -473,6 +763,13 @@ test('Vector - Getters and Setters', () => {
   assertEquals(v.z, 3)
 })
 
+/**
+ * Verifies that `setX()`, `setY()` and `setZ()` mutate the vector and return the same instance for chaining.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Chainable setters (setX, setY, setZ)', () => {
   const v = $v(0, 0, 0)
   const result = v.setX(1).setY(2).setZ(3)
@@ -488,6 +785,13 @@ test('Vector - Chainable setters (setX, setY, setZ)', () => {
 
 // --- Arithmetic & Chainability ---
 
+/**
+ * Verifies that the mutating arithmetic methods return the same instance so that calls can be chained.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Method Chaining (Fluent API)', () => {
   const v = $v(1, 1, 1)
 
@@ -504,6 +808,13 @@ test('Vector - Method Chaining (Fluent API)', () => {
 
 // --- Utilities & Symbols Coverage ---
 
+/**
+ * Verifies that a vector can be spread and destructured as an iterable of its components.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Iterator protocol', () => {
   const v = $v(7, 8, 9)
   const results: number[] = []
@@ -518,6 +829,13 @@ test('Vector - Iterator protocol', () => {
   assertEquals(z, 9)
 })
 
+/**
+ * Verifies that mutating the original vector after cloning does not affect the clone.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - clone is deep enough', () => {
   const v1 = $v(1, 1, 1)
   const v2 = v1.clone()
@@ -526,6 +844,13 @@ test('Vector - clone is deep enough', () => {
   assertEquals(v2.x, 1, 'Cloned vector should not change when original changes')
 })
 
+/**
+ * Verifies that `random2d()` and `random3d()` produce unit-length vectors within the expected bounds.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
 test('Vector - Static random methods with default options', () => {
   const v1 = Vector3d.random2d()
 

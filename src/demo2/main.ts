@@ -22,6 +22,14 @@ import { autoRotationEnabled } from '../primitives.ts'
 
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Renders a single frame of the demo.
+ *
+ * The scene shows four colored boxes, one of which spins around the
+ * vertical axis, seen from an automatically rotating coordinate system.
+ *
+ * @returns Nothing; the function draws to the canvas.
+ */
 const draw = () => {
   if (frameCount() % FPS_LOGGING_FRAME_PERIOD === 0) console.log({ fps: fps() })
 
@@ -68,10 +76,21 @@ const draw = () => {
   })
 }
 
+/**
+ * Displays the pause indicator once the frame loop enters the paused state.
+ *
+ * @returns Nothing; the function draws the indicator on the canvas.
+ */
 const onPaused = () => {
   text2d('PAUSED', $v(0, 300))
 }
 
+/**
+ * The demo's animation frame loop.
+ *
+ * Every frame resets the transformation matrix, draws the scene and flushes
+ * the deferred render queue.
+ */
 const { start, stop } = createFrameLoop(
   () => {
     resetTransformationMatrix()
@@ -82,4 +101,14 @@ const { start, stop } = createFrameLoop(
   FPS,
 )
 
+/**
+ * The demo's lifecycle API, consumed by the demo loader.
+ *
+ * `start()` begins the animation frame loop, so the scene is rendered on
+ * every animation frame. `stop()` ends that loop, so no further frames are
+ * drawn.
+ *
+ * @returns Nothing; both functions only control the lifetime of the
+ *   animation frame loop.
+ */
 export { start, stop }

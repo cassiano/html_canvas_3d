@@ -5,11 +5,19 @@
 import { floor, random } from '../math_utils.ts'
 import { millis } from '../utils.ts'
 
+/** The minimum interval between two pellet sounds, in milliseconds. */
 export const WAKA_INTERVAL_MS = 95
+/** The interval between two repetitions of the power mode siren, in
+ * milliseconds. */
 export const POWER_SIREN_LOOP_MS = 900
 
+/**
+ * The options accepted by the tone-producing helpers.
+ */
 export type AudioToneOptions = {
+  /** The waveform of the oscillator. */
   type?: OscillatorType
+  /** The peak volume of the effect. */
   gain?: number
 }
 
@@ -20,6 +28,16 @@ let lastWakaMillis = -Infinity
 let wakaHighTone = false
 let powerSirenTimer: number | null = null
 
+/**
+ * Creates the shared audio context, if it does not exist yet.
+ *
+ * Browsers often create audio contexts only after user interaction, so the
+ * context is created lazily and reused for every synthesized effect. The
+ * first call also prepares the noise buffer used by the percussive sounds.
+ *
+ * @returns `true` when an audio context is available, `false` when the
+ *   environment does not support the Web Audio API.
+ */
 export function ensureAudio() {
   // Browsers often create audio contexts only after user interaction. Keep a
   // lazy singleton and reuse its master gain for every synthesized effect.
@@ -44,11 +62,33 @@ export function ensureAudio() {
   return true
 }
 
+/**
+ * Resumes the shared audio context when it is suspended.
+ *
+ * This should be called from a user interaction handler, because browsers
+ * keep the audio context suspended until the user interacts with the page.
+ *
+ * @returns Nothing; the audio context's state is updated in place.
+ */
 export function resumeAudio() {
   if (!ensureAudio() || !audioContext) return
   if (audioContext.state === 'suspended') audioContext.resume()
 }
 
+/**
+ * Plays a single tone at a constant frequency.
+ *
+ * Each tone gets its own oscillator and gain envelope, allowing overlapping
+ * effects without mutating the shared audio state.
+ *
+ * @param frequency - The frequency of the tone, in hertz.
+ * @param duration - The length of the tone, in seconds. Defaults to `0.08`.
+ * @param options - The waveform and volume of the tone.
+ * @param options.type - The waveform of the oscillator. Defaults to
+ *   `'square'`.
+ * @param options.gain - The peak volume of the tone. Defaults to `0.25`.
+ * @returns Nothing; the tone is scheduled on the shared audio context.
+ */
 export function playTone(
   frequency: number,
   duration = 0.08,
@@ -73,6 +113,21 @@ export function playTone(
   oscillator.stop(now + duration + 0.02)
 }
 
+/**
+ * Plays a tone whose frequency slides from one value to another.
+ *
+ * The frequency ramp creates directional effects while the gain envelope
+ * avoids abrupt clicks at the start and the end.
+ *
+ * @param startFrequency - The frequency the tone starts at, in hertz.
+ * @param endFrequency - The frequency the tone ends at, in hertz.
+ * @param duration - The length of the tone, in seconds.
+ * @param options - The waveform and volume of the tone.
+ * @param options.type - The waveform of the oscillator. Defaults to
+ *   `'triangle'`.
+ * @param options.gain - The peak volume of the tone. Defaults to `0.2`.
+ * @returns Nothing; the tone is scheduled on the shared audio context.
+ */
 export function playSweep(
   startFrequency: number,
   endFrequency: number,
@@ -102,6 +157,16 @@ export function playSweep(
   oscillator.stop(now + duration + 0.03)
 }
 
+/**
+ * Plays a short band-passed noise burst.
+ *
+ * The pre-generated noise buffer is reused for the arcade-style impact
+ * sounds.
+ *
+ * @param duration - The length of the burst, in seconds. Defaults to `0.12`.
+ * @param gain - The peak volume of the burst. Defaults to `0.08`.
+ * @returns Nothing; the burst is scheduled on the shared audio context.
+ */
 export function playNoiseBurst(duration = 0.12, gain = 0.08) {
   // Reuse the pre-generated noise buffer for short arcade-style impact sounds.
   if (!ensureAudio() || !audioContext || !masterGain || !noiseBuffer) return
@@ -125,6 +190,16 @@ export function playNoiseBurst(duration = 0.12, gain = 0.08) {
   source.stop(now + duration + 0.02)
 }
 
+/**
+ * Plays the pellet pickup sound.
+ *
+ * The sound is throttled so fast movement does not create an unpleasant
+ * burst of overlapping effects, and its pitch alternates to supply the
+ * rhythm.
+ *
+ * @returns Nothing; the sound is scheduled on the shared audio context, and
+ *   is skipped entirely when called again too soon.
+ */
 export function playWaka() {
   // Throttle pellet sounds so fast movement does not create an unpleasant
   // burst of overlapping effects; alternating pitch supplies the rhythm.
@@ -140,6 +215,14 @@ export function playWaka() {
   })
 }
 
+/**
+ * Plays the evolving power mode siren.
+ *
+ * Oscillators, filters, and modulation sources are layered into one effect
+ * instead of using a flat beep.
+ *
+ * @returns Nothing; the sound is scheduled on the shared audio context.
+ */
 export function playPowerPellet() {
   // Layer oscillators, filters, and modulation sources into one evolving
   // effect instead of using a flat beep.
@@ -229,6 +312,14 @@ export function playPowerPellet() {
   playNoiseBurst(0.14, 0.018)
 }
 
+/**
+ * Plays the cherry pickup sound.
+ *
+ * A melodic lead is combined with filtered delayed feedback for a brighter
+ * reward sound.
+ *
+ * @returns Nothing; the sound is scheduled on the shared audio context.
+ */
 export function playCherryPickup() {
   // Combine a melodic lead with filtered delayed feedback for a brighter
   // reward sound.
@@ -301,16 +392,33 @@ export function playCherryPickup() {
   playNoiseBurst(0.05, 0.014)
 }
 
+/**
+ * Plays the sound of Pac-Man eating a frightened ghost.
+ *
+ * @returns Nothing; the sound is scheduled on the shared audio context.
+ */
 export function playGhostEaten() {
   playSweep(920, 310, 0.16, { type: 'sawtooth', gain: 0.15 })
   playNoiseBurst(0.1, 0.07)
 }
 
+/**
+ * Plays the sound of Pac-Man losing a life.
+ *
+ * @returns Nothing; the sound is scheduled on the shared audio context.
+ */
 export function playDeath() {
   playSweep(620, 90, 0.55, { type: 'sawtooth', gain: 0.2 })
   playNoiseBurst(0.24, 0.09)
 }
 
+/**
+ * Stops the repeating power mode siren.
+ *
+ * Calling this function when the siren is not running is safe.
+ *
+ * @returns Nothing; the repeating timer is cleared.
+ */
 export function stopPowerSirenLoop() {
   // Clear the interval before dropping its handle so repeated resets are safe.
   if (powerSirenTimer === null) return
@@ -318,6 +426,19 @@ export function stopPowerSirenLoop() {
   powerSirenTimer = null
 }
 
+/**
+ * Starts the repeating power mode siren.
+ *
+ * Only one siren may exist at a time. Each tick checks the supplied state, so
+ * the sound stops by itself when power mode expires or when gameplay pauses.
+ *
+ * @param getPowerModeRemainingMs - Callback returning the remaining power
+ *   mode time, in milliseconds. The siren only repeats while this is
+ *   positive.
+ * @param isPlaying - Callback telling whether the game is currently being
+ *   played. The siren only repeats while this is `true`.
+ * @returns Nothing; the repeating timer is started.
+ */
 export function startPowerSirenLoop(
   getPowerModeRemainingMs: () => number,
   isPlaying: () => boolean,

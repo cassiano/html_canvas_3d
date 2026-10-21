@@ -19,7 +19,23 @@ import {
   triangle2d,
 } from './render_utils.ts'
 
+/**
+ * The player character.
+ *
+ * Pac-Man is an {@link Actor} whose sprite is drawn from the actor's
+ * fractional tile position, so the mouth, the eyes, and the shadow stay
+ * synchronized with the movement.
+ */
 export class Pacman extends Actor {
+  /**
+   * Draws Pac-Man on the canvas.
+   *
+   * @param roundDelayRemainingMs - Callback returning the remaining time of
+   *   the "READY!" pause, in milliseconds. While the pause is running the
+   *   sprite stops chomping and stays still. Defaults to a callback returning
+   *   `0`.
+   * @returns Nothing; Pac-Man is drawn onto the canvas.
+   */
   render(roundDelayRemainingMs = () => 0) {
     // Derive the sprite pose from the actor's fractional tile position so the
     // mouth, eyes, and shadow stay synchronized with movement.
