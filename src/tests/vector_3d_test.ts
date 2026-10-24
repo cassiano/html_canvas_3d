@@ -875,3 +875,195 @@ test('Vector - Static random methods with default options', () => {
   assertLessOrEqual(v2.y, 1)
   assertLessOrEqual(v2.z, 1)
 })
+
+// --- Additional coverage ---
+
+/**
+ * Verifies that the magnitude helpers account for all three coordinates.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - Magnitude calculations in 3D', () => {
+  const v = $v(2, 3, 6)
+
+  assertEquals(v.magSq(), 4 + 9 + 36)
+  assertEquals(v.mag(), 7)
+  assertEquals($v(0, 0, 0).magSq(), 0)
+})
+
+/**
+ * Verifies that `setMag()` throws on a zero-length vector, which has no
+ * direction to preserve.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - setMag() on zero vector throws', () => {
+  assertThrows(
+    () => $v(0, 0, 0).setMag(5),
+    Error,
+    'Sorry, but division by 0 is not supported',
+  )
+})
+
+/**
+ * Verifies that `setHeading()` returns the same, mutated vector.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - setHeading() returns this', () => {
+  const v = $v(1, 0)
+
+  assert(v.setHeading(HALF_PI) === v)
+  assertAlmostEquals(v.x, 0, 1e-9)
+  assertAlmostEquals(v.y, 1)
+})
+
+/**
+ * Verifies that multiplying by zero collapses every coordinate.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - mult(0) zeroes every component', () => {
+  const v = $v(3, -4, 5)
+
+  assert(v.mult(0) === v)
+  assertEquals(v.toArray(), [0, 0, 0])
+})
+
+/**
+ * Verifies that dividing by a negative scalar flips the vector's direction.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - div() with a negative scalar', () => {
+  const v = $v(10, -20, 5).div(-5)
+
+  assertEquals(v.toArray(), [-2, 4, -1])
+})
+
+/**
+ * Verifies that the scalar `add()` and `sub()` overloads default the `z`
+ * coordinate to `0`.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - add() and sub() scalar overloads default z to 0', () => {
+  const added = $v(1, 2, 3).add(10, 20)
+  assertEquals(added.toArray(), [11, 22, 3])
+
+  const subtracted = $v(1, 2, 3).sub(10, 20)
+  assertEquals(subtracted.toArray(), [-9, -18, 3])
+})
+
+/**
+ * Verifies that the scalar `dot()` overload defaults the `z` coordinate to
+ * `0`.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - dot() scalar overload defaults z to 0', () => {
+  assertEquals($v(1, 2, 3).dot(4, 5), 1 * 4 + 2 * 5)
+})
+
+/**
+ * Verifies that the scalar `equals()` and `notEquals()` overloads default the
+ * `z` coordinate to `0`.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - equals() scalar overload defaults z to 0', () => {
+  assertEquals($v(1, 2, 0).equals(1, 2), true)
+  assertEquals($v(1, 2, 3).equals(1, 2), false)
+  assertEquals($v(1, 2, 0).notEquals(1, 2), false)
+  assertEquals($v(1, 2, 3).notEquals(1, 2), true)
+})
+
+/**
+ * Verifies that `cross()` produces a new vector and leaves both operands
+ * untouched.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - cross() does not mutate its operands', () => {
+  const a = $v(1, 2, 3)
+  const b = $v(4, 5, 6)
+  const result = a.cross(b)
+
+  assertNotStrictEquals(result, a)
+  assertNotStrictEquals(result, b)
+  assertEquals(a.toArray(), [1, 2, 3])
+  assertEquals(b.toArray(), [4, 5, 6])
+  assertEquals(result.toArray(), [
+    2 * 6 - 3 * 5,
+    -(1 * 6 - 3 * 4),
+    1 * 5 - 2 * 4,
+  ])
+})
+
+/**
+ * Verifies that the cross product of parallel vectors is the zero vector.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - cross() of parallel vectors is zero', () => {
+  const a = $v(1, 2, 3)
+
+  assertEquals(a.cross(a).toArray(), [0, 0, 0])
+  assertEquals(a.cross(a.clone().mult(4)).toArray(), [0, 0, 0])
+  assertEquals(AXES.x.cross(AXES.x).toArray(), [0, 0, 0])
+})
+
+/**
+ * Verifies that the scalar `lerp()` overload defaults the interpolation
+ * amount to `0.5`.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - lerp() scalar overload defaults to the midpoint', () => {
+  const v = $v(0, 10, 20).lerp(10, 20, 40)
+
+  assertEquals(v.toArray(), [5, 15, 30])
+})
+
+/**
+ * Verifies that `lerp()` returns a new vector and does not mutate either
+ * operand.
+ *
+ * @returns Nothing; the test fails by throwing an assertion error when the
+ *   expected behaviour is not met.
+ * @throws {Error} When an assertion fails.
+ */
+test('Vector - lerp() does not mutate its operands', () => {
+  const from = $v(0, 0, 0)
+  const to = $v(10, 20, 30)
+
+  const result = from.lerp(to, 0.25)
+
+  assertNotStrictEquals(result, from)
+  assertNotStrictEquals(result, to)
+  assertEquals(from.toArray(), [0, 0, 0])
+  assertEquals(to.toArray(), [10, 20, 30])
+  assertEquals(result.toArray(), [2.5, 5, 7.5])
+})

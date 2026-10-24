@@ -1,5 +1,9 @@
 {
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.19"
+  },
+  "tasks": {
+    "test": "deno test --allow-read",
+    "test:watch": "deno test --allow-read --watch"
   }
 }

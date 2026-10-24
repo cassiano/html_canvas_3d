@@ -536,20 +536,24 @@ registration step is required.
 
 ## Testing
 
-The test suite lives in `src/tests/` and is executed with Deno:
+The test suite lives in `src/tests/` and is executed with Deno. Because some
+tests transform and import `src/home.ts` dynamically, `--allow-read` is
+required for the full suite (tests that need it skip gracefully when the
+permission is unavailable):
 
 ```bash
-deno test
+deno task test        # deno test --allow-read
+# or
+deno test --allow-read
 ```
 
-The current suite covers `Vector3d` thoroughly — construction and accessors,
-cloning, magnitude, normalisation, headings (including the negative-angle
-convention), the arithmetic overloads, dot/cross/Hadamard products, distances,
-comparisons, interpolation, iteration, serialisation and the random factories —
-plus the documented error cases (division by zero and the 2D-only heading
-methods).
-
-The demos themselves are visual and are not covered by automated tests.
+The suite uses an in-memory DOM/canvas/Web Audio stub (`src/tests/dom_stub.ts`)
+so it runs without a browser or network access. It covers the engine's core
+modules (`math_utils`, `constants`, `utility_types`, `vector_3d`, `primitives`,
+`utils`), the elbow primitives, the `home` shell (URL selection, navigation,
+controls, camera interactions) with `import.meta.glob` replaced at test time,
+and every demo module's logic (`demo1`–`demo22` plus shared helpers) with the
+documented error cases preserved. All tests follow the project's TSDoc style.
 
 ---
 
