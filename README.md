@@ -576,9 +576,8 @@ documented error cases preserved. All tests follow the project's TSDoc style.
 - **Browser-only.** The engine touches `document` at import time, so it cannot
   run in Node or Deno outside of a DOM environment.
 - **Copy/paste artefacts in the demo control panels.** Some demos guard their
-  control-panel accessors with an error message inherited from another demo
-  (for instance, demo 17 mentions `demo3Form`). The messages are documented
-  verbatim so that they match the runtime behaviour.
+  control-panel accessors with error messages inherited from other demos. The
+  messages are documented verbatim so that they match the runtime behaviour.
 
 ---
 

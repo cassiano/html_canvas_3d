@@ -122,10 +122,10 @@ let launchCount = 0
  * fireworks already in the scene are moved, exploded and drawn.
  *
  * @returns Nothing; the scene is drawn as a side effect.
- * @throws {Error} With the message `demo3Form.sliders should contain a
+ * @throws {Error} With the message `demo17Form.sliders should contain a
  *   value`, when the demo's control panel has not been created yet, because
  *   the launch rate and the explosion's particle count are taken from it.
- * @throws {Error} With the message `demo3Form.toggles should contain a
+ * @throws {Error} With the message `demo17Form.toggles should contain a
  *   value`, when the demo's control panel has not been created yet, because
  *   the fireworks' depth and the explosion's shape depend on the "3D
  *   version" setting.
