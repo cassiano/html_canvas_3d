@@ -381,6 +381,18 @@ Re-exports the `Math` constants (`PI`, `TWO_PI`, `HALF_PI`, `SQRT2`, …) and ad
 | `polarToCartesian2d(radius, angle)` | Polar → cartesian conversion. |
 | `cartesianToPolar2d(x, y)` | Cartesian → polar conversion. |
 
+```ts
+import { PI, radians, degrees, random, map, polarToCartesian2d, cartesianToPolar2d, multiply4x4Matrices } from './math_utils.ts'
+
+radians(180)                // -> PI
+degrees(Math.PI)            // -> 180
+random(0, 10)               // -> number in [0,10)
+map(5, 0, 10, 0, 100)       // -> 50
+polarToCartesian2d(10, 0)   // -> [10, 0]
+cartesianToPolar2d(1, 1)    // -> [sqrt(2), PI/4]
+multiply4x4Matrices(a, b)   // 4x4 product
+```
+
 ### `src/primitives.ts` — the renderer
 
 **Scene state**
@@ -398,6 +410,18 @@ Re-exports the `Math` constants (`PI`, `TWO_PI`, `HALF_PI`, `SQRT2`, …) and ad
 | `transform(point)` / `transformNormal(point)` | Applies the current matrix to a point or to a direction. |
 | `centralize(point?)` | Moves a point to the canvas centre, applying the pan offset. |
 | `setDragRotation()` / `addDragRotation()` / `resetDragRotation()` | Camera rotation. |
+
+```ts
+import { background, resetTransformationMatrix, push, pop, translate, rotateY, render3dScene, box, render3dAxes } from './primitives.ts'
+import { $v } from './vector_3d.ts'
+
+// Frame loop style
+resetTransformationMatrix()
+background('lightGray')
+push(); translate(0, 0, 0); rotateY(0.01); box(50, 50, 50, { color: 'orange' }); pop()
+render3dAxes()
+render3dScene()
+```
 | `setZoom()` / `addZoom()` / `resetZoom()` | Camera zoom. |
 | `setPanOffset()` / `addPanOffset()` / `resetPanOffset()` | Camera pan. |
 | `setRender3dAxesEnabled()`, `setAutoRotationCheckboxEnabled()`, `setshowNormals()` | Toggle the optional overlays. |
@@ -442,6 +466,7 @@ import { elbow } from './elbow_primitives.ts'
 
 elbow.x.y(20)     // An elbow bending from +X towards +Y
 elbow['-z'].y(20) // An elbow bending from -Z towards +Y
+elbow.y.x(15, { color: 'steelblue', elbowCircleSlices: 12 }, true)
 ```
 
 The outer key is the axis the elbow starts from and the inner key is the axis
@@ -456,7 +481,7 @@ permutation table, so the same seed always yields the same field.
 import { perlin } from './perlin_noise.ts'
 
 perlin.seed(42)   // Re-seed the shared generator
-perlin.noise(x, y, z)
+perlin.noise(0.1, 0.2, 0.3)  // coherent noise in [0,1]
 ```
 
 A singleton `perlin` instance is exported for convenience.
@@ -477,6 +502,20 @@ demos float over the canvas.
 **Assertions** — `assertIsNotUndefined()`, `assertIsNotNull()` and
 `assertIsNotUndefinedOrNull()` throw a `TypeError` when the value fails the
 check.
+
+```ts
+import { timesMap, timesReduce, timesMapN, createFrameLoop, togglePause, createSlider, createToggle } from './utils.ts'
+
+timesMap(3, i => i)        // [0,1,2]
+timesReduce(3, (a,i)=>a+i) // 3
+timesMapN([2,2], (i,j)=>i+j) // [[0,1],[1,2]]
+
+const loop = createFrameLoop(() => draw(), () => showPaused(), 60)
+loop.start(); togglePause(); loop.stop()
+
+const slider = createSlider({ label: 'X', min: 0, max: 10, value: 5, container })
+const toggle = createToggle({ label: 'Axes', value: true, container })
+```
 
 ### `src/constants.ts` — shared constants
 
