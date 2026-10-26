@@ -149,6 +149,20 @@ export const frameCount = () => frameCount_
  * @param targetFPS - The frame rate the loop should aim for. Defaults to
  *   `120`.
  * @returns An object with `start()` and `stop()` methods controlling the loop.
+ * @example
+ * ```ts
+ * import { createFrameLoop } from './utils.ts'
+ * import { resetTransformationMatrix, box, render3dScene } from './primitives.ts'
+ *
+ * const loop = createFrameLoop(() => {
+ *   resetTransformationMatrix()
+ *   box(50, { color: 'orange' })
+ *   render3dScene()
+ * }, () => {})
+ *
+ * loop.start()
+ * // later: loop.stop()
+ * ```
  */
 export const createFrameLoop = (
   drawFn: () => void,
@@ -376,6 +390,15 @@ export interface ToggleConfig {
  *
  * @param config - The toggle's configuration.
  * @returns A controller exposing the current value and lifecycle helpers.
+ * @example
+ * ```ts
+ * import { createToggle } from './utils.ts'
+ * const container = document.createElement('div')
+ * document.body.appendChild(container)
+ * const toggle = createToggle({ label: 'Axes', value: true, container })
+ * toggle.getValue() // true
+ * toggle.setValue(false)
+ * ```
  */
 export const createToggle = (config: ToggleConfig) => {
   const {
@@ -487,6 +510,16 @@ export const createToggle = (config: ToggleConfig) => {
  *
  * @param config - The slider's configuration.
  * @returns A controller exposing the current value and lifecycle helpers.
+ * @example
+ * ```ts
+ * import { createSlider } from './utils.ts'
+ * const container = document.createElement('div')
+ * document.body.appendChild(container)
+ * const slider = createSlider({ label: 'Speed', min: 0, max: 100, step: 1, value: 50, container })
+ * slider.getValue() // 50
+ * slider.setValue(75)
+ * slider.onChange?.()
+ * ```
  */
 export const createSlider = (config: SliderConfig) => {
   const {

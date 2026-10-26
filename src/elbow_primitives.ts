@@ -18,6 +18,11 @@ import {
  *
  * Extends the shared circular-shape options with a control over how many
  * slices are used to approximate the curve of the elbow.
+ * @example
+ * ```ts
+ * import { elbow } from './elbow_primitives.ts'
+ * elbow.x.y(10, { circleSegments: 12, elbowCircleSlices: 8, color: 'blue' })
+ * ```
  */
 export type ElbowShapeOptions = CircularShapeOptions & {
   /**

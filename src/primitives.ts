@@ -40,6 +40,15 @@ export const animation = document.getElementById(
 /**
  * The 2D rendering context of {@link animation}.
  */
+/**
+ * The 2D rendering context used to draw onto the canvas.
+ * @example
+ * ```ts
+ * import { ctx } from './primitives.ts'
+ * ctx.fillStyle = 'red'
+ * ctx.fillRect(0, 0, 100, 100)
+ * ```
+ */
 export const ctx = animation.getContext('2d')!
 
 /**
@@ -557,6 +566,11 @@ export const rotateZ = (angle: number) => {
  * Fills the whole canvas with a solid color.
  *
  * @param color - The CSS color to fill the canvas with.
+ * @example
+ * ```ts
+ * import { background } from './primitives.ts'
+ * background('lightGray')
+ * ```
  */
 export const background = (color: string) => {
   ctx.fillStyle = color

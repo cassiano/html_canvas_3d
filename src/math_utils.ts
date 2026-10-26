@@ -38,6 +38,11 @@ export const FULL_CIRCLE_IN_DEGREES = 360
  *
  * @param degrees - The angle expressed in degrees.
  * @returns The equivalent angle expressed in radians.
+ * @example
+ * ```ts
+ * import { radians, PI } from './math_utils.ts'
+ * radians(180) // PI
+ * ```
  */
 export const radians = (degrees: number) =>
   (degrees / FULL_CIRCLE_IN_DEGREES) * TWO_PI
@@ -47,6 +52,11 @@ export const radians = (degrees: number) =>
  *
  * @param radians - The angle expressed in radians.
  * @returns The equivalent angle expressed in degrees.
+ * @example
+ * ```ts
+ * import { degrees, PI } from './math_utils.ts'
+ * degrees(PI) // 180
+ * ```
  */
 export const degrees = (radians: number) =>
   (radians / TWO_PI) * FULL_CIRCLE_IN_DEGREES
@@ -57,6 +67,11 @@ export const degrees = (radians: number) =>
  * @param min - The lower bound of the range. Defaults to `0`.
  * @param max - The upper bound of the range. Defaults to `1`.
  * @returns A random number within `[min, max)`.
+ * @example
+ * ```ts
+ * import { random } from './math_utils.ts'
+ * const x = random(0, 10)
+ * ```
  */
 export const random = (min = 0, max = 1) => Math.random() * (max - min) + min
 
@@ -71,6 +86,12 @@ export const random = (min = 0, max = 1) => Math.random() * (max - min) + min
  * @param withinBounds - When `true`, the result is clamped to the projected
  *   range. Defaults to `false`.
  * @returns The re-mapped number.
+ * @example
+ * ```ts
+ * import { map } from './math_utils.ts'
+ * map(5, 0, 10, 0, 100) // 50
+ * map(-1, 0, 10, 0, 100, true) // 0
+ * ```
  */
 export const map = (
   value: number,
@@ -221,6 +242,12 @@ export const multiply4x4MatrixBy4dPoint = (
  * @param radius - The distance from the origin.
  * @param polarAngle - The angle measured from the positive X-axis, in radians.
  * @returns A new vector holding the Cartesian coordinates.
+ * @example
+ * ```ts
+ * import { polarToCartesian2d } from './math_utils.ts'
+ * const v = polarToCartesian2d(10, 0)
+ * v.x // 10
+ * ```
  */
 export const polarToCartesian2d = (radius: number, polarAngle: number) => {
   return Vector3d.create(radius * cos(polarAngle), radius * sin(polarAngle))
@@ -234,6 +261,11 @@ export const polarToCartesian2d = (radius: number, polarAngle: number) => {
  * @returns The `[radius, polarAngle]` pair.
  * @throws {Error} When the resulting vector has a non-zero Z coordinate,
  *   because polar coordinates are only defined for 2D vectors.
+ * @example
+ * ```ts
+ * import { cartesianToPolar2d } from './math_utils.ts'
+ * const [r, theta] = cartesianToPolar2d(1, 1) // [sqrt(2), PI/4]
+ * ```
  */
 export function cartesianToPolar2d(
   x: number,

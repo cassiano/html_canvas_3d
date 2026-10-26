@@ -17,7 +17,20 @@ import {
  *
  * @example
  * ```ts
- * const v = $v(1, 2, 3).mult(2).add(0, -4, 0) // -> (2, 0, 6)
+ * import { $v, Vector3d } from './vector_3d.ts'
+ *
+ * const v = $v(1, 2, 3)
+ * v.add(0, -1, 0).mult(2) // chainable mutators
+ * v.toArray() // [2, 2, 6]
+ *
+ * const cross = $v(1, 0, 0).cross($v(0, 1, 0)) // new vector
+ * cross.toArray() // [0, 0, 1]
+ *
+ * const mid = $v(0, 0, 0).lerp($v(10, 20, 0)) // midpoint by default
+ * mid.toArray() // [5, 10, 0]
+ *
+ * const unit = Vector3d.random2d()
+ * unit.mag() // ~1
  * ```
  */
 export class Vector3d {

@@ -10,6 +10,13 @@
  * The generator is deterministic: two instances seeded with the same value
  * produce the same noise field, and re-seeding an instance resets it to a new
  * deterministic field.
+ * @example
+ * ```ts
+ * import { PerlinNoise } from './demo10/perlin_noise.ts'
+ * const p = new PerlinNoise()
+ * p.seed(42)
+ * p.noise(0.1, 0.2) // value in [0,1]
+ * ```
  */
 class PerlinNoise {
   /** The 512-entry permutation table used to look up gradients. */
